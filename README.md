@@ -11,6 +11,8 @@ entire pipeline without paid API calls and cannot enter the public leaderboard.
 The bounded [nano pilot](experiments/pilot-nano-v2.yaml) tests the
 [v2 explicit-target prompt](docs/protocol.md#v2-prompt-construction) across all
 14 subjects; its subset scores are calibration data, not leaderboard results.
+See the [completed pilot audit](docs/nano-pilot-v2.md): 167/168 formatted answers,
+one strict-parser rejection, and unresolved dataset-quality flags.
 
 ## Quick start
 
