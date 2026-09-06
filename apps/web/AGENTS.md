@@ -1,3 +1,9 @@
+# Required repository instructions
+
+Before starting any work in `apps/web`, read and follow the repository's
+[root AGENTS.md](../../AGENTS.md) and the documents it requires. This file adds
+website-specific instructions; it does not replace the repository-wide rules.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know
