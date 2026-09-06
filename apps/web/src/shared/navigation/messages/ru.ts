@@ -14,6 +14,6 @@ export default {
   skip: "Перейти к содержимому",
   tagline: "Язык имеет значение. Измеряем разницу.",
   footer: "Открытый бенчмарк языковых различий в LLM.",
-  attribution: "проект <author>Limit 115</author>",
+  attribution: "Проект <author>Limit 115</author>",
   home: "Llang Gap — главная",
 } as const satisfies Dictionary<typeof en>;

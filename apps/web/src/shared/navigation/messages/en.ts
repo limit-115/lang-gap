@@ -12,6 +12,6 @@ export default {
   skip: "Skip to content",
   tagline: "Language matters. Measure the difference.",
   footer: "An open benchmark of language differences in LLMs.",
-  attribution: "a project by <author>Limit 115</author>",
+  attribution: "A project by <author>Limit 115</author>",
   home: "Llang Gap home",
 } as const;
