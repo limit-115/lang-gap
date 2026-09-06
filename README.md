@@ -78,6 +78,9 @@ model APIs. Format and lint use **oxfmt + type-aware oxlint**.
 
 ## Contributing
 
+Logo files, light/dark variants, avatars and favicons are available in the
+[logo package](brand/README.md), with SVG and PNG exports and placement guidance.
+
 Read [CONTRIBUTING.md](CONTRIBUTING.md) for setup, scope, verification, and PR
 expectations. Report bugs or discuss feature and methodology proposals through
 the [issue forms](https://github.com/limit-115/llang-gap/issues/new/choose).
