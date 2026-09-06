@@ -33,7 +33,7 @@ Report EN/RU accuracy and paired gap intervals together.
 
 ## Freeze before any full-run decision
 
-`experiments/comparison-v2.yaml` (core PR) prepares `comparison-en-ru-v2` only,
+`experiments/comparison-v2.yaml` ([core PR #16](https://github.com/limit-115/llang-gap/pull/16)) prepares `comparison-en-ru-v2` only,
 using `mmluprox-lite-5shot-native-reasoning-v2`. The [MVP configuration](../experiments/mvp.yaml) remains v1.
 Freeze the reviewed configuration and clean commit: dataset/reference revisions and hashes,
 question IDs, prompt/parser versions and hashes, exact requested model IDs, native efforts,
@@ -50,7 +50,7 @@ never selectively rerun wrong or unparseable completed answers to improve scores
 
 ## Scientific and operational go/no-go
 
-- **Current calibration only:** `experiments/pilot-nano-v2.yaml` (core PR)
+- **Current calibration only:** `experiments/pilot-nano-v2.yaml` ([core PR #16](https://github.com/limit-115/llang-gap/pull/16))
   selects 28 unique questions, two per subject: `28 × 2 languages × 3 efforts = 168`
   requests, one repeat. Audit all visible terminal answers and parser decisions;
   this cannot establish frontier quality/cost or be published as the comparison.
