@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   core:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: actions/setup-node@v7.0.0
@@ -24,7 +24,7 @@ jobs:
       - run: pnpm test:core
       - run: pnpm format:check
   web:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: actions/setup-node@v7.0.0

@@ -13,6 +13,5 @@ export default {
   skip: "Перейти к содержимому",
   tagline: "Язык имеет значение. Измеряем разницу.",
   footer: "Открытый бенчмарк языковых различий в LLM.",
-  open: "Открытые код · методика · результаты",
   home: "Llang Gap — главная",
 } as const satisfies Dictionary<typeof en>;

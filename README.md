@@ -76,6 +76,13 @@ pnpm dev
 Vitest uses synthetic fixtures and intercepted SDK transports. It never contacts
 model APIs. Format and lint use **oxfmt + type-aware oxlint**.
 
+## Contributing
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) for setup, scope, verification, and PR
+expectations. Report bugs or discuss feature and methodology proposals through
+the [issue forms](https://github.com/limit-115/llang-gap/issues/new/choose).
+Issues and PR explanations are welcome in English or Russian.
+
 ## Live experiments
 
 Read [the operator guide](docs/runner.md) and [the exact protocol](docs/protocol.md)

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Contribution and development guide
+    url: https://github.com/limit-115/llang-gap/blob/main/CONTRIBUTING.md
+    about: Read setup instructions, scope expectations, checks, and PR guidelines.
+  - name: Runner and experiment guide
+    url: https://github.com/limit-115/llang-gap/blob/main/docs/runner.md
+    about: Find benchmark commands, budget controls, and resume instructions.
