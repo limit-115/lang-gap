@@ -1,8 +1,8 @@
 export default {
   title: "Same question. Different language.",
   description:
-    "How much does the language of your prompt change an LLM’s accuracy? Compare English and Russian on the same academic questions.",
-  tableTitle: "English ↔ Russian",
+    "A multilingual benchmark measuring how prompt language affects LLM accuracy on the same academic questions.",
+  tableTitle: "Accuracy across languages",
   tableDescription: "MMLU-ProX Lite · 5-shot CoT · Native reasoning",
   model: "Model",
   effort: "Effort",
@@ -20,11 +20,11 @@ export default {
   viewRelease: "Explore this release",
   questions: "{count, plural, one {# unique question} other {# unique questions}}",
   repeats: "{count, plural, one {# repeat} other {# repeats}}",
-  languages: "2 prompt languages",
+  languages: "2 prompt languages in this experiment",
   models: "2 models · 3 effort levels",
   guideTitle: "Reading the gap",
   guideBody:
-    "A positive gap means higher accuracy in English. A negative gap means higher accuracy in Russian. Read both absolute scores alongside the difference.",
+    "The gap is the difference in accuracy for a language pair, in percentage points. The column label shows the subtraction order. Read each language’s score alongside the gap.",
   uncertaintyTitle: "Show the uncertainty",
   uncertaintyBody:
     "Intervals use a paired bootstrap over questions. An interval crossing zero does not establish a clear direction for the language difference.",
@@ -49,7 +49,7 @@ export default {
   lastPage: "Last page",
   neutral: "Direction is uncertain",
   release: "Release {id}",
-  metadataTitle: "LLM language benchmark — English vs Russian",
+  metadataTitle: "Multilingual LLM benchmark",
   metadataDescription:
-    "Compare LLM accuracy in English and Russian on MMLU-ProX Lite. Open methodology, paired comparisons and reproducible results.",
+    "Explore LLM accuracy across prompt languages on MMLU-ProX Lite. A multilingual benchmark with open methodology and reproducible results.",
 } as const;

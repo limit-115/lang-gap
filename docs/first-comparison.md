@@ -1,4 +1,4 @@
-# First EN/RU comparison plan
+# Initial benchmark plan
 
 The primary baseline is `mmluprox-lite-5shot-author-api-v3` in
 [experiments/mvp.yaml](../experiments/mvp.yaml). It uses the author prompts,
