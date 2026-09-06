@@ -35,6 +35,67 @@ const openAIResponse = {
 };
 
 describe("SDK adapters with intercepted HTTP transport", () => {
+  it.each(["en", "ru"] as const)(
+    "sends author stops to Anthropic and accepts the requested stop (%s)",
+    async (language) => {
+      const stopSequences = [
+        "</s>",
+        "Q:",
+        language === "en" ? "Question:" : "Вопрос:",
+        "<|im_end|>",
+      ];
+      const fetcher = vi.fn<typeof fetch>().mockResolvedValue(
+        Response.json({
+          id: "msg_stop",
+          type: "message",
+          role: "assistant",
+          model: "claude-fable-5-1",
+          stop_reason: "stop_sequence",
+          stop_sequence: stopSequences[2],
+          content: [{ type: "text", text: "Ответ - (B)" }],
+          usage: { input_tokens: 100, output_tokens: 20 },
+        }),
+      );
+      const result = await createAnthropicAdapter("synthetic-test-key", 1000, fetcher).generate({
+        ...request("low"),
+        model: "claude-fable-5-1",
+        language,
+        maxOutputTokens: 2048,
+        stopSequences,
+      });
+      expect(result.outcome).toBe("completed");
+      const body = fetcher.mock.calls[0]?.[1]?.body;
+      if (typeof body !== "string") throw new Error("Expected JSON request body");
+      expect(JSON.parse(body)).toEqual({
+        model: "claude-fable-5-1",
+        messages: [{ role: "user", content: "The complete prompt" }],
+        max_tokens: 2048,
+        thinking: { type: "adaptive" },
+        output_config: { effort: "low" },
+        service_tier: "standard_only",
+        stop_sequences: stopSequences,
+      });
+    },
+  );
+
+  it("does not send unsupported stop or sampling fields to OpenAI Responses", async () => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(Response.json(openAIResponse));
+    await createOpenAIAdapter("synthetic-test-key", 1000, fetcher).generate({
+      ...request("low"),
+      maxOutputTokens: 2048,
+      stopSequences: ["</s>", "Q:", "Question:", "<|im_end|>"],
+    });
+    const body = fetcher.mock.calls[0]?.[1]?.body;
+    if (typeof body !== "string") throw new Error("Expected JSON request body");
+    expect(JSON.parse(body)).toEqual({
+      model: "gpt-6-astra",
+      input: [{ role: "user", content: "The complete prompt" }],
+      reasoning: { effort: "low" },
+      max_output_tokens: 2048,
+      service_tier: "default",
+      store: false,
+    });
+  });
   it.each(["low", "medium", "high"] as const)(
     "sends OpenAI native effort %s without hidden sampling, tools or retries",
     async (effort) => {

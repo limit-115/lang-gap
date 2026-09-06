@@ -27,8 +27,8 @@ pnpm bench run experiments/smoke.yaml --offline
 # Copy runId from the JSON output into the commands below.
 pnpm bench status <run-id>
 pnpm bench score <run-id>
-pnpm bench release build <run-id> --id smoke-v1 --test
-pnpm bench release verify .llang-gap/releases/smoke-v1
+pnpm bench release build <run-id> --id smoke-author-v3 --test
+pnpm bench release verify .llang-gap/releases/smoke-author-v3
 ```
 
 `--offline` disables **dataset downloads**. It does not disable live model APIs.
@@ -37,18 +37,18 @@ and errors go to stderr. Add `--json` for structured errors too.
 
 ## Layout
 
-| Location              | Responsibility                                                               |
-| --------------------- | ---------------------------------------------------------------------------- |
-| `apps/runner`         | Commander CLI, execution, retries, budget ledger, SQLite, release export     |
-| `apps/web`            | Next.js site and feature-owned next-intl dictionaries; developed separately  |
-| `packages/contracts`  | Strict Zod schemas and shared types                                          |
-| `packages/datasets`   | Verified download, Parquet normalization and EN/RU alignment                 |
-| `packages/evaluation` | Pinned prompt protocol, terminal-answer parser, scoring and paired bootstrap |
-| `packages/providers`  | Official SDK adapters, capabilities, cost accounting and a fake provider     |
-| `experiments`         | Strict YAML definitions and generated editor JSON Schema                     |
-| `datasets`            | Versioned source manifest; data files stay out of Git                        |
-| `results`             | Public release index and small manifests/aggregates                          |
-| `.llang-gap`          | Ignored local cache, durable run state and release artifacts                 |
+| Location              | Responsibility                                                                        |
+| --------------------- | ------------------------------------------------------------------------------------- |
+| `apps/runner`         | Commander CLI, execution, retries, budget ledger, SQLite, release export              |
+| `apps/web`            | Next.js site and feature-owned next-intl dictionaries; developed separately           |
+| `packages/contracts`  | Strict Zod schemas and shared types                                                   |
+| `packages/datasets`   | Verified download, Parquet normalization and EN/RU alignment                          |
+| `packages/evaluation` | Pinned prompt protocol, versioned author/legacy parsers, scoring and paired bootstrap |
+| `packages/providers`  | Official SDK adapters, capabilities, cost accounting and a fake provider              |
+| `experiments`         | Strict YAML definitions and generated editor JSON Schema                              |
+| `datasets`            | Versioned source manifest; data files stay out of Git                                 |
+| `results`             | Public release index and small manifests/aggregates                                   |
+| `.llang-gap`          | Ignored local cache, durable run state and release artifacts                          |
 
 Internal packages expose their source through package exports. Next.js transpiles
 the contracts package; the CLI uses `tsx`. Library builds typecheck the source.
@@ -90,7 +90,9 @@ Issues and PR explanations are welcome in English or Russian.
 ## Live experiments
 
 Read [the operator guide](docs/runner.md) and [the exact protocol](docs/protocol.md)
-before running paid evaluations. Pricing, model availability and the output cap
+before running paid evaluations. The [primary comparison plan](docs/first-comparison.md)
+uses author prompts/extraction with the 2048-token API cap (`author-api-v3`);
+experimental v2 is historical only. Pricing, model availability and the output cap
 must be checked for your API account. The configured USD rates are dated
 2026-09-06 and apply to standard, short-context API requests.
 

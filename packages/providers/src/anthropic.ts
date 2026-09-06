@@ -28,11 +28,19 @@ export function createAnthropicAdapter(
             thinking: { type: "adaptive" },
             output_config: { effort: request.effort },
             service_tier: "standard_only",
+            ...(request.stopSequences ? { stop_sequences: [...request.stopSequences] } : {}),
           })
           .withResponse();
         const truncated = response.stop_reason === "max_tokens";
         const refusal = response.stop_reason === "refusal";
-        if (!["end_turn", "refusal", "max_tokens"].includes(response.stop_reason ?? ""))
+        const requestedStop =
+          response.stop_reason === "stop_sequence" &&
+          response.stop_sequence !== null &&
+          request.stopSequences?.includes(response.stop_sequence);
+        if (
+          !requestedStop &&
+          !["end_turn", "refusal", "max_tokens"].includes(response.stop_reason ?? "")
+        )
           throw new ProviderError(
             `Generation stop: ${response.stop_reason ?? "missing"}`,
             true,

@@ -5,6 +5,11 @@ export const effortSchema = z.enum(["low", "medium", "high"]);
 export const providerSchema = z.enum(["openai", "anthropic", "fake"]);
 export const safeIdSchema = z.string().regex(/^[a-z0-9][a-z0-9._-]{0,99}$/);
 export const hashSchema = z.string().regex(/^[a-f0-9]{64}$/);
+export const protocolIdSchema = z.enum([
+  "mmluprox-lite-5shot-native-reasoning-v1",
+  "mmluprox-lite-5shot-author-api-v3",
+]);
+export type ProtocolId = z.infer<typeof protocolIdSchema>;
 export type Language = z.infer<typeof languageSchema>;
 export type Effort = z.infer<typeof effortSchema>;
 export type Provider = z.infer<typeof providerSchema>;
@@ -53,7 +58,7 @@ export const experimentSchema = z.strictObject({
   schemaVersion: z.literal(1),
   id: safeIdSchema,
   dataset: z.literal("mmlu-prox-lite"),
-  protocol: z.literal("mmluprox-lite-5shot-native-reasoning-v1"),
+  protocol: protocolIdSchema,
   languages: z.tuple([z.literal("en"), z.literal("ru")]),
   repeats: z.number().int().min(1).max(10),
   seed: z.number().int().min(1).max(2_147_483_647),
@@ -119,6 +124,7 @@ export interface GenerationRequest {
   maxOutputTokens: number;
   prompt: string;
   language: Language;
+  stopSequences?: readonly string[];
 }
 export interface GenerationResponse {
   model: string;

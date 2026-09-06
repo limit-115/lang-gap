@@ -10,7 +10,7 @@ import {
   type Question,
 } from "@llang-gap/contracts";
 import { createAdapter } from "@llang-gap/providers";
-import { protocol } from "@llang-gap/evaluation";
+import { getProtocol } from "@llang-gap/evaluation";
 import { atomicWrite, hash, implementationIdentity, json, jsonl, workspace } from "./files";
 import { createJobs } from "./plan";
 import { execute } from "./scheduler";
@@ -51,6 +51,7 @@ export async function createRun(
   },
 ) {
   const { experiment, questions, manifest, budgetUsd } = options;
+  const protocol = getProtocol(experiment.protocol);
   const runId = `${experiment.id}-${new Date().toISOString().slice(0, 10)}-${randomUUID().slice(0, 8)}`;
   const directory = options.directory ?? runPath(runId);
   const adapters =

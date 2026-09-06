@@ -1,0 +1,14 @@
+{
+  "lm_eval/api/samplers.py": "b9541ec0ea1144d2003301ae6584f86abfab2237aebeafb0f7dd2a3adaf82c42",
+  "lm_eval/api/task.py": "4c25a4f1949488483b833ce4fcf91cfd3e066084a9ea00079c6879ae3ba95657",
+  "lm_eval/api/utils.py": "027862cf6efb657861b78a8827ad33a88ad3a1284f9086cc00b2826c74423dfa",
+  "lm_eval/config/task.py": "c9ec7ce71a5ee6c84cd85436eec47a8fdf9842f2bd7011cc336c83ecb4cd958a",
+  "lm_eval/filters/extraction.py": "eb976bb36d5d3e93faafe6d065678e24b4474e78cd4fce1e730e2b8f49b9fda0",
+  "lm_eval/filters/selection.py": "5f8264dce91dd1282b84487d703e7e2bb11bef5fd6c93f91b4e51342a4fb76ab",
+  "lm_eval/models/utils.py": "bf4c2b9690c653f40319b8e9e92c4da5905b70d3662de4eff81377b223a04739",
+  "lm_eval/tasks/mmlu_prox/en/utils.py": "cfb27b5b32d75fccf7745e19b4b96668856b5a7c44e7e7a4533854e19e6ac5e1",
+  "lm_eval/tasks/mmlu_prox/ru/utils.py": "cfb27b5b32d75fccf7745e19b4b96668856b5a7c44e7e7a4533854e19e6ac5e1",
+  "lm_eval/tasks/mmlu_prox/en/_en_lite_template_yaml": "a48fabf527eef457652b6e097c0241a00ddb1ae6905cbe93be9cf884464cf760",
+  "lm_eval/tasks/mmlu_prox/ru/_ru_lite_template_yaml": "8553014d80179639a7f8e578cd4eee3c769cbc0654ab5d8ed7e9acc8068fbe1d",
+  "lm_eval/tasks/mmlu_prox/lang_libs.py": "582a892b4e8419c16384552b369d7ba828418c57768ccdd82d61172116b3da55"
+}

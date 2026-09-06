@@ -11,6 +11,7 @@ import { buildRelease, scoreRun, stageRelease, verifyRelease } from "./release";
 import { workspace, hash, json, readJson } from "./files";
 import { RunState } from "./state";
 import { snapshotSchema } from "./snapshot";
+import { protocol, protocolV1 } from "@llang-gap/evaluation";
 
 describe("run → resume → independent release verification", () => {
   let root: string;
@@ -79,6 +80,67 @@ describe("run → resume → independent release verification", () => {
     );
   });
 
+  it.each([protocolV1.id, protocol.id])(
+    "uses the recorded parser through resume and release verification (%s)",
+    async (protocolId) => {
+      const directory = join(root, "versioned");
+      const config = {
+        ...experiment,
+        protocol: protocolId,
+        models: experiment.models.map((m) => ({ ...m, maxOutputTokens: 2048 })),
+      };
+      const fake = createFakeAdapter();
+      const generate = vi.fn(async (request: Parameters<typeof fake.generate>[0]) => ({
+        ...(await fake.generate(request)),
+        text:
+          request.language === "en"
+            ? "The answer is (B). Explanation follows."
+            : "Ответ - (B). Объяснение после ответа.",
+      }));
+      const adapters = new Map([["fake", { ...fake, generate }]]);
+      await createRun({
+        directory,
+        experiment: config,
+        questions,
+        manifest: await manifest(),
+        budgetUsd: 0,
+        maxJobs: 1,
+        adapters,
+      });
+      const original = await readFile(join(directory, "resolved.json"), "utf8");
+      await resumeRun(directory, { budgetUsd: 0, adapters });
+      expect(generate).toHaveBeenCalledTimes(12);
+      const state = new RunState(join(directory, "state.sqlite"));
+      const rows = state.results();
+      state.close();
+      expect(rows.every((r) => r.answer === (protocolId === protocol.id ? "B" : null))).toBe(true);
+      const release = await buildRelease(directory, "versioned-release", "test", root);
+      expect((await verifyRelease(release.directory)).protocol).toBe(protocolId);
+      expect(await readFile(join(directory, "resolved.json"), "utf8")).toBe(original);
+    },
+  );
+
+  it("rejects a protocol substitution even after the snapshot identity is rehashed", async () => {
+    const directory = join(root, "mismatch");
+    await createRun({
+      directory,
+      experiment,
+      questions,
+      manifest: await manifest(),
+      budgetUsd: 0,
+      maxJobs: 1,
+    });
+    const path = join(directory, "resolved.json");
+    const snapshot = snapshotSchema.parse(await readJson(path));
+    snapshot.experiment.protocol = protocol.id;
+    const modified = json(snapshot);
+    await writeFile(path, modified);
+    await writeFile(join(directory, "identity.json"), json({ configHash: hash(modified) }));
+    await expect(resumeRun(directory, { budgetUsd: 0 })).rejects.toThrow(
+      "Protocol implementation differs",
+    );
+  });
+
   it("requires the recorded scoring implementation for release reproduction", async () => {
     const directory = join(root, "run");
     await createRun({ directory, experiment, questions, manifest: await manifest(), budgetUsd: 0 });
@@ -109,6 +171,45 @@ describe("run → resume → independent release verification", () => {
       adapters: new Map([["fake", adapter]]),
     });
     await expect(buildRelease(directory, "bad", "test", root)).rejects.toThrow("Truncation");
+  });
+
+  it("scores and retains cap-limited v3 responses while keeping the publication gate", async () => {
+    const directory = join(root, "author-cap");
+    const fake = createFakeAdapter();
+    const adapter: ProviderAdapter = {
+      ...fake,
+      async generate(request) {
+        return {
+          ...(await fake.generate(request)),
+          outcome: "truncated",
+          text: request.language === "en" ? "The answer is (B). Further explanation" : "",
+        };
+      },
+    };
+    await createRun({
+      directory,
+      experiment: {
+        ...experiment,
+        protocol: protocol.id,
+        models: experiment.models.map((m) => ({ ...m, maxOutputTokens: 2048 })),
+      },
+      questions,
+      manifest: await manifest(),
+      budgetUsd: 0,
+      adapters: new Map([["fake", adapter]]),
+    });
+    const state = new RunState(join(directory, "state.sqlite"));
+    const rows = state.results();
+    state.close();
+    expect(rows).toHaveLength(12);
+    expect(rows.every((r) => r.outcome === "truncated")).toBe(true);
+    expect(rows.filter((r) => r.language === "en").every((r) => r.answer === "B")).toBe(true);
+    expect(
+      rows.filter((r) => r.language === "ru").every((r) => !r.correct && r.answer === null),
+    ).toBe(true);
+    await expect(buildRelease(directory, "author-cap-release", "test", root)).rejects.toThrow(
+      "Truncation",
+    );
   });
 
   it("rejects fabricated saved correctness even with unchanged output", async () => {

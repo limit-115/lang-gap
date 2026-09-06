@@ -12,12 +12,21 @@ pnpm bench release verify .llang-gap/releases/<release-id>
 `kind: "test"` and cannot be staged for the public website. A benchmark release
 requires complete test sets, all specified model/effort/language/repeat conditions,
 no truncation and a clean committed implementation at run creation. The release
-builder recomputes every answer, cost and aggregate before it writes artifacts.
+builder verifies every answer, cost and aggregate with the recorded protocol before
+it writes artifacts. In author-api-v3, cap-limited text is scored by the author
+regex in the journal, but truncation still blocks publication of the entire
+comparison. This is a project publication policy, not the harness scoring rule.
+No question is removed from the denominator.
 
 Release directories are immutable by convention and creation is exclusive: an
 existing release ID fails instead of being overwritten. Files are constructed in
 a temporary directory, verified, then atomically renamed. To correct a release,
 create a new ID and describe the correction in the version-control change.
+
+Historical v1/v2 artifacts remain immutable and keep their original scoring. Do
+not run the new parser over old outputs or edit their protocol IDs. Verification
+requires their recorded source and runtime dependencies; v2's original code stays
+at PR #16's revision. See [protocol history](protocol.md#historical-v1v2-and-offline-evidence).
 
 ## Files
 

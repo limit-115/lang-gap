@@ -9,7 +9,7 @@ are rejected. `pnpm schema` updates the editor JSON Schema; `pnpm schema:check`
 detects drift. Cross-field constraints are enforced at runtime even where JSON
 Schema cannot express them.
 
-- `mvp.yaml`: full two-model, three-effort, three-repeat benchmark.
+- `mvp.yaml`: full two-model, three-effort, three-repeat author-api-v3 comparison.
 - `pilot.yaml`: two test questions in both languages across every configuration,
   one repeat. Technical calibration only; cannot become a benchmark release.
 - `smoke.yaml`: four questions with the deterministic fake provider, two repeats.
@@ -17,8 +17,11 @@ Schema cannot express them.
 
 Changing the model, protocol, token cap, repeats, question subset or seed means a
 new run. Provider-native effort names are not equivalent compute budgets. The
-initial cap is 16,384 tokens including reasoning; validate it through the pilot,
-then rerun the complete affected pair if it needs to change.
+primary protocol fixes the cap at 2048 tokens including reasoning, matching the
+author task numerically. Planning rejects a different cap under this ID. API
+limitations and the stricter publication gate are explicit in the
+[protocol](protocol.md). Any larger cap requires a separately named protocol and
+fresh complete comparison; a pilot never silently changes the author baseline.
 
 At creation, the runner writes `resolved.json`, `identity.json`, `dataset.jsonl`
 and `state.sqlite` under `.llang-gap/runs/<run-id>/`. The resolved snapshot records
@@ -26,6 +29,12 @@ the full experiment, dataset and protocol hashes, code fingerprint, Git revision
 Node and SDK versions, provider endpoints and initial budget. Resume reads this
 snapshot, never the current YAML. Modified inputs, job payloads, runtime source or
 runtime dependency closure prevent resume. Changes to website-only dependencies do not block the runner. Keep the original checkout and lockfile available.
+
+Historical v1 uses its recorded parser; experimental v2 stays in PR #16 at its
+original source revision. Do not change old snapshots, IDs, scores or releases to
+v3. Keep the original checkout and dependencies for their verification/resume.
+The [current plan](first-comparison.md) uses unchanged data and every test question;
+no 100% parse-rate requirement or translation/key correction is a readiness gate.
 
 ## Download and cache
 
@@ -112,7 +121,8 @@ Shared network filesystems, multiple hosts and distributed workers are outside M
 ## Validation performed
 
 The automated suite covers strict config parsing, dataset pairing and corruption,
-gold-answer leakage, reference prompts in EN/RU, terminal answer extraction,
+gold-answer leakage, reference prompts in all EN/RU subjects, first-match author
+extraction and the frozen historical terminal parser,
 bootstrap clustering, every native effort through intercepted SDK HTTP calls,
 technical retries, budget reservations, cancellation, restart recovery, locks,
 run tampering, truncation and release checksum/scoring verification. It uses no

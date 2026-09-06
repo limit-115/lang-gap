@@ -16,7 +16,10 @@
     },
     "protocol": {
       "type": "string",
-      "const": "mmluprox-lite-5shot-native-reasoning-v1"
+      "enum": [
+        "mmluprox-lite-5shot-native-reasoning-v1",
+        "mmluprox-lite-5shot-author-api-v3"
+      ]
     },
     "languages": {
       "type": "array",

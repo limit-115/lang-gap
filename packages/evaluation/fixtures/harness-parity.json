@@ -1,0 +1,595 @@
+{
+  "referenceCommit": "b954108c9baaaa934b4ad842033b31a97ee30816",
+  "prompts": {
+    "en": {
+      "biology": "7be4be03a34c9f1886c6153c7fde48cdaa061904445065b0b22eb79928d58b34",
+      "business": "a418e63f2e85222f53547ef389aa2e0a5226a6e5f770079772e6296f47190fbc",
+      "chemistry": "eb5c6e93a44cd99ce804c23d71f6526a59ac1927a7c2abe332739608c4835f38",
+      "computer_science": "df02e83e729a633653155ef02309343f4df232acb2ef4b2992ffe03152eda384",
+      "economics": "6c769fae9e98235f6741f1d45da4d4056cc723e71b328423d42f28f222d00fd2",
+      "engineering": "abda928d7570f60de0811d3a3279407e48bfdc8cdd4fb0fa8017cd391606ef59",
+      "health": "99ee57a0226aa835392bea84b96980ef1edd9fe7f280133bd1c96d1ac2f3cc12",
+      "history": "c20fec8aea766c1d7ea3908efea8eb86bb2f3b04ac18003107a139b863c55331",
+      "law": "013eb73ca459eab4bbdd78dc4ad84382ba970a2d46dc855a57a243eaf5094362",
+      "math": "f54cf0387c88133b7527f5b3318ea78b99aa68a8fd8fbced27de1290957dd27b",
+      "other": "f553cf8047f3322952aff47ab5253f59c9855b13607e29013dc93a4824c07f9f",
+      "philosophy": "1060b995caf1903dd13605614caf6141ddb624bea710925675dbc23506c171d9",
+      "physics": "c428cfe1361432c7d2bc5ff87266acbadee40c2f8f61b8679f98746e59449109",
+      "psychology": "308d91fbceb9e97c9efa7d77f047d985eec43376ee833fb213478f43d5e3d962"
+    },
+    "ru": {
+      "biology": "65cc8e5a7d85817be542b9af4e6c0580031784ad3593c50d22102b9a3497c1f3",
+      "business": "c1b34bb4299452e8f1a101e336a4886815d13a21f88ad7e0f26dde0a90ab03ca",
+      "chemistry": "eeaa537f89e4a7080e52f5bdd0162fc0a8f4c4d5d8324c47bce246933966667d",
+      "computer_science": "1a6b722a8c02a17d3c43a6cc2929103205565c8da40f071d0cf4c1bc25bd33a3",
+      "economics": "b58cf52abb33b4e75781f5a22e00ba05195824cc688135cd567392c695fe7608",
+      "engineering": "0bdc287d447e044131c88d734fa7eff26997320c4dec711d5e99e1028ae0db97",
+      "health": "dbe614d73fdef0e552e7e36e763269f0da8864ac7523d8a14746f42d7bcf64d2",
+      "history": "7edfa583593784f3f61dfe153dc2bc83b40a68e58ed3cb6292c225c40663ece9",
+      "law": "02dbe5cb06e2943d799c47443920dbbc1a6471c854a98230f77b9698f418aa20",
+      "math": "320a7d88d14b939da2d13554f485748009b658816f98c777a21658d9aeec4803",
+      "other": "2a543ae0f2d54c041b6a3265b73d60fe274ea2aea692d1d22a09586c69adaad6",
+      "philosophy": "3a8b2535caafecfc9313eddd1c619701b1ea8fb0467e6522b03be8718cc878cd",
+      "physics": "8fb6452fbaf8090018ede11173d59a69c22cc741a9d621545530152f18afa3a8",
+      "psychology": "1b93c737cea8e6e35a716a4d8aa45ea97fe0fa044184fa5080f176e02d976c04"
+    }
+  },
+  "extraction": {
+    "en": [
+      {
+        "text": "",
+        "answer": null,
+        "stoppedText": "",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "B",
+        "answer": null,
+        "stoppedText": "B",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "The answer is (B)",
+        "answer": "B",
+        "stoppedText": "The answer is (B)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "Ответ - (B)",
+        "answer": null,
+        "stoppedText": "Ответ - (B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "ответ - (B)",
+        "answer": null,
+        "stoppedText": "ответ - (B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ — (B)",
+        "answer": null,
+        "stoppedText": "Ответ — (B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "ANSWER IS (B)",
+        "answer": null,
+        "stoppedText": "ANSWER IS (B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Answer is (B)",
+        "answer": null,
+        "stoppedText": "Answer is (B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "answer  is (B)",
+        "answer": null,
+        "stoppedText": "answer  is (B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "answer is\n(B)",
+        "answer": null,
+        "stoppedText": "answer is\n(B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ  - (B)",
+        "answer": null,
+        "stoppedText": "Ответ  - (B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ -  (B)",
+        "answer": null,
+        "stoppedText": "Ответ -  (B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ -\n(B)",
+        "answer": null,
+        "stoppedText": "Ответ -\n(B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ-(B)",
+        "answer": null,
+        "stoppedText": "Ответ-(B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "answer is (B). Explanation follows.",
+        "answer": "B",
+        "stoppedText": "answer is (B). Explanation follows.",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "answer is (A) or (B)",
+        "answer": "A",
+        "stoppedText": "answer is (A) or (B)",
+        "stoppedAnswer": "A"
+      },
+      {
+        "text": "answer is (A). answer is (B)",
+        "answer": "A",
+        "stoppedText": "answer is (A). answer is (B)",
+        "stoppedAnswer": "A"
+      },
+      {
+        "text": "answer is (J). answer is (B)",
+        "answer": "J",
+        "stoppedText": "answer is (J). answer is (B)",
+        "stoppedAnswer": "J"
+      },
+      {
+        "text": "**answer is (B)**",
+        "answer": "B",
+        "stoppedText": "**answer is (B)**",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "answer is **(B)**",
+        "answer": null,
+        "stoppedText": "answer is **(B)**",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "__answer is (B)__",
+        "answer": "B",
+        "stoppedText": "__answer is (B)__",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "notanswer is BLAH",
+        "answer": "B",
+        "stoppedText": "notanswer is BLAH",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "answer is (Ｂ)",
+        "answer": null,
+        "stoppedText": "answer is (Ｂ)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "answer is (В)",
+        "answer": null,
+        "stoppedText": "answer is (В)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "answer is B",
+        "answer": "B",
+        "stoppedText": "answer is B",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "answer is (B)",
+        "answer": "B",
+        "stoppedText": "answer is (B)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "answer is (B",
+        "answer": "B",
+        "stoppedText": "answer is (B",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "answer is B)",
+        "answer": "B",
+        "stoppedText": "answer is B)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "answer is b",
+        "answer": null,
+        "stoppedText": "answer is b",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "answer is (b)",
+        "answer": null,
+        "stoppedText": "answer is (b)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "answer is ( B )",
+        "answer": null,
+        "stoppedText": "answer is ( B )",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "answer is K",
+        "answer": null,
+        "stoppedText": "answer is K",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "answer is (J)",
+        "answer": "J",
+        "stoppedText": "answer is (J)",
+        "stoppedAnswer": "J"
+      },
+      {
+        "text": "answer is (BB)",
+        "answer": "B",
+        "stoppedText": "answer is (BB)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "</s>answer is (B)",
+        "answer": "B",
+        "stoppedText": "",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "answer is (B)</s>answer is (A)",
+        "answer": "B",
+        "stoppedText": "answer is (B)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "Q:answer is (B)",
+        "answer": "B",
+        "stoppedText": "",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "answer is (B)Q:answer is (A)",
+        "answer": "B",
+        "stoppedText": "answer is (B)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "Question:answer is (B)",
+        "answer": "B",
+        "stoppedText": "",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "answer is (B)Question:answer is (A)",
+        "answer": "B",
+        "stoppedText": "answer is (B)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "<|im_end|>answer is (B)",
+        "answer": "B",
+        "stoppedText": "",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "answer is (B)<|im_end|>answer is (A)",
+        "answer": "B",
+        "stoppedText": "answer is (B)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "question:answer is (B)",
+        "answer": "B",
+        "stoppedText": "question:answer is (B)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "answer is (B)question:answer is (A)",
+        "answer": "B",
+        "stoppedText": "answer is (B)question:answer is (A)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "вопрос:answer is (B)",
+        "answer": "B",
+        "stoppedText": "вопрос:answer is (B)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "answer is (B)вопрос:answer is (A)",
+        "answer": "B",
+        "stoppedText": "answer is (B)вопрос:answer is (A)",
+        "stoppedAnswer": "B"
+      }
+    ],
+    "ru": [
+      {
+        "text": "",
+        "answer": null,
+        "stoppedText": "",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "B",
+        "answer": null,
+        "stoppedText": "B",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "The answer is (B)",
+        "answer": null,
+        "stoppedText": "The answer is (B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ - (B)",
+        "answer": "B",
+        "stoppedText": "Ответ - (B)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "ответ - (B)",
+        "answer": null,
+        "stoppedText": "ответ - (B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ — (B)",
+        "answer": null,
+        "stoppedText": "Ответ — (B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "ANSWER IS (B)",
+        "answer": null,
+        "stoppedText": "ANSWER IS (B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Answer is (B)",
+        "answer": null,
+        "stoppedText": "Answer is (B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "answer  is (B)",
+        "answer": null,
+        "stoppedText": "answer  is (B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "answer is\n(B)",
+        "answer": null,
+        "stoppedText": "answer is\n(B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ  - (B)",
+        "answer": null,
+        "stoppedText": "Ответ  - (B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ -  (B)",
+        "answer": null,
+        "stoppedText": "Ответ -  (B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ -\n(B)",
+        "answer": null,
+        "stoppedText": "Ответ -\n(B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ-(B)",
+        "answer": null,
+        "stoppedText": "Ответ-(B)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ - (B). Explanation follows.",
+        "answer": "B",
+        "stoppedText": "Ответ - (B). Explanation follows.",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "Ответ - (A) or (B)",
+        "answer": "A",
+        "stoppedText": "Ответ - (A) or (B)",
+        "stoppedAnswer": "A"
+      },
+      {
+        "text": "Ответ - (A). Ответ - (B)",
+        "answer": "A",
+        "stoppedText": "Ответ - (A). Ответ - (B)",
+        "stoppedAnswer": "A"
+      },
+      {
+        "text": "Ответ - (J). Ответ - (B)",
+        "answer": "J",
+        "stoppedText": "Ответ - (J). Ответ - (B)",
+        "stoppedAnswer": "J"
+      },
+      {
+        "text": "**Ответ - (B)**",
+        "answer": "B",
+        "stoppedText": "**Ответ - (B)**",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "Ответ - **(B)**",
+        "answer": null,
+        "stoppedText": "Ответ - **(B)**",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "__Ответ - (B)__",
+        "answer": "B",
+        "stoppedText": "__Ответ - (B)__",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "notОтвет - BLAH",
+        "answer": "B",
+        "stoppedText": "notОтвет - BLAH",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "Ответ - (Ｂ)",
+        "answer": null,
+        "stoppedText": "Ответ - (Ｂ)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ - (В)",
+        "answer": null,
+        "stoppedText": "Ответ - (В)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ - B",
+        "answer": "B",
+        "stoppedText": "Ответ - B",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "Ответ - (B)",
+        "answer": "B",
+        "stoppedText": "Ответ - (B)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "Ответ - (B",
+        "answer": "B",
+        "stoppedText": "Ответ - (B",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "Ответ - B)",
+        "answer": "B",
+        "stoppedText": "Ответ - B)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "Ответ - b",
+        "answer": null,
+        "stoppedText": "Ответ - b",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ - (b)",
+        "answer": null,
+        "stoppedText": "Ответ - (b)",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ - ( B )",
+        "answer": null,
+        "stoppedText": "Ответ - ( B )",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ - K",
+        "answer": null,
+        "stoppedText": "Ответ - K",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ - (J)",
+        "answer": "J",
+        "stoppedText": "Ответ - (J)",
+        "stoppedAnswer": "J"
+      },
+      {
+        "text": "Ответ - (BB)",
+        "answer": "B",
+        "stoppedText": "Ответ - (BB)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "</s>Ответ - (B)",
+        "answer": "B",
+        "stoppedText": "",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ - (B)</s>Ответ - (A)",
+        "answer": "B",
+        "stoppedText": "Ответ - (B)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "Q:Ответ - (B)",
+        "answer": "B",
+        "stoppedText": "",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ - (B)Q:Ответ - (A)",
+        "answer": "B",
+        "stoppedText": "Ответ - (B)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "Вопрос:Ответ - (B)",
+        "answer": "B",
+        "stoppedText": "",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ - (B)Вопрос:Ответ - (A)",
+        "answer": "B",
+        "stoppedText": "Ответ - (B)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "<|im_end|>Ответ - (B)",
+        "answer": "B",
+        "stoppedText": "",
+        "stoppedAnswer": null
+      },
+      {
+        "text": "Ответ - (B)<|im_end|>Ответ - (A)",
+        "answer": "B",
+        "stoppedText": "Ответ - (B)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "question:Ответ - (B)",
+        "answer": "B",
+        "stoppedText": "question:Ответ - (B)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "Ответ - (B)question:Ответ - (A)",
+        "answer": "B",
+        "stoppedText": "Ответ - (B)question:Ответ - (A)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "вопрос:Ответ - (B)",
+        "answer": "B",
+        "stoppedText": "вопрос:Ответ - (B)",
+        "stoppedAnswer": "B"
+      },
+      {
+        "text": "Ответ - (B)вопрос:Ответ - (A)",
+        "answer": "B",
+        "stoppedText": "Ответ - (B)вопрос:Ответ - (A)",
+        "stoppedAnswer": "B"
+      }
+    ]
+  }
+}

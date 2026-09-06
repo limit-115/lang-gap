@@ -69,6 +69,7 @@ export async function recompute(directory: string, items: ItemResult[], benchmar
       job.expected,
       job.optionCount,
       item.outcome,
+      snapshot.experiment.protocol,
     );
     const costUsd = item.usage ? calculateCost(item.usage, job.model.pricing) : null;
     if (score.answer !== item.answer || score.correct !== item.correct || costUsd !== item.costUsd)
