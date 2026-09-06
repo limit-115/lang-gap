@@ -42,7 +42,8 @@ compact, already identified contexts, and the stacked composition in taller spac
 
 The horizontal symbol is about 1.1 times the capital-letter height. Its center
 sits slightly below the capital midline to balance the lowercase letters and
-descenders; the gap to the name is about one third of the symbol’s width. In the
+sits slightly below the capital midline to balance the lowercase letters and
+descenders; the gap to the name is about one fifth of the symbol’s width. In the
 stacked composition the symbol is about the height of the complete wordmark,
 with a vertical gap of about one quarter of its height. Use the supplied
 compositions to retain this balance rather than repositioning their parts.
