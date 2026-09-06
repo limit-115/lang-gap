@@ -357,6 +357,7 @@
   }
   .document {
     max-width: 790px;
+    margin-inline: auto;
     padding-bottom: 56px;
   }
   .document section {
