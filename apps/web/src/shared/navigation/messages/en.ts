@@ -11,6 +11,5 @@ export default {
   skip: "Skip to content",
   tagline: "Language matters. Measure the difference.",
   footer: "An open benchmark of language differences in LLMs.",
-  open: "Open code · Open methods · Open results",
   home: "Llang Gap home",
 } as const;
