@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { datasetManifestSchema, experimentSchema, hashSchema } from "@llang-gap/contracts";
-import { protocol } from "@llang-gap/evaluation";
+import { getProtocol } from "@llang-gap/evaluation";
 import { hash, json, readJson } from "./files";
 import { join } from "node:path";
 
@@ -36,7 +36,7 @@ export async function readSnapshot(
   if (z.strictObject({ configHash: hashSchema }).parse(expected).configHash !== configHash)
     throw new Error("Resolved configuration was modified");
   if (
-    snapshot.protocolHash !== hash(json(protocol)) ||
+    snapshot.protocolHash !== hash(json(getProtocol(snapshot.experiment.protocol))) ||
     hash(json(snapshot.protocol)) !== snapshot.protocolHash
   )
     throw new Error("Protocol implementation differs from this run");

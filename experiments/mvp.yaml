@@ -1,8 +1,8 @@
 # yaml-language-server: $schema=./schema.json
 schemaVersion: 1
-id: mvp-en-ru-v1
+id: mvp-en-ru-author-v3
 dataset: mmlu-prox-lite
-protocol: mmluprox-lite-5shot-native-reasoning-v1
+protocol: mmluprox-lite-5shot-author-api-v3
 languages: [en, ru]
 repeats: 3
 seed: 20260906
@@ -10,8 +10,8 @@ models:
   - provider: openai
     model: gpt-6-astra
     efforts: [low, medium, high]
-    # Pilot first. Changing this cap creates a new run for the full affected pair.
-    maxOutputTokens: 16384
+    # Author cap. Hidden API reasoning also consumes this budget.
+    maxOutputTokens: 2048
     pricing:
       asOf: 2026-09-06
       source: https://developers.openai.com/api/docs/pricing
@@ -23,7 +23,7 @@ models:
   - provider: anthropic
     model: claude-fable-5-1
     efforts: [low, medium, high]
-    maxOutputTokens: 16384
+    maxOutputTokens: 2048
     pricing:
       asOf: 2026-09-06
       source: https://platform.claude.com/docs/en/models/fable-5-1/overview

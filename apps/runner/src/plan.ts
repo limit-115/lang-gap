@@ -1,9 +1,22 @@
-import type { Experiment, GenerationRequest, ModelConfig, Question } from "@llang-gap/contracts";
-import { buildPrompt, shuffled, toPromptQuestion } from "@llang-gap/evaluation";
+import type {
+  Experiment,
+  GenerationRequest,
+  ModelConfig,
+  ProtocolId,
+  Question,
+} from "@llang-gap/contracts";
+import {
+  buildPrompt,
+  getProtocol,
+  protocol,
+  shuffled,
+  toPromptQuestion,
+} from "@llang-gap/evaluation";
 import { reserveCost } from "@llang-gap/providers";
 import { hash } from "./files";
 
 export interface Job {
+  protocol?: ProtocolId;
   id: string;
   questionId: string;
   category: string;
@@ -20,6 +33,15 @@ export function createJobs(
   questions: readonly Question[],
   configHash: string,
 ): Job[] {
+  getProtocol(experiment.protocol);
+  const authorProtocol = experiment.protocol === protocol.id;
+  if (
+    authorProtocol &&
+    experiment.models.some((m) => m.maxOutputTokens !== protocol.generation.maxGenTokens)
+  )
+    throw new Error(
+      "Author API protocol requires a 2048-token cap; a different cap needs a separate protocol",
+    );
   const ids = [...new Set(questions.filter((q) => q.split === "test").map((q) => q.id))].sort();
   const selectedIds = shuffled(ids, experiment.seed).slice(
     0,
@@ -41,7 +63,7 @@ export function createJobs(
             const promptKey = `${id}/${language}`;
             let prompt = prompts.get(promptKey);
             if (prompt === undefined) {
-              prompt = buildPrompt(toPromptQuestion(q), validation);
+              prompt = buildPrompt(toPromptQuestion(q), validation, experiment.protocol);
               prompts.set(promptKey, prompt);
             }
             const request: GenerationRequest = {
@@ -50,9 +72,11 @@ export function createJobs(
               language,
               maxOutputTokens: model.maxOutputTokens,
               prompt,
+              ...(authorProtocol ? { stopSequences: protocol.generation.until[language] } : {}),
             };
             const key = [configHash, model.provider, model.model, effort, id, language, repeat];
             return {
+              ...(authorProtocol ? { protocol: experiment.protocol } : {}),
               id: hash(JSON.stringify(key)),
               questionId: id,
               category: q.category,

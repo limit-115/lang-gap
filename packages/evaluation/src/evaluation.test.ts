@@ -5,6 +5,7 @@ import {
   buildPrompt,
   parseAnswer,
   protocol,
+  protocolV1,
   scoreAnswer,
   toPromptQuestion,
   aggregateResults,
@@ -76,11 +77,15 @@ describe("terminal answer parser", () => {
     ["The answer is (B)", "ru", null],
     ["The answer is (A). I am unsure.", "en", null],
   ] as const)("%s / %s", (text, language, expected) => {
-    expect(parseAnswer(text, language, 4)).toBe(expected);
+    expect(parseAnswer(text, language, 4, protocolV1.id)).toBe(expected);
   });
   it("scores refusals and truncations zero even when they contain a correct marker", () => {
-    expect(scoreAnswer("The answer is (B)", "en", "B", 4, "refusal").correct).toBe(false);
-    expect(scoreAnswer("The answer is (B)", "en", "B", 4, "truncated").correct).toBe(false);
+    expect(scoreAnswer("The answer is (B)", "en", "B", 4, "refusal", protocolV1.id).correct).toBe(
+      false,
+    );
+    expect(scoreAnswer("The answer is (B)", "en", "B", 4, "truncated", protocolV1.id).correct).toBe(
+      false,
+    );
   });
 });
 

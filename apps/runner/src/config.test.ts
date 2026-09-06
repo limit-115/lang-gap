@@ -3,6 +3,8 @@ import { stringify } from "yaml";
 import { parseExperiment } from "./config";
 import { createJobs } from "./plan";
 import { experiment, questions } from "@tests/fixtures";
+import { protocol } from "@llang-gap/evaluation";
+import { readFile } from "node:fs/promises";
 
 describe("experiment plan", () => {
   it("rejects duplicate YAML keys and aliases", () => {
@@ -25,5 +27,40 @@ describe("experiment plan", () => {
     expect(createJobs(experiment, questions, "old")[0]?.id).not.toBe(
       createJobs(experiment, questions, "new")[0]?.id,
     );
+  });
+  it("plans the new protocol with author stops and rejects a changed token cap", () => {
+    const config = {
+      ...experiment,
+      protocol: protocol.id,
+      models: experiment.models.map((m) => ({ ...m, maxOutputTokens: 2048 })),
+    };
+    for (const job of createJobs(config, questions, "author")) {
+      expect(job.protocol).toBe(protocol.id);
+      expect(job.request.stopSequences).toEqual(protocol.generation.until[job.request.language]);
+      expect(job.request.maxOutputTokens).toBe(2048);
+    }
+    expect(() => createJobs({ ...config, models: experiment.models }, questions, "bad")).toThrow(
+      "2048",
+    );
+    for (const job of createJobs(experiment, questions, "legacy")) {
+      expect(job).not.toHaveProperty("protocol");
+      expect(job.request).not.toHaveProperty("stopSequences");
+    }
+  });
+  it("keeps every question in the primary plan and uses v3 in all active configurations", async () => {
+    for (const name of ["mvp", "pilot", "smoke"]) {
+      const config = parseExperiment(
+        await readFile(new URL(`../../../experiments/${name}.yaml`, import.meta.url), "utf8"),
+      );
+      expect(config.protocol).toBe(protocol.id);
+      expect(config.models.every((m) => m.maxOutputTokens === 2048)).toBe(true);
+      if (name === "mvp") {
+        expect(config.questionLimit).toBeUndefined();
+        const jobs = createJobs(config, questions, "primary");
+        expect(new Set(jobs.map((j) => j.questionId))).toEqual(
+          new Set(questions.filter((q) => q.split === "test").map((q) => q.id)),
+        );
+      }
+    }
   });
 });
