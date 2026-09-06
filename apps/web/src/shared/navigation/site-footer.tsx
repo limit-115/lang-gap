@@ -1,5 +1,5 @@
 import { cn } from "cn";
-import { ExternalLink } from "lucide-react";
+import { ArrowUpRight, ExternalLink } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
@@ -14,20 +14,6 @@ export async function SiteFooter() {
             Llang Gap<span className="brand-period">.</span>
           </Link>
           <p>{t("footer")}</p>
-          <p>
-            {t.rich("attribution", {
-              author: (chunks) => (
-                <a
-                  href="https://github.com/limit-115"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-medium text-foreground underline underline-offset-4 hover:no-underline"
-                >
-                  {chunks}
-                </a>
-              ),
-            })}
-          </p>
         </div>
         <div>
           <a
@@ -62,6 +48,24 @@ export async function SiteFooter() {
           </ul>
         </nav>
       </div>
+      <p className="mt-8 flex items-center justify-end gap-1.5 border-t border-border pt-5 text-xs">
+        {t.rich("attribution", {
+          author: (chunks) => (
+            <a
+              href="https://github.com/limit-115"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex min-h-8 items-center gap-1 rounded-sm font-medium text-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring motion-reduce:transition-none"
+            >
+              {chunks}
+              <ArrowUpRight
+                aria-hidden="true"
+                className="size-3.5 text-muted-foreground transition-colors group-hover:text-primary motion-reduce:transition-none"
+              />
+            </a>
+          ),
+        })}
+      </p>
     </footer>
   );
 }
