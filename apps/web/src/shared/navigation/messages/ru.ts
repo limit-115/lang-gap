@@ -2,6 +2,7 @@ import type { Dictionary } from "@/i18n/routing";
 import type en from "./en";
 export default {
   navigation: "Навигация",
+  becomeSponsor: "Стать спонсором",
   resources: "Ресурсы",
   sourceCode: "Исходный код",
   documentation: "Документация",

@@ -313,7 +313,7 @@
     margin: 16px auto 24px;
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 48px;
+    padding: 40px 40px 24px;
     background: color-mix(in srgb, var(--background) 60%, transparent);
     backdrop-filter: blur(16px);
     color: var(--muted-foreground);
@@ -321,23 +321,51 @@
   }
   .footer-grid {
     display: grid;
-    grid-template-columns: minmax(280px, 1fr) auto auto;
-    align-items: start;
-    gap: 64px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "brand actions" "description actions" "navigation attribution";
+    align-items: center;
+    gap: 16px 0;
   }
-  .footer-brand p {
-    max-width: 280px;
+  .site-footer .brand {
+    grid-area: brand;
+    justify-self: start;
+  }
+  .footer-description {
+    grid-area: description;
+    max-width: 370px;
+    margin-right: 24px;
+    line-height: 1.65;
+  }
+  .footer-actions {
+    grid-area: actions;
+    display: flex;
+    flex-direction: column;
+    align-self: start;
+    justify-self: end;
+    gap: 10px;
+  }
+  .site-footer nav {
+    grid-area: navigation;
+  }
+  .site-footer nav,
+  .footer-attribution {
+    border-top: 1px solid var(--border);
     margin-top: 16px;
-    line-height: 1.75;
+    padding-top: 20px;
+    align-self: stretch;
   }
-  .site-footer h2 {
-    color: var(--foreground);
-    font-size: 0.875rem;
-    font-weight: 600;
-    margin-bottom: 16px;
+  .footer-attribution {
+    grid-area: attribution;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    white-space: pre-wrap;
+    line-height: 1.65;
   }
-  .site-footer li + li {
-    margin-top: 2px;
+  .site-footer nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
   }
   .site-footer nav a {
     display: inline-flex;
@@ -475,14 +503,34 @@
   .site-footer {
     padding: 28px 24px;
   }
-  .footer-grid {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 32px 24px;
-  }
-  .footer-brand {
-    grid-column: 1 / -1;
-  }
   .formula {
     padding: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .footer-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "brand" "description" "navigation" "actions" "attribution";
+    gap: 20px;
+  }
+  .footer-description {
+    margin-right: 0;
+  }
+  .footer-actions {
+    justify-self: start;
+  }
+  .site-footer nav {
+    margin-top: 4px;
+    padding-top: 16px;
+  }
+  .site-footer nav ul {
+    gap: 4px 20px;
+  }
+  .footer-attribution {
+    justify-content: flex-start;
+    border: 0;
+    padding: 0;
+    margin: 0;
   }
 }
