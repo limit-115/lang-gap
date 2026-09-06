@@ -241,7 +241,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding: 24px;
+    padding-bottom: 24px;
   }
   .panel-heading h2 {
     font-size: 1.125rem;
@@ -256,8 +256,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px 24px;
-    padding: 16px 24px;
-    border-top: 1px solid var(--border);
+    padding-block: 16px;
     font-size: 0.8125rem;
     color: var(--muted-foreground);
   }
@@ -430,10 +429,9 @@
     padding-block: 32px 28px;
   }
   .panel-heading {
-    padding: 20px;
+    padding-bottom: 20px;
   }
   .panel-meta {
-    padding: 16px 20px;
     gap: 8px 16px;
   }
   .meta-last {

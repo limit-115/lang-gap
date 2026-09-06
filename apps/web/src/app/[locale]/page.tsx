@@ -1,7 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -32,33 +31,31 @@ export default async function LeaderboardPage({ params }: Props) {
         <p>{t("description")}</p>
       </section>
       <section aria-labelledby="benchmark-title">
-        <Card className="gap-0 rounded-2xl border py-0 shadow-none ring-0">
-          <div className="panel-heading">
-            <div>
-              <h2 id="benchmark-title">{t("tableTitle")}</h2>
-              <p>{t("tableDescription")}</p>
-            </div>
-            <Badge
-              variant="outline"
-              className="h-auto px-3 py-1 text-sm font-normal text-muted-foreground"
-            >
-              {t(release ? "published" : "status")}
-            </Badge>
+        <div className="panel-heading">
+          <div>
+            <h2 id="benchmark-title">{t("tableTitle")}</h2>
+            <p>{t("tableDescription")}</p>
           </div>
-          <NextIntlClientProvider
-            messages={{ Leaderboard: getMessagesForLocale(locale).Leaderboard }}
+          <Badge
+            variant="outline"
+            className="h-auto px-3 py-1 text-sm font-normal text-muted-foreground"
           >
-            <LeaderboardTable rows={release?.aggregate ?? []} />
-          </NextIntlClientProvider>
-          <div className="panel-meta">
-            <span>{t("questions", { count: release?.aggregate[0]?.n ?? 588 })}</span>
-            <span>{t("repeats", { count: release?.aggregate[0]?.repeats ?? 3 })}</span>
-            <span>{t("languages")}</span>
-            <span className="meta-last">
-              {release ? t("release", { id: release.id }) : t("models")}
-            </span>
-          </div>
-        </Card>
+            {t(release ? "published" : "status")}
+          </Badge>
+        </div>
+        <NextIntlClientProvider
+          messages={{ Leaderboard: getMessagesForLocale(locale).Leaderboard }}
+        >
+          <LeaderboardTable rows={release?.aggregate ?? []} />
+        </NextIntlClientProvider>
+        <div className="panel-meta">
+          <span>{t("questions", { count: release?.aggregate[0]?.n ?? 588 })}</span>
+          <span>{t("repeats", { count: release?.aggregate[0]?.repeats ?? 3 })}</span>
+          <span>{t("languages")}</span>
+          <span className="meta-last">
+            {release ? t("release", { id: release.id }) : t("models")}
+          </span>
+        </div>
       </section>
       {!release ? (
         <Alert role="note" className="mt-5 gap-2 rounded-2xl bg-muted/40 p-5 sm:p-6">
