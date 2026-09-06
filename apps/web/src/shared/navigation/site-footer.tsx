@@ -14,6 +14,20 @@ export async function SiteFooter() {
             Llang Gap<span className="brand-period">.</span>
           </Link>
           <p>{t("footer")}</p>
+          <p>
+            {t.rich("attribution", {
+              author: (chunks) => (
+                <a
+                  href="https://github.com/limit-115"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-foreground underline underline-offset-4 hover:no-underline"
+                >
+                  {chunks}
+                </a>
+              ),
+            })}
+          </p>
         </div>
         <div>
           <a
