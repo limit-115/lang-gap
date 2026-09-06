@@ -297,8 +297,6 @@
   .site-footer {
     width: min(calc(100% - 32px), 1200px);
     margin: 16px auto 24px;
-    border: 1px solid var(--border);
-    border-radius: 16px;
     padding: 48px;
     background: color-mix(in oklch, var(--background) 60%, transparent);
     backdrop-filter: blur(16px);
@@ -307,8 +305,9 @@
   }
   .footer-grid {
     display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(180px, 1fr);
-    gap: 40px;
+    grid-template-columns: minmax(280px, 1fr) auto auto;
+    align-items: start;
+    gap: 64px;
   }
   .footer-brand p {
     max-width: 280px;
@@ -453,7 +452,7 @@
     padding: 28px 24px;
   }
   .footer-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 32px 24px;
   }
   .footer-brand {
@@ -461,12 +460,5 @@
   }
   .formula {
     padding: 16px;
-  }
-}
-
-@media (max-width: 480px) {
-  .footer-grid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
   }
 }
