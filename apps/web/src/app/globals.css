@@ -336,18 +336,6 @@
   .site-footer nav a:focus-visible {
     color: var(--foreground);
   }
-  .footer-resource-link span {
-    text-decoration: underline;
-    text-decoration-color: transparent;
-    text-underline-offset: 4px;
-  }
-  .footer-resource-link:hover span,
-  .footer-resource-link:focus-visible span {
-    text-decoration-color: currentColor;
-  }
-  .footer-external-icon {
-    color: var(--primary);
-  }
   .document {
     max-width: 790px;
     padding-bottom: 56px;
