@@ -19,8 +19,9 @@ Delete optional sections that do not apply. Do not include secrets or private ru
 
 ## UI changes
 
-<!-- Before/after screenshots for visible changes; a short recording for motion
-     or interaction. Check affected behavior in both EN and RU. Delete if not applicable. -->
+<!-- Check and capture before/after screenshots in EN only. If the change specifically
+     concerns another language, also check and capture that language. Add a short recording
+     for motion or interaction. Delete if not applicable. -->
 
 ## Benchmark or artifact impact
 
@@ -33,4 +34,4 @@ Delete optional sections that do not apply. Do not include secrets or private ru
 - [ ] This PR addresses one concern, and I reviewed the diff.
 - [ ] I explained the problem, the change, and the verification results.
 - [ ] I updated affected documentation and regression coverage, where applicable.
-- [ ] I attached UI evidence and checked both locales, where applicable.
+- [ ] I attached UI evidence and checked the required language(s), where applicable.
