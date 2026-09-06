@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { ArrowUpRight, BookOpen, Code2 } from "lucide-react";
 import { Link } from "../../i18n/navigation";
 
 export async function SiteFooter() {
@@ -30,15 +31,31 @@ export async function SiteFooter() {
           <h2>{t("resources")}</h2>
           <ul>
             <li>
-              <a href="https://github.com/limit-115/llang-gap">{t("sourceCode")}</a>
+              <a className="footer-resource-link" href="https://github.com/limit-115/llang-gap">
+                <Code2 aria-hidden="true" className="size-4 shrink-0" />
+                <span>{t("sourceCode")}</span>
+                <ArrowUpRight
+                  aria-hidden="true"
+                  className="footer-external-icon size-3.5 shrink-0"
+                />
+              </a>
             </li>
             <li>
-              <a href="https://github.com/limit-115/llang-gap#readme">{t("documentation")}</a>
+              <a
+                className="footer-resource-link"
+                href="https://github.com/limit-115/llang-gap#readme"
+              >
+                <BookOpen aria-hidden="true" className="size-4 shrink-0" />
+                <span>{t("documentation")}</span>
+                <ArrowUpRight
+                  aria-hidden="true"
+                  className="footer-external-icon size-3.5 shrink-0"
+                />
+              </a>
             </li>
           </ul>
         </nav>
       </div>
-      <div className="footer-bottom">{t("open")}</div>
     </footer>
   );
 }
