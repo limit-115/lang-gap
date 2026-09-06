@@ -1,5 +1,5 @@
 import { cn } from "cn";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Heart } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
@@ -10,28 +10,12 @@ export async function SiteFooter() {
   return (
     <footer className="site-footer">
       <div className="footer-grid">
-        <div className="footer-brand">
-          <Link className="brand" href="/" aria-label={t("home")}>
-            <BrandLogo />
-          </Link>
-          <p>
-            {t("footer")}
-            <br />
-            {t.rich("attribution", {
-              author: (chunks) => (
-                <a
-                  href="https://github.com/limit-115"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-medium text-foreground hover:underline underline-offset-4"
-                >
-                  {chunks}
-                </a>
-              ),
-            })}
-          </p>
-        </div>
-        <div>
+        <Link className="brand" href="/" aria-label={t("home")}>
+          <BrandLogo />
+        </Link>
+        <p className="footer-description">{t("footer")}</p>
+
+        <div className="footer-actions">
           <a
             href="https://github.com/limit-115/llang-gap"
             target="_blank"
@@ -48,9 +32,22 @@ export async function SiteFooter() {
             GitHub
             <ExternalLink aria-hidden="true" className="size-4" />
           </a>
+          <a
+            href="https://t.me/dibenkobit"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-slot="button"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "lg" }),
+              "h-11 gap-2.5 rounded-xl px-4 text-foreground shadow-sm motion-reduce:transition-none",
+            )}
+          >
+            <Heart aria-hidden="true" className="size-4 fill-current" strokeWidth={1.5} />
+            {t("becomeSponsor")}
+            <ExternalLink aria-hidden="true" className="size-4" />
+          </a>
         </div>
         <nav aria-label={t("navigation")}>
-          <h2>{t("navigation")}</h2>
           <ul>
             <li>
               <Link href="/">{t("leaderboard")}</Link>
@@ -63,6 +60,20 @@ export async function SiteFooter() {
             </li>
           </ul>
         </nav>
+        <p className="footer-attribution">
+          {t.rich("attribution", {
+            author: (chunks) => (
+              <a
+                href="https://github.com/limit-115"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-foreground hover:underline underline-offset-4"
+              >
+                {chunks}
+              </a>
+            ),
+          })}
+        </p>
       </div>
     </footer>
   );

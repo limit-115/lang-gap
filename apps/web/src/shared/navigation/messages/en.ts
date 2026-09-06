@@ -1,5 +1,6 @@
 export default {
   navigation: "Navigation",
+  becomeSponsor: "Become a sponsor",
   resources: "Resources",
   sourceCode: "Source code",
   documentation: "Documentation",
