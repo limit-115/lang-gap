@@ -22,7 +22,7 @@ export default {
     "These are public academic multiple-choice questions. Training contamination, translation quality and limited sample size may affect results. Scores do not establish a universal ranking for writing, conversation or professional work. Hosted model aliases can change even when a request uses the same model ID.",
   auditTitle: "Reproduce the result",
   audit:
-    "Each immutable release includes its resolved configuration, dataset snapshot, prompts, visible outputs, usage and hashes. Scores and intervals can be recomputed without calling a model. API keys and transport headers are excluded. Before the first complete run there are no published scores.",
+    "Each immutable release includes its resolved configuration, dataset snapshot, prompts, visible outputs, usage and hashes. Scores and intervals can be recomputed without calling a model. API keys and transport headers are excluded.",
   sources: "Reference materials",
   datasetLink: "Pinned dataset",
   harnessLink: "Pinned prompt implementation",

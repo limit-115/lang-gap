@@ -296,6 +296,8 @@
   .site-footer {
     width: min(calc(100% - 32px), 1200px);
     margin: 16px auto 24px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
     padding: 48px;
     background: color-mix(in oklch, var(--background) 60%, transparent);
     backdrop-filter: blur(16px);
