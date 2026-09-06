@@ -14,7 +14,8 @@ export async function SiteFooter() {
             Llang Gap<span className="brand-period">.</span>
           </Link>
           <p>
-            {t("footer")}{" "}
+            {t("footer")}
+            <br />
             {t.rich("attribution", {
               author: (chunks) => (
                 <a
