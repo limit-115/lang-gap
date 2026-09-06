@@ -8,6 +8,7 @@ export default {
   methodology: "Methodology",
   releases: "Releases",
   language: "Switch language",
+  toggleTheme: "Toggle theme",
   skip: "Skip to content",
   tagline: "Language matters. Measure the difference.",
   footer: "An open benchmark of language differences in LLMs.",

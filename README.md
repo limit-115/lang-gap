@@ -60,6 +60,10 @@ redirects unprefixed URLs using the saved `NEXT_LOCALE` cookie, then the browser
 `Accept-Language`, with English as the fallback. Explicit `/en/` and `/ru/` URLs
 take priority; the header language switcher remembers the choice for one year.
 
+The website follows the system's light or dark appearance by default. The theme
+button in the header switches between light and dark and remembers the choice in
+this browser across reloads and both languages.
+
 ## Checks
 
 ```sh
