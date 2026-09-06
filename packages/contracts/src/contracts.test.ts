@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { experimentSchema, questionSchema, usageSchema } from "./index";
-import { experiment, questions } from "../../../tests/fixtures";
+import { experiment, questions } from "@tests/fixtures";
 
 describe("public contracts", () => {
   it("rejects misspelled settings rather than silently using defaults", () => {

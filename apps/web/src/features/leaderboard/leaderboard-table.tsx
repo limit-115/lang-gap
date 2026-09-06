@@ -24,6 +24,7 @@ import {
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -103,11 +104,13 @@ export function LeaderboardTable({ rows }: { rows: Aggregate[] }) {
             <SelectValue />
           </SelectTrigger>
           <SelectContent align="start" alignItemWithTrigger={false}>
-            {effortItems.map((item) => (
-              <SelectItem key={item.value} value={item.value}>
-                {item.label}
-              </SelectItem>
-            ))}
+            <SelectGroup>
+              {effortItems.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
           </SelectContent>
         </Select>
         {hasFilters && (
@@ -233,11 +236,13 @@ export function LeaderboardTable({ rows }: { rows: Aggregate[] }) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent alignItemWithTrigger={false}>
-                {[10, 20, 50].map((size) => (
-                  <SelectItem key={size} value={size}>
-                    {size}
-                  </SelectItem>
-                ))}
+                <SelectGroup>
+                  {[10, 20, 50].map((size) => (
+                    <SelectItem key={size} value={size}>
+                      {size}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
               </SelectContent>
             </Select>
           </div>

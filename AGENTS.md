@@ -4,6 +4,20 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) for scope, verification, documentation, 
 PR expectations. More specific instructions apply within their directories;
 website work also follows [apps/web/AGENTS.md](apps/web/AGENTS.md).
 
+## Contribution and pull request requirements
+
+- Follow [CONTRIBUTING.md](CONTRIBUTING.md) for every change; read it before
+  starting implementation.
+- When creating or updating a PR, use [.github/pull_request_template.md](.github/pull_request_template.md),
+  including when supplying the body through `gh` or an API.
+- For UI changes, including cosmetic changes, attach before/after screenshots in
+  the PR's **UI changes** section and check both EN and RU. Add a short recording
+  when motion or interaction needs it. Screenshots are required; a preview link
+  or a claim of visual inspection is not a substitute.
+- Follow [the screenshot upload guide](docs/pr-screenshots.md) to upload images
+  through `gh api` and embed them in the PR. Browser login is not required for
+  this method. Read back the PR and confirm the images render before finishing.
+
 ## Working defaults
 
 - Use the pinned Node and pnpm versions. Inspect the relevant package scripts and

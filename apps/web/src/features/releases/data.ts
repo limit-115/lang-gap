@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { releaseManifestSchema, safeIdSchema } from "@llang-gap/contracts";
-import index from "../../../../../results/index.json";
+import index from "@results/index.json";
 
 export async function getReleases() {
   return Promise.all(

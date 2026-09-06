@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import { usageSchema, type GenerationRequest, type ProviderAdapter } from "@llang-gap/contracts";
 import { normalizeError, ProviderError } from "./errors";
-import sdk from "../package.json";
+import sdk from "#package.json";
 
 export function createOpenAIAdapter(
   apiKey: string,

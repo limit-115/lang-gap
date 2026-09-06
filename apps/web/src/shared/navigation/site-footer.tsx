@@ -1,7 +1,7 @@
 import { cn } from "cn";
 import { getTranslations } from "next-intl/server";
 import { buttonVariants } from "@/components/ui/button";
-import { Link } from "../../i18n/navigation";
+import { Link } from "@/i18n/navigation";
 
 export async function SiteFooter() {
   const t = await getTranslations("Navigation");

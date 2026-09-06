@@ -1,11 +1,24 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["typescript", "unicorn", "react", "jsx-a11y", "import"],
-  "categories": { "correctness": "error" },
+  "categories": {
+    "correctness": "error"
+  },
   "rules": {
     "typescript/no-explicit-any": "error",
     "typescript/no-floating-promises": "error",
-    "typescript/no-misused-promises": "error"
+    "typescript/no-misused-promises": "error",
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "regex": "^(\\.{1,2}$|\\.\\./|\\./[^/]+/)",
+            "message": "Use an absolute alias or workspace package; relative imports are only allowed for files in the same directory."
+          }
+        ]
+      }
+    ]
   },
   "ignorePatterns": [
     "**/node_modules/**",

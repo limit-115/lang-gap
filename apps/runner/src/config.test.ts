@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { stringify } from "yaml";
 import { parseExperiment } from "./config";
 import { createJobs } from "./plan";
-import { experiment, questions } from "../../../tests/fixtures";
+import { experiment, questions } from "@tests/fixtures";
 
 describe("experiment plan", () => {
   it("rejects duplicate YAML keys and aliases", () => {
