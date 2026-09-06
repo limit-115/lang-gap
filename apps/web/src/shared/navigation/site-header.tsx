@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Link, usePathname } from "@/i18n/navigation";
 import { BrandLogo } from "./brand-logo";
+import { isCurrentPage } from "./is-current-page";
 import { LanguageSwitcher } from "./language-switcher";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -32,7 +33,11 @@ export function SiteHeader() {
         </Link>
         <nav className="desktop-navigation" aria-label={t("navigation")}>
           {pages.map(({ href, label }) => (
-            <Link key={href} href={href} aria-current={pathname === href ? "page" : undefined}>
+            <Link
+              key={href}
+              href={href}
+              aria-current={isCurrentPage(pathname, href) ? "page" : undefined}
+            >
               {t(label)}
             </Link>
           ))}
@@ -58,8 +63,8 @@ export function SiteHeader() {
                   <DropdownMenuItem
                     key={href}
                     render={<Link href={href} />}
-                    aria-current={pathname === href ? "page" : undefined}
-                    className="min-h-11 cursor-pointer"
+                    aria-current={isCurrentPage(pathname, href) ? "page" : undefined}
+                    className="min-h-11 cursor-pointer aria-[current=page]:bg-accent aria-[current=page]:text-accent-foreground aria-[current=page]:underline aria-[current=page]:underline-offset-4"
                   >
                     {t(label)}
                   </DropdownMenuItem>
