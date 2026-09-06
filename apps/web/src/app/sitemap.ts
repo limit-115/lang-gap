@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
-import { routing } from "../i18n/routing";
-import { siteUrl } from "../shared/metadata";
-import { getReleases } from "../features/releases/data";
+import { routing } from "@/i18n/routing";
+import { siteUrl } from "@/shared/metadata";
+import { getReleases } from "@/features/releases/data";
 export const dynamic = "force-static";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const paths = [

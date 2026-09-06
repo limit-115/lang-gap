@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ProviderAdapter } from "@llang-gap/contracts";
 import { createFakeAdapter, ProviderError } from "@llang-gap/providers";
-import { experiment, questions } from "../../../tests/fixtures";
+import { experiment, questions } from "@tests/fixtures";
 import { createJobs } from "./plan";
 import { execute } from "./scheduler";
 import { acquireLock, RunState } from "./state";

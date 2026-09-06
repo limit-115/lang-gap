@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Link, usePathname } from "../../i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { LanguageSwitcher } from "./language-switcher";
 
 const pages = [

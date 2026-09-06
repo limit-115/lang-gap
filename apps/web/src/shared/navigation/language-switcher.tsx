@@ -11,8 +11,8 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { usePathname, useRouter } from "../../i18n/navigation";
-import { routing, type Locale } from "../../i18n/routing";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { routing, type Locale } from "@/i18n/routing";
 
 const languageNames = {
   en: "English",

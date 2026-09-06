@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import type { Locale } from "../i18n/routing";
+import type { Locale } from "@/i18n/routing";
 
 export const siteUrl = process.env.SITE_URL ?? "http://localhost:3000";
 export function pageMetadata(

@@ -9,7 +9,7 @@ import {
   toPromptQuestion,
   aggregateResults,
 } from "./index";
-import { questions, item } from "../../../tests/fixtures";
+import { questions, item } from "@tests/fixtures";
 
 describe("five-shot prompt", () => {
   for (const language of ["en", "ru"] as const) {
