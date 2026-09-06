@@ -222,6 +222,10 @@
   .desktop-navigation a[aria-current="page"] {
     color: var(--foreground);
   }
+  .desktop-navigation a[aria-current="page"] {
+    text-decoration: underline;
+    text-underline-offset: 6px;
+  }
   .header-actions {
     display: flex;
     align-items: center;
