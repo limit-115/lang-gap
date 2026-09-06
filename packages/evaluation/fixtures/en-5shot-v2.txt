@@ -1,0 +1,61 @@
+Below are five solved examples as reference material, followed by one target question.
+
+[BEGIN SOLVED EXAMPLES]
+Question:
+Synthetic question 0: what is 1 + 1?
+Options:
+A. 1
+B. 2
+C. 3
+D. 4
+Answer: Let's think step by step. One plus one is two. The answer is (B).
+
+Question:
+Synthetic question 1: what is 1 + 1?
+Options:
+A. 1
+B. 2
+C. 3
+D. 4
+Answer: Let's think step by step. One plus one is two. The answer is (B).
+
+Question:
+Synthetic question 2: what is 1 + 1?
+Options:
+A. 1
+B. 2
+C. 3
+D. 4
+Answer: Let's think step by step. One plus one is two. The answer is (B).
+
+Question:
+Synthetic question 3: what is 1 + 1?
+Options:
+A. 1
+B. 2
+C. 3
+D. 4
+Answer: Let's think step by step. One plus one is two. The answer is (B).
+
+Question:
+Synthetic question 4: what is 1 + 1?
+Options:
+A. 1
+B. 2
+C. 3
+D. 4
+Answer: Let's think step by step. One plus one is two. The answer is (B).
+
+[END SOLVED EXAMPLES]
+
+[BEGIN TARGET QUESTION]
+Question:
+Synthetic question 0: what is 1 + 1?
+Options:
+A. 1
+B. 2
+C. 3
+D. 4
+[END TARGET QUESTION]
+
+Solve ONLY the question in the target question block. Do not solve or repeat the solved examples, and do not repeat the target question. Give brief reasoning only if needed. Finish your response with exactly "The answer is (X).", replacing X with the correct option letter. Write nothing after this terminal answer.

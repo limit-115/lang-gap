@@ -16,6 +16,50 @@ export const protocol = {
   ],
 } as const;
 
+export const protocolV2 = {
+  ...protocol,
+  id: "mmluprox-lite-5shot-native-reasoning-v2",
+  version: 2,
+  adaptations: [
+    ...protocol.adaptations,
+    "The same five solved source examples, in source order, inside a delimited reference block.",
+    "One separately delimited target with localized target-only instructions and optional brief reasoning.",
+  ],
+  promptTemplate: {
+    en: {
+      introduction:
+        "Below are five solved examples as reference material, followed by one target question.",
+      examplesStart: "[BEGIN SOLVED EXAMPLES]",
+      examplesEnd: "[END SOLVED EXAMPLES]",
+      targetStart: "[BEGIN TARGET QUESTION]",
+      targetEnd: "[END TARGET QUESTION]",
+      responseInstruction:
+        'Solve ONLY the question in the target question block. Do not solve or repeat the solved examples, and do not repeat the target question. Give brief reasoning only if needed. Finish your response with exactly "The answer is (X).", replacing X with the correct option letter. Write nothing after this terminal answer.',
+    },
+    ru: {
+      introduction:
+        "Ниже приведены пять решённых примеров в качестве справочного материала, а затем один целевой вопрос.",
+      examplesStart: "[НАЧАЛО РЕШЁННЫХ ПРИМЕРОВ]",
+      examplesEnd: "[КОНЕЦ РЕШЁННЫХ ПРИМЕРОВ]",
+      targetStart: "[НАЧАЛО ЦЕЛЕВОГО ВОПРОСА]",
+      targetEnd: "[КОНЕЦ ЦЕЛЕВОГО ВОПРОСА]",
+      responseInstruction:
+        'Решите ТОЛЬКО вопрос в блоке целевого вопроса. Не решайте и не повторяйте решённые примеры и не повторяйте целевой вопрос. Приведите краткое рассуждение, только если это необходимо. Завершите ответ строго фразой "Ответ - (X).", заменив X буквой правильного варианта. После этой заключительной фразы ничего не пишите.',
+    },
+  },
+} as const;
+
+export function getProtocol(id: string): typeof protocol | typeof protocolV2 {
+  switch (id) {
+    case protocol.id:
+      return protocol;
+    case protocolV2.id:
+      return protocolV2;
+    default:
+      throw new Error(`Unsupported protocol: ${id}`);
+  }
+}
+
 export function toPromptQuestion(q: Question): PromptQuestion {
   return {
     id: q.id,
@@ -29,7 +73,12 @@ export function formatQuestion(q: PromptQuestion): string {
   const words = reference[q.language].labels;
   return `${words[0]}\n${q.question}\n${words[1]}\n${q.options.map((option, i) => `${String.fromCharCode(65 + i)}. ${option}\n`).join("")}`;
 }
-export function buildPrompt(target: PromptQuestion, validation: readonly Question[]): string {
+export function buildPrompt(
+  target: PromptQuestion,
+  validation: readonly Question[],
+  protocolId: string = protocol.id,
+): string {
+  const selectedProtocol = getProtocol(protocolId);
   const language: Language = target.language;
   const spec = reference[language];
   const category = target.category.replaceAll(" ", "_");
@@ -44,15 +93,20 @@ export function buildPrompt(target: PromptQuestion, validation: readonly Questio
   const cotPrefix = spec.labels[4];
   const answerPrefix = spec.labels[2];
   if (!cotPrefix || !answerPrefix) throw new Error("Invalid pinned prompt labels");
-  return (
-    description +
-    examples
-      .map(
-        (q) =>
-          formatQuestion(toPromptQuestion(q)) + q.cot.replaceAll(cotPrefix, answerPrefix) + "\n\n",
-      )
-      .join("") +
-    formatQuestion(target) +
-    answerPrefix
-  );
+  const solvedExamples = examples
+    .map(
+      (q) =>
+        formatQuestion(toPromptQuestion(q)) + q.cot.replaceAll(cotPrefix, answerPrefix) + "\n\n",
+    )
+    .join("");
+  if (selectedProtocol.id === protocolV2.id) {
+    const template = selectedProtocol.promptTemplate[language];
+    return (
+      `${template.introduction}\n\n` +
+      `${template.examplesStart}\n${solvedExamples}${template.examplesEnd}\n\n` +
+      `${template.targetStart}\n${formatQuestion(target)}${template.targetEnd}\n\n` +
+      template.responseInstruction
+    );
+  }
+  return description + solvedExamples + formatQuestion(target) + answerPrefix;
 }

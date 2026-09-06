@@ -1,10 +1,14 @@
+import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 import { parse } from "yaml";
 import {
   buildPrompt,
+  formatQuestion,
+  getProtocol,
   parseAnswer,
   protocol,
+  protocolV2,
   scoreAnswer,
   toPromptQuestion,
   aggregateResults,
@@ -25,6 +29,13 @@ describe("five-shot prompt", () => {
         "utf8",
       );
       expect(prompt).toBe(expected);
+      expect(
+        buildPrompt(
+          toPromptQuestion(target),
+          questions.filter((q) => q.split === "validation"),
+          protocol.id,
+        ),
+      ).toBe(expected);
       expect(prompt).not.toContain("PRIVATE_TEST_SOLUTION");
       expect(
         buildPrompt(
@@ -60,6 +71,153 @@ describe("five-shot prompt", () => {
     expect(() => buildPrompt(toPromptQuestion(q), [...examples.slice(0, 4), q])).toThrow(
       "validation",
     );
+  });
+});
+
+describe("explicit target-only five-shot prompt", () => {
+  const localizedStructure = {
+    en: {
+      examplesStart: "[BEGIN SOLVED EXAMPLES]",
+      examplesEnd: "[END SOLVED EXAMPLES]",
+      targetStart: "[BEGIN TARGET QUESTION]",
+      targetEnd: "[END TARGET QUESTION]",
+      requirements: [
+        "five solved examples as reference material",
+        "one target question",
+        "Solve ONLY the question in the target question block.",
+        "Do not solve or repeat the solved examples",
+        "do not repeat the target question",
+        "Give brief reasoning only if needed.",
+        'exactly "The answer is (X)."',
+        "Write nothing after this terminal answer.",
+      ],
+    },
+    ru: {
+      examplesStart: "[НАЧАЛО РЕШЁННЫХ ПРИМЕРОВ]",
+      examplesEnd: "[КОНЕЦ РЕШЁННЫХ ПРИМЕРОВ]",
+      targetStart: "[НАЧАЛО ЦЕЛЕВОГО ВОПРОСА]",
+      targetEnd: "[КОНЕЦ ЦЕЛЕВОГО ВОПРОСА]",
+      requirements: [
+        "пять решённых примеров в качестве справочного материала",
+        "один целевой вопрос",
+        "Решите ТОЛЬКО вопрос в блоке целевого вопроса.",
+        "Не решайте и не повторяйте решённые примеры",
+        "не повторяйте целевой вопрос",
+        "Приведите краткое рассуждение, только если это необходимо.",
+        'строго фразой "Ответ - (X)."',
+        "После этой заключительной фразы ничего не пишите.",
+      ],
+    },
+  };
+
+  for (const language of ["en", "ru"] as const) {
+    it(`preserves the five solved examples inside a separate reference block (${language})`, async () => {
+      const target = questions.find((q) => q.language === language && q.split === "test")!;
+      const validation = questions.filter((q) => q.split === "validation");
+      const prompt = buildPrompt(toPromptQuestion(target), validation, protocolV2.id);
+      const [expected, v1Golden] = await Promise.all([
+        readFile(new URL(`../fixtures/${language}-5shot-v2.txt`, import.meta.url), "utf8"),
+        readFile(new URL(`../fixtures/${language}-5shot.txt`, import.meta.url), "utf8"),
+      ]);
+      expect(prompt).toBe(expected);
+      const structure = localizedStructure[language];
+      for (const delimiter of [
+        structure.examplesStart,
+        structure.examplesEnd,
+        structure.targetStart,
+        structure.targetEnd,
+      ]) {
+        expect(prompt.split(delimiter)).toHaveLength(2);
+      }
+      const examplesStart =
+        prompt.indexOf(structure.examplesStart) + structure.examplesStart.length;
+      const examplesEnd = prompt.indexOf(structure.examplesEnd);
+      const targetStart = prompt.indexOf(structure.targetStart) + structure.targetStart.length;
+      const targetEnd = prompt.indexOf(structure.targetEnd);
+      expect(examplesStart).toBeLessThan(examplesEnd);
+      expect(examplesEnd).toBeLessThan(targetStart);
+      expect(targetStart).toBeLessThan(targetEnd);
+      const targetText = formatQuestion(toPromptQuestion(target));
+      const v1Examples = v1Golden.slice(
+        protocol.reference[language].descriptions.math.length,
+        -(targetText.length + protocol.reference[language].labels[2]!.length),
+      );
+      expect(prompt.slice(examplesStart, examplesEnd)).toBe(`\n${v1Examples}`);
+      expect(prompt.slice(targetStart, targetEnd)).toBe(`\n${targetText}`);
+      for (const requirement of structure.requirements) expect(prompt).toContain(requirement);
+      expect(prompt.slice(targetEnd + structure.targetEnd.length)).not.toContain(
+        protocol.reference[language].labels[2],
+      );
+    });
+
+    it(`includes one target without its gold answer or solution (${language})`, () => {
+      const base = questions.find((q) => q.language === language && q.split === "test")!;
+      const target = {
+        ...base,
+        question: "UNIQUE_TARGET_QUESTION",
+        options: ["TARGET_OPTION_A", "TARGET_OPTION_B", "TARGET_OPTION_C", "TARGET_OPTION_D"],
+        answer: "D",
+        cot: "PRIVATE_TARGET_SOLUTION",
+      };
+      const validation = questions.filter((q) => q.split === "validation");
+      const prompt = buildPrompt(toPromptQuestion(target), validation, protocolV2.id);
+      expect(prompt.split(target.question)).toHaveLength(2);
+      for (const [i, option] of target.options.entries()) {
+        expect(prompt.split(`${String.fromCharCode(65 + i)}. ${option}\n`)).toHaveLength(2);
+      }
+      expect(prompt).not.toContain(target.cot);
+      expect(prompt).not.toContain("PRIVATE_TEST_SOLUTION");
+      expect(prompt).not.toContain(language === "en" ? "The answer is (D)." : "Ответ - (D).");
+      const changedTarget = { ...target, answer: "A", cot: "CHANGED_PRIVATE_SOLUTION" };
+      expect(buildPrompt(changedTarget, validation, protocolV2.id)).toBe(prompt);
+    });
+  }
+
+  it("preserves the v1 protocol hash and gives v2 a distinct pinned protocol hash", () => {
+    const protocolHash = (value: unknown) =>
+      createHash("sha256")
+        .update(`${JSON.stringify(value, null, 2)}\n`)
+        .digest("hex");
+    expect(protocolHash(protocol)).toBe(
+      "266ad9bd948de36b5933d17cdcd131fa830a4622a40ab557cebc8e73045f4f74",
+    );
+    expect(protocolHash(protocolV2)).toBe(
+      "c0ff40f21a913c5822aeb71d1b7341e1f6512e772b7eeb12de1a7610bd36602d",
+    );
+    expect(protocolHash(protocolV2)).not.toBe(protocolHash(protocol));
+    expect(protocolV2.reference).toBe(protocol.reference);
+    expect(protocolV2.parserVersion).toBe(protocol.parserVersion);
+    expect(protocolV2.bootstrapSamples).toBe(protocol.bootstrapSamples);
+    expect(getProtocol(protocol.id)).toBe(protocol);
+    expect(getProtocol(protocolV2.id)).toBe(protocolV2);
+  });
+
+  it.each(["", "unknown", "mmluprox-lite-5shot-native-reasoning-v3", "toString"])(
+    "rejects an unknown protocol ID: %s",
+    (id) => {
+      expect(() => getProtocol(id)).toThrow(`Unsupported protocol: ${id}`);
+      expect(() => buildPrompt(toPromptQuestion(questions[0]!), [], id)).toThrow(
+        `Unsupported protocol: ${id}`,
+      );
+    },
+  );
+
+  it("applies the same validation-example safeguards to v2", () => {
+    const target = questions.find((q) => q.language === "en" && q.split === "test")!;
+    const validation = questions.filter((q) => q.language === "en" && q.split === "validation");
+    expect(() =>
+      buildPrompt(toPromptQuestion(target), validation.slice(0, 4), protocolV2.id),
+    ).toThrow("Five distinct validation examples required");
+    expect(() =>
+      buildPrompt(toPromptQuestion(target), [...validation.slice(0, 4), target], protocolV2.id),
+    ).toThrow("Five distinct validation examples required");
+    expect(() =>
+      buildPrompt(
+        toPromptQuestion(target),
+        [...validation.slice(0, 4), validation[0]!],
+        protocolV2.id,
+      ),
+    ).toThrow("Duplicate few-shot example");
   });
 });
 
