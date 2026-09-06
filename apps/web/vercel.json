@@ -1,8 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "git": {
-    "deploymentEnabled": {
-      "fix/mmluprox-author-protocol": false
-    }
-  }
-}
