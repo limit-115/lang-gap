@@ -1,0 +1,16 @@
+export default {
+  navigation: "Navigation",
+  resources: "Resources",
+  sourceCode: "Source code",
+  documentation: "Documentation",
+  menu: "Open navigation menu",
+  leaderboard: "Leaderboard",
+  methodology: "Methodology",
+  releases: "Releases",
+  language: "Switch language",
+  skip: "Skip to content",
+  tagline: "Language matters. Measure the difference.",
+  footer: "An open benchmark of language differences in LLMs.",
+  open: "Open code · Open methods · Open results",
+  home: "Llang Gap home",
+} as const;

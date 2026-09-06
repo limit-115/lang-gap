@@ -1,0 +1,11 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalEnv": ["SITE_URL", "LLANG_RELEASE_ID"],
+  "globalDependencies": ["config/**", "results/**"],
+  "tasks": {
+    "build": { "dependsOn": ["^build"], "outputs": [] },
+    "@llang-gap/web#build": { "dependsOn": ["^build"], "outputs": [".next/**", "out/**"] },
+    "typecheck": { "dependsOn": ["^typecheck"] },
+    "dev": { "cache": false, "persistent": true }
+  }
+}

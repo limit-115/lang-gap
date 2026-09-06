@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,99}$"
+    },
+    "dataset": {
+      "type": "string",
+      "const": "mmlu-prox-lite"
+    },
+    "protocol": {
+      "type": "string",
+      "const": "mmluprox-lite-5shot-native-reasoning-v1"
+    },
+    "languages": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "string",
+          "const": "en"
+        },
+        {
+          "type": "string",
+          "const": "ru"
+        }
+      ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "repeats": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "seed": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2147483647
+    },
+    "models": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "openai",
+              "anthropic",
+              "fake"
+            ]
+          },
+          "model": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,99}$"
+          },
+          "efforts": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            }
+          },
+          "maxOutputTokens": {
+            "type": "integer",
+            "minimum": 256,
+            "maximum": 128000
+          },
+          "pricing": {
+            "type": "object",
+            "properties": {
+              "asOf": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+              },
+              "source": {
+                "type": "string",
+                "format": "uri"
+              },
+              "inputPerMillion": {
+                "type": "number",
+                "minimum": 0
+              },
+              "cachedInputPerMillion": {
+                "type": "number",
+                "minimum": 0
+              },
+              "cacheWritePerMillion": {
+                "type": "number",
+                "minimum": 0
+              },
+              "cacheWrite1hPerMillion": {
+                "type": "number",
+                "minimum": 0
+              },
+              "outputPerMillion": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "asOf",
+              "source",
+              "inputPerMillion",
+              "cachedInputPerMillion",
+              "cacheWritePerMillion",
+              "cacheWrite1hPerMillion",
+              "outputPerMillion"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "provider",
+          "model",
+          "efforts",
+          "maxOutputTokens",
+          "pricing"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "execution": {
+      "type": "object",
+      "properties": {
+        "concurrency": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "maxAttempts": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "timeoutMs": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 3600000
+        }
+      },
+      "required": [
+        "concurrency",
+        "maxAttempts",
+        "timeoutMs"
+      ],
+      "additionalProperties": false
+    },
+    "questionLimit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 588
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "dataset",
+    "protocol",
+    "languages",
+    "repeats",
+    "seed",
+    "models",
+    "execution"
+  ],
+  "additionalProperties": false
+}

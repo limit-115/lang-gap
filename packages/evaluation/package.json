@@ -1,0 +1,19 @@
+{
+  "name": "@llang-gap/evaluation",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@llang-gap/contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "yaml": "2.9.0"
+  }
+}

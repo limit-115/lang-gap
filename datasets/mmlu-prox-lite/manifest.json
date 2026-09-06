@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "mmlu-prox-lite",
+  "repository": "li-lab/MMLU-ProX-Lite",
+  "revision": "e82aafb9460529687d3c7e51b401d8dd1dd309dd",
+  "normalizerVersion": 1,
+  "license": "MIT (dataset card); see source attribution and underlying MMLU-Pro materials",
+  "source": "https://huggingface.co/datasets/li-lab/MMLU-ProX-Lite/blob/e82aafb9460529687d3c7e51b401d8dd1dd309dd/README.md",
+  "files": [
+    {
+      "path": "en/test-00000-of-00001.parquet",
+      "language": "en",
+      "split": "test",
+      "rows": 588,
+      "sha256": "e94717f3fd5f2d785dd0d3e38835274fcdd87402a3472bcb3172cc7e8f776c47"
+    },
+    {
+      "path": "en/validation-00000-of-00001.parquet",
+      "language": "en",
+      "split": "validation",
+      "rows": 70,
+      "sha256": "3fc1f51574905c5080c2d800e6d4cc363c0fb5a190dcb7e1ec4407295d0647bb"
+    },
+    {
+      "path": "ru/test-00000-of-00001.parquet",
+      "language": "ru",
+      "split": "test",
+      "rows": 588,
+      "sha256": "c1e75b3b97db1ed5c0b67f447d1a17bbdbba8c72bdbe6f70437127cc08d5f48a"
+    },
+    {
+      "path": "ru/validation-00000-of-00001.parquet",
+      "language": "ru",
+      "split": "validation",
+      "rows": 70,
+      "sha256": "6dc2ec9345a2e9a8453cb90ff5128f829edcf1f75cf6df05f91f5f96c44dc9f4"
+    }
+  ]
+}

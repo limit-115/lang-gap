@@ -1,0 +1,54 @@
+{
+  "en": {
+    "labels": [
+      "Question:",
+      "Options:",
+      "Answer: Let's think step by step.",
+      "The following are multiple choice questions (with answers) about {subject}. Think step by step and then finish your answer with \"{ans_suffix}\" where X is the correct letter choice.",
+      "A: Let's think step by step.",
+      "the answer is ({})"
+    ],
+    "descriptions": {
+      "biology": "The following are multiple choice questions (with answers) about biology. Think step by step and then finish your answer with \"the answer is (X)\" where X is the correct letter choice.\n",
+      "business": "The following are multiple choice questions (with answers) about business. Think step by step and then finish your answer with \"the answer is (X)\" where X is the correct letter choice.\n",
+      "chemistry": "The following are multiple choice questions (with answers) about chemistry. Think step by step and then finish your answer with \"the answer is (X)\" where X is the correct letter choice.\n",
+      "computer_science": "The following are multiple choice questions (with answers) about computer_science. Think step by step and then finish your answer with \"the answer is (X)\" where X is the correct letter choice.\n",
+      "economics": "The following are multiple choice questions (with answers) about economics. Think step by step and then finish your answer with \"the answer is (X)\" where X is the correct letter choice.\n",
+      "engineering": "The following are multiple choice questions (with answers) about engineering. Think step by step and then finish your answer with \"the answer is (X)\" where X is the correct letter choice.\n",
+      "health": "The following are multiple choice questions (with answers) about health. Think step by step and then finish your answer with \"the answer is (X)\" where X is the correct letter choice.\n",
+      "history": "The following are multiple choice questions (with answers) about history. Think step by step and then finish your answer with \"the answer is (X)\" where X is the correct letter choice.\n",
+      "law": "The following are multiple choice questions (with answers) about law. Think step by step and then finish your answer with \"the answer is (X)\" where X is the correct letter choice.\n",
+      "math": "The following are multiple choice questions (with answers) about math. Think step by step and then finish your answer with \"the answer is (X)\" where X is the correct letter choice.\n",
+      "other": "The following are multiple choice questions (with answers) about other. Think step by step and then finish your answer with \"the answer is (X)\" where X is the correct letter choice.\n",
+      "philosophy": "The following are multiple choice questions (with answers) about philosophy. Think step by step and then finish your answer with \"the answer is (X)\" where X is the correct letter choice.\n",
+      "physics": "The following are multiple choice questions (with answers) about physics. Think step by step and then finish your answer with \"the answer is (X)\" where X is the correct letter choice.\n",
+      "psychology": "The following are multiple choice questions (with answers) about psychology. Think step by step and then finish your answer with \"the answer is (X)\" where X is the correct letter choice.\n"
+    }
+  },
+  "ru": {
+    "labels": [
+      "Вопрос:",
+      "Варианты:",
+      "Ответ: Давайте подумаем шаг за шагом.",
+      "Ниже приведен вопрос с множественным выбором о {subject} (с ответами). Пожалуйста, размышляйте шаг за шагом, а затем завершите свой ответ с \"{ans_suffix}\", где X - это буква правильного варианта.",
+      "A: Давайте подумаем шаг за шагом.",
+      "Ответ - ({})"
+    ],
+    "descriptions": {
+      "biology": "Ниже приведен вопрос с множественным выбором о Биология (с ответами). Пожалуйста, размышляйте шаг за шагом, а затем завершите свой ответ с \"Ответ - (X)\", где X - это буква правильного варианта.\n",
+      "business": "Ниже приведен вопрос с множественным выбором о Бизнес (с ответами). Пожалуйста, размышляйте шаг за шагом, а затем завершите свой ответ с \"Ответ - (X)\", где X - это буква правильного варианта.\n",
+      "chemistry": "Ниже приведен вопрос с множественным выбором о Химия (с ответами). Пожалуйста, размышляйте шаг за шагом, а затем завершите свой ответ с \"Ответ - (X)\", где X - это буква правильного варианта.\n",
+      "computer_science": "Ниже приведен вопрос с множественным выбором о Информатика (с ответами). Пожалуйста, размышляйте шаг за шагом, а затем завершите свой ответ с \"Ответ - (X)\", где X - это буква правильного варианта.\n",
+      "economics": "Ниже приведен вопрос с множественным выбором о Экономика (с ответами). Пожалуйста, размышляйте шаг за шагом, а затем завершите свой ответ с \"Ответ - (X)\", где X - это буква правильного варианта.\n",
+      "engineering": "Ниже приведен вопрос с множественным выбором о Инженерия (с ответами). Пожалуйста, размышляйте шаг за шагом, а затем завершите свой ответ с \"Ответ - (X)\", где X - это буква правильного варианта.\n",
+      "health": "Ниже приведен вопрос с множественным выбором о Здравоохранение (с ответами). Пожалуйста, размышляйте шаг за шагом, а затем завершите свой ответ с \"Ответ - (X)\", где X - это буква правильного варианта.\n",
+      "history": "Ниже приведен вопрос с множественным выбором о История (с ответами). Пожалуйста, размышляйте шаг за шагом, а затем завершите свой ответ с \"Ответ - (X)\", где X - это буква правильного варианта.\n",
+      "law": "Ниже приведен вопрос с множественным выбором о Право (с ответами). Пожалуйста, размышляйте шаг за шагом, а затем завершите свой ответ с \"Ответ - (X)\", где X - это буква правильного варианта.\n",
+      "math": "Ниже приведен вопрос с множественным выбором о Математика (с ответами). Пожалуйста, размышляйте шаг за шагом, а затем завершите свой ответ с \"Ответ - (X)\", где X - это буква правильного варианта.\n",
+      "other": "Ниже приведен вопрос с множественным выбором о Другое (с ответами). Пожалуйста, размышляйте шаг за шагом, а затем завершите свой ответ с \"Ответ - (X)\", где X - это буква правильного варианта.\n",
+      "philosophy": "Ниже приведен вопрос с множественным выбором о Философия (с ответами). Пожалуйста, размышляйте шаг за шагом, а затем завершите свой ответ с \"Ответ - (X)\", где X - это буква правильного варианта.\n",
+      "physics": "Ниже приведен вопрос с множественным выбором о Физика (с ответами). Пожалуйста, размышляйте шаг за шагом, а затем завершите свой ответ с \"Ответ - (X)\", где X - это буква правильного варианта.\n",
+      "psychology": "Ниже приведен вопрос с множественным выбором о Психология (с ответами). Пожалуйста, размышляйте шаг за шагом, а затем завершите свой ответ с \"Ответ - (X)\", где X - это буква правильного варианта.\n"
+    }
+  }
+}

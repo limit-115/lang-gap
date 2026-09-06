@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "ignorePatterns": [
+    "pnpm-lock.yaml",
+    ".llang-gap/**",
+    "**/.next/**",
+    "**/out/**",
+    "packages/evaluation/reference/**",
+    "experiments/schema.json"
+  ]
+}

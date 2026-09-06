@@ -1,0 +1,54 @@
+The following are multiple choice questions (with answers) about math. Think step by step and then finish your answer with "the answer is (X)" where X is the correct letter choice.
+Question:
+Synthetic question 0: what is 1 + 1?
+Options:
+A. 1
+B. 2
+C. 3
+D. 4
+Answer: Let's think step by step. One plus one is two. The answer is (B).
+
+Question:
+Synthetic question 1: what is 1 + 1?
+Options:
+A. 1
+B. 2
+C. 3
+D. 4
+Answer: Let's think step by step. One plus one is two. The answer is (B).
+
+Question:
+Synthetic question 2: what is 1 + 1?
+Options:
+A. 1
+B. 2
+C. 3
+D. 4
+Answer: Let's think step by step. One plus one is two. The answer is (B).
+
+Question:
+Synthetic question 3: what is 1 + 1?
+Options:
+A. 1
+B. 2
+C. 3
+D. 4
+Answer: Let's think step by step. One plus one is two. The answer is (B).
+
+Question:
+Synthetic question 4: what is 1 + 1?
+Options:
+A. 1
+B. 2
+C. 3
+D. 4
+Answer: Let's think step by step. One plus one is two. The answer is (B).
+
+Question:
+Synthetic question 0: what is 1 + 1?
+Options:
+A. 1
+B. 2
+C. 3
+D. 4
+Answer: Let's think step by step.

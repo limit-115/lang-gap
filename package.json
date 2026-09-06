@@ -1,0 +1,37 @@
+{
+  "name": "llang-gap",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter @llang-gap/web dev",
+    "build": "turbo build",
+    "typecheck": "turbo typecheck",
+    "typecheck:core": "turbo typecheck --filter=!@llang-gap/web && tsc --noEmit",
+    "lint": "oxlint --type-aware --deny-warnings",
+    "lint:core": "oxlint --type-aware --deny-warnings apps/runner packages scripts tests vitest.config.ts",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "test": "vitest run",
+    "test:core": "vitest run packages apps/runner",
+    "test:watch": "vitest",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "bench": "tsx apps/runner/src/cli.ts",
+    "schema": "tsx scripts/generate-schema.ts",
+    "schema:check": "tsx scripts/generate-schema.ts --check"
+  },
+  "devDependencies": {
+    "@llang-gap/contracts": "workspace:*",
+    "@types/node": "^24.0.0",
+    "oxfmt": "0.66.0",
+    "oxlint": "1.81.0",
+    "oxlint-tsgolint": "7.0.2001",
+    "tsx": "4.23.13",
+    "turbo": "2.10.12",
+    "typescript": "7.0.2",
+    "vitest": "5.0.0"
+  },
+  "engines": {
+    "node": ">=24.18 <25"
+  },
+  "packageManager": "pnpm@12.3.4"
+}

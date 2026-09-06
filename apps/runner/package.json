@@ -1,0 +1,20 @@
+{
+  "name": "@llang-gap/runner",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@commander-js/extra-typings": "15.0.0",
+    "@llang-gap/contracts": "workspace:*",
+    "@llang-gap/datasets": "workspace:*",
+    "@llang-gap/evaluation": "workspace:*",
+    "@llang-gap/providers": "workspace:*",
+    "commander": "15.0.0",
+    "yaml": "2.9.0",
+    "zod": "4.5.4"
+  }
+}

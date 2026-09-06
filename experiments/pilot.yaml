@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=./schema.json
+# Technical pilot: all 6 model/effort configurations, 2 paired questions. Not publishable.
+schemaVersion: 1
+id: pilot-en-ru-v1
+dataset: mmlu-prox-lite
+protocol: mmluprox-lite-5shot-native-reasoning-v1
+languages: [en, ru]
+repeats: 1
+questionLimit: 2
+seed: 20260906
+models:
+  - provider: openai
+    model: gpt-6-astra
+    efforts: [low, medium, high]
+    # Pilot first. Changing this cap creates a new run for the full affected pair.
+    maxOutputTokens: 16384
+    pricing:
+      asOf: 2026-09-06
+      source: https://developers.openai.com/api/docs/pricing
+      inputPerMillion: 10
+      cachedInputPerMillion: 1
+      cacheWritePerMillion: 12.5
+      cacheWrite1hPerMillion: 12.5
+      outputPerMillion: 50
+  - provider: anthropic
+    model: claude-fable-5-1
+    efforts: [low, medium, high]
+    maxOutputTokens: 16384
+    pricing:
+      asOf: 2026-09-06
+      source: https://platform.claude.com/docs/en/models/fable-5-1/overview
+      inputPerMillion: 10
+      cachedInputPerMillion: 0.25
+      cacheWritePerMillion: 12.5
+      cacheWrite1hPerMillion: 20
+      outputPerMillion: 50
+execution:
+  concurrency: 2
+  maxAttempts: 3
+  timeoutMs: 600000

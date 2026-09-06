@@ -1,0 +1,178 @@
+[
+  {
+    "id": "validation:synthetic:1000",
+    "sourceId": 1000,
+    "language": "en",
+    "split": "validation",
+    "category": "math",
+    "question": "Synthetic question 0: what is 1 + 1?",
+    "options": ["1", "2", "3", "4"],
+    "answer": "B",
+    "cot": "A: Let's think step by step. One plus one is two. The answer is (B)."
+  },
+  {
+    "id": "validation:synthetic:1001",
+    "sourceId": 1001,
+    "language": "en",
+    "split": "validation",
+    "category": "math",
+    "question": "Synthetic question 1: what is 1 + 1?",
+    "options": ["1", "2", "3", "4"],
+    "answer": "B",
+    "cot": "A: Let's think step by step. One plus one is two. The answer is (B)."
+  },
+  {
+    "id": "validation:synthetic:1002",
+    "sourceId": 1002,
+    "language": "en",
+    "split": "validation",
+    "category": "math",
+    "question": "Synthetic question 2: what is 1 + 1?",
+    "options": ["1", "2", "3", "4"],
+    "answer": "B",
+    "cot": "A: Let's think step by step. One plus one is two. The answer is (B)."
+  },
+  {
+    "id": "validation:synthetic:1003",
+    "sourceId": 1003,
+    "language": "en",
+    "split": "validation",
+    "category": "math",
+    "question": "Synthetic question 3: what is 1 + 1?",
+    "options": ["1", "2", "3", "4"],
+    "answer": "B",
+    "cot": "A: Let's think step by step. One plus one is two. The answer is (B)."
+  },
+  {
+    "id": "validation:synthetic:1004",
+    "sourceId": 1004,
+    "language": "en",
+    "split": "validation",
+    "category": "math",
+    "question": "Synthetic question 4: what is 1 + 1?",
+    "options": ["1", "2", "3", "4"],
+    "answer": "B",
+    "cot": "A: Let's think step by step. One plus one is two. The answer is (B)."
+  },
+  {
+    "id": "test:synthetic:2000",
+    "sourceId": 2000,
+    "language": "en",
+    "split": "test",
+    "category": "math",
+    "question": "Synthetic question 0: what is 1 + 1?",
+    "options": ["1", "2", "3", "4"],
+    "answer": "B",
+    "cot": "PRIVATE_TEST_SOLUTION_DO_NOT_INCLUDE"
+  },
+  {
+    "id": "test:synthetic:2001",
+    "sourceId": 2001,
+    "language": "en",
+    "split": "test",
+    "category": "math",
+    "question": "Synthetic question 1: what is 1 + 1?",
+    "options": ["1", "2", "3", "4"],
+    "answer": "B",
+    "cot": "PRIVATE_TEST_SOLUTION_DO_NOT_INCLUDE"
+  },
+  {
+    "id": "test:synthetic:2002",
+    "sourceId": 2002,
+    "language": "en",
+    "split": "test",
+    "category": "math",
+    "question": "Synthetic question 2: what is 1 + 1?",
+    "options": ["1", "2", "3", "4"],
+    "answer": "B",
+    "cot": "PRIVATE_TEST_SOLUTION_DO_NOT_INCLUDE"
+  },
+  {
+    "id": "validation:synthetic:1000",
+    "sourceId": 1000,
+    "language": "ru",
+    "split": "validation",
+    "category": "math",
+    "question": "Синтетическое задание 0: сколько будет 1 + 1?",
+    "options": ["1", "2", "3", "4"],
+    "answer": "B",
+    "cot": "A: Давайте подумаем шаг за шагом. Один плюс один — два. Ответ - (B)."
+  },
+  {
+    "id": "validation:synthetic:1001",
+    "sourceId": 1001,
+    "language": "ru",
+    "split": "validation",
+    "category": "math",
+    "question": "Синтетическое задание 1: сколько будет 1 + 1?",
+    "options": ["1", "2", "3", "4"],
+    "answer": "B",
+    "cot": "A: Давайте подумаем шаг за шагом. Один плюс один — два. Ответ - (B)."
+  },
+  {
+    "id": "validation:synthetic:1002",
+    "sourceId": 1002,
+    "language": "ru",
+    "split": "validation",
+    "category": "math",
+    "question": "Синтетическое задание 2: сколько будет 1 + 1?",
+    "options": ["1", "2", "3", "4"],
+    "answer": "B",
+    "cot": "A: Давайте подумаем шаг за шагом. Один плюс один — два. Ответ - (B)."
+  },
+  {
+    "id": "validation:synthetic:1003",
+    "sourceId": 1003,
+    "language": "ru",
+    "split": "validation",
+    "category": "math",
+    "question": "Синтетическое задание 3: сколько будет 1 + 1?",
+    "options": ["1", "2", "3", "4"],
+    "answer": "B",
+    "cot": "A: Давайте подумаем шаг за шагом. Один плюс один — два. Ответ - (B)."
+  },
+  {
+    "id": "validation:synthetic:1004",
+    "sourceId": 1004,
+    "language": "ru",
+    "split": "validation",
+    "category": "math",
+    "question": "Синтетическое задание 4: сколько будет 1 + 1?",
+    "options": ["1", "2", "3", "4"],
+    "answer": "B",
+    "cot": "A: Давайте подумаем шаг за шагом. Один плюс один — два. Ответ - (B)."
+  },
+  {
+    "id": "test:synthetic:2000",
+    "sourceId": 2000,
+    "language": "ru",
+    "split": "test",
+    "category": "math",
+    "question": "Синтетическое задание 0: сколько будет 1 + 1?",
+    "options": ["1", "2", "3", "4"],
+    "answer": "B",
+    "cot": "PRIVATE_TEST_SOLUTION_DO_NOT_INCLUDE"
+  },
+  {
+    "id": "test:synthetic:2001",
+    "sourceId": 2001,
+    "language": "ru",
+    "split": "test",
+    "category": "math",
+    "question": "Синтетическое задание 1: сколько будет 1 + 1?",
+    "options": ["1", "2", "3", "4"],
+    "answer": "B",
+    "cot": "PRIVATE_TEST_SOLUTION_DO_NOT_INCLUDE"
+  },
+  {
+    "id": "test:synthetic:2002",
+    "sourceId": 2002,
+    "language": "ru",
+    "split": "test",
+    "category": "math",
+    "question": "Синтетическое задание 2: сколько будет 1 + 1?",
+    "options": ["1", "2", "3", "4"],
+    "answer": "B",
+    "cot": "PRIVATE_TEST_SOLUTION_DO_NOT_INCLUDE"
+  }
+]

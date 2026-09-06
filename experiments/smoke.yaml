@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=./schema.json
+# Free integration smoke test against real pinned inputs. Never public benchmark data.
+schemaVersion: 1
+id: smoke-en-ru-v1
+dataset: mmlu-prox-lite
+protocol: mmluprox-lite-5shot-native-reasoning-v1
+languages: [en, ru]
+repeats: 2
+seed: 20260906
+questionLimit: 4
+models:
+  - provider: fake
+    model: fake-v1
+    efforts: [low, medium, high]
+    maxOutputTokens: 1024
+    pricing:
+      asOf: 2026-09-06
+      source: https://github.com/limit-115/llang-gap
+      inputPerMillion: 0
+      cachedInputPerMillion: 0
+      cacheWritePerMillion: 0
+      cacheWrite1hPerMillion: 0
+      outputPerMillion: 0
+execution:
+  concurrency: 2
+  maxAttempts: 3
+  timeoutMs: 1000
