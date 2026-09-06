@@ -33,8 +33,8 @@ Report EN/RU accuracy and paired gap intervals together.
 
 ## Freeze before any full-run decision
 
-The existing [MVP configuration](../experiments/mvp.yaml) is a proposal. Its v1
-protocol must be replaced by the repaired v2 protocol before it can pass readiness.
+The [MVP configuration](../experiments/mvp.yaml) still proposes v1; readiness requires
+committed `mmluprox-lite-5shot-native-reasoning-v2` from the core PR.
 Freeze the reviewed configuration and clean source commit together: dataset and
 reference revisions/hashes, full question IDs, prompt/parser versions and hashes,
 exact requested model IDs, native efforts, repeats, seed, SDK/Node/lockfile versions,
@@ -50,10 +50,10 @@ never selectively rerun wrong or unparseable completed answers to improve scores
 
 ## Scientific and operational go/no-go
 
-- **Current calibration only:** the planned v2 nano pilot selects two questions
-  per subject: `28 × 2 languages × 3 efforts × 1 repeat = 168` requests.
-  Audit all visible outputs against the localized terminal-answer contract and
-  labels. This cannot establish frontier quality/cost or be published as the comparison.
+- **Current calibration only:** `experiments/pilot-nano-v2.yaml` (core PR)
+  selects 28 unique questions, two per subject: `28 × 2 languages × 3 efforts = 168`
+  requests, one repeat. Audit all visible terminal answers and parser decisions;
+  this cannot establish frontier quality/cost or be published as the comparison.
 - **Format gate:** require complete paired pilot outcomes, 100% expected answer
   format success, zero truncations, and no missing technical outcomes. Manually
   reconcile parser decisions with visible answers; document refusals separately.
