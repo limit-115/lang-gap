@@ -42,7 +42,6 @@ compact, already identified contexts, and the stacked composition in taller spac
 
 The horizontal symbol is about 1.1 times the capital-letter height. Its center
 sits slightly below the capital midline to balance the lowercase letters and
-sits slightly below the capital midline to balance the lowercase letters and
 descenders; the gap to the name is about one fifth of the symbol’s width. In the
 stacked composition the symbol is about the height of the complete wordmark,
 with a vertical gap of about one quarter of its height. Use the supplied
@@ -65,9 +64,18 @@ compositions to retain this balance rather than repositioning their parts.
 
 ## Web handoff
 
-Assets in this directory are a design package. They are not automatically served
-by the application. Copy only the required files into the website's public asset
-directory when integrating the identity.
+Assets in this directory are the design masters. The website serves copies of the
+black horizontal logo and symbol from `apps/web/public/brand/`, shared by the header
+and footer. At 480 px and below, the header uses the symbol; the footer keeps the full logo.
+CSS inverts the black artwork to white using the site's `.dark` class, so the logo
+follows both system appearance and the saved theme choice without changing the SVG.
+
+Next.js serves copies of `icons/favicon.ico`, `icons/favicon.svg` and
+`icons/apple-touch-icon.png` from `apps/web/src/app/` as `favicon.ico`, `icon.svg`
+and `apple-icon.png`. When updating the masters, refresh these application copies
+in the same change. Copy only assets that the website uses; no build-time export
+step is needed. The root README references the black/white masters directly and
+uses a `<picture>` element for GitHub's light/dark appearance.
 
 For an external image, use the fixed black/white files and provide appropriate
 alternative text, for example `alt="Llang Gap"`. If visible adjacent text already
