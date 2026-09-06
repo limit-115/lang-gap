@@ -2,8 +2,7 @@
 
 As of **2026-09-06**, the full run is **NOT AUTHORIZED**. This guide, a ready
 configuration, passing checks, or a pilot does not grant execution permission.
-See the [protocol](protocol.md), [operator guide](runner.md), and
-[release guide](releases.md) for implementation and execution procedures.
+See the [protocol](protocol.md), [operator guide](runner.md), and [release guide](releases.md) for procedures.
 
 ## Scope and candidates
 
@@ -15,8 +14,7 @@ and six model/effort configurations. Five validation examples per subject are un
 | OpenAI    | `gpt-6-astra`      | `low`, `medium`, `high` | Responses `reasoning.effort`                       |
 | Anthropic | `claude-fable-5-1` | `low`, `medium`, `high` | Messages `output_config.effort`, adaptive thinking |
 
-Official OpenAI documentation lists the [Astra ID and capabilities](https://developers.openai.com/api/docs/models/gpt-6-astra).
-Anthropic lists [Fable 5.1 as active](https://platform.claude.com/docs/en/models/fable-5-1/overview).
+Official documentation lists [Astra's ID/capabilities](https://developers.openai.com/api/docs/models/gpt-6-astra) and [Fable 5.1 as active](https://platform.claude.com/docs/en/models/fable-5-1/overview).
 Both accept text input and output and support these efforts plus `xhigh` and `max`;
 Fable's adaptive thinking is always on. [Claude effort](https://platform.claude.com/docs/en/build-with-claude/effort)
 and OpenAI effort are provider-native controls, not equal compute budgets.
@@ -27,8 +25,8 @@ An unavailable candidate blocks its comparison pending an explicit scope revisio
 | 1                    | `588 × 2 = 1,176`         | `588 × 2 × 6 = 7,056`             |
 | 3 (current proposal) | `588 × 2 × 3 = 3,528`     | `588 × 2 × 6 × 3 = 21,168`        |
 
-Three repeats still mean **588 unique question clusters**, not 1,764.
-Prespecify repeats; average correctness without majority-vote or best-of selection.
+Three repeats still mean **588 unique question clusters**. Prespecify repeats and
+average correctness without majority-vote or best-of selection.
 Report EN/RU accuracy and paired gap intervals together.
 
 ## Freeze before any full-run decision
@@ -50,22 +48,25 @@ never selectively rerun wrong or unparseable completed answers to improve scores
 
 ## Scientific and operational go/no-go
 
-- **Current calibration only:** `experiments/pilot-nano-v2.yaml` ([core PR #16](https://github.com/limit-115/llang-gap/pull/16))
-  selects 28 unique questions, two per subject: `28 × 2 languages × 3 efforts = 168`
-  requests, one repeat. Audit all visible terminal answers and parser decisions;
-  this cannot establish frontier quality/cost or be published as the comparison.
+- **Current calibration only:** `experiments/pilot-nano-v2.yaml` completed 168/168 requests:
+  28 paired questions, two per subject, three efforts, one repeat. **167/168 parsed**;
+  one EN/medium answer was nonterminal. Zero errors, retries, truncations or refusals.
+  The 100% format gate failed: readiness is blocked; this calibration is not a benchmark.
 - **Format gate:** require complete paired pilot outcomes, 100% expected answer
   format success, zero truncations, and no missing technical outcomes. Manually
   reconcile parser decisions with visible answers; document refusals separately.
   Unexplained discrepancies block readiness; wrong answers do not justify retries.
+- **Data-quality gate:** seven screening flags remain; resolve logged answer-key/translation
+  issues before an authoritative comparison and version corrected inputs/protocol. Audit:
+  `docs/nano-pilot-v2.md` in [core PR #16](https://github.com/limit-115/llang-gap/pull/16).
+  Agent-based screening is not independent native-speaker or domain-expert validation.
 - **Candidate gate:** nano success does not establish Astra/Fable behavior or an
   adequate cap. Each candidate/effort needs separately authorized bounded
   calibration with the frozen protocol, both languages and subject coverage.
   Cap or format repairs require fresh paired calibration before a full-run decision.
-- **Provenance gate:** commit v2 and its configuration, pass relevant offline
-  checks, retain the clean run identity, and preserve immutable audit artifacts.
-  Publish a complete, independently verified matrix with no truncations; show
-  limitations, dated models and identical EN/RU numbers.
+- **Provenance gate:** commit v2/configuration, pass offline checks, and preserve
+  the clean run identity and immutable artifacts. Independently verify a complete
+  matrix without truncations; show limitations, dated models and identical EN/RU numbers.
 - **Access/budget gate:** only OpenAI provider access has been verified in prior
   bounded work. Access to these exact candidates, Anthropic access, quotas and an
   agreed full-run budget are not established. Passing every gate grants no permission.
@@ -79,8 +80,7 @@ USD per million tokens, standard direct API rates checked **2026-09-06**:
 | Astra     | $10            | $1         | $12.50                | $50                         |
 | Fable 5.1 | $10            | $0.25      | $12.50 (5m), $20 (1h) | $50                         |
 
-Sources: [OpenAI pricing](https://developers.openai.com/api/docs/pricing) and
-[Anthropic pricing](https://platform.claude.com/docs/en/models/fable-5-1/overview#pricing).
+Sources: [OpenAI pricing](https://developers.openai.com/api/docs/pricing) and [Anthropic pricing](https://platform.claude.com/docs/en/models/fable-5-1/overview#pricing).
 Astra prompts above 272K input tokens use 2× input/cache and 1.5× output rates;
 keep the proposed short-context comparison within its supported bound.
 
@@ -92,7 +92,7 @@ Only candidate-specific pilot usage can inform a later forecast and agreed budge
 
 ## Refresh cadence
 
-Update readiness after the v2 nano audit. Next official model/rate review:
+Update readiness after format/data issues are resolved. Next official model/rate review:
 **2026-09-13**, then weekly. Propose a monthly comparison refresh review, first
 **2026-10-06**, and an earlier review for a material model release or correction.
 Each refresh needs current sources, a frozen protocol, gates and explicit run
