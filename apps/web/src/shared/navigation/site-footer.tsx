@@ -13,7 +13,21 @@ export async function SiteFooter() {
           <Link className="brand" href="/" aria-label={t("home")}>
             Llang Gap<span className="brand-period">.</span>
           </Link>
-          <p>{t("footer")}</p>
+          <p>
+            {t("footer")}{" "}
+            {t.rich("attribution", {
+              author: (chunks) => (
+                <a
+                  href="https://github.com/limit-115"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-foreground hover:underline underline-offset-4"
+                >
+                  {chunks}
+                </a>
+              ),
+            })}
+          </p>
         </div>
         <div>
           <a
