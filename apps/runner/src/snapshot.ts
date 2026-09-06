@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { datasetManifestSchema, experimentSchema, hashSchema } from "@llang-gap/contracts";
-import { protocol } from "@llang-gap/evaluation";
+import { getProtocol } from "@llang-gap/evaluation";
 import { hash, json, readJson } from "./files";
 import { join } from "node:path";
 
@@ -31,6 +31,7 @@ export async function readSnapshot(
 ): Promise<{ snapshot: Snapshot; configHash: string }> {
   const raw = await readJson(join(directory, "resolved.json"));
   const snapshot = snapshotSchema.parse(raw);
+  const protocol = getProtocol(snapshot.experiment.protocol);
   const configHash = hash(json(raw));
   const expected = await readJson(join(directory, "identity.json"));
   if (z.strictObject({ configHash: hashSchema }).parse(expected).configHash !== configHash)

@@ -49,29 +49,38 @@ export const modelSchema = z.strictObject({
 });
 export type ModelConfig = z.infer<typeof modelSchema>;
 
-export const experimentSchema = z.strictObject({
-  schemaVersion: z.literal(1),
-  id: safeIdSchema,
-  dataset: z.literal("mmlu-prox-lite"),
-  protocol: z.literal("mmluprox-lite-5shot-native-reasoning-v1"),
-  languages: z.tuple([z.literal("en"), z.literal("ru")]),
-  repeats: z.number().int().min(1).max(10),
-  seed: z.number().int().min(1).max(2_147_483_647),
-  models: z
-    .array(modelSchema)
-    .min(1)
-    .refine(
-      (models) => new Set(models.map((m) => `${m.provider}/${m.model}`)).size === models.length,
-      "Duplicate model",
-    ),
-  execution: z.strictObject({
-    concurrency: z.number().int().min(1).max(32),
-    maxAttempts: z.number().int().min(1).max(5),
-    timeoutMs: z.number().int().min(1000).max(3_600_000),
-  }),
-  // A fixed subset supports technical pilots; releases require the entire test split.
-  questionLimit: z.number().int().min(1).max(588).optional(),
-});
+export const experimentSchema = z
+  .strictObject({
+    schemaVersion: z.literal(1),
+    id: safeIdSchema,
+    dataset: z.literal("mmlu-prox-lite"),
+    protocol: z.enum([
+      "mmluprox-lite-5shot-native-reasoning-v1",
+      "mmluprox-lite-5shot-native-reasoning-v2",
+    ]),
+    languages: z.tuple([z.literal("en"), z.literal("ru")]),
+    repeats: z.number().int().min(1).max(10),
+    seed: z.number().int().min(1).max(2_147_483_647),
+    models: z
+      .array(modelSchema)
+      .min(1)
+      .refine(
+        (models) => new Set(models.map((m) => `${m.provider}/${m.model}`)).size === models.length,
+        "Duplicate model",
+      ),
+    execution: z.strictObject({
+      concurrency: z.number().int().min(1).max(32),
+      maxAttempts: z.number().int().min(1).max(5),
+      timeoutMs: z.number().int().min(1000).max(3_600_000),
+    }),
+    // A fixed subset supports technical pilots; releases require the entire test split.
+    questionLimit: z.number().int().min(1).max(588).optional(),
+    questionsPerCategory: z.number().int().min(1).max(588).optional(),
+  })
+  .refine(
+    (value) => value.questionLimit === undefined || value.questionsPerCategory === undefined,
+    "Choose either questionLimit or questionsPerCategory, not both",
+  );
 export type Experiment = z.infer<typeof experimentSchema>;
 export const experimentJsonSchema = () =>
   z.toJSONSchema(experimentSchema, { target: "draft-2020-12" });

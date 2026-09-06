@@ -1,7 +1,8 @@
-# mmluprox-lite-5shot-native-reasoning-v1
+# MMLU-ProX Lite prompt protocols
 
-The protocol object in `packages/evaluation/src/prompts.ts` and its full prompt
-reference are hashed into every run. Parser version: `terminal-answer-v1`.
+The selected protocol object in `packages/evaluation/src/prompts.ts` and its full
+prompt reference are hashed into every run. Both versions use parser
+`terminal-answer-v1` and the same scoring and statistics.
 
 ## Pinned inputs
 
@@ -18,7 +19,10 @@ MIT notice. `src/reference.json` contains their resolved labels/descriptions.
 Synthetic golden prompts in `fixtures/` were generated using the pinned Python
 `format_cot_example` function; tests compare the TypeScript output byte for byte.
 
-## Prompt construction
+## V1 prompt construction (preserved)
+
+`mmluprox-lite-5shot-native-reasoning-v1` keeps its existing object, hash and prompt
+bytes. Existing experiment files remain on v1 unless explicitly changed.
 
 1. The exact localized YAML subject description.
 2. The five validation examples from that subject in source order, using the
@@ -30,6 +34,26 @@ inspect those fields. A new independent **single user message** is sent per test
 language, model, effort and repeat. No system instruction, history, tools, web
 search or cross-question context is added. Native internal reasoning is handled
 by the provider and is not required for scoring.
+
+## V2 prompt construction
+
+`mmluprox-lite-5shot-native-reasoning-v2` addresses a failure seen in the small
+GPT-5 nano pilot: some responses solved the five worked examples again and ended
+with a list of answers, which the terminal-answer parser could not score.
+
+V2 replaces the plural subject description and trailing reasoning prefix with
+matching EN/RU instructions. The exact same five source examples remain in source
+order inside a localized solved-examples block. A separate block contains only
+the target question and options. The final instruction asks the model to solve
+only that target, give brief reasoning if needed, and finish with exactly
+`The answer is (X).` or `Ответ - (X).`, replacing X with its chosen letter.
+All new instructions and delimiters are included in the v2 protocol hash. Golden
+fixtures cover both languages; target gold labels and solutions remain excluded.
+
+This is a new experiment condition. Do not pool v1 and v2 results or reinterpret
+old outputs with a more permissive parser. The original v1 run remains evidence
+of its original conditions. A protocol version alone does not establish that a
+model follows its instructions; inspect a bounded pilot before any full run.
 
 ## Explicit adaptations
 
@@ -78,8 +102,9 @@ from translation, training contamination, model drift or API sampling.
 
 ## Models and prices
 
-The initial capabilities registry supports `gpt-6-astra` and `claude-fable-5-1` at
-low, medium and high effort, following their provider documentation. OpenAI uses
+The capabilities registry supports `gpt-6-astra`, `claude-fable-5-1`, and
+`gpt-5-nano` / pinned `gpt-5-nano-2025-08-07` at low, medium and high effort,
+following their provider documentation. OpenAI uses
 Responses `reasoning.effort`; Anthropic uses adaptive thinking and
 `output_config.effort`. Effort names do not equate compute across providers.
 Requested and returned model IDs are recorded. API availability is checked only

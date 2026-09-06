@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=./schema.json
+# Bounded calibration only: two questions per subject, 28 unique questions, 168 API calls.
+# Full benchmark execution is not authorized. This subset cannot be published as a benchmark.
+schemaVersion: 1
+id: pilot-nano-en-ru-v2
+dataset: mmlu-prox-lite
+protocol: mmluprox-lite-5shot-native-reasoning-v2
+languages: [en, ru]
+repeats: 1
+questionsPerCategory: 2
+seed: 20260906
+models:
+  - provider: openai
+    model: gpt-5-nano-2025-08-07
+    efforts: [low, medium, high]
+    maxOutputTokens: 16384
+    pricing:
+      asOf: 2026-09-06
+      source: https://developers.openai.com/api/docs/pricing
+      inputPerMillion: 0.05
+      cachedInputPerMillion: 0.005
+      cacheWritePerMillion: 0.05
+      cacheWrite1hPerMillion: 0.05
+      outputPerMillion: 0.4
+execution:
+  concurrency: 6
+  maxAttempts: 2
+  timeoutMs: 180000

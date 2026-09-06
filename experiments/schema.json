@@ -16,7 +16,10 @@
     },
     "protocol": {
       "type": "string",
-      "const": "mmluprox-lite-5shot-native-reasoning-v1"
+      "enum": [
+        "mmluprox-lite-5shot-native-reasoning-v1",
+        "mmluprox-lite-5shot-native-reasoning-v2"
+      ]
     },
     "languages": {
       "type": "array",
@@ -161,6 +164,11 @@
       "additionalProperties": false
     },
     "questionLimit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 588
+    },
+    "questionsPerCategory": {
       "type": "integer",
       "minimum": 1,
       "maximum": 588

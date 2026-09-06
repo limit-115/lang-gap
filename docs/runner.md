@@ -10,10 +10,32 @@ detects drift. Cross-field constraints are enforced at runtime even where JSON
 Schema cannot express them.
 
 - `mvp.yaml`: full two-model, three-effort, three-repeat benchmark.
+- `comparison-v2.yaml`: the same proposed full matrix using v2. Prepared for
+  review only; candidate calibration and full execution authorization are pending.
 - `pilot.yaml`: two test questions in both languages across every configuration,
   one repeat. Technical calibration only; cannot become a benchmark release.
+- `pilot-nano-v2.yaml`: two questions per subject (28 unique questions), both
+  languages and three efforts on pinned `gpt-5-nano-2025-08-07`, one repeat:
+  168 requests. Tests the explicit-target v2 prompt; also ineligible for publication.
 - `smoke.yaml`: four questions with the deterministic fake provider, two repeats.
   Free and permanently ineligible for the public index.
+
+For a pilot, choose either `questionLimit` (a global seeded sample) or
+`questionsPerCategory` (a seeded sample of the requested size in every subject).
+They are mutually exclusive. Stratified selection uses the same question IDs
+across both languages, efforts, models and repeats, and fails if any subject has
+too few questions. `plan` reports the per-subject counts before execution.
+Equal subject sampling is for format and coverage calibration; the full benchmark
+continues to give every question equal weight, with the original subject sizes.
+
+```sh
+# Planning does not contact model APIs. --offline requires a verified dataset cache.
+pnpm bench plan experiments/pilot-nano-v2.yaml --offline
+```
+
+The nano pilot does not establish frontier-model access, output-cap adequacy or
+expected spend. Each new model needs its own bounded calibration before a full
+comparison. A config file or a successful plan is not authorization for paid work.
 
 Changing the model, protocol, token cap, repeats, question subset or seed means a
 new run. Provider-native effort names are not equivalent compute budgets. The

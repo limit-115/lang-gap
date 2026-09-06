@@ -34,12 +34,13 @@ export async function recompute(directory: string, items: ItemResult[], benchmar
     );
   const questions = await readRunQuestions(directory, snapshot.datasetHash);
   if (benchmark) {
-    validateDataset(questions);
     if (
       snapshot.experiment.questionLimit ||
+      snapshot.experiment.questionsPerCategory ||
       snapshot.experiment.models.some((m) => m.provider === "fake")
     )
       throw new Error("Synthetic or subset runs cannot become benchmark releases");
+    validateDataset(questions);
     if (!snapshot.implementation.commit || !snapshot.implementation.clean)
       throw new Error("Benchmark runs must start from a clean committed source tree");
   }

@@ -4,13 +4,18 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readManifest } from "@llang-gap/datasets";
 import { createFakeAdapter } from "@llang-gap/providers";
-import { releaseManifestSchema, type ProviderAdapter } from "@llang-gap/contracts";
+import {
+  experimentSchema,
+  releaseManifestSchema,
+  type ProviderAdapter,
+} from "@llang-gap/contracts";
+import { protocol, protocolV2 } from "@llang-gap/evaluation";
 import { experiment, questions } from "@tests/fixtures";
 import { createRun, resumeRun } from "./run";
 import { buildRelease, scoreRun, stageRelease, verifyRelease } from "./release";
 import { workspace, hash, json, readJson } from "./files";
 import { RunState } from "./state";
-import { snapshotSchema } from "./snapshot";
+import { readSnapshot, snapshotSchema } from "./snapshot";
 
 describe("run → resume → independent release verification", () => {
   let root: string;
@@ -55,6 +60,89 @@ describe("run → resume → independent release verification", () => {
     expect(saved).not.toContain("API_KEY");
     await writeFile(join(release.directory, "items.jsonl"), `${saved} `);
     await expect(verifyRelease(release.directory)).rejects.toThrow("checksum");
+  });
+
+  it("resumes and independently verifies a v2 stratified test release but rejects benchmark promotion", async () => {
+    const directory = join(root, "v2-run");
+    const model = experiment.models[0]!;
+    const v2Experiment = experimentSchema.parse({
+      ...experiment,
+      protocol: protocolV2.id,
+      questionLimit: undefined,
+      questionsPerCategory: 2,
+      models: [
+        {
+          ...model,
+          provider: "openai",
+          model: "gpt-5-nano-2025-08-07",
+          pricing: { ...model.pricing, inputPerMillion: 1, outputPerMillion: 1 },
+        },
+      ],
+    });
+    const fake = createFakeAdapter();
+    const generate = vi.fn(fake.generate);
+    const adapters = new Map<string, ProviderAdapter>([
+      ["openai", { ...fake, name: "openai", generate }],
+    ]);
+    const first = await createRun({
+      directory,
+      experiment: v2Experiment,
+      questions,
+      manifest: await manifest(),
+      budgetUsd: 1,
+      maxJobs: 2,
+      adapters,
+    });
+    expect(first.completed).toBe(2);
+    const { snapshot } = await readSnapshot(directory);
+    expect(snapshot.protocol).toEqual(protocolV2);
+    expect(snapshot.protocolHash).toBe(hash(json(protocolV2)));
+    expect(snapshot.experiment.questionsPerCategory).toBe(2);
+    expect(snapshot.experiment.questionLimit).toBeUndefined();
+    const resumed = await resumeRun(directory, { budgetUsd: 1, adapters });
+    expect(resumed.completed).toBe(8);
+    expect(generate).toHaveBeenCalledTimes(8);
+    for (const [request] of generate.mock.calls) {
+      expect(request.prompt).toContain(
+        request.language === "en" ? "[BEGIN TARGET QUESTION]" : "[НАЧАЛО ЦЕЛЕВОГО ВОПРОСА]",
+      );
+      expect(request.prompt).not.toContain("PRIVATE_TEST_SOLUTION");
+    }
+    const scores = await scoreRun(directory);
+    expect(scores.aggregate).toHaveLength(1);
+    expect(scores.aggregate[0]).toMatchObject({ n: 2, repeats: 2, unparseable: 0 });
+    const release = await buildRelease(directory, "v2-test-release", "test", root);
+    expect(await verifyRelease(release.directory)).toMatchObject({
+      kind: "test",
+      protocol: protocolV2.id,
+      aggregate: scores.aggregate,
+    });
+    expect((await readSnapshot(release.directory)).snapshot).toEqual(snapshot);
+    await expect(buildRelease(directory, "v2-benchmark", "benchmark", root)).rejects.toThrow(
+      "Synthetic or subset runs cannot become benchmark releases",
+    );
+  });
+
+  it("rejects a v1 protocol snapshot for a v2 experiment even when its hashes were recomputed", async () => {
+    const directory = join(root, "v2-tampered");
+    await createRun({
+      directory,
+      experiment: { ...experiment, protocol: protocolV2.id },
+      questions,
+      manifest: await manifest(),
+      budgetUsd: 0,
+      maxJobs: 1,
+    });
+    const { snapshot } = await readSnapshot(directory);
+    snapshot.protocol = protocol;
+    snapshot.protocolHash = hash(json(protocol));
+    const modified = json(snapshot);
+    await writeFile(join(directory, "resolved.json"), modified);
+    await writeFile(join(directory, "identity.json"), json({ configHash: hash(modified) }));
+    await expect(readSnapshot(directory)).rejects.toThrow("Protocol implementation differs");
+    await expect(resumeRun(directory, { budgetUsd: 0 })).rejects.toThrow(
+      "Protocol implementation differs",
+    );
   });
 
   it("detects scientific configuration and SQLite job tampering", async () => {

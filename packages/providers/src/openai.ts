@@ -50,7 +50,12 @@ export function createOpenAIAdapter(
           ? usageSchema.safeParse({
               inputTokens: response.usage.input_tokens,
               cachedInputTokens: response.usage.input_tokens_details.cached_tokens,
-              cacheWriteTokens: response.usage.input_tokens_details.cache_write_tokens,
+              // Nano has no separate write surcharge; newer models require write telemetry.
+              cacheWriteTokens:
+                response.usage.input_tokens_details.cache_write_tokens ??
+                (request.model === "gpt-5-nano" || request.model === "gpt-5-nano-2025-08-07"
+                  ? 0
+                  : undefined),
               cacheWrite1hTokens: 0,
               outputTokens: response.usage.output_tokens,
               reasoningTokens: response.usage.output_tokens_details.reasoning_tokens,

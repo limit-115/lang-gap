@@ -8,6 +8,9 @@ GPT-6 Astra and Claude Fable 5.1 at low, medium and high effort.
 
 **No model scores have been published.** The included fake provider exercises the
 entire pipeline without paid API calls and cannot enter the public leaderboard.
+The bounded [nano pilot](experiments/pilot-nano-v2.yaml) tests the
+[v2 explicit-target prompt](docs/protocol.md#v2-prompt-construction) across all
+14 subjects; its subset scores are calibration data, not leaderboard results.
 
 ## Quick start
 

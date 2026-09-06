@@ -8,7 +8,7 @@ export { ProviderError, normalizeError } from "./errors";
 export { createFakeAdapter } from "./fake";
 
 const capabilities = {
-  openai: ["gpt-6-astra"],
+  openai: ["gpt-6-astra", "gpt-5-nano", "gpt-5-nano-2025-08-07"],
   anthropic: ["claude-fable-5-1"],
   fake: ["fake-v1"],
 } as const;

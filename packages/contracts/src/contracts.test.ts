@@ -32,6 +32,34 @@ describe("public contracts", () => {
   it("rejects a gold label outside the available answers", () => {
     expect(questionSchema.safeParse({ ...questions[0], answer: "J" }).success).toBe(false);
   });
+  it("accepts only the exact supported v1 and v2 protocol IDs", () => {
+    for (const protocol of [
+      "mmluprox-lite-5shot-native-reasoning-v1",
+      "mmluprox-lite-5shot-native-reasoning-v2",
+    ]) {
+      expect(experimentSchema.parse({ ...experiment, protocol }).protocol).toBe(protocol);
+    }
+    for (const protocol of [
+      "",
+      "mmluprox-lite-5shot-native-reasoning-v3",
+      "mmluprox-lite-5shot-native-reasoning-v2 ",
+    ]) {
+      expect(experimentSchema.safeParse({ ...experiment, protocol }).success).toBe(false);
+    }
+  });
+  it("requires a positive integer per-category limit and forbids combining subset selectors", () => {
+    const perCategory = { ...experiment, questionsPerCategory: 2 };
+    expect(() => experimentSchema.parse(perCategory)).toThrow(
+      "Choose either questionLimit or questionsPerCategory, not both",
+    );
+    delete perCategory.questionLimit;
+    expect(experimentSchema.parse(perCategory).questionsPerCategory).toBe(2);
+    for (const questionsPerCategory of [0, -1, 1.5, 589, "2"]) {
+      expect(experimentSchema.safeParse({ ...perCategory, questionsPerCategory }).success).toBe(
+        false,
+      );
+    }
+  });
   it("rejects invalid cache accounting", () => {
     expect(
       usageSchema.safeParse({

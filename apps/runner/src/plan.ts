@@ -21,10 +21,30 @@ export function createJobs(
   configHash: string,
 ): Job[] {
   const ids = [...new Set(questions.filter((q) => q.split === "test").map((q) => q.id))].sort();
-  const selectedIds = shuffled(ids, experiment.seed).slice(
-    0,
-    experiment.questionLimit ?? ids.length,
-  );
+  let selectedIds: string[];
+  if (experiment.questionsPerCategory !== undefined) {
+    const count = experiment.questionsPerCategory;
+    const categoryById = new Map<string, string>();
+    for (const q of questions.filter((q) => q.split === "test")) {
+      const existing = categoryById.get(q.id);
+      if (existing !== undefined && existing !== q.category)
+        throw new Error(`Paired question has mismatched categories: ${q.id}`);
+      categoryById.set(q.id, q.category);
+    }
+    const categories = [...new Set(categoryById.values())].sort();
+    const shuffledIds = shuffled(ids, experiment.seed);
+    selectedIds = categories.flatMap((category) => {
+      const candidates = shuffledIds.filter((id) => categoryById.get(id) === category);
+      if (candidates.length < count)
+        throw new Error(
+          `Category ${category} has ${candidates.length} questions; requested ${count}`,
+        );
+      return candidates.slice(0, count);
+    });
+  } else {
+    // Keep the original v1 sampling and scheduling unchanged for existing snapshots.
+    selectedIds = shuffled(ids, experiment.seed).slice(0, experiment.questionLimit ?? ids.length);
+  }
   const test = new Map(
     questions.filter((q) => q.split === "test").map((q) => [`${q.id}/${q.language}`, q]),
   );
@@ -41,7 +61,7 @@ export function createJobs(
             const promptKey = `${id}/${language}`;
             let prompt = prompts.get(promptKey);
             if (prompt === undefined) {
-              prompt = buildPrompt(toPromptQuestion(q), validation);
+              prompt = buildPrompt(toPromptQuestion(q), validation, experiment.protocol);
               prompts.set(promptKey, prompt);
             }
             const request: GenerationRequest = {
@@ -79,6 +99,16 @@ export function summarizePlan(experiment: Experiment, jobs: readonly Job[]) {
     experiment: experiment.id,
     synthetic: experiment.models.every((m) => m.provider === "fake"),
     questionsPerLanguage: new Set(jobs.map((j) => j.questionId)).size,
+    questionsByCategory: Object.fromEntries(
+      [...new Set(jobs.map((job) => job.category))]
+        .sort()
+        .map((category) => [
+          category,
+          new Set(jobs.filter((job) => job.category === category).map((job) => job.questionId))
+            .size,
+        ]),
+    ),
+    protocol: experiment.protocol,
     repeats: experiment.repeats,
     configurations: experiment.models.reduce((sum, m) => sum + m.efforts.length, 0),
     requests: jobs.length,
