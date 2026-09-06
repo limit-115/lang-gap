@@ -5,11 +5,13 @@
   </picture>
 </h1>
 
-Open, reproducible comparisons of LLM accuracy across prompt languages.
+A multilingual benchmark for open, reproducible comparisons of LLM accuracy across
+prompt languages.
 
-The first benchmark compares English and Russian on **MMLU-ProX Lite**, using five
-worked examples per subject and native reasoning effort. The planned matrix is
-GPT-6 Astra and Claude Fable 5.1 at low, medium and high effort.
+Language coverage will expand over time. The initial experiment uses
+**MMLU-ProX Lite** with two prompt languages, five worked examples per subject and
+native reasoning effort. The planned matrix is GPT-6 Astra and Claude Fable 5.1 at
+low, medium and high effort.
 
 **No model scores have been published.** The included fake provider exercises the
 entire pipeline without paid API calls and cannot enter the public leaderboard.
@@ -47,7 +49,7 @@ and errors go to stderr. Add `--json` for structured errors too.
 | `apps/runner`         | Commander CLI, execution, retries, budget ledger, SQLite, release export              |
 | `apps/web`            | Next.js site and feature-owned next-intl dictionaries; developed separately           |
 | `packages/contracts`  | Strict Zod schemas and shared types                                                   |
-| `packages/datasets`   | Verified download, Parquet normalization and EN/RU alignment                          |
+| `packages/datasets`   | Verified download, Parquet normalization and cross-language alignment                 |
 | `packages/evaluation` | Pinned prompt protocol, versioned author/legacy parsers, scoring and paired bootstrap |
 | `packages/providers`  | Official SDK adapters, capabilities, cost accounting and a fake provider              |
 | `experiments`         | Strict YAML definitions and generated editor JSON Schema                              |

@@ -30,7 +30,9 @@ export default async function MethodologyPage({ params }: Props) {
           {key === "score" && (
             <>
               <div className="formula">
-                Δ = 100 × (Accuracy<sub>EN</sub> − Accuracy<sub>RU</sub>)
+                Δ = 100 × ({t("accuracy")}
+                <sub>A</sub> − {t("accuracy")}
+                <sub>B</sub>)
               </div>
               <p>{t("interval")}</p>
             </>
