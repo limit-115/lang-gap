@@ -196,6 +196,11 @@
     width: 160px;
     height: auto;
   }
+  .brand-logo-responsive img {
+    width: 128px;
+    /* Center the letter bodies optically; the descenders extend below them. */
+    transform: translateY(2px);
+  }
   .dark .brand-logo {
     filter: invert(1);
   }
@@ -427,6 +432,7 @@
   .brand-logo-responsive img {
     width: 32px;
     height: 32px;
+    transform: none;
   }
 }
 

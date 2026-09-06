@@ -54,7 +54,8 @@ compositions to retain this balance rather than repositioning their parts.
   around a complete logo. For a wordmark alone, use half the capital **L** height.
   The SVG canvas has a small convenience margin; add the remaining clear space in
   the destination layout. Dedicated avatars and favicons are compact exceptions.
-- Minimum displayed canvas widths: horizontal **160 px**, wordmark **120 px**,
+- Minimum displayed canvas widths: horizontal **128 px** in compact navigation
+  (**160 px** elsewhere), wordmark **120 px**,
   stacked **120 px**, standalone symbol **24 px**. Use the dedicated favicon for
   16 px. Below these sizes, use a larger mark or allow more room.
 - Keep avatars square and let the destination apply its circular or rounded mask.
@@ -67,15 +68,25 @@ compositions to retain this balance rather than repositioning their parts.
 Assets in this directory are the design masters. The website serves copies of the
 black horizontal logo and symbol from `apps/web/public/brand/`, shared by the header
 and footer. At 480 px and below, the header uses the symbol; the footer keeps the full logo.
+The header logo is 128 px wide with a 2 px downward optical offset to balance the
+letter bodies against the descenders. Its compact symbol has no offset. The footer
+keeps the 160 px logo.
 CSS inverts the black artwork to white using the site's `.dark` class, so the logo
 follows both system appearance and the saved theme choice without changing the SVG.
 
-Next.js serves copies of `icons/favicon.ico`, `icons/favicon.svg` and
-`icons/apple-touch-icon.png` from `apps/web/src/app/` as `favicon.ico`, `icon.svg`
-and `apple-icon.png`. When updating the masters, refresh these application copies
-in the same change. Copy only assets that the website uses; no build-time export
-step is needed. The root README references the black/white masters directly and
-uses a `<picture>` element for GitHub's light/dark appearance.
+The browser favicon in `apps/web/src/app/icon.svg` keeps the geometry of
+`icons/favicon.svg` with a transparent background. Its symbol is black by default
+and white in the browser's dark color scheme, independently of the site's theme
+toggle. `apps/web/src/app/favicon.ico` is the transparent black fallback, exported
+from the default SVG treatment at 16, 24, 32, 48, 64, 128 and 256 px.
+`apps/web/src/app/apple-icon.png` is a copy of `icons/apple-touch-icon.png` and keeps
+its solid background for home screens.
+
+When updating the masters, refresh the application variants in the same change;
+preserve the favicon's transparency and color-scheme rule, and re-export its ICO.
+Copy only assets that the website uses; no build-time export step is needed. The
+root README references the black/white masters directly and uses a `<picture>`
+element for GitHub's light/dark appearance.
 
 For an external image, use the fixed black/white files and provide appropriate
 alternative text, for example `alt="Llang Gap"`. If visible adjacent text already
