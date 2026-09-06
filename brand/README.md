@@ -1,7 +1,7 @@
 # Llang Gap logo package
 
 The supplied black/white references, reconstructed as smooth vector outlines.
-The flowing gap, proportions and lettering are retained; stems, baselines and
+The flowing gap and lettering are retained; stems, baselines and
 the repeated **a** are cleaned up. The lettering is outlined artwork, not a font
 you need to install. The website's interface font remains a separate choice.
 
@@ -16,10 +16,10 @@ avatars and icons have deliberately opaque backgrounds.
 
 | Composition             | Black SVG                                          | White SVG                                        | PNG size    |
 | ----------------------- | -------------------------------------------------- | ------------------------------------------------ | ----------- |
-| Primary horizontal logo | [Black](svg/llang-gap-logo-black.svg)              | [White](svg/llang-gap-logo-white.svg)            | 2048 × 597  |
+| Primary horizontal logo | [Black](svg/llang-gap-logo-black.svg)              | [White](svg/llang-gap-logo-white.svg)            | 2048 × 485  |
 | Standalone symbol       | [Black](svg/llang-gap-mark-black.svg)              | [White](svg/llang-gap-mark-white.svg)            | 1024 × 1024 |
 | Wordmark                | [Black](svg/llang-gap-wordmark-black.svg)          | [White](svg/llang-gap-wordmark-white.svg)        | 2048 × 576  |
-| Stacked logo            | [Black](svg/llang-gap-stacked-black.svg)           | [White](svg/llang-gap-stacked-white.svg)         | 1024 × 853  |
+| Stacked logo            | [Black](svg/llang-gap-stacked-black.svg)           | [White](svg/llang-gap-stacked-white.svg)         | 1024 × 608  |
 | Square avatar           | [Light background](svg/llang-gap-avatar-light.svg) | [Dark background](svg/llang-gap-avatar-dark.svg) | 1024 × 1024 |
 
 Matching raster files are in [png/](png/). White artwork can look blank in an
@@ -39,6 +39,11 @@ The [icons/](icons/) directory contains:
 
 Prefer the horizontal logo where the name needs to be read. Use the symbol for
 compact, already identified contexts, and the stacked composition in taller spaces.
+
+The horizontal symbol is about 1.1 times the capital-letter height, optically
+centered on the capitals. In the stacked composition it is about the height of
+the complete wordmark, including descenders. These relationships keep the name
+prominent; use the supplied compositions rather than resizing their parts.
 
 - Keep the original aspect ratio, letter spacing and gap between symbol and name.
 - Use solid **#000000** on light backgrounds or **#FFFFFF** on dark backgrounds.
