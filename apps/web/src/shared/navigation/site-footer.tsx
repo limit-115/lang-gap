@@ -18,6 +18,8 @@ export async function SiteFooter() {
         <div>
           <a
             href="https://github.com/limit-115/llang-gap"
+            target="_blank"
+            rel="noopener noreferrer"
             data-slot="button"
             className={cn(
               buttonVariants({ size: "lg" }),
