@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { ChevronDown, Languages, LoaderCircle } from "lucide-react";
+import { ChevronDown, LoaderCircle } from "lucide-react";
 import { hasLocale, useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,27 +39,26 @@ export function LanguageSwitcher() {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger
-        render={<Button variant="outline" size="sm" />}
-        className="language-switch group/language h-9 gap-2 px-3 max-[760px]:h-11"
+        render={<Button variant="ghost" size="sm" />}
+        className="language-switch group/language h-9 gap-1.5 rounded-lg px-2.5 text-xs text-muted-foreground max-[760px]:h-11"
         aria-label={`${t("language")}: ${locale.toUpperCase()}`}
         aria-busy={isPending}
         disabled={isPending}
       >
-        {isPending ? (
-          <LoaderCircle aria-hidden="true" className="size-4 motion-safe:animate-spin" />
-        ) : (
-          <Languages aria-hidden="true" className="size-4 text-muted-foreground" />
-        )}
         <span>{locale.toUpperCase()}</span>
-        <ChevronDown
-          aria-hidden="true"
-          className="size-3.5 text-muted-foreground transition-transform group-aria-expanded/language:rotate-180 motion-reduce:transition-none"
-        />
+        {isPending ? (
+          <LoaderCircle aria-hidden="true" className="size-3.5 motion-safe:animate-spin" />
+        ) : (
+          <ChevronDown
+            aria-hidden="true"
+            className="size-3.5 transition-transform group-aria-expanded/language:rotate-180 motion-reduce:transition-none"
+          />
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
         sideOffset={8}
-        className="w-48 motion-reduce:animate-none"
+        className="w-40 min-w-40 rounded-xl p-1 shadow-md ring-border motion-reduce:animate-none"
         aria-label={t("language")}
       >
         <DropdownMenuRadioGroup value={locale} onValueChange={changeLanguage} disabled={isPending}>
@@ -69,12 +68,9 @@ export function LanguageSwitcher() {
               value={language}
               label={languageNames[language]}
               closeOnClick
-              className="min-h-11 cursor-pointer gap-3 data-checked:bg-accent [&_[data-slot=dropdown-menu-radio-item-indicator]]:text-primary"
+              className="min-h-9 cursor-pointer rounded-lg pl-3 font-normal data-checked:font-medium max-[760px]:min-h-11 [&_[data-slot=dropdown-menu-radio-item-indicator]]:right-3 [&_[data-slot=dropdown-menu-radio-item-indicator]]:text-foreground"
             >
               <span lang={language}>{languageNames[language]}</span>
-              <span aria-hidden="true" className="ml-auto text-xs text-muted-foreground">
-                {language.toUpperCase()}
-              </span>
             </DropdownMenuRadioItem>
           ))}
         </DropdownMenuRadioGroup>
