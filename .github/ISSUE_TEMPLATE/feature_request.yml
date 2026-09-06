@@ -1,0 +1,53 @@
+name: Feature or methodology proposal
+description: Discuss an improvement, new provider/dataset/language, or protocol change before implementation.
+title: "[Proposal]: "
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Start with the problem and the smallest useful change. English or Russian is welcome.
+        For substantial work, agree on scope here before opening an implementation PR.
+        Use the bug report form for behavior that is already broken.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and PRs for this proposal.
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: Who is affected, and what can they not do today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Describe a focused solution and how we would know it works. State what is outside its scope.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or existing workarounds
+      description: Include simpler approaches you considered and why they are insufficient.
+
+  - type: textarea
+    id: benchmark
+    attributes:
+      label: Benchmark and reproducibility impact
+      description: For methodology, dataset, language, or provider changes, explain comparability, pinned inputs, licensing, expected API cost, and how to validate the change without paid calls. Leave blank if unrelated.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Supporting context
+      description: Link relevant documentation, research, examples, or mockups. Do not include credentials or private run data.

@@ -1,0 +1,36 @@
+<!--
+Read https://github.com/limit-115/llang-gap/blob/main/CONTRIBUTING.md.
+Keep one concern per PR. English or Russian is welcome.
+Delete optional sections that do not apply. Do not include secrets or private run data.
+-->
+
+## What changed
+
+<!-- Describe the resulting behavior and keep the scope clear. -->
+
+## Why
+
+<!-- What problem does this solve? Link an issue if there is one. -->
+
+## Verification
+
+<!-- List commands and results, plus any manual checks.
+     Explain skipped or failing checks; do not claim checks you did not run. -->
+
+## UI changes
+
+<!-- Before/after screenshots for visible changes; a short recording for motion
+     or interaction. Check affected behavior in both EN and RU. Delete if not applicable. -->
+
+## Benchmark or artifact impact
+
+<!-- For dataset, provider, protocol, scoring, or result changes: explain the impact
+     on comparability, versions/hashes, and published artifacts. Link supporting docs
+     or verification. Corrections use a new release ID. Delete if not applicable. -->
+
+## Checklist
+
+- [ ] This PR addresses one concern, and I reviewed the diff.
+- [ ] I explained the problem, the change, and the verification results.
+- [ ] I updated affected documentation and regression coverage, where applicable.
+- [ ] I attached UI evidence and checked both locales, where applicable.

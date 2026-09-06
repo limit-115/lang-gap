@@ -1,0 +1,94 @@
+name: Bug report
+description: Report a reproducible bug in the runner, benchmark results, website, or tooling.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Report one problem per issue. English or Russian is welcome.
+        Use the feature proposal form for new capabilities or methodology changes.
+        Do not include API keys, private run databases, or unredacted SDK responses.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and did not find a duplicate.
+          required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - Runner, retries, or budget accounting
+        - Dataset preparation or alignment
+        - Prompts, answer parsing, or statistics
+        - Provider adapters
+        - Release artifacts or published results
+        - Website or EN/RU localization
+        - Shared contracts, build, or CI
+        - Documentation
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include the exact command or page URL, inputs, and a minimal reproduction. Prefer the fake provider when possible.
+      placeholder: |
+        1. Check out commit ...
+        2. Run ... / open ...
+        3. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior and impact
+      description: What happened, how often, and what does it prevent you from doing?
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Commit or deployed URL
+      description: Include the commit SHA or the page URL if you do not know the version.
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Node/pnpm versions for CLI or build issues; browser and locale for website issues; provider/model/effort when relevant.
+
+  - type: textarea
+    id: benchmark
+    attributes:
+      label: Benchmark context
+      description: If relevant, include the experiment path or redacted YAML, run/release ID, protocol version, language, and question ID. Link public artifacts if available.
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Paste only the relevant output after removing secrets and private data.
+      render: shell
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Screenshots, recordings, or additional context
+      description: Attach relevant, redacted evidence or describe a workaround. Do not upload local databases or full response archives.
