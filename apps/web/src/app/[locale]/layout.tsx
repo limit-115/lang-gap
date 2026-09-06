@@ -6,6 +6,7 @@ import { routing } from "@/i18n/routing";
 import { getMessagesForLocale } from "@/i18n/messages";
 import { SiteHeader } from "@/shared/navigation/site-header";
 import { SiteFooter } from "@/shared/navigation/site-footer";
+import { ThemeProvider } from "@/shared/theme-provider";
 import { siteUrl } from "@/shared/metadata";
 import "@/app/globals.css";
 
@@ -29,21 +30,23 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
   const t = await getTranslations("Navigation");
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <body>
-        <NextIntlClientProvider
-          locale={locale}
-          messages={{ Navigation: getMessagesForLocale(locale).Navigation }}
-        >
-          <a className="skip-link" href="#main">
-            {t("skip")}
-          </a>
-          <SiteHeader />
-          <main id="main" className="page-shell">
-            {children}
-          </main>
-          <SiteFooter />
-        </NextIntlClientProvider>
+        <ThemeProvider>
+          <NextIntlClientProvider
+            locale={locale}
+            messages={{ Navigation: getMessagesForLocale(locale).Navigation }}
+          >
+            <a className="skip-link" href="#main">
+              {t("skip")}
+            </a>
+            <SiteHeader />
+            <main id="main" className="page-shell">
+              {children}
+            </main>
+            <SiteFooter />
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

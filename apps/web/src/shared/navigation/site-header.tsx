@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Link, usePathname } from "@/i18n/navigation";
 import { LanguageSwitcher } from "./language-switcher";
+import { ThemeToggle } from "./theme-toggle";
 
 const pages = [
   { href: "/", label: "leaderboard" },
@@ -36,6 +37,7 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="header-actions">
+          <ThemeToggle />
           <LanguageSwitcher />
           <div className="mobile-navigation">
             <DropdownMenu>

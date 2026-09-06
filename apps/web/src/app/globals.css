@@ -163,7 +163,7 @@
     margin: 16px auto 0;
     border: 1px solid var(--border);
     border-radius: 16px;
-    background: color-mix(in oklch, var(--background) 82%, transparent);
+    background: color-mix(in srgb, var(--background) 82%, transparent);
     backdrop-filter: blur(16px);
   }
   .page-shell {
@@ -299,7 +299,7 @@
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 48px;
-    background: color-mix(in oklch, var(--background) 60%, transparent);
+    background: color-mix(in srgb, var(--background) 60%, transparent);
     backdrop-filter: blur(16px);
     color: var(--muted-foreground);
     font-size: 0.875rem;
