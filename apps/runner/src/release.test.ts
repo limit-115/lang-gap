@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readManifest } from "@llang-gap/datasets";
 import { createFakeAdapter } from "@llang-gap/providers";
 import { releaseManifestSchema, type ProviderAdapter } from "@llang-gap/contracts";
-import { experiment, questions } from "../../../tests/fixtures";
+import { experiment, questions } from "@tests/fixtures";
 import { createRun, resumeRun } from "./run";
 import { buildRelease, scoreRun, stageRelease, verifyRelease } from "./release";
 import { workspace, hash, json, readJson } from "./files";

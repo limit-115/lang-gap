@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { routing } from "../../i18n/routing";
-import { getMessagesForLocale } from "../../i18n/messages";
-import { SiteHeader } from "../../shared/navigation/site-header";
-import { SiteFooter } from "../../shared/navigation/site-footer";
-import { siteUrl } from "../../shared/metadata";
-import "../globals.css";
+import { routing } from "@/i18n/routing";
+import { getMessagesForLocale } from "@/i18n/messages";
+import { SiteHeader } from "@/shared/navigation/site-header";
+import { SiteFooter } from "@/shared/navigation/site-footer";
+import { siteUrl } from "@/shared/metadata";
+import "@/app/globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

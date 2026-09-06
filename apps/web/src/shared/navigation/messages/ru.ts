@@ -1,4 +1,4 @@
-import type { Dictionary } from "../../../i18n/routing";
+import type { Dictionary } from "@/i18n/routing";
 import type en from "./en";
 export default {
   navigation: "Навигация",

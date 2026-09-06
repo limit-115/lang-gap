@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { Link } from "../../i18n/navigation";
+import { Link } from "@/i18n/navigation";
 
 export async function SiteFooter() {
   const t = await getTranslations("Navigation");

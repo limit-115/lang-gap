@@ -16,6 +16,9 @@
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
     "noEmit": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@tests/*": ["../tests/*"]
+    }
   }
 }

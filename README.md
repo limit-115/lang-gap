@@ -116,3 +116,24 @@ published aggregates only; a build never calls a model or opens the run database
 MMLU-ProX Lite and the prompt reference retain their upstream attribution. See
 [dataset attribution](datasets/mmlu-prox-lite/README.md) and the vendored MIT notice
 in `packages/evaluation/reference/LICENSE.md`. Project code is MIT licensed.
+
+## Import conventions
+
+Use relative imports only for sibling files (`./columns`, `./styles.css`). Imports
+from parents or child directories use aliases instead, including type imports,
+re-exports, and literal dynamic imports. Oxlint enforces this in `pnpm lint`.
+
+- Web source: `@/features/releases/data` (`apps/web/src`).
+- Runner and library internals: `#src/module` (each package's `src`, using native
+  `package.json` subpath imports mapped to TypeScript files).
+- Between workspace packages: public `@llang-gap/contracts`-style exports.
+- Shared test helpers and data: `@tests/fixtures`, `@tests/fixtures/questions.json`.
+- Web release data: `@results/index.json`.
+- Providers' own package metadata: `#package.json`.
+
+TypeScript paths are resolved relative to the config that declares them, without
+`baseUrl`. Next.js and tsx support these paths; Vitest uses Vite's built-in
+`resolve.tsconfigPaths`, so no alias plugin or duplicate test mapping is needed.
+When adding paths in a child tsconfig, remember that `paths` replaces the inherited
+map rather than merging it. Keep aliases scoped to the owning app or package;
+do not reach into another workspace package's private source files.

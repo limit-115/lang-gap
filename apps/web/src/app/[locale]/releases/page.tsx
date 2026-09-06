@@ -2,10 +2,10 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/u
 import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { routing } from "../../../i18n/routing";
-import { Link } from "../../../i18n/navigation";
-import { pageMetadata } from "../../../shared/metadata";
-import { getReleases } from "../../../features/releases/data";
+import { routing } from "@/i18n/routing";
+import { Link } from "@/i18n/navigation";
+import { pageMetadata } from "@/shared/metadata";
+import { getReleases } from "@/features/releases/data";
 
 type Props = { params: Promise<{ locale: string }> };
 export async function generateMetadata({ params }: Props) {

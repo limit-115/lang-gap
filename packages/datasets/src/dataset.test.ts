@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { normalizeRow, prepareDataset, readManifest, validateDataset } from "./index";
-import { questions } from "../../../tests/fixtures";
+import { questions } from "@tests/fixtures";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";

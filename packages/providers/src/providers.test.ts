@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { calculateCost, reserveCost, normalizeError, ProviderError, validateModel } from "./index";
-import { experiment } from "../../../tests/fixtures";
+import { experiment } from "@tests/fixtures";
 
 describe("provider accounting", () => {
   it("bills all input categories once and includes reasoning within output", () => {

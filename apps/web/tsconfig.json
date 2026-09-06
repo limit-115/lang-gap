@@ -4,8 +4,15 @@
     "lib": ["DOM", "DOM.Iterable", "ES2023"],
     "jsx": "react-jsx",
     "incremental": true,
-    "paths": { "@/*": ["./src/*"] },
-    "plugins": [{ "name": "next" }]
+    "paths": {
+      "@/*": ["./src/*"],
+      "@results/*": ["../../results/*"]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
     "next-env.d.ts",

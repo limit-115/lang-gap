@@ -1,5 +1,5 @@
 import { experimentSchema, questionSchema, type ItemResult } from "@llang-gap/contracts";
-import questionData from "./fixtures/questions.json";
+import questionData from "@tests/fixtures/questions.json";
 
 export const questions = questionData.map((q) => questionSchema.parse(q));
 export const experiment = experimentSchema.parse({
