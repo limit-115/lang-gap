@@ -64,7 +64,7 @@ export function SiteHeader() {
                     key={href}
                     render={<Link href={href} />}
                     aria-current={isCurrentPage(pathname, href) ? "page" : undefined}
-                    className="min-h-11 cursor-pointer aria-[current=page]:bg-accent aria-[current=page]:text-accent-foreground aria-[current=page]:underline aria-[current=page]:underline-offset-4"
+                    className="min-h-11 cursor-pointer aria-[current=page]:bg-accent aria-[current=page]:text-accent-foreground"
                   >
                     {t(label)}
                   </DropdownMenuItem>
