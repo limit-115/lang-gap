@@ -1,5 +1,4 @@
 import { ArrowUpRight } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
@@ -38,12 +37,14 @@ export default async function LeaderboardPage({ params }: Props) {
               <h2 id="benchmark-title">{t("tableTitle")}</h2>
               <p>{t("tableDescription")}</p>
             </div>
-            <Badge
-              variant="outline"
-              className="h-auto px-3 py-1 text-sm font-normal text-muted-foreground"
-            >
-              {t(release ? "published" : "status")}
-            </Badge>
+            {release && (
+              <Badge
+                variant="outline"
+                className="h-auto px-3 py-1 text-sm font-normal text-muted-foreground"
+              >
+                {t("published")}
+              </Badge>
+            )}
           </div>
           <NextIntlClientProvider
             messages={{ Leaderboard: getMessagesForLocale(locale).Leaderboard }}
@@ -60,19 +61,7 @@ export default async function LeaderboardPage({ params }: Props) {
           </div>
         </Card>
       </section>
-      {!release ? (
-        <Alert role="note" className="mt-5 gap-2 rounded-2xl bg-muted/40 p-5 sm:p-6">
-          <AlertTitle>
-            <h3>{t("emptyTitle")}</h3>
-          </AlertTitle>
-          <AlertDescription>
-            <p className="max-w-3xl">{t("emptyBody")}</p>
-            <Link href="/methodology" className="text-link mt-3">
-              {t("readMethod")} <ArrowUpRight aria-hidden="true" className="size-4" />
-            </Link>
-          </AlertDescription>
-        </Alert>
-      ) : (
+      {release && (
         <div className="release-link">
           <Link className="text-link" href={`/releases/${release.id}`}>
             {t("viewRelease")} <ArrowUpRight aria-hidden="true" className="size-4" />

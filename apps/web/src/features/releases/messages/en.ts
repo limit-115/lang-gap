@@ -1,9 +1,7 @@
 export default {
   title: "A permanent record.",
   intro: "Versioned results. Traceable inputs. No silent replacements.",
-  emptyTitle: "No published releases yet.",
-  emptyBody:
-    "The first release will appear here after evaluation and independent verification are complete.",
+  emptyTitle: "No published releases.",
   back: "All releases",
   download: "Download",
   config: "Configuration",

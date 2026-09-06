@@ -16,12 +16,7 @@ export default {
   low: "Low",
   medium: "Medium",
   high: "High",
-  emptyTitle: "The first benchmark is being prepared.",
-  emptyBody:
-    "This is the planned evaluation matrix. Scores will appear after a complete run passes the published validation checks.",
-  status: "Awaiting first release",
   published: "Verified release",
-  readMethod: "Read the methodology",
   viewRelease: "Explore this release",
   questions: "{count, plural, one {# unique question} other {# unique questions}}",
   repeats: "{count, plural, one {# repeat} other {# repeats}}",
