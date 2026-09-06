@@ -75,7 +75,7 @@ export function LeaderboardTable({ rows }: { rows: Aggregate[] }) {
   ];
 
   return (
-    <div className="min-w-0 px-4 pb-4 sm:px-6 sm:pb-5">
+    <div className="min-w-0 pb-4 sm:pb-5">
       <div className="flex flex-wrap items-center gap-2 pb-4">
         <div className="relative w-full sm:max-w-72">
           <Search
