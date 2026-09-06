@@ -11,9 +11,10 @@ website work also follows [apps/web/AGENTS.md](apps/web/AGENTS.md).
 - When creating or updating a PR, use [.github/pull_request_template.md](.github/pull_request_template.md),
   including when supplying the body through `gh` or an API.
 - For UI changes, including cosmetic changes, attach before/after screenshots in
-  the PR's **UI changes** section and check both EN and RU. Add a short recording
-  when motion or interaction needs it. Screenshots are required; a preview link
-  or a claim of visual inspection is not a substitute.
+  the PR's **UI changes** section. Check and capture EN only, unless the change
+  specifically concerns another language; then also check and capture that language.
+  Add a short recording when motion or interaction needs it. Screenshots are required;
+  a preview link or a claim of visual inspection is not a substitute.
 - Follow [the screenshot upload guide](docs/pr-screenshots.md) to upload images
   through `gh api` and embed them in the PR. Browser login is not required for
   this method. Read back the PR and confirm the images render before finishing.

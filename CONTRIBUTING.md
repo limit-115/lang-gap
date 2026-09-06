@@ -51,7 +51,8 @@ directory-specific instructions when using a coding agent.
 - Use synthetic fixtures and intercepted provider transports in tests. Tests must
   not require credentials or make live model requests.
 - Keep English and Russian UI messages in sync in the feature that owns them.
-  Check both locales when changing navigation, formatting, or visible copy.
+  Check EN only, unless the change specifically concerns another language; then
+  also check that language.
 - Update user/operator instructions when a command or workflow changes. Internal
   documentation should explain decisions, cross-package constraints, and pitfalls
   that are hard to discover in code. Put local implementation reasoning in nearby
@@ -87,12 +88,12 @@ or read the private run database, and both locales must display the same scores.
 
 Run `pnpm format:check` for every PR, then the checks relevant to the change:
 
-| Change                                            | Checks                                                                                                                                         |
-| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Documentation or GitHub templates only            | Review links and rendered text; validate any YAML forms                                                                                        |
-| Runner, datasets, evaluation, or providers        | `pnpm lint:core`, `pnpm typecheck:core`, `pnpm test:core`, `pnpm schema:check`                                                                 |
-| Website                                           | `pnpm lint`, `pnpm --filter @llang-gap/web typecheck`, `pnpm --filter @llang-gap/web build`, and a browser check of affected behavior in EN/RU |
-| Shared contracts or workspace/build configuration | Both core and website checks                                                                                                                   |
+| Change                                            | Checks                                                                                                                                                                            |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Documentation or GitHub templates only            | Review links and rendered text; validate any YAML forms                                                                                                                           |
+| Runner, datasets, evaluation, or providers        | `pnpm lint:core`, `pnpm typecheck:core`, `pnpm test:core`, `pnpm schema:check`                                                                                                    |
+| Website                                           | `pnpm lint`, `pnpm --filter @llang-gap/web typecheck`, `pnpm --filter @llang-gap/web build`, and a browser check in EN (also the affected language for language-specific changes) |
+| Shared contracts or workspace/build configuration | Both core and website checks                                                                                                                                                      |
 
 During development, use `pnpm exec vitest run <test-file>` for focused tests.
 `pnpm check` runs format, lint, typecheck, tests, and build across the monorepo;
@@ -112,8 +113,9 @@ is useful while work or verification is incomplete.
   or `docs: clarify release verification`.
 - Describe the problem, what changed, and why. Link the related issue when there
   is one; an issue is not required for a small fix.
-- Include clear before/after screenshots for visible UI changes and a short
-  recording when motion, timing, or interaction is needed to understand the result.
+- Include clear before/after screenshots in EN only for visible UI changes. If the
+  change specifically concerns another language, also capture that language. Add a
+  short recording when motion, timing, or interaction is needed to understand the result.
 - Explain benchmark/protocol or public artifact impact when relevant. Include
   verification results and any compatibility or migration considerations.
 

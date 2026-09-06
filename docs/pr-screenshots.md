@@ -1,15 +1,16 @@
 # Screenshots for pull requests
 
 Capture the affected UI before and after the change, with matching routes,
-viewport sizes, and states. Check EN and RU; show changed menus open. Keep the
-PNG files outside the source checkout, for example as `en-before.png`,
-`en-after.png`, `ru-before.png`, and `ru-after.png` in a temporary directory.
+viewport sizes, and states. Check and capture EN only, unless the change specifically
+concerns another language; then also check and capture that language. Show changed
+menus open. Keep PNGs outside the source checkout, for example as `en-before.png`
+and `en-after.png` in a temporary directory.
 
 ## Capture with Playwright
 
 Run the site locally with `pnpm dev`. Use Playwright with headless Chrome
 (`chromium.launch({ headless: true, channel: "chrome" })`; Chrome must be installed)
-and a `1440×1080` viewport with `deviceScaleFactor: 1`. Open each affected EN/RU
+and a `1440×1080` viewport with `deviceScaleFactor: 1`. Open each affected EN
 route, wait for the page to settle and `document.fonts.ready`, then capture with
 `page.screenshot({ path: "/absolute/path/to/en-before.png", fullPage: true })`.
 Repeat after the change with matching routes and states, inspect the PNGs, then
@@ -46,7 +47,8 @@ gh api --method POST "repos/$evidence_repo/releases" \
   --jq .id
 ```
 
-Set the actual PR number and capture directory, then upload the images. The API
+Set the actual PR number and capture directory, then upload the images. For a
+language-specific change, add that language’s before/after filenames to the loop. The API
 expects raw PNG bytes in `--input`, not a JSON or multipart `file` field. Passing
 `name` with `-f` alongside `--input` puts it in the URL query string.
 
@@ -57,7 +59,7 @@ evidence_revision=$(git rev-parse --short HEAD)
 evidence_upload_url=$(gh api "repos/$evidence_repo/releases/tags/pr-evidence" \
   --jq '.upload_url | split("{")[0]')
 
-for evidence_label in en-before en-after ru-before ru-after; do
+for evidence_label in en-before en-after; do
   gh api --method POST "$evidence_upload_url" \
     -H 'Content-Type: image/png' \
     -f "name=pr-${evidence_pr}-${evidence_revision}-${evidence_label}.png" \
