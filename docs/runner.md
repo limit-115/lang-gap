@@ -50,6 +50,37 @@ verifies raw bytes and regenerates normalized JSONL. There are 588 test and 70
 validation rows per language. The normalizer verifies IDs, category, number/order
 of answer slots and gold labels; it does not establish translation fidelity.
 
+## Forecasting costs
+
+`bench plan` separates `forecast` from the existing `upperBoundUsdOneAttempt`
+and `upperBoundUsdAllAttempts` safety reservations. Without calibration, `forecast`
+is `null`: the reservation is not an expected invoice.
+
+```sh
+pnpm bench plan experiments/mvp.yaml --offline --calibrate-from /absolute/path/to/pilot-run
+```
+
+Use a completed run directory containing `resolved.json`, `identity.json`, and
+`state.sqlite`. The command reads it without modifying the journal or calling model
+APIs. It checks the dataset hash, protocol, model, effort and output cap. Every
+requested model/effort/language condition must have recorded usage; unknown usage
+and incomplete runs fail rather than produce a partial estimate.
+
+The forecast reprices mean observed usage separately for every model, effort and
+language using the target experiment's rates, then multiplies by target requests
+(including repeats). Cache categories and reasoning-inclusive output are accounted
+as in billing. It includes incorrect, refused and truncated outcomes. Each condition
+reports sample responses and unique questions; repeats do not increase question
+coverage. Technical retries and uncertain charges are excluded from this one-attempt
+forecast. The separate attempt reservation covers the configured retry limit.
+
+`outputCapScenarioUsd` substitutes the full output cap while keeping observed mean
+input/cache usage. This is a sensitivity scenario, not an upper bound or confidence
+interval. Both estimates assume representative input and cache usage; different
+question lengths, subjects and reasoning difficulty can change spending. A two-question
+technical pilot supports only a provisional forecast, not a precise full-run budget.
+The runtime safety reservations and explicit `--budget-usd` remain unchanged.
+
 ## Budget and retries
 
 Every live run requires `--budget-usd`. On resume this is the **total** budget,

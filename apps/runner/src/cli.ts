@@ -6,6 +6,7 @@ import { prepareDataset, readManifest } from "@llang-gap/datasets";
 import { loadExperiment } from "./config";
 import { hash, json, workspace } from "./files";
 import { createJobs, summarizePlan } from "./plan";
+import { readCalibration } from "./forecast";
 import { createRun, resumeRun, runPath } from "./run";
 import { readSnapshot } from "./snapshot";
 import { buildRelease, scoreRun, stageRelease, verifyRelease } from "./release";
@@ -92,10 +93,18 @@ program
 program
   .command("plan <experiment>")
   .description("Validate and expand an experiment without model requests")
+  .option(
+    "--calibrate-from <directory>",
+    "Forecast costs from a completed compatible run with recorded usage",
+  )
   .option("--offline", "Use verified dataset cache only")
   .action(async (path, options) => {
-    const { experiment, questions } = await prepare(path, options.offline);
-    output(summarizePlan(experiment, createJobs(experiment, questions, hash(json(experiment)))));
+    const { experiment, questions, hash: datasetHash } = await prepare(path, options.offline);
+    const jobs = createJobs(experiment, questions, hash(json(experiment)));
+    const forecast = options.calibrateFrom
+      ? await readCalibration(resolve(options.calibrateFrom), experiment, jobs, datasetHash)
+      : null;
+    output({ ...summarizePlan(experiment, jobs), forecast });
   });
 program
   .command("run <experiment>")
