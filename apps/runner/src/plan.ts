@@ -109,6 +109,6 @@ export function summarizePlan(experiment: Experiment, jobs: readonly Job[]) {
     maxAttemptsPerRequest: experiment.execution.maxAttempts,
     upperBoundUsdOneAttempt: attemptBound,
     upperBoundUsdAllAttempts: attemptBound * experiment.execution.maxAttempts,
-    note: "Conservative token-cap bound, not a predicted invoice. Live runs require an explicit USD budget.",
+    note: "upperBoundUsd fields are safety reservations, not spending forecasts. Use --calibrate-from for an empirical forecast. Live runs require an explicit USD budget.",
   };
 }
