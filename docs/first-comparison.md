@@ -33,12 +33,12 @@ Report EN/RU accuracy and paired gap intervals together.
 
 ## Freeze before any full-run decision
 
-The [MVP configuration](../experiments/mvp.yaml) still proposes v1; readiness requires
-committed `mmluprox-lite-5shot-native-reasoning-v2` from the core PR.
-Freeze the reviewed configuration and clean source commit together: dataset and
-reference revisions/hashes, full question IDs, prompt/parser versions and hashes,
-exact requested model IDs, native efforts, repeats, seed, SDK/Node/lockfile versions,
-endpoints, pricing date, and scheduling/retry settings. Record returned model IDs.
+`experiments/comparison-v2.yaml` (core PR) prepares `comparison-en-ru-v2` only,
+using `mmluprox-lite-5shot-native-reasoning-v2`. The [MVP configuration](../experiments/mvp.yaml) remains v1.
+Freeze the reviewed configuration and clean commit: dataset/reference revisions and hashes,
+question IDs, prompt/parser versions and hashes, exact requested model IDs, native efforts,
+repeats, seed, SDK/Node/lockfile versions, endpoints, dated rates, scheduling and retries.
+Record returned model IDs. Preparation grants no full-run execution permission.
 
 Current proposed settings are seed `20260906`, three repeats, a 16,384-token
 reasoning-inclusive output cap, concurrency two per provider, three maximum
