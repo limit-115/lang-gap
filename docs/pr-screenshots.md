@@ -5,6 +5,17 @@ viewport sizes, and states. Check EN and RU; show changed menus open. Keep the
 PNG files outside the source checkout, for example as `en-before.png`,
 `en-after.png`, `ru-before.png`, and `ru-after.png` in a temporary directory.
 
+## Capture with Playwright
+
+Run the site locally with `pnpm dev`. Use Playwright with headless Chrome
+(`chromium.launch({ headless: true, channel: "chrome" })`; Chrome must be installed)
+and a `1440×1080` viewport with `deviceScaleFactor: 1`. Open each affected EN/RU
+route, wait for the page to settle and `document.fonts.ready`, then capture with
+`page.screenshot({ path: "/absolute/path/to/en-before.png", fullPage: true })`.
+Repeat after the change with matching routes and states, inspect the PNGs, then
+upload them below. Keep the capture script outside the checkout; use an available
+Playwright installation without adding it to the project's dependencies.
+
 ## Upload with `gh api`
 
 For this public repository, upload review images as assets of a dedicated
