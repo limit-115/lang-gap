@@ -3,14 +3,10 @@ import { getTranslations } from "next-intl/server";
 import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 
-export async function SiteFooter({
-  variant = "paired",
-}: {
-  variant?: "paired" | "spread" | "compact";
-}) {
+export async function SiteFooter() {
   const t = await getTranslations("Navigation");
   return (
-    <footer className={`site-footer site-footer--${variant}`}>
+    <footer className="site-footer">
       <div className="footer-grid">
         <div className="footer-brand">
           <Link className="brand" href="/" aria-label={t("home")}>
@@ -18,7 +14,7 @@ export async function SiteFooter({
           </Link>
           <p>{t("footer")}</p>
         </div>
-        <div className="footer-github">
+        <div>
           <a
             href="https://github.com/limit-115/llang-gap"
             data-slot="button"

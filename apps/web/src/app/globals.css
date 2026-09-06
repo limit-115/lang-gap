@@ -309,24 +309,6 @@
     align-items: start;
     gap: 64px;
   }
-  .site-footer--spread .footer-grid {
-    grid-template-columns: minmax(280px, 1fr) minmax(120px, 1fr) auto;
-  }
-  .site-footer--spread .footer-github {
-    justify-self: center;
-    align-self: center;
-  }
-  .site-footer--compact .footer-grid {
-    gap: 40px;
-  }
-  .site-footer--compact nav ul {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 24px;
-  }
-  .site-footer--compact nav li + li {
-    margin-top: 0;
-  }
   .footer-brand p {
     max-width: 280px;
     margin-top: 16px;
@@ -469,22 +451,12 @@
   .site-footer {
     padding: 28px 24px;
   }
-  .site-footer .footer-grid {
+  .footer-grid {
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 32px 24px;
   }
   .footer-brand {
     grid-column: 1 / -1;
-  }
-  .site-footer--spread .footer-github {
-    justify-self: start;
-    align-self: start;
-  }
-  .site-footer--compact nav ul {
-    display: block;
-  }
-  .site-footer--compact nav li + li {
-    margin-top: 2px;
   }
   .formula {
     padding: 16px;
