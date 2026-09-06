@@ -3,6 +3,7 @@ import { ExternalLink } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
+import { BrandLogo } from "./brand-logo";
 
 export async function SiteFooter() {
   const t = await getTranslations("Navigation");
@@ -11,7 +12,7 @@ export async function SiteFooter() {
       <div className="footer-grid">
         <div className="footer-brand">
           <Link className="brand" href="/" aria-label={t("home")}>
-            Llang Gap<span className="brand-period">.</span>
+            <BrandLogo />
           </Link>
           <p>
             {t("footer")}

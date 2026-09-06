@@ -181,13 +181,23 @@
     padding-inline: 24px;
   }
   .brand {
-    color: var(--foreground);
-    font-size: 1.25rem;
-    font-weight: 600;
-    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    min-width: 44px;
+    min-height: 44px;
   }
-  .brand-period {
-    color: var(--primary);
+  .brand-logo {
+    display: block;
+  }
+  .brand-logo img {
+    display: block;
+    width: 160px;
+    height: auto;
+  }
+  .dark .brand-logo {
+    filter: invert(1);
   }
   .desktop-navigation {
     position: absolute;
@@ -410,6 +420,13 @@
   }
   .skip-link:focus {
     top: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-logo-responsive img {
+    width: 32px;
+    height: 32px;
   }
 }
 

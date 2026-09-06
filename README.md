@@ -1,4 +1,9 @@
-# Llang Gap
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="brand/svg/llang-gap-logo-white.svg">
+    <img src="brand/svg/llang-gap-logo-black.svg" alt="Llang Gap" width="320">
+  </picture>
+</h1>
 
 Open, reproducible comparisons of LLM accuracy across prompt languages.
 

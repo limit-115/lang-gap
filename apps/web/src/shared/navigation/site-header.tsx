@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link, usePathname } from "@/i18n/navigation";
+import { BrandLogo } from "./brand-logo";
 import { LanguageSwitcher } from "./language-switcher";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -27,7 +28,7 @@ export function SiteHeader() {
     <header className="site-header">
       <div className="header-inner">
         <Link className="brand" href="/" aria-label={t("home")}>
-          Llang Gap<span className="brand-period">.</span>
+          <BrandLogo compactOnMobile />
         </Link>
         <nav className="desktop-navigation" aria-label={t("navigation")}>
           {pages.map(({ href, label }) => (
