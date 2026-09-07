@@ -1,8 +1,9 @@
 # Contributing to Llang Gap
 
-Llang Gap compares LLM accuracy across prompt languages. Contributions should make
+Llang Gap is a multilingual benchmark across datasets and prompt languages.
+Dataset IDs and benchmark language tags are run inputs; website locales are independent. Contributions should make
 the benchmark easier to reproduce, audit, or use. Bug reports, focused fixes,
-documentation improvements, and English/Russian translation corrections are welcome.
+documentation improvements, and UI translation corrections are welcome.
 
 ## Before starting
 
@@ -49,7 +50,7 @@ directory-specific instructions when using a coding agent.
   changes do not need new unit tests.
 - Use synthetic fixtures and intercepted provider transports in tests. Tests must
   not require credentials or make live model requests.
-- Keep English and Russian UI messages in sync in the feature that owns them.
+- Keep supported UI locale messages in sync in the feature that owns them.
   Check EN only, unless the change specifically concerns another language; then
   also check that language.
 - Update user/operator instructions when a command or workflow changes. Internal
@@ -68,7 +69,9 @@ Read the [protocol](docs/protocol.md) before changing datasets, prompt construct
 answer parsing, scoring, or statistics. Explain the effect on comparability and
 update the protocol documentation and versioned inputs when the methodology changes.
 Preserve pinned revisions, hashes, and upstream attribution. Keep target answers
-out of model prompts and retain paired EN/RU conditions in evaluation and statistics.
+out of model prompts. Preserve every selected language condition. Compute paired statistics
+only for explicitly configured comparisons with validated question alignment; never
+assume a fixed language pair or pool scores across datasets.
 
 Use the fake provider for routine development. `--offline` only disables dataset
 downloads; it does not disable live provider APIs. Paid evaluations require an

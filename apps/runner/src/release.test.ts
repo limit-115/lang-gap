@@ -21,7 +21,17 @@ describe("run → resume → independent release verification", () => {
   afterEach(async () => {
     await rm(root, { recursive: true, force: true });
   });
-  const manifest = () => readManifest(join(workspace, "datasets/mmlu-prox-lite/manifest.json"));
+  const manifest = async () => {
+    const pinned = await readManifest(join(workspace, "datasets/mmlu-prox-lite/manifest.json"));
+    return {
+      ...pinned,
+      files: pinned.files.map((file) => ({
+        ...file,
+        rows: questions.filter((q) => q.language === file.language && q.split === file.split)
+          .length,
+      })),
+    };
+  };
 
   it("completes a paused run without reissuing completed jobs and exports an auditable test release", async () => {
     const directory = join(root, "run");

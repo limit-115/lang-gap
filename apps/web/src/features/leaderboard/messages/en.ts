@@ -1,4 +1,7 @@
 export default {
+  noPublishedResults:
+    "Results are not published yet. Dataset and language conditions belong to each experiment.",
+  status: "Status",
   finderTitle: "Looking for a specific model?",
   finderSelect: "Find a model",
   finderPlaceholder: "Search for a model…",
@@ -11,17 +14,15 @@ export default {
 
   title: "See how LLM accuracy changes across languages. With open results you can check.",
   description:
-    "Compare model accuracy across languages on the same academic questions, with uncertainty estimates and evidence you can inspect.",
+    "Explore model accuracy on different datasets and languages, with reproducible scores and explicit comparisons on aligned questions.",
   tableTitle: "Compare model accuracy across languages",
-  tableDescription: "MMLU-ProX Lite · 5-shot CoT · Native reasoning",
+  tableDescription: "Each release records its dataset, languages and evaluation protocol.",
   model: "Model",
   effort: "Reasoning effort",
-  en: "English",
-  ru: "Russian",
   gap: "Gap",
   accuracy: "Accuracy",
-  gapUnit: "EN − RU · pp",
-  confidence: "Gap · 95% interval",
+  gapUnit: "Gap · pp",
+  confidence: "95% interval",
   planned: "Planned",
   low: "Low",
   medium: "Medium",
@@ -30,8 +31,7 @@ export default {
   viewRelease: "View results and supporting data",
   questions: "{count, plural, one {# unique question} other {# unique questions}}",
   repeats: "{count, plural, one {# repeat} other {# repeats}}",
-  languages: "2 prompt languages in this experiment",
-  models: "2 models · 3 effort levels",
+  languages: "{count, plural, one {# benchmark language} other {# benchmark languages}}",
   guideTitle: "What does the gap tell you?",
   guideBody:
     "The gap is the difference in accuracy between two languages, in percentage points. The column label shows the subtraction order. Read both scores too: a small gap can mean equally low accuracy.",
@@ -63,7 +63,7 @@ export default {
   release: "Release {id}",
   metadataTitle: "Compare LLM accuracy across languages",
   metadataPlannedDescription:
-    "An open English/Russian LLM accuracy benchmark using MMLU-ProX Lite. Explore the methodology and planned comparison; results are not yet published.",
+    "An open multilingual LLM benchmark across datasets and languages selected for each experiment. Explore the methodology; results are not yet published.",
   metadataDescription:
     "See how LLM accuracy changes across languages. With open results you can check. Compare models, understand the gaps, and inspect the evidence.",
 } as const;

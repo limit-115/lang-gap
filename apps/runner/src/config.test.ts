@@ -3,7 +3,7 @@ import { stringify } from "yaml";
 import { parseExperiment } from "./config";
 import { createJobs } from "./plan";
 import { experiment, questions } from "@tests/fixtures";
-import { protocol } from "@llang-gap/evaluation";
+import { protocol, getStopSequences } from "@llang-gap/evaluation";
 import { readFile } from "node:fs/promises";
 
 describe("experiment plan", () => {
@@ -36,14 +36,16 @@ describe("experiment plan", () => {
     };
     for (const job of createJobs(config, questions, "author")) {
       expect(job.protocol).toBe(protocol.id);
-      expect(job.request.stopSequences).toEqual(protocol.generation.until[job.request.language]);
+      expect(job.request.stopSequences).toEqual(
+        getStopSequences(protocol.id, job.request.language),
+      );
       expect(job.request.maxOutputTokens).toBe(2048);
     }
     expect(() => createJobs({ ...config, models: experiment.models }, questions, "bad")).toThrow(
       "2048",
     );
     for (const job of createJobs(experiment, questions, "legacy")) {
-      expect(job).not.toHaveProperty("protocol");
+      expect(job.protocol).toBe(experiment.protocol);
       expect(job.request).not.toHaveProperty("stopSequences");
     }
   });

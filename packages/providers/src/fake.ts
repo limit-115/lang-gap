@@ -11,10 +11,7 @@ export function createFakeAdapter(): TransportAdapter {
         .update(request.prompt + request.effort)
         .digest("hex");
       const answer = String.fromCharCode(65 + (Number.parseInt(hex.slice(0, 2), 16) % 4));
-      const text =
-        request.language === "en"
-          ? `Synthetic test response. The answer is (${answer})`
-          : `Синтетический тестовый ответ. Ответ - (${answer})`;
+      const text = `${request.answerFormat?.prefix ?? ""}${answer}${request.answerFormat?.suffix ?? ""}`;
       return Promise.resolve({
         model: "fake-v1",
         requestId: `fake-${hex.slice(0, 16)}`,

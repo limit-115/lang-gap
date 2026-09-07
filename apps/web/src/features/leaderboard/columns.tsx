@@ -3,20 +3,21 @@
 import { useMemo } from "react";
 import { createColumnHelper, type Column } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
-import { useFormatter, useTranslations } from "next-intl";
-import type { Aggregate } from "@llang-gap/contracts";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
+import type { Aggregate, Comparison } from "@llang-gap/contracts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { efforts, getModelPresentation } from "./model-catalog";
 import { ProviderLogo } from "./provider-logo";
 import type { LeaderboardFeatures } from "./data-table-features";
 
-export type LeaderboardRow = Pick<Aggregate, "model" | "transport" | "effort"> & {
-  en: number | null;
-  ru: number | null;
-  gapPp: number | null;
-  gapCi95: Aggregate["gapCi95"] | null;
-};
+export type LeaderboardRow = Pick<
+  Aggregate,
+  "model" | "transport" | "effort" | "scores" | "comparisons"
+>;
+
+export const accuracyColumnId = (language: string) => `accuracy:${language}`;
+export const comparisonColumnId = (pair: Comparison) => `gap:${pair.baseline}:${pair.language}`;
 
 const columnHelper = createColumnHelper<LeaderboardFeatures, LeaderboardRow>();
 
@@ -60,9 +61,14 @@ function ColumnHeader<TValue>({
   );
 }
 
-export function useLeaderboardColumns(hasResults: boolean) {
+export function useLeaderboardColumns(
+  hasResults: boolean,
+  languages: readonly string[],
+  comparisons: readonly Comparison[],
+) {
   const t = useTranslations("Leaderboard");
   const f = useFormatter();
+  const locale = useLocale();
   return useMemo(() => {
     const percent = (value: number) =>
       f.number(value, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -116,66 +122,103 @@ export function useLeaderboardColumns(hasResults: boolean) {
         sortDescFirst: false,
         enableHiding: false,
       }),
-      ...(["en", "ru", "gapPp"] as const).map((key) =>
-        columnHelper.accessor(key, {
-          header: ({ column }) => (
-            <ColumnHeader
-              column={column}
-              title={t(key === "gapPp" ? "gap" : key)}
-              description={t(key === "gapPp" ? "gapUnit" : "accuracy")}
-              numeric
-            />
-          ),
-          cell: ({ getValue }) => {
-            const value = getValue();
-            return (
-              <div
-                className={`text-right font-mono tabular-nums ${value === null ? "text-muted-foreground" : key === "gapPp" ? "font-medium" : ""}`}
-              >
-                {value === null ? (
-                  <span aria-label={t("planned")}>—</span>
-                ) : key === "gapPp" ? (
-                  pp(value)
-                ) : (
-                  percent(value)
-                )}
+      ...languages.map((language) =>
+        columnHelper.accessor(
+          (row) => row.scores.find((score) => score.language === language)?.accuracy ?? null,
+          {
+            id: accuracyColumnId(language),
+            header: ({ column }) => (
+              <ColumnHeader
+                column={column}
+                title={
+                  new Intl.DisplayNames([locale], { type: "language" }).of(language) ?? language
+                }
+                description={t("accuracy")}
+                numeric
+              />
+            ),
+            cell: ({ getValue }) => (
+              <div className="text-right font-mono tabular-nums">
+                {getValue() === null ? "—" : percent(getValue()!)}
               </div>
-            );
+            ),
+            sortFn: "basic",
+            sortDescFirst: true,
+            enableSorting: hasResults,
+            enableHiding: true,
           },
-          sortFn: "basic",
-          sortDescFirst: true,
-          enableSorting: hasResults,
-          enableHiding: key !== "gapPp",
-        }),
+        ),
       ),
-      columnHelper.accessor("gapCi95", {
-        header: () => <div className="text-right">{t("confidence")}</div>,
-        cell: ({ getValue }) => {
-          const interval = getValue();
-          return (
-            <div className="text-right">
-              {interval ? (
-                <span
-                  className="font-mono text-xs tabular-nums text-muted-foreground"
-                  title={interval[0] <= 0 && interval[1] >= 0 ? t("neutral") : undefined}
+      ...comparisons.flatMap((pair) => [
+        columnHelper.accessor(
+          (row) =>
+            row.comparisons.find(
+              (value) => value.baseline === pair.baseline && value.language === pair.language,
+            )?.gapPp ?? null,
+          {
+            id: comparisonColumnId(pair),
+            header: ({ column }) => (
+              <ColumnHeader
+                column={column}
+                title={`${pair.baseline.toUpperCase()} − ${pair.language.toUpperCase()}`}
+                description={t("gapUnit")}
+                numeric
+              />
+            ),
+            cell: ({ getValue }) => (
+              <div className="text-right font-mono font-medium tabular-nums">
+                {getValue() === null ? "—" : pp(getValue()!)}
+              </div>
+            ),
+            sortFn: "basic",
+            sortDescFirst: true,
+            enableSorting: hasResults,
+            enableHiding: false,
+          },
+        ),
+        columnHelper.accessor(
+          (row) =>
+            row.comparisons.find(
+              (value) => value.baseline === pair.baseline && value.language === pair.language,
+            )?.gapCi95 ?? null,
+          {
+            id: `interval:${pair.baseline}:${pair.language}`,
+            header: () => (
+              <div className="text-right">{`${pair.baseline.toUpperCase()} − ${pair.language.toUpperCase()} · ${t("confidence")}`}</div>
+            ),
+            cell: ({ getValue }) => {
+              const interval = getValue();
+              return (
+                <div
+                  className="text-right font-mono text-xs tabular-nums text-muted-foreground"
+                  title={
+                    interval && interval[0] <= 0 && interval[1] >= 0 ? t("neutral") : undefined
+                  }
                 >
-                  [{pp(interval[0])}, {pp(interval[1])}]
-                </span>
-              ) : (
-                <Badge variant="outline" className="gap-1.5 font-normal text-muted-foreground">
-                  <span
-                    aria-hidden="true"
-                    className="size-1.5 rounded-full bg-muted-foreground/50"
-                  />
+                  {interval ? `[${pp(interval[0])}, ${pp(interval[1])}]` : "—"}
+                </div>
+              );
+            },
+            enableSorting: false,
+            enableHiding: false,
+          },
+        ),
+      ]),
+      ...(!hasResults
+        ? [
+            columnHelper.display({
+              id: "status",
+              header: () => t("status"),
+              cell: () => (
+                <Badge variant="outline" className="font-normal text-muted-foreground">
                   {t("planned")}
                 </Badge>
-              )}
-            </div>
-          );
-        },
-        enableSorting: false,
-        enableHiding: false,
-      }),
+              ),
+              enableSorting: false,
+              enableHiding: false,
+            }),
+          ]
+        : []),
     ]);
-  }, [f, t, hasResults]);
+  }, [f, t, locale, hasResults, languages, comparisons]);
 }

@@ -1,5 +1,5 @@
 import type { TransportAdapter, ItemResult } from "@llang-gap/contracts";
-import { protocolV1, scoreAnswer } from "@llang-gap/evaluation";
+import { scoreAnswer } from "@llang-gap/evaluation";
 import { calculateCost, normalizeError } from "@llang-gap/providers";
 import { setTimeout as delay } from "node:timers/promises";
 import type { Job } from "./plan";
@@ -80,7 +80,7 @@ export async function execute(options: ExecuteOptions) {
           job.expected,
           job.optionCount,
           response.outcome,
-          job.protocol ?? protocolV1.id,
+          job.protocol,
         ),
         outcome: response.outcome,
         usage: response.usage,

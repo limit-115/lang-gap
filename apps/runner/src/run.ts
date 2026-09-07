@@ -1,3 +1,4 @@
+import { validateManifestQuestions } from "@llang-gap/datasets";
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
@@ -51,6 +52,7 @@ export async function createRun(
   },
 ) {
   const { experiment, questions, manifest, budgetUsd } = options;
+  validateManifestQuestions(questions, manifest, experiment.languages);
   for (const model of experiment.models) validateModel(model);
   const protocol = getProtocol(experiment.protocol);
   const runId = `${experiment.id}-${new Date().toISOString().slice(0, 10)}-${randomUUID().slice(0, 8)}`;
@@ -65,7 +67,7 @@ export async function createRun(
     );
   const dataset = jsonl(questions);
   const snapshot: Snapshot = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     runId,
     createdAt: new Date().toISOString(),
     experiment,
@@ -83,7 +85,7 @@ export async function createRun(
     })),
   };
   const configHash = hash(json(snapshot));
-  const jobs = createJobs(experiment, questions, configHash);
+  const jobs = createJobs(experiment, questions, configHash, manifest);
   if (!jobs.length) throw new Error("Empty experiment");
   await mkdir(join(directory, ".."), { recursive: true });
   await mkdir(directory, { mode: 0o700 });
@@ -134,7 +136,7 @@ export async function resumeRun(
         "Runner source or dependency lock changed; restore the recorded implementation before resuming",
       );
     const questions = await readRunQuestions(directory, snapshot.datasetHash);
-    const jobs = createJobs(snapshot.experiment, questions, configHash);
+    const jobs = createJobs(snapshot.experiment, questions, configHash, snapshot.datasetManifest);
     state = new RunState(join(directory, "state.sqlite"));
     state.assertJobs(jobs);
     const maxAttempts = options.maxAttempts ?? snapshot.experiment.execution.maxAttempts;

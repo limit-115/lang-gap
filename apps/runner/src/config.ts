@@ -1,6 +1,11 @@
 import { readFile } from "node:fs/promises";
 import { parseDocument } from "yaml";
-import { experimentSchema, type Experiment } from "@llang-gap/contracts";
+import {
+  experimentSchema,
+  languageSchema,
+  safeIdSchema,
+  type Experiment,
+} from "@llang-gap/contracts";
 import { validateModel } from "@llang-gap/providers";
 
 export function parseExperiment(text: string): Experiment {
@@ -20,4 +25,29 @@ export function parseExperiment(text: string): Experiment {
 }
 export async function loadExperiment(path: string): Promise<Experiment> {
   return parseExperiment(await readFile(path, "utf8"));
+}
+
+export interface ExperimentSelection {
+  dataset?: string;
+  language?: string;
+  languages?: string[];
+  compare?: string[];
+  protocol?: string;
+}
+export function selectExperiment(experiment: Experiment, options: ExperimentSelection): Experiment {
+  if (options.language && options.languages)
+    throw new Error("Use --language or --languages, not both");
+  const languages = options.language ? [languageSchema.parse(options.language)] : options.languages;
+  const comparisons = options.compare?.map((value) => {
+    const parts = value.split(":");
+    if (parts.length !== 2) throw new Error("Comparison must be baseline:language");
+    return { baseline: parts[0], language: parts[1] };
+  });
+  return experimentSchema.parse({
+    ...experiment,
+    ...(options.dataset ? { dataset: safeIdSchema.parse(options.dataset) } : {}),
+    ...(options.protocol ? { protocol: options.protocol } : {}),
+    ...(languages ? { languages, comparisons: [] } : {}),
+    ...(comparisons ? { comparisons } : {}),
+  });
 }

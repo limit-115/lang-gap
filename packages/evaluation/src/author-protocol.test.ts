@@ -37,6 +37,9 @@ describe("pinned author protocol", () => {
     expect(sha256(`${JSON.stringify(protocolV1, null, 2)}\n`)).toBe(
       "266ad9bd948de36b5933d17cdcd131fa830a4622a40ab557cebc8e73045f4f74",
     );
+    expect(sha256(`${JSON.stringify(protocol, null, 2)}\n`)).toBe(
+      "fb5bcd17fbff709d3a50010fc2dac0cd06922318a1880e99aaa67e54ad1397ed",
+    );
     expect(getProtocol(protocolV1.id)).toBe(protocolV1);
     for (const target of questions.filter((q) => q.split === "test")) {
       const validation = questions.filter((q) => q.split === "validation");
@@ -51,7 +54,7 @@ describe("pinned author protocol", () => {
       for (const [category, expected] of Object.entries(parity.prompts[language])) {
         const pool = questions.map((q) => ({ ...q, category: category.replaceAll("_", " ") }));
         const target = pool.find((q) => q.language === language && q.split === "test")!;
-        const prompt = buildPrompt(toPromptQuestion(target), pool);
+        const prompt = buildPrompt(toPromptQuestion(target), pool, protocol.id);
         expect(sha256(prompt)).toBe(expected);
         expect(prompt).not.toContain("PRIVATE_TEST_SOLUTION");
       }
@@ -62,13 +65,19 @@ describe("pinned author protocol", () => {
       const target = questions.find((q) => q.split === "test" && q.language === language)!;
       const ordered = [pool[3]!, pool[0]!, pool[4]!, pool[1]!, pool[2]!];
       const extra = { ...pool[0]!, id: "sixth", question: "SIXTH_MUST_NOT_APPEAR" };
-      const prompt = buildPrompt(toPromptQuestion(target), [target, ...ordered, extra]);
-      expect(prompt).toBe(buildPrompt(toPromptQuestion(target), ordered));
+      const prompt = buildPrompt(
+        toPromptQuestion(target),
+        [target, ...ordered, extra],
+        protocol.id,
+      );
+      expect(prompt).toBe(buildPrompt(toPromptQuestion(target), ordered, protocol.id));
       expect(prompt).not.toContain(extra.question);
       expect(ordered.map((q) => prompt.indexOf(q.question))).toEqual(
         ordered.map((q) => prompt.indexOf(q.question)).sort((a, b) => a - b),
       );
-      expect(() => buildPrompt(toPromptQuestion(target), ordered.slice(1))).toThrow("Five");
+      expect(() => buildPrompt(toPromptQuestion(target), ordered.slice(1), protocol.id)).toThrow(
+        "Five",
+      );
     });
 
     it(`pins extraction and generation to the actual Lite YAML (${language})`, async () => {
@@ -100,21 +109,25 @@ describe("pinned author protocol", () => {
 
     it(`matches Python RegexFilter → take_first and stop processing (${language})`, () => {
       for (const test of parity.extraction[language]) {
-        expect(parseAnswer(test.text, language, 2), test.text).toBe(test.answer);
-        expect(textBeforeStop(test.text, language), test.text).toBe(test.stoppedText);
-        expect(scoreAnswer(test.text, language, "B", 2, "completed").answer, test.text).toBe(
-          test.stoppedAnswer,
-        );
+        expect(parseAnswer(test.text, language, 2, protocol.id), test.text).toBe(test.answer);
+        expect(textBeforeStop(test.text, language, protocol.id), test.text).toBe(test.stoppedText);
+        expect(
+          scoreAnswer(test.text, language, "B", 2, "completed", protocol.id).answer,
+          test.text,
+        ).toBe(test.stoppedAnswer);
       }
     });
   }
 
   it("keeps first-match semantics for ambiguity, out-of-range letters and cap-limited text", () => {
-    expect(parseAnswer("The answer is (J). The answer is (B).", "en", 2)).toBe("J");
+    expect(parseAnswer("The answer is (J). The answer is (B).", "en", 2, protocol.id)).toBe("J");
     expect(
-      scoreAnswer("The answer is (B). Further explanation", "en", "B", 2, "truncated"),
+      scoreAnswer("The answer is (B). Further explanation", "en", "B", 2, "truncated", protocol.id),
     ).toEqual({ answer: "B", correct: true });
-    expect(scoreAnswer("", "en", "B", 2, "refusal")).toEqual({ answer: null, correct: false });
+    expect(scoreAnswer("", "en", "B", 2, "refusal", protocol.id)).toEqual({
+      answer: null,
+      correct: false,
+    });
     expect(
       scoreAnswer(
         "The answer is (B). Further explanation",
@@ -125,7 +138,7 @@ describe("pinned author protocol", () => {
         protocolV1.id,
       ).answer,
     ).toBeNull();
-    expect(parseAnswer("ответ — b", "ru", 2)).toBeNull();
+    expect(parseAnswer("ответ — b", "ru", 2, protocol.id)).toBeNull();
     expect(parseAnswer("ответ — b", "ru", 2, protocolV1.id)).toBe("B");
   });
 });

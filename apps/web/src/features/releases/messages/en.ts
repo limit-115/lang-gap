@@ -2,7 +2,7 @@ export default {
   metadataTitle: "Benchmark releases and open data",
   detailTitle: "Benchmark release {id}",
   detailDescription:
-    "English and Russian academic multiple-choice accuracy on {dataset}, using {protocol}. This release includes scores, paired uncertainty intervals and downloadable evidence.",
+    "Model accuracy on {dataset}, using {protocol}. This release records the tested languages, scores, explicit language comparisons and downloadable evidence.",
   sample:
     "{count, plural, one {# unique question per language} other {# unique questions per language}} · {repeats, plural, one {# repeat} other {# repeats}}",
   methodology: "How we test and interpret the gap",

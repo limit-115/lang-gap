@@ -4,7 +4,7 @@
   "properties": {
     "schemaVersion": {
       "type": "number",
-      "const": 2
+      "const": 3
     },
     "id": {
       "type": "string",
@@ -12,30 +12,44 @@
     },
     "dataset": {
       "type": "string",
-      "const": "mmlu-prox-lite"
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,99}$"
     },
     "protocol": {
       "type": "string",
       "enum": [
+        "multiple-choice-v1",
         "mmluprox-lite-5shot-native-reasoning-v1",
         "mmluprox-lite-5shot-author-api-v3"
       ]
     },
     "languages": {
+      "minItems": 1,
       "type": "array",
-      "prefixItems": [
-        {
-          "type": "string",
-          "const": "en"
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$"
+      }
+    },
+    "comparisons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "baseline": {
+            "type": "string",
+            "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$"
+          },
+          "language": {
+            "type": "string",
+            "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$"
+          }
         },
-        {
-          "type": "string",
-          "const": "ru"
-        }
-      ],
-      "items": false,
-      "minItems": 2,
-      "maxItems": 2
+        "required": [
+          "baseline",
+          "language"
+        ],
+        "additionalProperties": false
+      }
     },
     "repeats": {
       "type": "integer",
@@ -251,8 +265,8 @@
     },
     "questionLimit": {
       "type": "integer",
-      "minimum": 1,
-      "maximum": 588
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
     }
   },
   "required": [
@@ -261,6 +275,7 @@
     "dataset",
     "protocol",
     "languages",
+    "comparisons",
     "repeats",
     "seed",
     "models",

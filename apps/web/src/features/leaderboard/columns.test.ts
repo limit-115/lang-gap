@@ -7,6 +7,7 @@ import { features } from "./data-table-features";
 import { plannedRows } from "./model-catalog";
 
 vi.mock("next-intl", () => ({
+  useLocale: () => "en",
   useTranslations: () => (key: string) => key,
   useFormatter: () => ({ number: (value: number) => String(value) }),
 }));
@@ -17,21 +18,32 @@ describe("leaderboard language visibility", () => {
       const table = useTable({
         features,
         data: plannedRows,
-        columns: useLeaderboardColumns(hasResults),
+        columns: useLeaderboardColumns(
+          hasResults,
+          ["de", "fr", "ja"],
+          [{ baseline: "de", language: "ja" }],
+        ),
       });
       const visibleIds = () => table.getVisibleLeafColumns().map((column) => column.id);
 
-      for (const id of ["model", "effort", "gapPp", "gapCi95"]) {
+      const core = [
+        "model",
+        "effort",
+        "gap:de:ja",
+        "interval:de:ja",
+        ...(!hasResults ? ["status"] : []),
+      ];
+      for (const id of core) {
         table.getColumn(id)!.toggleVisibility(false);
         expect(visibleIds()).toContain(id);
       }
-      table.getColumn("en")!.toggleVisibility(false);
-      expect(visibleIds()).toEqual(["model", "effort", "ru", "gapPp", "gapCi95"]);
-      table.getColumn("ru")!.toggleVisibility(false);
-      expect(visibleIds()).toEqual(["model", "effort", "gapPp", "gapCi95"]);
-      table.getColumn("en")!.toggleVisibility(true);
-      table.getColumn("ru")!.toggleVisibility(true);
-      expect(visibleIds()).toEqual(["model", "effort", "en", "ru", "gapPp", "gapCi95"]);
+      for (const language of ["de", "fr", "ja"])
+        table.getColumn(`accuracy:${language}`)!.toggleVisibility(false);
+      expect(visibleIds()).toEqual(core);
+      table.getColumn("accuracy:fr")!.toggleVisibility(true);
+      expect(visibleIds()).toContain("accuracy:fr");
+      expect(visibleIds()).not.toContain("accuracy:de");
+      expect(visibleIds()).not.toContain("accuracy:ja");
       return null;
     }
     renderToStaticMarkup(createElement(Harness));

@@ -1,11 +1,12 @@
 # yaml-language-server: $schema=./schema.json
 # Technical pilot: 12 jobs, up to 36 API attempts including retries.
 # Verify endpoint rates before a paid run.
-schemaVersion: 2
+schemaVersion: 3
 id: openrouter-nano-pilot-author-v3
 dataset: mmlu-prox-lite
 protocol: mmluprox-lite-5shot-author-api-v3
 languages: [en, ru]
+comparisons: [{ baseline: en, language: ru }]
 repeats: 1
 questionLimit: 2
 seed: 20260907

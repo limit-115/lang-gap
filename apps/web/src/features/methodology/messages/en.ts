@@ -1,19 +1,19 @@
 export default {
   title: "Understand how we compare languages and calculate scores.",
   intro:
-    "See what we ask each model, how we measure the difference, and how you can check a published result.",
+    "Llang Gap is a multilingual benchmark across datasets. Each experiment selects its dataset, languages and protocol independently of the website display language.",
   protocolTitle: "What each model receives",
   protocol:
-    "We compare versions of the same questions in different languages. Each prompt includes an instruction, five worked examples from the validation split for the same subject, and one test question, all in the language being tested. Question IDs, answer order and model settings are matched across the language pair. Each request starts fresh, without conversation history, browsing or tools.",
+    "Each experiment selects a versioned protocol and one or more dataset languages. The protocol determines localized instructions, demonstrations and answer extraction. Every request starts fresh, without conversation history, browsing or tools. Model settings and repeats are recorded before execution.",
   adaptation:
-    "We use the MMLU-ProX authors’ 5-shot CoT prompts, which include five examples with step-by-step solutions, adapted for hosted model APIs. We test each model at low, medium and high native reasoning effort with a 2,048-token output limit that includes hidden reasoning. These API settings differ from the original study, so our scores are a separate comparison.",
+    "The multiple-choice protocol uses pinned, localized instructions from the dataset manifest with no demonstrations and expects a single option letter. The separate MMLU-ProX adapter retains its reviewed author prompts and API adaptations. Supported inputs are declared by each dataset and protocol; they do not limit the benchmark to a fixed language pair.",
   datasetTitle: "Which questions count",
   dataset:
-    "MMLU-ProX Lite provides 588 test questions per language across 14 subjects. Another 70 validation examples supply the worked solutions shown in prompts; they do not count toward accuracy. We pin the dataset and prompt source versions and verify files with SHA-256 checksums. Automatic checks confirm that question IDs and answer choices align. They cannot establish that translations preserve the same meaning.",
+    "A dataset manifest pins source revision, files, languages, split sizes, normalization and SHA-256 checksums. Accuracy uses the selected language’s test questions; validation examples never count as test responses. Explicit paired comparisons require matching question IDs, categories, answer keys and option counts. Languages can also be evaluated independently. Automatic checks cannot establish semantic translation quality.",
   scoreTitle: "How to read accuracy and the gap",
   accuracy: "Accuracy",
   score:
-    "Accuracy is the share of correct answers. Every question has equal weight, and we average all repeats specified before the run. The gap subtracts one language’s accuracy from the other, in percentage points. A and B below follow the order in the table’s gap column. Always read both accuracy scores: a small gap can also mean equally weak performance.",
+    "Accuracy is the share of correct answers within one dataset and language, averaged over all prespecified repeats. Every question has equal weight. A gap is computed only for an explicitly selected aligned comparison: baseline accuracy minus comparison-language accuracy, in percentage points. A and B below follow the column’s subtraction order. Scores from different datasets are never pooled.",
   interval:
     "The 95% percentile interval shows how precisely this question set lets us estimate the gap. We calculate it from 10,000 paired bootstrap samples over unique question IDs with a fixed random seed, keeping each question’s language pair and all repeats together. Scores for individual repeats are also published. If the interval includes zero, the direction of the difference is uncertain. Matching effort labels do not mean equal computing budgets across providers.",
   errorsTitle: "How we handle errors before publication",
@@ -25,7 +25,7 @@ export default {
   auditTitle: "How to check a published score",
   audit:
     "Download a release to inspect the exact settings, question data, prompts, visible model responses, token usage and file checksums. You can recompute scores and intervals without calling a model or paying for API access. Published releases stay unchanged; corrections receive a new release ID. API keys and transport headers remain private. Repeating live model requests can produce different answers.",
-  sources: "Dataset and prompt sources",
-  datasetLink: "View the dataset version we use",
-  harnessLink: "View the prompt implementation we use",
+  sources: "Dataset and protocol specifications",
+  datasetLink: "Explore versioned dataset manifests",
+  harnessLink: "Read the benchmark protocol specifications",
 } as const;

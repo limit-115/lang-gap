@@ -22,13 +22,14 @@ const row: Aggregate = {
   transport: "fake",
   model: "synthetic-fixture",
   effort: "low",
-  n: 2,
   repeats: 1,
-  en: 0.5,
-  ru: 0.5,
-  gapPp: 0,
-  gapCi95: [-50, 50],
-  repeatAccuracy: { en: [0.5], ru: [0.5] },
+  scores: ["de", "fr", "ja"].map((language) => ({
+    language,
+    n: 2,
+    accuracy: 0.5,
+    repeatAccuracy: [0.5],
+  })),
+  comparisons: [{ baseline: "de", language: "ja", n: 2, gapPp: 0, gapCi95: [-50, 50] }],
   unparseable: 0,
   refusals: 0,
   costUsd: null,
@@ -44,12 +45,14 @@ beforeEach(() => {
   aggregateFile = Buffer.from(JSON.stringify([row]));
   baseUrl = "https://example.org/releases/synthetic-fixture/";
   manifest = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     id: "synthetic-fixture",
     runId: "synthetic-run",
     kind: "benchmark",
     createdAt: "2026-09-07T00:00:00.000Z",
     dataset: "synthetic",
+    languages: ["de", "fr", "ja"],
+    comparisons: [{ baseline: "de", language: "ja" }],
     datasetRevision: "fixture",
     protocol: "synthetic-protocol",
     configHash: "a".repeat(64),
@@ -94,11 +97,11 @@ describe("public release boundary", () => {
     await expect(getReleases()).rejects.toThrow("checksum mismatch");
   });
   it("rejects disagreement between hashed file and displayed scores", async () => {
-    manifest.aggregate[0]!.en = 0.9;
+    manifest.aggregate[0]!.scores[0]!.accuracy = 0.9;
     await expect(getReleases()).rejects.toThrow("differs from manifest");
   });
   it("rejects missing repeat values instead of rendering NaN", async () => {
-    manifest.aggregate[0]!.repeatAccuracy.ru = [];
+    manifest.aggregate[0]!.scores[0]!.repeatAccuracy = [];
     aggregateFile = Buffer.from(JSON.stringify(manifest.aggregate));
     manifest.files["aggregate.json"] = createHash("sha256").update(aggregateFile).digest("hex");
     await expect(getReleases()).rejects.toThrow("Incomplete per-repeat");
@@ -131,6 +134,8 @@ describe("dataset discovery", () => {
     const en = releaseStructuredData(manifest, baseUrl.slice(0, -1), "en", "Synthetic fixture");
     const ru = releaseStructuredData(manifest, baseUrl.slice(0, -1), "ru", "Синтетический пример");
     expect(ru["@id"]).toBe(en["@id"]);
+    expect(en.inLanguage).toEqual(["de", "fr", "ja"]);
+    expect(ru.inLanguage).toEqual(en.inLanguage);
     expect(ru.url).toContain("/ru/releases/synthetic-fixture/");
     expect(en.distribution.map((d) => d.contentUrl)).toEqual([
       `${baseUrl}aggregate.json`,
