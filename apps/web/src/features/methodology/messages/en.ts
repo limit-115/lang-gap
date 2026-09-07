@@ -1,30 +1,31 @@
 export default {
-  title: "Every number needs a method.",
-  intro: "A controlled comparison of prompt languages, with enough detail to reproduce the score.",
-  protocolTitle: "The experiment",
+  title: "Understand how we compare languages and calculate scores.",
+  intro:
+    "See what we ask each model, how we measure the difference, and how you can check a published result.",
+  protocolTitle: "What each model receives",
   protocol:
-    "Each request contains the localized instruction, five worked validation examples from the same subject, and one test question. Each prompt language uses the same question IDs, answer order and settings. There is no conversation history, browsing or tool use.",
+    "We compare versions of the same questions in different languages. Each prompt includes an instruction, five worked examples from the validation split for the same subject, and one test question, all in the language being tested. Question IDs, answer order and model settings are matched across the language pair. Each request starts fresh, without conversation history, browsing or tools.",
   adaptation:
-    "Our protocol follows the MMLU-ProX authors’ 5-shot CoT prompts. Native reasoning effort and configurable output limits replace the original decoding settings. It is an explicitly adapted protocol, not a reproduction of the paper’s scores.",
-  datasetTitle: "The dataset",
+    "We use the MMLU-ProX authors’ 5-shot CoT prompts, which include five examples with step-by-step solutions, adapted for hosted model APIs. We test each model at low, medium and high native reasoning effort with a 2,048-token output limit that includes hidden reasoning. These API settings differ from the original study, so our scores are a separate comparison.",
+  datasetTitle: "Which questions count",
   dataset:
-    "MMLU-ProX Lite contains 588 test questions and 70 validation examples per language across 14 subjects. Only test questions contribute to accuracy. Source files and the prompt reference are pinned by revision and SHA-256. Automatic checks validate alignment, not the semantic quality of translations.",
-  scoreTitle: "Accuracy & the language gap",
+    "MMLU-ProX Lite provides 588 test questions per language across 14 subjects. Another 70 validation examples supply the worked solutions shown in prompts; they do not count toward accuracy. We pin the dataset and prompt source versions and verify files with SHA-256 checksums. Automatic checks confirm that question IDs and answer choices align. They cannot establish that translations preserve the same meaning.",
+  scoreTitle: "How to read accuracy and the gap",
   accuracy: "Accuracy",
   score:
-    "Accuracy is the proportion of correct answers, with equal weight per question. We average the prespecified repeats; we do not select the best answer. For each language pair, the gap is the difference in accuracy in percentage points. A and B follow the language order shown in the table’s gap column.",
+    "Accuracy is the share of correct answers. Every question has equal weight, and we average all repeats specified before the run. The gap subtracts one language’s accuracy from the other, in percentage points. A and B below follow the order in the table’s gap column. Always read both accuracy scores: a small gap can also mean equally weak performance.",
   interval:
-    "The 95% percentile interval uses 10,000 seeded paired bootstrap samples over unique question IDs, preserving the paired language results and all repeats together. Variation between repeats is reported separately. Effort labels do not imply equal compute across providers.",
-  errorsTitle: "Errors & publication",
+    "The 95% percentile interval shows how precisely this question set lets us estimate the gap. We calculate it from 10,000 paired bootstrap samples over unique question IDs with a fixed random seed, keeping each question’s language pair and all repeats together. Scores for individual repeats are also published. If the interval includes zero, the direction of the difference is uncertain. Matching effort labels do not mean equal computing budgets across providers.",
+  errorsTitle: "How we handle errors before publication",
   errors:
-    "Wrong, refused or unparseable completed answers score zero. Only technical failures are retried. Every attempt is retained. An incomplete matrix or a truncated response blocks publication. Changing a token limit creates a new experiment; it never selectively repairs wrong answers.",
-  limitsTitle: "What this does not measure",
+    "We apply the published answer-extraction rule to every completed response. Incorrect or missing extracted answers score zero. Refusals and parsing failures are reported separately. We retry only technical failures and keep every attempt. Missing responses or outputs cut short by the token limit block publication. A new token limit requires a new experiment.",
+  limitsTitle: "Where these results need caution",
   limits:
-    "These are public academic multiple-choice questions. Training contamination, translation quality and limited sample size may affect results. Scores do not establish a universal ranking for writing, conversation or professional work. Hosted model aliases can change even when a request uses the same model ID.",
-  auditTitle: "Reproduce the result",
+    "This comparison measures academic multiple-choice accuracy. Public questions may have appeared in training data, translations may contain errors, and the question set is limited. The interval captures variation across questions, not all of these uncertainties. Providers can update a hosted model behind the same model ID. Use the results to inform further testing on the writing, conversation or professional tasks that matter to you.",
+  auditTitle: "How to check a published score",
   audit:
-    "Each immutable release includes its resolved configuration, dataset snapshot, prompts, visible outputs, usage and hashes. Scores and intervals can be recomputed without calling a model. API keys and transport headers are excluded.",
-  sources: "Reference materials",
-  datasetLink: "Pinned dataset",
-  harnessLink: "Pinned prompt implementation",
+    "Download a release to inspect the exact settings, question data, prompts, visible model responses, token usage and file checksums. You can recompute scores and intervals without calling a model or paying for API access. Published releases stay unchanged; corrections receive a new release ID. API keys and transport headers remain private. Repeating live model requests can produce different answers.",
+  sources: "Dataset and prompt sources",
+  datasetLink: "View the dataset version we use",
+  harnessLink: "View the prompt implementation we use",
 } as const;
