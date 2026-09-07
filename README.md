@@ -38,8 +38,12 @@ pnpm bench plan experiments/smoke.yaml --dataset mmlu-prox-lite --language ru --
 # Select languages and an explicit subtraction order.
 pnpm bench plan experiments/smoke.yaml --dataset mmlu-prox-lite --languages ru en --compare ru:en --offline
 
-# Free smoke test against real, pinned dataset inputs.
-pnpm bench run experiments/smoke.yaml --offline
+# Free smoke test with no YAML, prices, budget, or preceding plan required.
+pnpm bench run --dataset mmlu-prox-lite --languages ru,en \
+  --protocol mmluprox-lite-5shot-author-api-v3 --transport fake \
+  --models fake-one,fake-two --efforts low,medium,high,xhigh,max \
+  --question-limit 2 --repeats 2 --max-jobs 5 --offline
+pnpm bench resume <run-id>
 # Copy runId from the JSON output into the commands below.
 pnpm bench status <run-id>
 pnpm bench score <run-id>
@@ -50,6 +54,10 @@ pnpm bench release verify .llang-gap/releases/smoke-author-v3
 `--offline` disables **dataset downloads**. It does not disable live model APIs.
 The fake provider never uses the network. CLI results go to stdout as JSON; progress
 and errors go to stderr. Add `--json` for structured errors too.
+
+All experiment settings can be supplied as CLI flags; YAML is optional and flags
+take precedence. Lists accept commas or spaces. Rates and a budget are optional;
+unknown costs remain `null`. See the [complete flag reference](docs/runner.md#cli-and-yaml-configuration).
 
 Dataset and language overrides are available on `dataset prepare`, `plan` and
 `run`. `--languages` (or singular `--language`) replaces the YAML language list
@@ -66,7 +74,7 @@ See [adding a dataset](docs/datasets.md) for normalized JSONL and localized inpu
 | `packages/contracts`  | Strict Zod schemas and shared types                                         |
 | `packages/datasets`   | Manifest-driven download, format adapters and explicit alignment checks     |
 | `packages/evaluation` | Versioned protocol adapters, scoring and explicit paired bootstrap          |
-| `packages/providers`  | Official SDK adapters, capabilities, cost accounting and a fake provider    |
+| `packages/providers`  | Official SDK adapters, optional cost accounting and a fake provider         |
 | `experiments`         | Strict YAML definitions and generated editor JSON Schema                    |
 | `datasets`            | Versioned dataset manifests; data files stay out of Git                     |
 | `results`             | Public release index and small manifests/aggregates                         |
@@ -149,7 +157,7 @@ pnpm bench run experiments/pilot.yaml --budget-usd 30
 
 # Inspect usage/truncation, freeze the protocol, then commit the source/configuration.
 pnpm bench plan experiments/mvp.yaml --offline
-# The full run requires an explicit budget chosen from pilot evidence.
+# Optional budget chosen from pilot evidence.
 pnpm bench run experiments/mvp.yaml --budget-usd <budget>
 ```
 

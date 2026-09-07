@@ -31,6 +31,7 @@
       }
     },
     "comparisons": {
+      "default": [],
       "type": "array",
       "items": {
         "type": "object",
@@ -242,6 +243,17 @@
     "execution": {
       "type": "object",
       "properties": {
+        "budgetUsd": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "concurrency": {
           "type": "integer",
           "minimum": 1,
@@ -277,7 +289,6 @@
     "dataset",
     "protocol",
     "languages",
-    "comparisons",
     "repeats",
     "seed",
     "models",
