@@ -15,6 +15,7 @@ import {
   providerNames,
   type ModelOption,
 } from "./model-catalog";
+import { ProviderLogo } from "./provider-logo";
 import styles from "./model-finder.module.css";
 
 export function ModelFinderHero({ rows }: { rows: Aggregate[] }) {
@@ -61,10 +62,9 @@ export function ModelFinderHero({ rows }: { rows: Aggregate[] }) {
                 {selected ? (
                   <>
                     <span className={styles.providerIcon} aria-hidden="true">
-                      {providerNames[selected.provider].slice(0, 1)}
+                      <ProviderLogo provider={selected.provider} size={20} />
                     </span>
                     <span className={styles.selectedName}>{selected.label}</span>
-                    {!rows.length && <span className={styles.planned}>{t("planned")}</span>}
                   </>
                 ) : (
                   <span className={styles.placeholder}>{t("finderSelect")}</span>
@@ -116,7 +116,7 @@ export function ModelFinderHero({ rows }: { rows: Aggregate[] }) {
                           {(item: ModelOption) => (
                             <Combobox.Item key={item.value} value={item} className={styles.option}>
                               <span className={styles.providerIcon} aria-hidden="true">
-                                {providerNames[item.provider].slice(0, 1)}
+                                <ProviderLogo provider={item.provider} size={20} />
                               </span>
                               <span className={styles.optionText}>{item.label}</span>
                               {!rows.length && (
@@ -131,7 +131,6 @@ export function ModelFinderHero({ rows }: { rows: Aggregate[] }) {
                       </Combobox.Group>
                     )}
                   </Combobox.List>
-                  <div className={styles.listFooter}>{t("finderListHelp")}</div>
                 </Combobox.Popup>
               </Combobox.Positioner>
             </Combobox.Portal>

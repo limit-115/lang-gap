@@ -116,15 +116,15 @@
   opacity: 1;
 }
 .inputGroup:focus-within {
-  box-shadow: inset 0 -2px var(--muted-foreground);
+  border-bottom-color: var(--muted-foreground);
 }
 .action {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  height: 52px;
+  height: 44px;
   margin-top: 10px;
-  padding-inline: 16px;
+  padding-inline: 12px;
   border: 1px solid transparent;
   border-radius: 8px;
   background: var(--finder-cta);
@@ -160,10 +160,10 @@
   border-radius: 10px;
   background: var(--popover);
   color: var(--popover-foreground);
-  box-shadow: 0 16px 48px -12px #00000050;
+  box-shadow: 0 8px 24px -8px #00000030;
 }
 .list {
-  max-height: min(300px, calc(var(--available-height) - 90px));
+  max-height: min(300px, calc(var(--available-height) - 46px));
   overflow-y: auto;
   scroll-padding: 6px;
   padding: 6px;
@@ -174,8 +174,8 @@
 .option {
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-height: 40px;
+  gap: 10px;
+  min-height: 44px;
   padding: 8px;
   border-radius: 6px;
   cursor: pointer;
@@ -190,10 +190,6 @@
   flex-shrink: 0;
   width: 20px;
   height: 20px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 0.6875rem;
-  font-weight: 500;
 }
 .group + .group {
   margin-top: 4px;
@@ -209,19 +205,11 @@
 .optionText {
   flex: 1;
   min-width: 0;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   overflow-wrap: anywhere;
 }
 .planned {
   flex-shrink: 0;
-  padding: 2px 6px;
-  border-radius: 999px;
-  background: var(--muted);
-  color: var(--muted-foreground);
-  font-size: 0.625rem;
-  font-weight: 500;
-}
-.listFooter {
   color: var(--muted-foreground);
   font-size: 0.75rem;
 }
@@ -231,10 +219,6 @@
 .check svg {
   width: 16px;
   height: 16px;
-}
-.listFooter {
-  padding: 10px 16px;
-  border-top: 1px solid var(--border);
 }
 .empty:not(:empty) {
   padding: 24px 18px;

@@ -8,6 +8,7 @@ import type { Aggregate } from "@llang-gap/contracts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { efforts, modelNames, providerNames } from "./model-catalog";
+import { ProviderLogo } from "./provider-logo";
 import type { LeaderboardFeatures } from "./data-table-features";
 
 export type LeaderboardRow = Pick<Aggregate, "model" | "provider" | "effort"> & {
@@ -15,12 +16,6 @@ export type LeaderboardRow = Pick<Aggregate, "model" | "provider" | "effort"> & 
   ru: number | null;
   gapPp: number | null;
   gapCi95: Aggregate["gapCi95"] | null;
-};
-
-const providerLogos: Record<Aggregate["provider"], string | null> = {
-  openai: "/providers/openai.svg",
-  anthropic: "/providers/anthropic.svg",
-  fake: null,
 };
 
 const columnHelper = createColumnHelper<LeaderboardFeatures, LeaderboardRow>();
@@ -87,15 +82,7 @@ export function useLeaderboardColumns(hasResults: boolean) {
           cell: ({ row }) => (
             <div className="flex items-center gap-3">
               <span className="flex size-8 shrink-0 items-center justify-center" aria-hidden="true">
-                {providerLogos[row.original.provider] && (
-                  <img
-                    src={providerLogos[row.original.provider]!}
-                    width={24}
-                    height={24}
-                    alt=""
-                    className="size-6 dark:invert"
-                  />
-                )}
+                <ProviderLogo provider={row.original.provider} />
               </span>
               <div className="flex flex-col gap-1">
                 <span className="font-medium">
