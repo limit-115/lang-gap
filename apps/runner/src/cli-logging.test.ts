@@ -8,7 +8,7 @@ import { readManifest } from "@llang-gap/datasets";
 import { createFakeAdapter } from "@llang-gap/providers";
 import { experiment, questions } from "@tests/fixtures";
 import { createRun } from "./run";
-import { workspace } from "./files";
+import { workspace, hash, json } from "./files";
 
 let temp: string;
 const runs: string[] = [];
@@ -186,4 +186,22 @@ it.each([
   const logs = await readFile(join(run.directory, "runner.jsonl"), "utf8");
   expect(logs).toContain('"event":"request.completed"');
   expect(logs).toContain('"event":"run.finished"');
+});
+
+it("does not create a run journal when resume rejects an incompatible runtime", async () => {
+  const run = await seed();
+  const snapshotPath = join(run.directory, "resolved.json");
+  const snapshot = JSON.parse(await readFile(snapshotPath, "utf8"));
+  snapshot.implementation.sha256 = "0".repeat(64);
+  const content = json(snapshot);
+  await writeFile(snapshotPath, content);
+  await writeFile(join(run.directory, "identity.json"), json({ configHash: hash(content) }));
+  const database = await readFile(join(run.directory, "state.sqlite"));
+  const refused = await cli(["--json", "resume", run.runId]);
+  expect(refused.code).toBe(1);
+  expect(JSON.parse(refused.stdout).error).toContain("restore the recorded implementation");
+  await expect(readFile(join(run.directory, "runner.jsonl"))).rejects.toMatchObject({
+    code: "ENOENT",
+  });
+  expect(await readFile(join(run.directory, "state.sqlite"))).toEqual(database);
 });

@@ -178,7 +178,6 @@ export async function resumeRun(
   let state: RunState | undefined;
   try {
     const { snapshot, configHash } = await readSnapshot(directory);
-    await options.onReady?.(snapshot.runId, directory);
     const current = await implementationIdentity(workspace);
     if (current.sha256 !== snapshot.implementation.sha256)
       throw new Error(
@@ -194,6 +193,7 @@ export async function resumeRun(
         : options.budgetUsd;
     validateBudget(budgetUsd, jobs, state.charged());
     const maxAttempts = options.maxAttempts ?? snapshot.experiment.execution.maxAttempts;
+    await options.onReady?.(snapshot.runId, directory);
     const beforeRecovery = state.summary();
     state.recover(options.retryUncertain ?? false, maxAttempts, options.retryFailed ?? false);
     const adapters =
