@@ -96,6 +96,34 @@ describe("SDK adapters with intercepted HTTP transport", () => {
       store: false,
     });
   });
+
+  it("preserves GPT-5 nano usage when cache-write accounting is absent", async () => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(
+      Response.json({
+        ...openAIResponse,
+        model: "gpt-5-nano-2025-08-07",
+        usage: {
+          ...openAIResponse.usage,
+          input_tokens_details: { cached_tokens: 10 },
+        },
+      }),
+    );
+    const result = await createOpenAIAdapter("synthetic-test-key", 1000, fetcher).generate({
+      ...request("medium"),
+      model: "gpt-5-nano-2025-08-07",
+    });
+    expect(result).toMatchObject({
+      model: "gpt-5-nano-2025-08-07",
+      usage: { inputTokens: 100, cachedInputTokens: 10, cacheWriteTokens: 0, outputTokens: 200 },
+    });
+    const body = fetcher.mock.calls[0]?.[1]?.body;
+    if (typeof body !== "string") throw new Error("Expected JSON request body");
+    expect(JSON.parse(body)).toMatchObject({
+      model: "gpt-5-nano-2025-08-07",
+      reasoning: { effort: "medium" },
+    });
+  });
+
   it.each(["low", "medium", "high"] as const)(
     "sends OpenAI native effort %s without hidden sampling, tools or retries",
     async (effort) => {
