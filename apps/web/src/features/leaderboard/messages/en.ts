@@ -62,6 +62,8 @@ export default {
   neutral: "This interval includes zero; neither language has clearly higher accuracy.",
   release: "Release {id}",
   metadataTitle: "Compare LLM accuracy across languages",
+  metadataPlannedDescription:
+    "An open English/Russian LLM accuracy benchmark using MMLU-ProX Lite. Explore the methodology and planned comparison; results are not yet published.",
   metadataDescription:
     "See how LLM accuracy changes across languages. With open results you can check. Compare models, understand the gaps, and inspect the evidence.",
 } as const;

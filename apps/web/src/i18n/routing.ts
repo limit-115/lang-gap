@@ -5,6 +5,8 @@ export const routing = defineRouting({
   defaultLocale: "en",
   localePrefix: "always",
   localeDetection: true,
+  // Canonical-origin alternates are supplied by page metadata and the sitemap.
+  alternateLinks: false,
   localeCookie: { maxAge: 60 * 60 * 24 * 365 },
 });
 export type Locale = (typeof routing.locales)[number];

@@ -148,6 +148,9 @@ overwritten; corrected results receive a new release ID.
 
 ## Open artifacts
 
+See [search and AI discovery](docs/search-discovery.md) for the public origin,
+preview indexing rules, and the publication checklist for citable release pages.
+
 See [release and web integration](docs/releases.md) for the public file contract,
 hash verification, independent scoring and explicit staging. The website reads
 published aggregates only; a build never calls a model or opens the run database.

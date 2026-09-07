@@ -8,12 +8,13 @@ import { SiteHeader } from "@/shared/navigation/site-header";
 import { SiteFooter } from "@/shared/navigation/site-footer";
 import { ThemeProvider } from "@/shared/theme-provider";
 import { SiteBackground } from "@/shared/site-background";
-import { siteUrl } from "@/shared/metadata";
+import { isPreviewDeployment, siteUrl } from "@/shared/metadata";
 import "@/app/globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: { default: "Llang Gap", template: "%s · Llang Gap" },
+  robots: { index: !isPreviewDeployment, follow: true },
 };
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));

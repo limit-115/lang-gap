@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["SITE_URL", "LLANG_RELEASE_ID"],
+  "globalEnv": ["SITE_URL", "LLANG_RELEASE_ID", "VERCEL_ENV"],
   "globalDependencies": ["config/**", "results/**"],
   "tasks": {
     "build": { "dependsOn": ["^build"], "outputs": [] },

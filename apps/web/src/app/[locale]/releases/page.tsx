@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
-import { pageMetadata } from "@/shared/metadata";
+import { isPreviewDeployment, pageMetadata } from "@/shared/metadata";
 import { getReleases } from "@/features/releases/data";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -12,7 +12,10 @@ export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   const t = await getTranslations({ locale, namespace: "Releases" });
-  return pageMetadata(locale, "/releases", t("title"), t("intro"));
+  return {
+    ...pageMetadata(locale, "/releases", t("metadataTitle"), t("intro")),
+    robots: { index: !isPreviewDeployment && (await getReleases()).length > 0, follow: true },
+  };
 }
 export default async function ReleasesPage({ params }: Props) {
   const { locale } = await params;
