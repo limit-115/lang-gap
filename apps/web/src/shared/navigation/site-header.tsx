@@ -2,6 +2,7 @@
 
 import { Menu } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -24,9 +25,21 @@ const pages = [
 export function SiteHeader() {
   const t = useTranslations("Navigation");
   const pathname = usePathname();
+  const [floating, setFloating] = useState(false);
+
+  useEffect(() => {
+    const updateFloating = () => {
+      // Separate thresholds keep the header stable near the transition point.
+      setFloating((previous) => (previous ? window.scrollY > 12 : window.scrollY > 40));
+    };
+
+    updateFloating();
+    window.addEventListener("scroll", updateFloating, { passive: true });
+    return () => window.removeEventListener("scroll", updateFloating);
+  }, []);
 
   return (
-    <header className="site-header">
+    <header className="site-header" data-floating={floating}>
       <div className="header-inner">
         <Link className="brand" href="/" aria-label={t("home")}>
           <BrandLogo compactOnMobile />
