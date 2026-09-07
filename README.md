@@ -145,11 +145,13 @@ experimental v2 is historical only. Pricing, model availability and the output c
 must be checked for your API account. The configured USD rates are dated
 2026-09-06 and apply to standard, short-context API requests.
 
-Set `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `OPENROUTER_API_KEY` in the process
-environment for the selected transport. See [OpenRouter runs](docs/runner.md#openrouter)
-for transport/model configuration and a technical pilot. Local `.env`
-files are ignored by Git but are **not automatically loaded** by the CLI. Do not put
-keys in experiment YAML or public artifacts.
+Set `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `OPENROUTER_API_KEY` in the repository
+root `.env` file or the process environment for the selected transport. The CLI
+automatically loads that `.env` file for every command, preserves existing process
+environment values, and runs normally if the file is absent. See
+[OpenRouter runs](docs/runner.md#openrouter) for transport/model configuration and a
+technical pilot. Local `.env` files are ignored by Git. Do not put keys in
+experiment YAML or public artifacts.
 
 ```sh
 pnpm bench plan experiments/pilot.yaml

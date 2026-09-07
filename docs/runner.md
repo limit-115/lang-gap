@@ -14,10 +14,16 @@ pnpm bench run --id cli-smoke --dataset mmlu-prox-lite \
 pnpm bench resume <run-id>
 ```
 
-For live calls, choose a transport, supply its API key in the environment and pass
-its model IDs unchanged, for example `--transport openrouter
+For live calls, choose a transport, supply its API key in the repository root
+`.env` file or the process environment and pass its model IDs unchanged, for example `--transport openrouter
 --models organization/model:free,organization/another-model`. No model catalog or
 effort-capability lookup runs before dispatch. The provider may reject a request.
+
+Every CLI command, including `run` and `resume`, automatically loads `.env` from
+the repository root, regardless of the working directory. Existing process
+environment values take precedence, including empty values. A missing `.env` is
+allowed; other file read errors are reported. Copy `.env.example` to `.env` and
+fill in the key for your transport, or keep using exported environment variables.
 
 YAML remains useful for named, reproducible experiments. Flags override YAML;
 defaults fill fields absent from both. Overrides are applied before final schema
@@ -111,7 +117,7 @@ YAML cap or `maxOutputTokens: null` also means no API cap. The resolved snapshot
 always records a number or null, so the choice is reproducible.
 
 ```sh
-# OPENROUTER_API_KEY must already be exported in this shell.
+# Set OPENROUTER_API_KEY in the repository root .env or export it in this shell.
 pnpm bench run --dataset mmlu-prox-lite \
   --protocol mmluprox-lite-5shot-flexible-api-v1 \
   --transport openrouter --models inclusionai/ling-3.0-flash-fin:free \
@@ -176,7 +182,8 @@ require their recorded source and dependencies for resume, scoring and verificat
 
 ## OpenRouter
 
-Set `OPENROUTER_API_KEY`. `experiments/openrouter-pilot.yaml` is a two-question,
+Set `OPENROUTER_API_KEY` in the repository root `.env` or the process environment.
+`experiments/openrouter-pilot.yaml` is a two-question,
 three-effort GPT-5 nano technical pilot: 12 EN/RU jobs, with up to 36 API attempts
 under `maxAttempts: 3` (one initial attempt plus two retries per job). It is not a
 publishable comparison. Planning reports separate cost bounds for one attempt and
@@ -185,10 +192,10 @@ all configured attempts; execution reserves each attempt before dispatch.
 ```sh
 # Planning does not call model APIs or require credentials.
 pnpm bench plan experiments/openrouter-pilot.yaml
-# Explicitly load the ignored local .env with the pinned Node runtime.
+# The CLI automatically loads the ignored repository root .env.
 # Run only after agreeing the paid pilot budget.
-pnpm exec node --env-file=.env --import tsx apps/runner/src/cli.ts run experiments/openrouter-pilot.yaml --budget-usd 1
-pnpm exec node --env-file=.env --import tsx apps/runner/src/cli.ts resume <run-id> --budget-usd 1
+pnpm bench run experiments/openrouter-pilot.yaml --budget-usd 1
+pnpm bench resume <run-id> --budget-usd 1
 ```
 
 OpenRouter selects the serving endpoint for the requested model. There is no
