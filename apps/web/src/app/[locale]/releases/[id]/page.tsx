@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import { pageMetadata, siteUrl } from "@/shared/metadata";
+import { formatCostUsd } from "@/shared/format-cost";
 import { JsonLd } from "@/shared/json-ld";
 import {
   getRelease,
@@ -100,13 +101,20 @@ export default async function ReleasePage({ params }: Props) {
             </caption>
             <TableHeader>
               <TableRow>
-                {[l("model"), l("effort"), l("en"), l("ru"), l("gapUnit"), l("confidence")].map(
-                  (label) => (
-                    <TableHead key={label} scope="col">
-                      {label}
-                    </TableHead>
-                  ),
-                )}
+                {[
+                  l("model"),
+                  l("effort"),
+                  l("en"),
+                  l("costLanguage", { language: "EN" }),
+                  l("ru"),
+                  l("costLanguage", { language: "RU" }),
+                  l("gapUnit"),
+                  l("confidence"),
+                ].map((label) => (
+                  <TableHead key={label} scope="col">
+                    {label}
+                  </TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -119,7 +127,25 @@ export default async function ReleasePage({ params }: Props) {
                   </TableCell>
                   <TableCell>{l(row.effort)}</TableCell>
                   <TableCell className="font-mono">{percent(row.en)}</TableCell>
+                  <TableCell className="font-mono">
+                    {row.averageCostUsd?.en == null ? (
+                      <span className="text-muted-foreground" aria-label={l("unknownCost")}>
+                        —
+                      </span>
+                    ) : (
+                      formatCostUsd(row.averageCostUsd.en, locale)
+                    )}
+                  </TableCell>
                   <TableCell className="font-mono">{percent(row.ru)}</TableCell>
+                  <TableCell className="font-mono">
+                    {row.averageCostUsd?.ru == null ? (
+                      <span className="text-muted-foreground" aria-label={l("unknownCost")}>
+                        —
+                      </span>
+                    ) : (
+                      formatCostUsd(row.averageCostUsd.ru, locale)
+                    )}
+                  </TableCell>
                   <TableCell className="font-mono">{pp(row.gapPp)}</TableCell>
                   <TableCell className="font-mono">[{row.gapCi95.map(pp).join(", ")}]</TableCell>
                 </TableRow>
@@ -127,6 +153,7 @@ export default async function ReleasePage({ params }: Props) {
             </TableBody>
           </Table>
         </div>
+        <p className="max-w-3xl text-sm leading-6 text-muted-foreground">{l("costNote")}</p>
       </section>
       <div className="document mt-12">
         <section>

@@ -30,19 +30,31 @@ at PR #16's revision. See [protocol history](protocol.md#historical-v1v2-and-off
 
 ## Files
 
-| File                    | Contents                                                                                  |
-| ----------------------- | ----------------------------------------------------------------------------------------- |
-| `manifest.json`         | ID, kind, date, provenance, aggregate rows and SHA-256 of every other file                |
-| `resolved.json`         | Exact resolved experiment, protocol, dataset manifest, implementation and SDK versions    |
-| `identity.json`         | Hash of the resolved snapshot                                                             |
-| `dataset-manifest.json` | Original repository, revision and Parquet hashes                                          |
-| `dataset.jsonl`         | Normalized EN/RU test and validation input snapshot                                       |
-| `items.jsonl`           | One selected completed response per job, prompt, visible output, score, usage and latency |
-| `aggregate.json`        | Model/effort rows, EN/RU accuracy, gap in pp, paired 95% interval, repeat accuracies      |
-| `aggregate.csv`         | Portable table of scores and paired intervals                                             |
-| `attempts.jsonl`        | Every technical attempt, timestamps, status, known/uncertain charge and request ID        |
-| `execution.json`        | Overall charged/reserved amount, completion counts and operational event log              |
-| `ATTRIBUTION.md`        | Dataset and harness source attribution and upstream license notice                        |
+| File                    | Contents                                                                                                          |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `manifest.json`         | ID, kind, date, provenance, aggregate rows and SHA-256 of every other file                                        |
+| `resolved.json`         | Exact resolved experiment, protocol, dataset manifest, implementation and SDK versions                            |
+| `identity.json`         | Hash of the resolved snapshot                                                                                     |
+| `dataset-manifest.json` | Original repository, revision and Parquet hashes                                                                  |
+| `dataset.jsonl`         | Normalized EN/RU test and validation input snapshot                                                               |
+| `items.jsonl`           | One selected completed response per job, prompt, visible output, score, usage and latency                         |
+| `aggregate.json`        | Model/effort rows, EN/RU accuracy, gap in pp, paired 95% interval, repeat accuracies, mean task costs by language |
+| `aggregate.csv`         | Portable table of scores, paired intervals, total selected-response cost and mean task costs                      |
+| `attempts.jsonl`        | Every technical attempt, timestamps, status, known/uncertain charge and request ID                                |
+| `execution.json`        | Overall charged/reserved amount, completion counts and operational event log                                      |
+| `ATTRIBUTION.md`        | Dataset and harness source attribution and upstream license notice                                                |
+
+New aggregates include `averageCostUsd: { en: number | null, ru: number | null }`.
+CSV adds `cost_usd`, `average_cost_usd_en` and `average_cost_usd_ru`; unknown values
+are empty cells, not zero. Mean task cost follows the [protocol definition](protocol.md#metrics).
+The existing `costUsd` retains its combined selected-response total.
+
+The language-cost field is optional when reading schema-version-1 aggregates so
+older immutable releases still load. Its absence means unknown per-language
+costs; a combined total cannot establish either language's mean. New runs always
+export both language keys. Do not rewrite historical artifacts to add the field;
+retain their recorded checkout for verification, as with any implementation
+change. No existing release or public result is migrated by this change.
 
 Raw SDK response bodies remain in the private SQLite journal. Public results
 include visible final text, not provider thinking blocks/signatures, keys or HTTP

@@ -180,6 +180,13 @@ export const aggregateSchema = z.strictObject({
   unparseable: z.number().int().nonnegative(),
   refusals: z.number().int().nonnegative(),
   costUsd: z.number().nonnegative().nullable(),
+  // Older immutable releases have only the combined cost, without a language breakdown.
+  averageCostUsd: z
+    .strictObject({
+      en: z.number().nonnegative().nullable(),
+      ru: z.number().nonnegative().nullable(),
+    })
+    .optional(),
 });
 export type Aggregate = z.infer<typeof aggregateSchema>;
 export const releaseManifestSchema = z.strictObject({

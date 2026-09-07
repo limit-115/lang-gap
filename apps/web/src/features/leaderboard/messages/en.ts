@@ -20,6 +20,11 @@ export default {
   ru: "Russian",
   gap: "Gap",
   accuracy: "Accuracy",
+  costLanguage: "{language} cost/task",
+  costUnit: "Average · USD",
+  unknownCost: "Cost unknown",
+  costNote:
+    "Cost/task averages the selected responses over all questions and repeats, including incorrect answers and refusals. Technical retries are excluded. Missing costs are unknown.",
   gapUnit: "EN − RU · pp",
   confidence: "Gap · 95% interval",
   planned: "Planned",

@@ -1,8 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { experimentSchema, questionSchema, usageSchema } from "./index";
+import { aggregateSchema, experimentSchema, questionSchema, usageSchema } from "./index";
 import { experiment, questions } from "@tests/fixtures";
 
 describe("public contracts", () => {
+  it("validates both language costs without defaulting absent historical values", () => {
+    const costs = aggregateSchema.shape.averageCostUsd;
+    expect(costs.parse(undefined)).toBeUndefined();
+    expect(costs.parse({ en: 0, ru: null })).toEqual({ en: 0, ru: null });
+    for (const value of [{ en: -1, ru: 0 }, { en: 0 }, { en: Infinity, ru: 0 }]) {
+      expect(costs.safeParse(value).success).toBe(false);
+    }
+  });
   it("rejects misspelled settings rather than silently using defaults", () => {
     expect(experimentSchema.safeParse({ ...experiment, repeat: 3 }).success).toBe(false);
     expect(

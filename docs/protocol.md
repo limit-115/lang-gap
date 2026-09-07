@@ -160,6 +160,22 @@ Positive values indicate lower Russian accuracy. Always report absolute English
 and Russian accuracy alongside the gap. Unparseable answers and refusals have
 separate counters.
 
+`averageCostUsd.en` and `.ru` report the mean USD cost per task for each
+model/effort and language. A task is one selected response to one question in one
+prespecified repeat: `sum(costUsd for language) / (n × repeats)`. All responses
+count, including incorrect answers, unparseable answers and refusals. The cost
+includes the full prompt (including demonstrations), cached input/cache writes
+and billed output/reasoning, using recorded usage and the run's pinned prices.
+If any selected response in a language has unknown cost, that language's average
+is `null`; the other language can still have a known average. A known zero stays
+zero. This supplements accuracy without changing prompts, scoring, question
+weights, bootstrap intervals or protocol IDs.
+
+These are selected-response costs, not the cost of successful answers or total
+operational spending. Technical retries and failed/uncertain charges remain in
+`attempts.jsonl` and `execution.json`. Compare costs with the pinned pricing date,
+cache usage and generation settings in mind.
+
 For each model/effort, the paired percentile bootstrap samples **unique question
 IDs**, retaining both languages and all repeats in each sampled cluster. There
 are 10,000 samples from a deterministic seeded generator. The 2.5th and 97.5th

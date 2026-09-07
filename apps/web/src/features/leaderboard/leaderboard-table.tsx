@@ -145,7 +145,10 @@ export function LeaderboardTable({ rows }: { rows: Aggregate[] }) {
               <DropdownMenuCheckboxItem
                 key={column.id}
                 checked={column.getIsVisible()}
-                onCheckedChange={(checked) => column.toggleVisibility(checked)}
+                onCheckedChange={(checked) => {
+                  column.toggleVisibility(checked);
+                  table.getColumn(`${column.id}Cost`)!.toggleVisibility(checked);
+                }}
                 closeOnClick={false}
               >
                 {label}
@@ -218,6 +221,7 @@ export function LeaderboardTable({ rows }: { rows: Aggregate[] }) {
           </TableBody>
         </Table>
       </div>
+      <p className="mt-3 max-w-3xl text-xs leading-5 text-muted-foreground">{t("costNote")}</p>
       <div className="flex flex-wrap items-center justify-between gap-4 pt-4 text-sm">
         <output className="text-muted-foreground">
           {t("rowRange", {

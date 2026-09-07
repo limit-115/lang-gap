@@ -76,6 +76,11 @@ export function aggregateResults(
           throw new Error("At least one bootstrap sample required");
         return lo + (hi - lo) * (index - Math.floor(index));
       };
+      const averageCost = (language: ItemResult["language"]) => {
+        const rows = group.filter((item) => item.language === language);
+        if (rows.some((item) => item.costUsd === null)) return null;
+        return rows.reduce((sum, item) => sum + (item.costUsd ?? 0), 0) / rows.length;
+      };
       return aggregateSchema.parse({
         provider: first.provider,
         model: first.model,
@@ -92,6 +97,7 @@ export function aggregateResults(
         costUsd: group.some((i) => i.costUsd === null)
           ? null
           : group.reduce((sum, i) => sum + (i.costUsd ?? 0), 0),
+        averageCostUsd: { en: averageCost("en"), ru: averageCost("ru") },
       });
     });
 }
