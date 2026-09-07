@@ -46,7 +46,7 @@ export default async function ReleasesPage({ params }: Props) {
           ))}
         </ul>
       ) : (
-        <Empty className="mb-16 border border-solid py-16">
+        <Empty className="mb-16 border border-solid bg-background py-16">
           <EmptyHeader className="max-w-lg">
             <EmptyTitle className="tracking-normal">
               <h2>{t("emptyTitle")}</h2>
