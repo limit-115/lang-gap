@@ -37,7 +37,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { efforts, plannedRows, useLeaderboardColumns } from "./columns";
+import { useLeaderboardColumns } from "./columns";
+import { efforts, plannedRows } from "./model-catalog";
 import { features } from "./data-table-features";
 
 export function LeaderboardTable({ rows }: { rows: Aggregate[] }) {

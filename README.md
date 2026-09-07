@@ -74,6 +74,11 @@ The website follows the system's light or dark appearance by default. The theme
 button in the header switches between light and dark and remembers the choice in
 this browser across reloads and both languages.
 
+The model shortcut beside the homepage introduction searches by model or provider.
+Selecting a model enables **See the conclusion**, a link to
+`/[locale]/models/[provider]/[model]`. Those detail pages are reserved for future
+implementation.
+
 ## Checks
 
 ```sh
