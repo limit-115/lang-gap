@@ -144,7 +144,7 @@ export function LeaderboardTable({ rows }: { rows: Aggregate[] }) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="overflow-hidden rounded-lg border">
+      <div className="overflow-hidden rounded-lg border bg-background/96">
         <Table className="[&_td]:h-16 [&_td]:px-4 [&_th]:h-16 [&_th]:px-4">
           <caption className="sr-only">
             {t("tableTitle")} — {t("tableDescription")}
