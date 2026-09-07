@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Report one problem per issue. English or Russian is welcome.
+        Report one problem per issue.
         Use the feature proposal form for new capabilities or methodology changes.
         Do not include API keys, private run databases, or unredacted SDK responses.
 

@@ -95,7 +95,6 @@ Logo files, light/dark variants, avatars and favicons are available in the
 Read [CONTRIBUTING.md](CONTRIBUTING.md) for setup, scope, verification, and PR
 expectations. Report bugs or discuss feature and methodology proposals through
 the [issue forms](https://github.com/limit-115/llang-gap/issues/new/choose).
-Issues and PR explanations are welcome in English or Russian.
 
 ## Live experiments
 

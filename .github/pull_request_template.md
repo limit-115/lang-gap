@@ -1,6 +1,6 @@
 <!--
 Read https://github.com/limit-115/llang-gap/blob/main/CONTRIBUTING.md.
-Keep one concern per PR. English or Russian is welcome.
+Keep one concern per PR.
 Delete optional sections that do not apply. Do not include secrets or private run data.
 -->
 
