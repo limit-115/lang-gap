@@ -70,7 +70,8 @@ source and dependencies. Dataset/protocol versions are unaffected.
 Set `OPENROUTER_API_KEY`. `experiments/openrouter-pilot.yaml` is a two-question,
 three-effort GPT-5 nano technical pilot: 12 EN/RU jobs, with up to 36 API attempts
 under `maxAttempts: 3` (one initial attempt plus two retries per job). It is not a
-publishable comparison. The budget reservation includes all configured attempts.
+publishable comparison. Planning reports separate cost bounds for one attempt and
+all configured attempts; execution reserves each attempt before dispatch.
 
 ```sh
 # Planning does not call model APIs or require credentials.
