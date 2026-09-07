@@ -59,6 +59,10 @@ auto routing and presets are not accepted. Different upstreams require separate
 experiments/runs. The model and upstream are hashed into the resolved snapshot;
 resume uses that snapshot and forecasts reject calibration from another upstream.
 Multiple models retain their own adapters while sharing OpenRouter concurrency.
+In results, `provider` remains the execution transport. The website resolves the
+model owner from the OpenRouter namespace (`openai/...` → OpenAI), independently
+of the serving upstream. Native and routed conditions retain distinct result IDs
+and links while sharing model/owner display names.
 
 The request pins `provider.only`, disables fallbacks and requires parameter support
 as described in [provider routing](https://openrouter.ai/docs/guides/routing/provider-selection).

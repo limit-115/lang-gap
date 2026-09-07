@@ -1,23 +1,39 @@
-import type { Aggregate } from "@llang-gap/contracts";
+import { getModelIdentity, type Aggregate, type ModelReference } from "@llang-gap/contracts";
 import type { LeaderboardRow } from "./columns";
 
 export const efforts = ["low", "medium", "high"] as const;
-export const modelNames: Record<string, string> = {
-  "gpt-6-astra": "GPT-6 Astra",
-  "claude-fable-5-1": "Claude Fable 5.1",
-};
-export const providerNames: Record<Aggregate["provider"], string> = {
+const ownerNames: Record<string, string> = {
   openai: "OpenAI",
   anthropic: "Anthropic",
-  openrouter: "OpenRouter",
+  google: "Google",
+  "meta-llama": "Meta",
+  "x-ai": "xAI",
+  mistralai: "Mistral AI",
+  deepseek: "DeepSeek",
+  qwen: "Qwen",
   fake: "fake",
 };
+const plannedModels = [
+  { provider: "openai", model: "gpt-6-astra", label: "GPT-6 Astra" },
+  { provider: "anthropic", model: "claude-fable-5-1", label: "Claude Fable 5.1" },
+] as const satisfies readonly (ModelReference & { label: string })[];
+const modelNames = new Map(
+  plannedModels.map(({ provider, model, label }) => [`${provider}/${model}`, label]),
+);
 
-export const plannedRows: LeaderboardRow[] = Object.keys(modelNames).flatMap((model) =>
+export function getModelPresentation(reference: ModelReference) {
+  const { owner, name } = getModelIdentity(reference);
+  return {
+    label: modelNames.get(`${owner}/${name}`) ?? name,
+    ownerName: owner === null ? "—" : (ownerNames[owner] ?? owner),
+  };
+}
+
+export const plannedRows: LeaderboardRow[] = plannedModels.flatMap(({ provider, model }) =>
   efforts.map((effort) => ({
     model,
+    provider,
     effort,
-    provider: model.startsWith("gpt") ? "openai" : "anthropic",
     en: null,
     ru: null,
     gapPp: null,
@@ -28,7 +44,7 @@ export const plannedRows: LeaderboardRow[] = Object.keys(modelNames).flatMap((mo
 export function getModelOptions(rows: Pick<Aggregate, "model" | "provider">[]) {
   const unique = new Map<
     string,
-    { value: string; model: string; provider: Aggregate["provider"]; label: string }
+    ModelReference & ReturnType<typeof getModelPresentation> & { value: string }
   >();
   for (const row of rows) {
     const value = `${row.provider}/${row.model}`;
@@ -36,7 +52,7 @@ export function getModelOptions(rows: Pick<Aggregate, "model" | "provider">[]) {
       value,
       model: row.model,
       provider: row.provider,
-      label: modelNames[row.model] ?? row.model,
+      ...getModelPresentation(row),
     });
   }
   return [...unique.values()].sort(
@@ -46,7 +62,7 @@ export function getModelOptions(rows: Pick<Aggregate, "model" | "provider">[]) {
 export type ModelOption = ReturnType<typeof getModelOptions>[number];
 
 export function matchesModel(item: ModelOption, query: string) {
-  const haystack = `${item.label} ${item.model} ${providerNames[item.provider]}`.toLowerCase();
+  const haystack = `${item.label} ${item.model} ${item.ownerName}`.toLowerCase();
   return query
     .trim()
     .toLowerCase()

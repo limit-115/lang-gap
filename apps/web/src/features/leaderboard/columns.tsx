@@ -7,7 +7,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import type { Aggregate } from "@llang-gap/contracts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { efforts, modelNames, providerNames } from "./model-catalog";
+import { efforts, getModelPresentation } from "./model-catalog";
 import type { LeaderboardFeatures } from "./data-table-features";
 
 export type LeaderboardRow = Pick<Aggregate, "model" | "provider" | "effort"> & {
@@ -73,21 +73,22 @@ export function useLeaderboardColumns(hasResults: boolean) {
       });
     return columnHelper.columns([
       columnHelper.accessor(
-        (row) =>
-          `${modelNames[row.model] ?? row.model} ${row.model} ${providerNames[row.provider]}`,
+        (row) => {
+          const { label, ownerName } = getModelPresentation(row);
+          return `${label} ${row.model} ${ownerName}`;
+        },
         {
           id: "model",
           header: ({ column }) => <ColumnHeader column={column} title={t("model")} />,
-          cell: ({ row }) => (
-            <div className="flex flex-col gap-1">
-              <span className="font-medium">
-                {modelNames[row.original.model] ?? row.original.model}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {providerNames[row.original.provider]}
-              </span>
-            </div>
-          ),
+          cell: ({ row }) => {
+            const { label, ownerName } = getModelPresentation(row.original);
+            return (
+              <div className="flex flex-col gap-1">
+                <span className="font-medium">{label}</span>
+                <span className="text-xs text-muted-foreground">{ownerName}</span>
+              </div>
+            );
+          },
           filterFn: "includesString",
           sortFn: "text",
           sortDescFirst: false,

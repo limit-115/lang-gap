@@ -12,7 +12,6 @@ import {
   getModelHref,
   matchesModel,
   plannedRows,
-  providerNames,
   type ModelOption,
 } from "./model-catalog";
 import styles from "./model-finder.module.css";
@@ -80,11 +79,11 @@ export function ModelFinderHero({ rows }: { rows: Aggregate[] }) {
                     {(item: ModelOption) => (
                       <Combobox.Item key={item.value} value={item} className={styles.option}>
                         <span className={styles.providerIcon} aria-hidden="true">
-                          {providerNames[item.provider].slice(0, 1)}
+                          {item.ownerName.slice(0, 1)}
                         </span>
                         <span className={styles.optionText}>
                           <strong>{item.label}</strong>
-                          <span>{providerNames[item.provider]}</span>
+                          <span>{item.ownerName}</span>
                         </span>
                         {!rows.length && <span className={styles.planned}>{t("planned")}</span>}
                         <Combobox.ItemIndicator className={styles.check}>

@@ -83,6 +83,16 @@ export const modelSchema = z
     }
   });
 export type ModelConfig = z.infer<typeof modelSchema>;
+export type ModelReference = Pick<ModelConfig, "provider" | "model">;
+
+// `provider` identifies execution transport. OpenRouter namespaces identify model owners.
+export function getModelIdentity({ provider, model }: ModelReference) {
+  if (provider !== "openrouter") return { owner: provider, name: model };
+  const separator = model.indexOf("/");
+  return separator > 0
+    ? { owner: model.slice(0, separator), name: model.slice(separator + 1) }
+    : { owner: null, name: model };
+}
 
 export const experimentSchema = z.strictObject({
   schemaVersion: z.literal(1),
