@@ -142,14 +142,13 @@ export function LeaderboardTable({ rows }: { rows: Aggregate[] }) {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            sideOffset={8}
-            className="w-64 max-w-[calc(100vw-2rem)] rounded-xl border border-border p-1.5 ring-0"
+            className="max-w-[calc(100vw-2rem)] rounded-xl border border-border ring-0"
           >
             {languageColumns.map(({ column, label }) => (
               <DropdownMenuCheckboxItem
                 key={column.id}
                 indicatorVariant="checkbox"
-                className="min-h-12 cursor-pointer rounded-md text-base font-normal"
+                className="cursor-pointer rounded-md"
                 checked={column.getIsVisible()}
                 onCheckedChange={(checked) => column.toggleVisibility(checked)}
                 closeOnClick={false}
