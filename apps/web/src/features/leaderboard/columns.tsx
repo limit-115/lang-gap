@@ -7,6 +7,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import type { Aggregate } from "@llang-gap/contracts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { efforts, modelNames, providerNames } from "./model-catalog";
 import type { LeaderboardFeatures } from "./data-table-features";
 
 export type LeaderboardRow = Pick<Aggregate, "model" | "provider" | "effort"> & {
@@ -15,29 +16,6 @@ export type LeaderboardRow = Pick<Aggregate, "model" | "provider" | "effort"> & 
   gapPp: number | null;
   gapCi95: Aggregate["gapCi95"] | null;
 };
-
-export const efforts = ["low", "medium", "high"] as const;
-const names: Record<string, string> = {
-  "gpt-6-astra": "GPT-6 Astra",
-  "claude-fable-5-1": "Claude Fable 5.1",
-};
-const providers: Record<Aggregate["provider"], string> = {
-  openai: "OpenAI",
-  anthropic: "Anthropic",
-  fake: "fake",
-};
-
-export const plannedRows: LeaderboardRow[] = Object.keys(names).flatMap((model) =>
-  efforts.map((effort) => ({
-    model,
-    effort,
-    provider: model.startsWith("gpt") ? "openai" : "anthropic",
-    en: null,
-    ru: null,
-    gapPp: null,
-    gapCi95: null,
-  })),
-);
 
 const columnHelper = createColumnHelper<LeaderboardFeatures, LeaderboardRow>();
 
@@ -95,15 +73,18 @@ export function useLeaderboardColumns(hasResults: boolean) {
       });
     return columnHelper.columns([
       columnHelper.accessor(
-        (row) => `${names[row.model] ?? row.model} ${row.model} ${providers[row.provider]}`,
+        (row) =>
+          `${modelNames[row.model] ?? row.model} ${row.model} ${providerNames[row.provider]}`,
         {
           id: "model",
           header: ({ column }) => <ColumnHeader column={column} title={t("model")} />,
           cell: ({ row }) => (
             <div className="flex flex-col gap-1">
-              <span className="font-medium">{names[row.original.model] ?? row.original.model}</span>
+              <span className="font-medium">
+                {modelNames[row.original.model] ?? row.original.model}
+              </span>
               <span className="text-xs text-muted-foreground">
-                {providers[row.original.provider]}
+                {providerNames[row.original.provider]}
               </span>
             </div>
           ),

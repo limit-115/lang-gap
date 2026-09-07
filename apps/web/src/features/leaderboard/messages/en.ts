@@ -1,4 +1,14 @@
 export default {
+  finderTitle: "Looking for a specific model?",
+  finderSelect: "Find a model",
+  finderPlaceholder: "Search for a model…",
+  finderClear: "Clear selected model",
+  finderBrowse: "Browse models",
+  finderNoResults: "We haven’t listed that model yet.",
+  finderNoResultsHelp: "Try another model name or provider.",
+  finderAction: "See the conclusion",
+  finderListHelp: "Search by model name or provider",
+
   title: "Same question. Different language.",
   description:
     "A multilingual benchmark measuring how prompt language affects LLM accuracy on the same academic questions.",
