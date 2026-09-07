@@ -29,6 +29,38 @@ export function shuffled<T>(values: readonly T[], seed: number): T[] {
 }
 const mean = (values: number[]) => values.reduce((a, b) => a + b, 0) / values.length;
 
+export function pairedDifference(
+  baseline: ReadonlyMap<string, number>,
+  candidate: ReadonlyMap<string, number>,
+  seed: number,
+  samples = 10_000,
+) {
+  if (!Number.isSafeInteger(samples) || samples < 1)
+    throw new Error("At least one bootstrap sample required");
+  const ids = [...baseline.keys()].sort();
+  if (!ids.length || baseline.size !== candidate.size || ids.some((id) => !candidate.has(id)))
+    throw new Error("Incomplete aligned comparison results");
+  const differences = ids.map((id) => 100 * (baseline.get(id)! - candidate.get(id)!));
+  const random = seededRandom(seed);
+  const bootstrap = Array.from({ length: samples }, () => {
+    let sum = 0;
+    for (let i = 0; i < differences.length; i++)
+      sum += differences[Math.floor(random() * differences.length)]!;
+    return sum / differences.length;
+  }).sort((a, b) => a - b);
+  const quantile = (p: number) => {
+    const index = (bootstrap.length - 1) * p;
+    const lo = bootstrap[Math.floor(index)]!;
+    const hi = bootstrap[Math.ceil(index)]!;
+    return lo + (hi - lo) * (index - Math.floor(index));
+  };
+  return {
+    n: ids.length,
+    gapPp: mean(differences),
+    gapCi95: [quantile(0.025), quantile(0.975)] as [number, number],
+  };
+}
+
 export function aggregateResults(
   items: readonly ItemResult[],
   seed: number,
@@ -84,29 +116,8 @@ export function aggregateResults(
       const comparisons = conditions.comparisons.map(({ baseline, language }) => {
         const a = clusters.get(baseline);
         const b = clusters.get(language);
-        if (!a || !b || a.size !== b.size || [...a.keys()].some((id) => !b.has(id)))
-          throw new Error("Incomplete aligned comparison results");
-        const differences = [...a].map(([id, score]) => 100 * (score - b.get(id)!));
-        const random = seededRandom(seed);
-        const bootstrap = Array.from({ length: samples }, () => {
-          let sum = 0;
-          for (let i = 0; i < differences.length; i++)
-            sum += differences[Math.floor(random() * differences.length)]!;
-          return sum / differences.length;
-        }).sort((a, b) => a - b);
-        const quantile = (p: number) => {
-          const index = (bootstrap.length - 1) * p;
-          const lo = bootstrap[Math.floor(index)]!;
-          const hi = bootstrap[Math.ceil(index)]!;
-          return lo + (hi - lo) * (index - Math.floor(index));
-        };
-        return {
-          baseline,
-          language,
-          n: a.size,
-          gapPp: mean(differences),
-          gapCi95: [quantile(0.025), quantile(0.975)],
-        };
+        if (!a || !b) throw new Error("Incomplete aligned comparison results");
+        return { baseline, language, ...pairedDifference(a, b, seed, samples) };
       });
       return aggregateSchema.parse({
         transport: first.transport,

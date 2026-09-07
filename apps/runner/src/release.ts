@@ -4,12 +4,14 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import {
   itemResultSchema,
+  releaseAnalysisSchema,
+  type Comparison,
   releaseManifestSchema,
   safeIdSchema,
   type ItemResult,
 } from "@llang-gap/contracts";
 import { aggregateResults, scoreAnswer } from "@llang-gap/evaluation";
-import { validateManifestQuestions } from "@llang-gap/datasets";
+import { validateManifestQuestions, validateAlignment } from "@llang-gap/datasets";
 import { calculateCost } from "@llang-gap/providers";
 import {
   atomicWrite,
@@ -26,7 +28,12 @@ import { readSnapshot } from "./snapshot";
 import { acquireLock, RunState } from "./state";
 import { verifyAttemptLedger } from "./release-audit";
 
-export async function recompute(directory: string, items: ItemResult[], benchmark: boolean) {
+export async function recompute(
+  directory: string,
+  items: ItemResult[],
+  benchmark: boolean,
+  analysis: { comparisons?: readonly Comparison[]; allowTruncated?: boolean } = {},
+) {
   const { snapshot, configHash } = await readSnapshot(directory);
   if ((await implementationIdentity(workspace)).sha256 !== snapshot.implementation.sha256)
     throw new Error(
@@ -42,6 +49,19 @@ export async function recompute(directory: string, items: ItemResult[], benchmar
       throw new Error("Synthetic or subset runs cannot become benchmark releases");
     if (!snapshot.implementation.commit || !snapshot.implementation.clean)
       throw new Error("Benchmark runs must start from a clean committed source tree");
+  }
+  const comparisons = releaseAnalysisSchema.parse({
+    schemaVersion: 1,
+    comparisons: analysis.comparisons ?? snapshot.experiment.comparisons,
+  }).comparisons;
+  for (const pair of comparisons) {
+    if (
+      ![pair.baseline, pair.language].every((language) =>
+        snapshot.experiment.languages.includes(language),
+      )
+    )
+      throw new Error("Comparison languages must be selected in the saved run");
+    validateAlignment(questions, pair.baseline, pair.language);
   }
   const jobs = createJobs(snapshot.experiment, questions, configHash, snapshot.datasetManifest);
   const byId = new Map(items.map((item) => [item.jobId, item]));
@@ -62,7 +82,8 @@ export async function recompute(directory: string, items: ItemResult[], benchmar
       item.category !== job.category
     )
       throw new Error(`Result/configuration mismatch: ${job.id}`);
-    if (item.outcome === "truncated") throw new Error("Truncation blocks release");
+    if (item.outcome === "truncated" && !analysis.allowTruncated)
+      throw new Error("Truncation blocks release");
     const score = scoreAnswer(
       item.output,
       item.language,
@@ -78,14 +99,19 @@ export async function recompute(directory: string, items: ItemResult[], benchmar
   });
   return {
     snapshot,
+    questions,
     configHash,
     jobs,
+    analysis: { schemaVersion: 1 as const, comparisons },
     items: rescored,
-    aggregate: aggregateResults(rescored, snapshot.experiment.seed, 10_000, snapshot.experiment),
+    aggregate: aggregateResults(rescored, snapshot.experiment.seed, 10_000, {
+      ...snapshot.experiment,
+      comparisons,
+    }),
   };
 }
 
-export async function scoreRun(directory: string) {
+export async function scoreRun(directory: string, comparisons?: readonly Comparison[]) {
   await stat(join(directory, "state.sqlite"));
   const releaseLock = await acquireLock(directory);
   const state = new RunState(join(directory, "state.sqlite"));
@@ -93,9 +119,13 @@ export async function scoreRun(directory: string) {
     const summary = state.summary();
     if (summary.completed !== summary.total || !summary.total)
       throw new Error("Run is incomplete; use status or resume");
-    const scored = await recompute(directory, state.results(), false);
+    const scored = await recompute(directory, state.results(), false, {
+      ...(comparisons === undefined ? {} : { comparisons }),
+      allowTruncated: true,
+    });
+    await atomicWrite(join(directory, "analysis.json"), json(scored.analysis));
     await atomicWrite(join(directory, "aggregate.json"), json(scored.aggregate));
-    return { aggregate: scored.aggregate, summary };
+    return { aggregate: scored.aggregate, analysis: scored.analysis, summary };
   } finally {
     state.close();
     await releaseLock();
@@ -146,6 +176,7 @@ export async function buildRelease(
   id: string,
   kind: "benchmark" | "test",
   outputRoot = join(workspace, ".llang-gap/releases"),
+  comparisons?: readonly Comparison[],
 ) {
   safeIdSchema.parse(id);
   await stat(join(directory, "state.sqlite"));
@@ -157,7 +188,12 @@ export async function buildRelease(
     const summary = state.summary();
     if (!summary.total || summary.total !== summary.completed)
       throw new Error("Incomplete run cannot be released");
-    const scored = await recompute(directory, state.results(), kind === "benchmark");
+    const scored = await recompute(
+      directory,
+      state.results(),
+      kind === "benchmark",
+      comparisons === undefined ? {} : { comparisons },
+    );
     await mkdir(outputRoot, { recursive: true });
     try {
       await stat(target);
@@ -172,6 +208,7 @@ export async function buildRelease(
       "dataset.jsonl": await readFile(join(directory, "dataset.jsonl"), "utf8"),
       "dataset-manifest.json": json(scored.snapshot.datasetManifest),
       "items.jsonl": jsonl(scored.items),
+      "analysis.json": json(scored.analysis),
       "aggregate.json": json(scored.aggregate),
       "aggregate.csv": aggregateCsv(scored.aggregate),
       "attempts.jsonl": jsonl(state.audit()),
@@ -200,7 +237,7 @@ export async function buildRelease(
       dataset: scored.snapshot.experiment.dataset,
       datasetRevision: scored.snapshot.datasetManifest.revision,
       languages: scored.snapshot.experiment.languages,
-      comparisons: scored.snapshot.experiment.comparisons,
+      comparisons: scored.analysis.comparisons,
       protocol: scored.snapshot.experiment.protocol,
       configHash: scored.configHash,
       files,
@@ -231,6 +268,7 @@ export async function verifyRelease(directory: string) {
     "execution.json",
     "ATTRIBUTION.md",
   ];
+  if (Object.hasOwn(manifest.files, "analysis.json")) required.push("analysis.json");
   const actual = (await readdir(directory)).sort();
   if (
     JSON.stringify(actual) !== JSON.stringify([...required, "manifest.json"].sort()) ||
@@ -245,7 +283,10 @@ export async function verifyRelease(directory: string) {
     .trimEnd()
     .split("\n")
     .map((line) => itemResultSchema.parse(JSON.parse(line)));
-  const recomputed = await recompute(directory, items, manifest.kind === "benchmark");
+  const analysis = Object.hasOwn(manifest.files, "analysis.json")
+    ? releaseAnalysisSchema.parse(await readJson(join(directory, "analysis.json")))
+    : undefined;
+  const recomputed = await recompute(directory, items, manifest.kind === "benchmark", analysis);
   if (
     json(await readJson(join(directory, "dataset-manifest.json"))) !==
     json(recomputed.snapshot.datasetManifest)
@@ -259,7 +300,7 @@ export async function verifyRelease(directory: string) {
     manifest.datasetRevision !== recomputed.snapshot.datasetManifest.revision ||
     manifest.protocol !== recomputed.snapshot.experiment.protocol ||
     json(manifest.languages) !== json(recomputed.snapshot.experiment.languages) ||
-    json(manifest.comparisons) !== json(recomputed.snapshot.experiment.comparisons)
+    json(manifest.comparisons) !== json(recomputed.analysis.comparisons)
   )
     throw new Error("Release provenance mismatch");
   if (
