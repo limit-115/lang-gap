@@ -51,9 +51,7 @@ export default {
   allEfforts: "Все уровни рассуждений",
   resetFilters: "Сбросить фильтры",
   languageColumns: "Языки",
-  showLanguages: "Показывать языковые столбцы",
   visibleLanguages: "Показано {count} из {total}",
-  fixedColumns: "Модель, уровень рассуждений, разница и 95% интервал отображаются всегда.",
   noResults: "Нет моделей с такими фильтрами",
   noResultsDescription:
     "Попробуйте другое название модели или провайдера либо выберите другой уровень рассуждений.",

@@ -20,9 +20,6 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -143,25 +140,17 @@ export function LeaderboardTable({ rows }: { rows: Aggregate[] }) {
             </span>
             <ChevronDown aria-hidden="true" className="size-3.5 text-muted-foreground" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-72 max-w-[calc(100vw-2rem)] rounded-xl">
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>{t("showLanguages")}</DropdownMenuLabel>
-              {languageColumns.map(({ column, label }) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(checked) => column.toggleVisibility(checked)}
-                  closeOnClick={false}
-                  className="min-h-11 rounded-lg"
-                >
-                  {label}
-                </DropdownMenuCheckboxItem>
-              ))}
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <p className="px-3 py-2 text-xs leading-relaxed text-muted-foreground">
-              {t("fixedColumns")}
-            </p>
+          <DropdownMenuContent align="end">
+            {languageColumns.map(({ column, label }) => (
+              <DropdownMenuCheckboxItem
+                key={column.id}
+                checked={column.getIsVisible()}
+                onCheckedChange={(checked) => column.toggleVisibility(checked)}
+                closeOnClick={false}
+              >
+                {label}
+              </DropdownMenuCheckboxItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
