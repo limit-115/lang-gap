@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=./schema.json
-schemaVersion: 1
+schemaVersion: 2
 id: mvp-en-ru-author-v3
 dataset: mmlu-prox-lite
 protocol: mmluprox-lite-5shot-author-api-v3
@@ -7,7 +7,7 @@ languages: [en, ru]
 repeats: 3
 seed: 20260906
 models:
-  - provider: openai
+  - transport: openai
     model: gpt-6-astra
     efforts: [low, medium, high]
     # Author cap. Hidden API reasoning also consumes this budget.
@@ -20,7 +20,7 @@ models:
       cacheWritePerMillion: 12.5
       cacheWrite1hPerMillion: 12.5
       outputPerMillion: 50
-  - provider: anthropic
+  - transport: anthropic
     model: claude-fable-5-1
     efforts: [low, medium, high]
     maxOutputTokens: 2048

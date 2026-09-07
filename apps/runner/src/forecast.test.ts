@@ -91,3 +91,14 @@ describe("usage cost forecast", () => {
     expect(result.conditions.every((c) => c.sampleTruncated === 1)).toBe(true);
   });
 });
+
+it("rejects calibration from a different transport", () => {
+  const model = {
+    ...config.models[0]!,
+    transport: "openrouter" as const,
+    model: "openai/gpt-5-nano",
+  };
+  const target = { ...config, models: [model] };
+  const source = { ...target, models: [{ ...model, transport: "openai" as const }] };
+  expect(() => forecastCost(target, [], source, [])).toThrow("mismatch");
+});

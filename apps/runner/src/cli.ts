@@ -26,7 +26,7 @@ const positiveInteger = (value: string) => {
 };
 const concurrencyValue = (value: string) => {
   const parsed = positiveInteger(value);
-  if (parsed > 32) throw new InvalidArgumentError("Maximum concurrency is 32 per provider");
+  if (parsed > 32) throw new InvalidArgumentError("Maximum concurrency is 32 per transport");
   return parsed;
 };
 const attemptsValue = (value: string) => {
@@ -110,7 +110,7 @@ program
   .command("run <experiment>")
   .description("Execute an experiment; API calls require configured keys and an explicit budget")
   .option("--budget-usd <amount>", "Maximum total charged/reserved USD", number)
-  .option("--concurrency <count>", "Concurrent requests per provider", concurrencyValue)
+  .option("--concurrency <count>", "Concurrent requests per transport", concurrencyValue)
   .option(
     "--max-jobs <count>",
     "Pause after dispatching this many jobs; resume preserves the full experiment",
@@ -119,7 +119,7 @@ program
   .option("--offline", "Disallow dataset downloads (model APIs may still use the network)")
   .action(async (path, options) => {
     const configured = await loadExperiment(resolve(path));
-    if (configured.models.some((m) => m.provider !== "fake") && options.budgetUsd === undefined)
+    if (configured.models.some((m) => m.transport !== "fake") && options.budgetUsd === undefined)
       throw new Error("Live runs require --budget-usd");
     const { experiment, questions, manifest } = await prepare(path, options.offline);
     const result = await withSignals((signal) =>
@@ -154,7 +154,7 @@ program
   .command("resume <run-id>")
   .description("Continue using the original immutable configuration")
   .requiredOption("--budget-usd <amount>", "Total run budget, including previous attempts", number)
-  .option("--concurrency <count>", "Concurrent requests per provider", concurrencyValue)
+  .option("--concurrency <count>", "Concurrent requests per transport", concurrencyValue)
   .option("--max-jobs <count>", "Pause after this many additional jobs", positiveInteger)
   .option(
     "--retry-uncertain",

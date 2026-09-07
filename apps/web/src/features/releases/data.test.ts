@@ -19,7 +19,7 @@ vi.mock("node:fs/promises", () => ({ readFile: mocks.readFile }));
 vi.mock("@results/index.json", () => ({ default: mocks.index }));
 
 const row: Aggregate = {
-  provider: "fake",
+  transport: "fake",
   model: "synthetic-fixture",
   effort: "low",
   n: 2,
@@ -44,7 +44,7 @@ beforeEach(() => {
   aggregateFile = Buffer.from(JSON.stringify([row]));
   baseUrl = "https://example.org/releases/synthetic-fixture/";
   manifest = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     id: "synthetic-fixture",
     runId: "synthetic-run",
     kind: "benchmark",

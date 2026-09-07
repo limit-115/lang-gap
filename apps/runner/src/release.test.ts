@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readManifest } from "@llang-gap/datasets";
 import { createFakeAdapter } from "@llang-gap/providers";
-import { releaseManifestSchema, type ProviderAdapter } from "@llang-gap/contracts";
+import { releaseManifestSchema, type TransportAdapter } from "@llang-gap/contracts";
 import { experiment, questions } from "@tests/fixtures";
 import { createRun, resumeRun } from "./run";
 import { buildRelease, scoreRun, stageRelease, verifyRelease } from "./release";
@@ -27,7 +27,7 @@ describe("run → resume → independent release verification", () => {
     const directory = join(root, "run");
     const fake = createFakeAdapter();
     const generate = vi.fn(fake.generate);
-    const adapters = new Map<string, ProviderAdapter>([["fake", { ...fake, generate }]]);
+    const adapters = new Map<string, TransportAdapter>([["fake", { ...fake, generate }]]);
     const first = await createRun({
       directory,
       experiment,
@@ -156,7 +156,7 @@ describe("run → resume → independent release verification", () => {
   it("blocks releases with truncated responses", async () => {
     const directory = join(root, "run");
     const fake = createFakeAdapter();
-    const adapter: ProviderAdapter = {
+    const adapter: TransportAdapter = {
       ...fake,
       async generate(request) {
         return { ...(await fake.generate(request)), outcome: "truncated" };
@@ -176,7 +176,7 @@ describe("run → resume → independent release verification", () => {
   it("scores and retains cap-limited v3 responses while keeping the publication gate", async () => {
     const directory = join(root, "author-cap");
     const fake = createFakeAdapter();
-    const adapter: ProviderAdapter = {
+    const adapter: TransportAdapter = {
       ...fake,
       async generate(request) {
         return {

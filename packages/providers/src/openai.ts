@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { usageSchema, type GenerationRequest, type ProviderAdapter } from "@llang-gap/contracts";
+import { usageSchema, type GenerationRequest, type TransportAdapter } from "@llang-gap/contracts";
 import { normalizeError, ProviderError } from "./errors";
 import sdk from "#package.json";
 
@@ -7,7 +7,7 @@ export function createOpenAIAdapter(
   apiKey: string,
   timeoutMs: number,
   transport?: typeof fetch,
-): ProviderAdapter {
+): TransportAdapter {
   const client = new OpenAI({
     apiKey,
     timeout: timeoutMs,
@@ -15,7 +15,7 @@ export function createOpenAIAdapter(
     ...(transport ? { fetch: transport } : {}),
   });
   return {
-    name: "openai",
+    transport: "openai",
     sdkVersion: sdk.dependencies.openai,
     endpoint: "https://api.openai.com/v1/responses",
     async generate(request: GenerationRequest) {

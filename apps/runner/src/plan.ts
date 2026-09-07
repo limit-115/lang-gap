@@ -74,7 +74,7 @@ export function createJobs(
               prompt,
               ...(authorProtocol ? { stopSequences: protocol.generation.until[language] } : {}),
             };
-            const key = [configHash, model.provider, model.model, effort, id, language, repeat];
+            const key = [configHash, model.transport, model.model, effort, id, language, repeat];
             return {
               ...(authorProtocol ? { protocol: experiment.protocol } : {}),
               id: hash(JSON.stringify(key)),
@@ -101,7 +101,7 @@ export function summarizePlan(experiment: Experiment, jobs: readonly Job[]) {
   const attemptBound = jobs.reduce((sum, j) => sum + j.reservationUsd, 0);
   return {
     experiment: experiment.id,
-    synthetic: experiment.models.every((m) => m.provider === "fake"),
+    synthetic: experiment.models.every((m) => m.transport === "fake"),
     questionsPerLanguage: new Set(jobs.map((j) => j.questionId)).size,
     repeats: experiment.repeats,
     configurations: experiment.models.reduce((sum, m) => sum + m.efforts.length, 0),

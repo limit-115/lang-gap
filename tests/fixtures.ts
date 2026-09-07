@@ -3,7 +3,7 @@ import questionData from "@tests/fixtures/questions.json";
 
 export const questions = questionData.map((q) => questionSchema.parse(q));
 export const experiment = experimentSchema.parse({
-  schemaVersion: 1,
+  schemaVersion: 2,
   id: "test-v1",
   dataset: "mmlu-prox-lite",
   protocol: "mmluprox-lite-5shot-native-reasoning-v1",
@@ -13,7 +13,7 @@ export const experiment = experimentSchema.parse({
   questionLimit: 3,
   models: [
     {
-      provider: "fake",
+      transport: "fake",
       model: "fake-v1",
       efforts: ["low"],
       maxOutputTokens: 1024,
@@ -37,7 +37,7 @@ export function item(overrides: Partial<ItemResult> = {}): ItemResult {
     category: "math",
     language: "en",
     repeat: 0,
-    provider: "fake",
+    transport: "fake",
     model: "fake-v1",
     returnedModel: "fake-v1",
     effort: "low",

@@ -12,7 +12,7 @@ import {
   releaseAssetUrl,
 } from "@/features/releases/data";
 import { releaseStructuredData } from "@/features/releases/structured-data";
-import { modelNames, providerNames } from "@/features/leaderboard/model-catalog";
+import { getModelPresentation } from "@/features/leaderboard/model-catalog";
 import {
   Table,
   TableBody,
@@ -111,11 +111,11 @@ export default async function ReleasePage({ params }: Props) {
             </TableHeader>
             <TableBody>
               {release.aggregate.map((row) => (
-                <TableRow key={`${row.provider}/${row.model}/${row.effort}`}>
+                <TableRow key={`${row.transport}/${row.model}/${row.effort}`}>
                   <TableCell>
-                    <span className="font-medium">{modelNames[row.model] ?? row.model}</span>
+                    <span className="font-medium">{getModelPresentation(row).label}</span>
                     <br />
-                    {providerNames[row.provider]}
+                    {getModelPresentation(row).ownerName}
                   </TableCell>
                   <TableCell>{l(row.effort)}</TableCell>
                   <TableCell className="font-mono">{percent(row.en)}</TableCell>
@@ -132,9 +132,9 @@ export default async function ReleasePage({ params }: Props) {
         <section>
           <h2>{t("repeatScores")}</h2>
           {release.aggregate.map((row) => (
-            <div className="mb-8 space-y-2" key={`${row.provider}/${row.model}/${row.effort}`}>
+            <div className="mb-8 space-y-2" key={`${row.transport}/${row.model}/${row.effort}`}>
               <h3 className="font-semibold">
-                {modelNames[row.model] ?? row.model} · {l(row.effort)}
+                {getModelPresentation(row).label} · {l(row.effort)}
               </h3>
               <p>{t("sample", { count: row.n, repeats: row.repeats })}</p>
               <ul className="space-y-1 font-mono text-sm">

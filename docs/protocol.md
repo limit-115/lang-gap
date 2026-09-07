@@ -187,6 +187,26 @@ Per-item `costUsd` and aggregate `costUsd` describe selected completed responses
 The separate attempt ledger and execution summary include failed/uncertain
 attempts and reservations; they are the authoritative view of total run spending.
 
+## OpenRouter transport
+
+OpenRouter is a separate transport condition, even for a model also accessible
+through a native adapter. It uses one Chat Completions user message with the same
+pinned prompt, `max_tokens` including reasoning, and normalized `reasoning.effort`.
+No sampling override is sent. Task stops are applied locally; additional generation
+past a stop can consume tokens. Only visible `message.content` is scored.
+The dataset, prompt, parser, scoring, historical protocols and publication gates
+are unchanged. Never pool native and routed results as the same condition.
+
+OpenRouter chooses the serving endpoint for the requested model; gateway fallbacks
+are disabled and parameter support is required. Requested/returned model IDs and
+generation ID are recorded; transport/model configuration is part of the immutable
+experiment snapshot and raw responses retain returned endpoint metadata. Endpoint
+selection and model aliases can change across requests. Effort normalization can
+differ from native APIs and does not imply equal compute. See
+[OpenRouter reasoning](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens)
+and the [operator guide](runner.md#openrouter) for capability and accounting limits.
+A new routed run gets a new identity; existing snapshots/releases are not rewritten.
+
 ## Limits
 
 This benchmark measures academic multiple-choice accuracy, not all language

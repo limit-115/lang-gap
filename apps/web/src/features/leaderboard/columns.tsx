@@ -7,11 +7,11 @@ import { useFormatter, useTranslations } from "next-intl";
 import type { Aggregate } from "@llang-gap/contracts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { efforts, modelNames, providerNames } from "./model-catalog";
+import { efforts, getModelPresentation } from "./model-catalog";
 import { ProviderLogo } from "./provider-logo";
 import type { LeaderboardFeatures } from "./data-table-features";
 
-export type LeaderboardRow = Pick<Aggregate, "model" | "provider" | "effort"> & {
+export type LeaderboardRow = Pick<Aggregate, "model" | "transport" | "effort"> & {
   en: number | null;
   ru: number | null;
   gapPp: number | null;
@@ -74,26 +74,30 @@ export function useLeaderboardColumns(hasResults: boolean) {
       });
     return columnHelper.columns([
       columnHelper.accessor(
-        (row) =>
-          `${modelNames[row.model] ?? row.model} ${row.model} ${providerNames[row.provider]}`,
+        (row) => {
+          const { label, ownerName } = getModelPresentation(row);
+          return `${label} ${row.model} ${ownerName}`;
+        },
         {
           id: "model",
           header: ({ column }) => <ColumnHeader column={column} title={t("model")} />,
-          cell: ({ row }) => (
-            <div className="flex items-center gap-3">
-              <span className="flex size-8 shrink-0 items-center justify-center" aria-hidden="true">
-                <ProviderLogo provider={row.original.provider} />
-              </span>
-              <div className="flex flex-col gap-1">
-                <span className="font-medium">
-                  {modelNames[row.original.model] ?? row.original.model}
+          cell: ({ row }) => {
+            const { label, ownerName, ownerId } = getModelPresentation(row.original);
+            return (
+              <div className="flex items-center gap-3">
+                <span
+                  className="flex size-8 shrink-0 items-center justify-center"
+                  aria-hidden="true"
+                >
+                  <ProviderLogo ownerId={ownerId} />
                 </span>
-                <span className="text-xs text-muted-foreground">
-                  {providerNames[row.original.provider]}
-                </span>
+                <div className="flex flex-col gap-1">
+                  <span className="font-medium">{label}</span>
+                  <span className="text-xs text-muted-foreground">{ownerName}</span>
+                </div>
               </div>
-            </div>
-          ),
+            );
+          },
           filterFn: "includesString",
           sortFn: "text",
           sortDescFirst: false,

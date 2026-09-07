@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=./schema.json
+# Technical pilot: 12 jobs, up to 36 API attempts including retries.
+# Verify endpoint rates before a paid run.
+schemaVersion: 2
+id: openrouter-nano-pilot-author-v3
+dataset: mmlu-prox-lite
+protocol: mmluprox-lite-5shot-author-api-v3
+languages: [en, ru]
+repeats: 1
+questionLimit: 2
+seed: 20260907
+models:
+  - transport: openrouter
+    model: openai/gpt-5-nano
+    efforts: [low, medium, high]
+    maxOutputTokens: 2048
+    pricing:
+      asOf: 2026-09-07
+      source: https://openrouter.ai/api/v1/models/openai/gpt-5-nano/endpoints
+      inputPerMillion: 0.055
+      cachedInputPerMillion: 0.011
+      # Highest listed endpoint rates, including Azure Sweden Central.
+      # No explicit cache-write fee; reserve the highest input rate.
+      cacheWritePerMillion: 0.055
+      cacheWrite1hPerMillion: 0.055
+      outputPerMillion: 0.44
+execution:
+  concurrency: 2
+  maxAttempts: 3
+  timeoutMs: 600000

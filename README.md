@@ -76,7 +76,7 @@ this browser across reloads and both languages.
 
 The model shortcut beside the homepage introduction searches by model or provider.
 Selecting a model enables **See the conclusion**, a link to
-`/[locale]/models/[provider]/[model]`. Those detail pages are reserved for future
+`/[locale]/models/[transport]/[model]`. Those detail pages are reserved for future
 implementation.
 
 The leaderboard’s **Languages** menu shows or hides individual language accuracy
@@ -122,7 +122,9 @@ experimental v2 is historical only. Pricing, model availability and the output c
 must be checked for your API account. The configured USD rates are dated
 2026-09-06 and apply to standard, short-context API requests.
 
-Set `OPENAI_API_KEY` and `ANTHROPIC_API_KEY` in the process environment. Local `.env`
+Set `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `OPENROUTER_API_KEY` in the process
+environment for the selected transport. See [OpenRouter runs](docs/runner.md#openrouter)
+for transport/model configuration and a technical pilot. Local `.env`
 files are ignored by Git but are **not automatically loaded** by the CLI. Do not put
 keys in experiment YAML or public artifacts.
 

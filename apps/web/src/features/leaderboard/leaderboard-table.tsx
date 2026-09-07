@@ -50,7 +50,7 @@ export function LeaderboardTable({ rows }: { rows: Aggregate[] }) {
     features,
     data: rows.length ? rows : plannedRows,
     columns,
-    getRowId: (row) => `${row.provider}/${row.model}/${row.effort}`,
+    getRowId: (row) => `${row.transport}/${row.model}/${row.effort}`,
     initialState: {
       sorting: [
         { id: "model", desc: false },

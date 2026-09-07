@@ -12,7 +12,7 @@ import {
   getModelHref,
   matchesModel,
   plannedRows,
-  providerNames,
+  getModelGroups,
   type ModelOption,
 } from "./model-catalog";
 import { ProviderLogo } from "./provider-logo";
@@ -24,17 +24,7 @@ export function ModelFinderHero({ rows }: { rows: Aggregate[] }) {
   const options = useMemo(() => getModelOptions(rows.length ? rows : plannedRows), [rows]);
   const [selected, setSelected] = useState<ModelOption | null>(null);
   const [input, setInput] = useState("");
-  const groups = useMemo(
-    () =>
-      Object.entries(providerNames)
-        .map(([provider, label]) => ({
-          value: provider,
-          label,
-          items: options.filter((option) => option.provider === provider),
-        }))
-        .filter((group) => group.items.length > 0),
-    [options],
-  );
+  const groups = useMemo(() => getModelGroups(options), [options]);
 
   return (
     <div className={styles.hero}>
@@ -62,7 +52,7 @@ export function ModelFinderHero({ rows }: { rows: Aggregate[] }) {
                 {selected ? (
                   <>
                     <span className={styles.providerIcon} aria-hidden="true">
-                      <ProviderLogo provider={selected.provider} size={20} />
+                      <ProviderLogo ownerId={selected.ownerId} size={20} />
                     </span>
                     <span className={styles.selectedName}>{selected.label}</span>
                   </>
@@ -116,7 +106,7 @@ export function ModelFinderHero({ rows }: { rows: Aggregate[] }) {
                           {(item: ModelOption) => (
                             <Combobox.Item key={item.value} value={item} className={styles.option}>
                               <span className={styles.providerIcon} aria-hidden="true">
-                                <ProviderLogo provider={item.provider} size={20} />
+                                <ProviderLogo ownerId={item.ownerId} size={20} />
                               </span>
                               <span className={styles.optionText}>{item.label}</span>
                               <Combobox.ItemIndicator className={styles.check}>

@@ -32,7 +32,7 @@ export function aggregateResults(
   if (!items.length) throw new Error("No results to aggregate");
   const groups = new Map<string, ItemResult[]>();
   for (const item of items) {
-    const key = `${item.provider}/${item.model}/${item.effort}`;
+    const key = `${item.transport}/${item.model}/${item.effort}`;
     const group = groups.get(key) ?? [];
     group.push(item);
     groups.set(key, group);
@@ -77,7 +77,7 @@ export function aggregateResults(
         return lo + (hi - lo) * (index - Math.floor(index));
       };
       return aggregateSchema.parse({
-        provider: first.provider,
+        transport: first.transport,
         model: first.model,
         effort: first.effort,
         n: ids.length,

@@ -6,10 +6,10 @@ import {
   safeIdSchema,
   type DatasetManifest,
   type Experiment,
-  type ProviderAdapter,
+  type TransportAdapter,
   type Question,
 } from "@llang-gap/contracts";
-import { createAdapter } from "@llang-gap/providers";
+import { createAdapter, validateModel } from "@llang-gap/providers";
 import { getProtocol } from "@llang-gap/evaluation";
 import { atomicWrite, hash, implementationIdentity, json, jsonl, workspace } from "./files";
 import { createJobs } from "./plan";
@@ -47,24 +47,25 @@ export async function createRun(
     questions: Question[];
     manifest: DatasetManifest;
     directory?: string;
-    adapters?: ReadonlyMap<string, ProviderAdapter>;
+    adapters?: ReadonlyMap<string, TransportAdapter>;
   },
 ) {
   const { experiment, questions, manifest, budgetUsd } = options;
+  for (const model of experiment.models) validateModel(model);
   const protocol = getProtocol(experiment.protocol);
   const runId = `${experiment.id}-${new Date().toISOString().slice(0, 10)}-${randomUUID().slice(0, 8)}`;
   const directory = options.directory ?? runPath(runId);
   const adapters =
     options.adapters ??
     new Map(
-      experiment.models.map((model) => [
-        model.provider,
-        createAdapter(model, experiment.execution.timeoutMs),
+      [...new Set(experiment.models.map((model) => model.transport))].map((transport) => [
+        transport,
+        createAdapter(transport, experiment.execution.timeoutMs),
       ]),
     );
   const dataset = jsonl(questions);
   const snapshot: Snapshot = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     runId,
     createdAt: new Date().toISOString(),
     experiment,
@@ -75,8 +76,8 @@ export async function createRun(
     implementation: await implementationIdentity(workspace),
     node: process.version,
     initialBudgetUsd: budgetUsd,
-    providerMetadata: [...adapters.values()].map((a) => ({
-      provider: a.name,
+    transportMetadata: [...adapters.values()].map((a) => ({
+      transport: a.transport,
       sdkVersion: a.sdkVersion,
       endpoint: a.endpoint,
     })),
@@ -119,7 +120,7 @@ export async function resumeRun(
     retryUncertain?: boolean;
     retryFailed?: boolean;
     maxAttempts?: number;
-    adapters?: ReadonlyMap<string, ProviderAdapter>;
+    adapters?: ReadonlyMap<string, TransportAdapter>;
   },
 ) {
   await stat(join(directory, "state.sqlite"));
@@ -141,10 +142,12 @@ export async function resumeRun(
     const adapters =
       options.adapters ??
       new Map(
-        snapshot.experiment.models.map((model) => [
-          model.provider,
-          createAdapter(model, snapshot.experiment.execution.timeoutMs),
-        ]),
+        [...new Set(snapshot.experiment.models.map((model) => model.transport))].map(
+          (transport) => [
+            transport,
+            createAdapter(transport, snapshot.experiment.execution.timeoutMs),
+          ],
+        ),
       );
     const concurrency = options.concurrency ?? snapshot.experiment.execution.concurrency;
     state.event("resumed", { budgetUsd: options.budgetUsd, concurrency, maxAttempts });
