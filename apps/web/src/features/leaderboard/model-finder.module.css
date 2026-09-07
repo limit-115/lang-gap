@@ -30,62 +30,93 @@
 .controls {
   margin-top: 20px;
 }
+.selection {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--finder-border);
+  border-radius: 8px;
+  background: var(--finder-input);
+  font-size: 0.875rem;
+  text-align: left;
+}
+.trigger:hover,
+.trigger[data-popup-open],
+.clearButton:hover {
+  background: var(--accent);
+}
+.trigger:focus-visible,
+.clearButton:focus-visible {
+  outline: 2px solid var(--muted-foreground);
+  outline-offset: 3px;
+}
+.selectedName,
+.placeholder {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.placeholder {
+  color: var(--muted-foreground);
+}
+.chevron {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--muted-foreground);
+}
+.clearButton {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 44px;
+  border-radius: 6px;
+  color: var(--muted-foreground);
+}
+.clearButton svg {
+  width: 16px;
+  height: 16px;
+}
 .inputGroup {
   display: flex;
   align-items: center;
-  width: 100%;
-  min-height: 56px;
-  border: 1px solid var(--finder-border);
-  border-radius: 8px;
-  padding-left: 14px;
-  padding-right: 6px;
-  background: var(--finder-input);
-  transition:
-    border-color 150ms,
-    box-shadow 150ms;
-}
-.inputGroup:focus-within {
-  border-color: var(--muted-foreground);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--foreground) 10%, transparent);
+  gap: 8px;
+  padding-inline: 12px;
+  border-bottom: 1px solid var(--border);
 }
 .searchIcon {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
   color: var(--muted-foreground);
-  margin-right: 10px;
 }
 .input {
   width: 100%;
   min-width: 0;
-  height: 54px;
+  height: 44px;
   background: transparent;
   outline: none;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   color: var(--foreground);
 }
 .input::placeholder {
   color: var(--muted-foreground);
   opacity: 1;
 }
-.inputButton {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 30px;
-  height: 44px;
-  border-radius: 5px;
-  color: var(--muted-foreground);
-}
-.inputButton:hover {
-  background: var(--accent);
-}
-.inputButton:focus-visible {
-  outline: 2px solid var(--muted-foreground);
-}
-.inputButton svg {
-  width: 16px;
-  height: 16px;
+.inputGroup:focus-within {
+  box-shadow: inset 0 -2px var(--muted-foreground);
 }
 .action {
   display: flex;
@@ -132,7 +163,7 @@
   box-shadow: 0 16px 48px -12px #00000050;
 }
 .list {
-  max-height: min(300px, calc(var(--available-height) - 50px));
+  max-height: min(300px, calc(var(--available-height) - 90px));
   overflow-y: auto;
   scroll-padding: 6px;
   padding: 6px;
@@ -143,9 +174,9 @@
 .option {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 64px;
-  padding: 10px;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px;
   border-radius: 6px;
   cursor: pointer;
   outline: none;
@@ -157,30 +188,45 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: 20px;
+  height: 20px;
   border: 1px solid var(--border);
   border-radius: 6px;
-  font-size: 0.875rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+.group + .group {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+.groupLabel {
+  padding: 6px 8px;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
   font-weight: 500;
 }
 .optionText {
-  display: flex;
   flex: 1;
   min-width: 0;
-  flex-direction: column;
-  line-height: 1.5;
+  font-size: 0.8125rem;
   overflow-wrap: anywhere;
 }
-.optionText strong {
-  font-size: 0.875rem;
+.planned {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-size: 0.625rem;
   font-weight: 500;
 }
-.optionText > span,
-.planned,
 .listFooter {
   color: var(--muted-foreground);
   font-size: 0.75rem;
+}
+.check {
+  flex-shrink: 0;
 }
 .check svg {
   width: 16px;
@@ -221,13 +267,5 @@
   .card {
     width: 100%;
     max-width: 440px;
-  }
-}
-@media (max-width: 380px) {
-  .inputGroup {
-    padding-left: 10px;
-  }
-  .searchIcon {
-    display: none;
   }
 }
