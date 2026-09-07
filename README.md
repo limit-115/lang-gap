@@ -79,6 +79,10 @@ Selecting a model enables **See the conclusion**, a link to
 `/[locale]/models/[provider]/[model]`. Those detail pages are reserved for future
 implementation.
 
+The leaderboard’s **Languages** menu shows or hides individual language accuracy
+columns. Model, effort, gap and the 95% interval always remain visible; hiding a
+language does not change the gap calculation. Both languages are shown by default.
+
 ## Checks
 
 ```sh

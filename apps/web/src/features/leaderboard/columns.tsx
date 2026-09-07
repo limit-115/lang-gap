@@ -135,6 +135,7 @@ export function useLeaderboardColumns(hasResults: boolean) {
           sortFn: "basic",
           sortDescFirst: true,
           enableSorting: hasResults,
+          enableHiding: key !== "gapPp",
         }),
       ),
       columnHelper.accessor("gapCi95", {
@@ -163,6 +164,7 @@ export function useLeaderboardColumns(hasResults: boolean) {
           );
         },
         enableSorting: false,
+        enableHiding: false,
       }),
     ]);
   }, [f, t, hasResults]);

@@ -8,7 +8,8 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Search,
-  Settings2,
+  Languages,
+  ChevronDown,
   X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -19,6 +20,9 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -64,12 +68,11 @@ export function LeaderboardTable({ rows }: { rows: Aggregate[] }) {
   const pageCount = table.getPageCount();
   const visibleRows = table.getRowModel().rows;
   const hasFilters = table.state.columnFilters.length > 0;
-  const labels: Record<string, string> = {
-    en: t("en"),
-    ru: t("ru"),
-    gapPp: t("gap"),
-    gapCi95: t("confidence"),
-  };
+  const languageColumns = (["en", "ru"] as const).map((id) => ({
+    column: table.getColumn(id)!,
+    label: t(id),
+  }));
+  const visibleLanguageCount = languageColumns.filter(({ column }) => column.getIsVisible()).length;
   const effortItems = [
     { value: "all", label: t("allEfforts") },
     ...efforts.map((value) => ({ value, label: t(value) })),
@@ -126,22 +129,39 @@ export function LeaderboardTable({ rows }: { rows: Aggregate[] }) {
         )}
         <DropdownMenu>
           <DropdownMenuTrigger render={<Button variant="outline" className="ml-auto rounded-lg" />}>
-            <Settings2 aria-hidden="true" /> {t("columns")}
+            <Languages aria-hidden="true" /> {t("languageColumns")}
+            <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs tabular-nums text-muted-foreground">
+              <span aria-hidden="true">
+                {visibleLanguageCount}/{languageColumns.length}
+              </span>
+              <span className="sr-only">
+                {t("visibleLanguages", {
+                  count: visibleLanguageCount,
+                  total: languageColumns.length,
+                })}
+              </span>
+            </span>
+            <ChevronDown aria-hidden="true" className="size-3.5 text-muted-foreground" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllLeafColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
+          <DropdownMenuContent align="end" className="w-72 max-w-[calc(100vw-2rem)] rounded-xl">
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>{t("showLanguages")}</DropdownMenuLabel>
+              {languageColumns.map(({ column, label }) => (
                 <DropdownMenuCheckboxItem
                   key={column.id}
                   checked={column.getIsVisible()}
                   onCheckedChange={(checked) => column.toggleVisibility(checked)}
                   closeOnClick={false}
+                  className="min-h-11 rounded-lg"
                 >
-                  {labels[column.id]}
+                  {label}
                 </DropdownMenuCheckboxItem>
               ))}
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <p className="px-3 py-2 text-xs leading-relaxed text-muted-foreground">
+              {t("fixedColumns")}
+            </p>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
