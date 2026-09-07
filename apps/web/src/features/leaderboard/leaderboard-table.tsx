@@ -154,7 +154,7 @@ export function LeaderboardTable({ rows }: { rows: Aggregate[] }) {
                 closeOnClick={false}
               >
                 <span>{label}</span>
-                <span aria-hidden="true" className="ml-auto text-sm text-muted-foreground">
+                <span aria-hidden="true" className="ml-auto text-xs text-muted-foreground">
                   {column.id.toUpperCase()}
                 </span>
               </DropdownMenuCheckboxItem>
