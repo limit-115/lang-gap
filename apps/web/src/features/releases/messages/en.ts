@@ -1,4 +1,22 @@
 export default {
+  metadataTitle: "Benchmark releases and open data",
+  detailTitle: "Benchmark release {id}",
+  detailDescription:
+    "English and Russian academic multiple-choice accuracy on {dataset}, using {protocol}. This release includes scores, paired uncertainty intervals and downloadable evidence.",
+  sample:
+    "{count, plural, one {# unique question per language} other {# unique questions per language}} · {repeats, plural, one {# repeat} other {# repeats}}",
+  methodology: "How we test and interpret the gap",
+  repeatScores: "Accuracy by repeat",
+  repeat: "Repeat {number}",
+  counts: "{refusals} refusals · {unparseable} unparseable answers",
+  costs: "Selected completed responses: {cost}. Total run spending is recorded in execution.json.",
+  unknownCost: "cost unknown",
+  citation: "Cite this release",
+  citationText:
+    "Limit 115. Llang Gap: {dataset}. Release {id}, created {date}. Protocol: {protocol}.",
+  fileCreated: "Release created {date}",
+  scope:
+    "These results measure academic multiple-choice accuracy, not overall language ability. If the gap interval includes zero, the comparison does not establish which language has higher accuracy. Matching reasoning effort labels do not imply equal computing budgets.",
   title: "Explore published results and the evidence behind them.",
   intro:
     "Each release keeps the scores, settings and model responses together so you can check the findings. Corrections appear in a new release; earlier versions stay available.",
