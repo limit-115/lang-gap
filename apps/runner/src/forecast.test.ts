@@ -102,3 +102,20 @@ it("rejects calibration from a different transport", () => {
   const source = { ...target, models: [{ ...model, transport: "openai" as const }] };
   expect(() => forecastCost(target, [], source, [])).toThrow("mismatch");
 });
+
+it("keeps observed usage forecasts but has no output-cap scenario without a cap", () => {
+  const uncapped = {
+    ...config,
+    protocol: "mmluprox-lite-5shot-flexible-api-v1" as const,
+    models: config.models.map((m) => ({ ...m, maxOutputTokens: null })),
+  };
+  const forecast = forecastCost(
+    uncapped,
+    createJobs(uncapped, questions, "uncapped"),
+    uncapped,
+    samples,
+  );
+  expect(forecast.estimatedUsd).toBeCloseTo(0.1974);
+  expect(forecast.outputCapScenarioUsd).toBeNull();
+  expect(forecast.conditions.every((c) => c.outputCapScenarioUsd === null)).toBe(true);
+});

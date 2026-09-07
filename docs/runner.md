@@ -8,7 +8,7 @@ calls model APIs. For example, this local fake run needs no YAML, prices or budg
 
 ```sh
 pnpm bench run --id cli-smoke --dataset mmlu-prox-lite \
-  --protocol mmluprox-lite-5shot-author-api-v3 --languages ru,en \
+  --protocol mmluprox-lite-5shot-author-api-v3 --max-output-tokens 2048 --languages ru,en \
   --transport fake --models fake-one,fake-two --efforts low,medium,high,xhigh,max \
   --question-limit 2 --repeats 3 --concurrency 2 --max-jobs 5
 pnpm bench resume <run-id>
@@ -46,7 +46,7 @@ transport; mixed-transport YAML requires an explicit transport for new IDs.
 | Benchmark languages                | `--languages` or `--language`                                                                                                                                                  | Required                                                  |
 | Models / transport                 | `--models`, `--transport`                                                                                                                                                      | Required                                                  |
 | Reasoning efforts                  | `--efforts`                                                                                                                                                                    | `medium`                                                  |
-| Combined reasoning/output cap      | `--max-output-tokens`                                                                                                                                                          | Protocol cap, otherwise 2048                              |
+| Combined reasoning/output cap      | `--max-output-tokens`                                                                                                                                                          | No API cap (provider defaults apply)                      |
 | Repeats / selection seed           | `--repeats`, `--seed`                                                                                                                                                          | 1 / 42                                                    |
 | Unique test questions per language | `--question-limit`, `--all-questions`                                                                                                                                          | Entire selected test split                                |
 | Concurrency per transport          | `--concurrency`                                                                                                                                                                | 1                                                         |
@@ -101,6 +101,49 @@ original source revision. Do not change old snapshots, IDs, scores or releases t
 v3. Keep the original checkout and dependencies for their verification/resume.
 The [current plan](first-comparison.md) uses unchanged data and every test question;
 no 100% parse-rate requirement or translation/key correction is a readiness gate.
+
+## Omitting the output token cap
+
+Without `--max-output-tokens`, CLI-only runs omit the API output-token parameter.
+Pass `--max-output-tokens <count>` to set a cap. No separate disabling flag is
+needed. YAML may supply an explicit numeric cap; CLI values override it. An omitted
+YAML cap or `maxOutputTokens: null` also means no API cap. The resolved snapshot
+always records a number or null, so the choice is reproducible.
+
+```sh
+# OPENROUTER_API_KEY must already be exported in this shell.
+pnpm bench run --dataset mmlu-prox-lite \
+  --protocol mmluprox-lite-5shot-flexible-api-v1 \
+  --transport openrouter --models inclusionai/ling-3.0-flash-fin:free \
+  --languages ru en --efforts low --question-limit 10
+```
+
+OpenRouter and OpenAI omit `max_tokens` and `max_output_tokens`, respectively.
+Provider defaults, context limits and output ceilings still apply; null does not
+promise unlimited generation or equal compute across endpoints. Native Anthropic
+requires `max_tokens` and rejects this mode before any API call. See the
+[OpenRouter request schema](https://openrouter.ai/docs/api/reference/overview) and
+[Anthropic Messages API](https://platform.claude.com/docs/en/api/messages/create).
+The fake transport supports null for synthetic verification.
+
+The pinned MMLU-ProX author-v3 condition still requires 2048. Select the separate
+`mmluprox-lite-5shot-flexible-api-v1` protocol for adjustable or omitted caps with
+the same pinned prompts and extraction. Historical v1 also requires a numeric cap.
+The dataset-independent `multiple-choice-v1` accepts either numeric or null caps.
+No protocol is changed automatically by a flag.
+
+With positive output prices and no cap, reservations and plan upper bounds are
+unknown (`null`). A USD budget requires finite reservations and is rejected before
+dispatch in that case. Unbudgeted runs still record usage and calculate completion
+costs when prices and usage are available. Explicit zero output prices allow an
+input-only reservation; fully zero prices allow a zero-dollar budget. The `:free`
+suffix never supplies prices automatically. Calibrated usage forecasts still work,
+but the output-cap scenario is null without a cap.
+
+Null is preserved in job identity, snapshots, resume, analysis and release artifacts.
+Switching between numeric and null caps creates a new run; post-run comparison and
+calibration reject mismatched caps. Two null caps describe the same omission policy,
+not a guarantee of identical provider limits. Truncation still blocks publication.
 
 ## Transport and model
 

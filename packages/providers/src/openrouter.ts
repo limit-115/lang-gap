@@ -25,7 +25,7 @@ export function createOpenRouterAdapter(
         const body = {
           model: request.model,
           messages: [{ role: "user" as const, content: request.prompt }],
-          max_tokens: request.maxOutputTokens,
+          ...(request.maxOutputTokens === null ? {} : { max_tokens: request.maxOutputTokens }),
           reasoning: { effort: request.effort },
           provider: { allow_fallbacks: false, require_parameters: true },
           // Preserve prompt bytes; task stops are applied by the protocol scorer.

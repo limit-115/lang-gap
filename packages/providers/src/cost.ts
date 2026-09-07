@@ -23,11 +23,14 @@ export function reserveCost(
   // Restrict to short context pricing. Dataset prompts are far below this limit.
   const inputBound = Buffer.byteLength(request.prompt, "utf8") + 4096;
   if (inputBound > 200_000) throw new Error("Prompt exceeds supported short-context pricing bound");
+  if (request.maxOutputTokens === null && pricing.outputPerMillion > 0) return null;
   const inputRate = Math.max(
     pricing.inputPerMillion,
     pricing.cachedInputPerMillion,
     pricing.cacheWritePerMillion,
     pricing.cacheWrite1hPerMillion,
   );
-  return (inputBound * inputRate + request.maxOutputTokens * pricing.outputPerMillion) / 1_000_000;
+  return (
+    (inputBound * inputRate + (request.maxOutputTokens ?? 0) * pricing.outputPerMillion) / 1_000_000
+  );
 }

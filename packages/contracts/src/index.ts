@@ -40,6 +40,7 @@ export const protocolIdSchema = z.enum([
   "multiple-choice-v1",
   "mmluprox-lite-5shot-native-reasoning-v1",
   "mmluprox-lite-5shot-author-api-v3",
+  "mmluprox-lite-5shot-flexible-api-v1",
 ]);
 export type ProtocolId = z.infer<typeof protocolIdSchema>;
 export type Language = z.infer<typeof languageSchema>;
@@ -79,7 +80,7 @@ const modelSettings = {
     .array(effortSchema)
     .min(1)
     .refine((v) => new Set(v).size === v.length, "Duplicate effort"),
-  maxOutputTokens: z.number().int().min(256).max(128_000),
+  maxOutputTokens: z.number().int().min(256).max(128_000).nullable().default(null),
   pricing: pricingSchema.optional(),
 };
 export const modelSchema = z.discriminatedUnion("transport", [
@@ -219,7 +220,7 @@ export type Usage = z.infer<typeof usageSchema>;
 export interface GenerationRequest {
   model: string;
   effort: Effort;
-  maxOutputTokens: number;
+  maxOutputTokens: number | null;
   prompt: string;
   language: Language;
   stopSequences?: readonly string[];
@@ -364,7 +365,7 @@ export const analysisConditionSchema = z.strictObject({
   model: z.string(),
   effort: effortSchema,
   language: languageSchema,
-  maxOutputTokens: z.number().int().positive(),
+  maxOutputTokens: z.number().int().positive().nullable(),
   repeats: z.number().int().positive(),
   n: z.number().int().positive(),
   accuracy: accuracySchema,

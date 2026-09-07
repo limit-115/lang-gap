@@ -42,7 +42,7 @@ export const experimentOptions = () =>
     .option("--efforts <levels...>", "low, medium, high, xhigh, max; default: medium")
     .option(
       "--max-output-tokens <count>",
-      "Combined reasoning/output cap; protocol cap or 2048 by default",
+      "Optional combined reasoning/output cap; omitted by default",
       positiveInteger,
     )
     .option("--repeats <count>", "Repeats per question and condition (default: 1)", positiveInteger)

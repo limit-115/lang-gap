@@ -3,7 +3,6 @@ import { parseDocument } from "yaml";
 import { z } from "zod";
 import { comparisonsSchema, experimentSchema, type Experiment } from "@llang-gap/contracts";
 import { validateModel } from "@llang-gap/providers";
-import { getMaxOutputTokens } from "@llang-gap/evaluation";
 
 function readYaml(text: string): unknown {
   const document = parseDocument(text, { uniqueKeys: true, strict: true });
@@ -145,10 +144,6 @@ function resolveInput(input: unknown, options: ExperimentSelection): Experiment 
           return matches[0] ?? { model: id, transport };
         });
   const protocol = options.protocol ?? base.protocol;
-  const cap =
-    typeof protocol === "string"
-      ? (getMaxOutputTokens(experimentSchema.shape.protocol.parse(protocol)) ?? 2048)
-      : 2048;
   const resolved = {
     schemaVersion: 3,
     id: "cli",
@@ -174,7 +169,7 @@ function resolveInput(input: unknown, options: ExperimentSelection): Experiment 
         options.transport && options.transport !== model.transport ? undefined : model.pricing;
       return {
         efforts: ["medium"],
-        maxOutputTokens: cap,
+        maxOutputTokens: null,
         ...model,
         ...defined({
           transport: options.transport,

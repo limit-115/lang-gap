@@ -19,7 +19,8 @@
       "enum": [
         "multiple-choice-v1",
         "mmluprox-lite-5shot-native-reasoning-v1",
-        "mmluprox-lite-5shot-author-api-v3"
+        "mmluprox-lite-5shot-author-api-v3",
+        "mmluprox-lite-5shot-flexible-api-v1"
       ]
     },
     "languages": {
@@ -85,9 +86,17 @@
                 }
               },
               "maxOutputTokens": {
-                "type": "integer",
-                "minimum": 256,
-                "maximum": 128000
+                "default": null,
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 256,
+                    "maximum": 128000
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               },
               "pricing": {
                 "type": "object",
@@ -148,7 +157,6 @@
             },
             "required": [
               "efforts",
-              "maxOutputTokens",
               "transport",
               "model"
             ],
@@ -172,9 +180,17 @@
                 }
               },
               "maxOutputTokens": {
-                "type": "integer",
-                "minimum": 256,
-                "maximum": 128000
+                "default": null,
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 256,
+                    "maximum": 128000
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               },
               "pricing": {
                 "type": "object",
@@ -231,7 +247,6 @@
             },
             "required": [
               "efforts",
-              "maxOutputTokens",
               "transport",
               "model"
             ],

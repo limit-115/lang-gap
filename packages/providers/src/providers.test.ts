@@ -58,3 +58,23 @@ describe("provider accounting", () => {
     expect(() => validateModel({ ...experiment.models[0]!, model: "new-model" })).not.toThrow();
   });
 });
+
+it("does not invent an output reservation without a cap, but preserves zero output prices", () => {
+  const request = {
+    model: "fake-v1",
+    effort: "low" as const,
+    maxOutputTokens: null,
+    language: "de",
+    prompt: "Q",
+  };
+  const pricing = experiment.models[0]!.pricing!;
+  expect(reserveCost(request, { ...pricing, outputPerMillion: 1 })).toBeNull();
+  expect(
+    reserveCost(request, { ...pricing, outputPerMillion: 0, inputPerMillion: 1 }),
+  ).toBeGreaterThan(0);
+  expect(reserveCost(request, pricing)).toBe(0);
+  expect(reserveCost(request, undefined)).toBeNull();
+  expect(() =>
+    validateModel({ ...experiment.models[0]!, transport: "anthropic", maxOutputTokens: null }),
+  ).toThrow("requires an explicit");
+});

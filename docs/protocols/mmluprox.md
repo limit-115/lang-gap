@@ -212,6 +212,16 @@ differ from native APIs and does not imply equal compute. See
 and the [operator guide](../runner.md#openrouter) for capability and accounting limits.
 A new routed run gets a new identity; existing snapshots/releases are not rewritten.
 
+## Flexible API token policy
+
+`mmluprox-lite-5shot-flexible-api-v1` reuses author-v3 prompt bytes, validation
+example selection, parser and local task stops. Only the output-cap policy differs:
+the experiment chooses a numeric cap or explicit null to omit the API parameter.
+This separately named condition does not claim the author's 2048-token budget.
+Provider defaults still apply. Historical v1/v3 objects and hashes remain unchanged;
+see [token policy](../runner.md#omitting-the-output-token-cap) for transport,
+accounting and reproducibility constraints.
+
 ## Limits
 
 This benchmark measures academic multiple-choice accuracy, not all language

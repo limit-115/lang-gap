@@ -47,7 +47,7 @@ async function run(
     dataset?: string;
     languages?: string[];
     models?: string[];
-    cap?: number;
+    cap?: number | null;
     repeats?: number;
     questionLimit?: number;
     maxJobs?: number;
@@ -93,7 +93,7 @@ async function run(
       transport: "openrouter",
       model,
       efforts: ["max"],
-      maxOutputTokens: options.cap ?? 1024,
+      maxOutputTokens: options.cap === undefined ? 1024 : options.cap,
     })),
     execution: { concurrency: 2, maxAttempts: 1, timeoutMs: 1000 },
   });
@@ -291,3 +291,34 @@ it("does not accumulate fractional correctness beyond the probability bounds", a
     true,
   );
 });
+
+it.each(["arithmetic-fixture", "another-fixture"])(
+  "preserves absent caps through resume, analysis and test release for %s",
+  async (dataset) => {
+    const directory = await run("uncapped", {
+      dataset,
+      languages: ["ja"],
+      models: ["fixtures/a:free"],
+      cap: null,
+      maxJobs: 1,
+    });
+    const snapshot = await readFile(join(directory, "resolved.json"), "utf8");
+    const { resumeRun } = await import("./run");
+    await resumeRun(directory, {
+      adapters: new Map([["openrouter", { ...fake, transport: "openrouter", generate }]]),
+    });
+    expect(await readFile(join(directory, "resolved.json"), "utf8")).toBe(snapshot);
+    const other = await run("bounded", {
+      dataset,
+      languages: ["ja"],
+      models: ["fixtures/a:free"],
+      cap: 4096,
+    });
+    const result = await compareRuns([directory, other], { outputRoot: root });
+    expect(result.report.conditions.some((c) => c.maxOutputTokens === null)).toBe(true);
+    expect(result.report.comparisons).toHaveLength(0);
+    expect(result.report.incompatible[0]!.reason).toBe("Different token caps");
+    const release = await buildRelease(directory, "uncapped-test", "test", root);
+    await verifyRelease(release.directory);
+  },
+);

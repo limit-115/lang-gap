@@ -19,6 +19,8 @@ export function createAnthropicAdapter(
     sdkVersion: sdk.dependencies["@anthropic-ai/sdk"],
     endpoint: "https://api.anthropic.com/v1/messages",
     async generate(request: GenerationRequest) {
+      if (request.maxOutputTokens === null)
+        throw new ProviderError("Anthropic requires an explicit maxOutputTokens cap", false, false);
       try {
         const { data: response, request_id } = await client.messages
           .create({

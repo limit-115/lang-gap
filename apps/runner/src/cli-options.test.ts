@@ -24,7 +24,7 @@ const flags = [
   "--dataset",
   "mmlu-prox-lite",
   "--protocol",
-  "mmluprox-lite-5shot-author-api-v3",
+  "mmluprox-lite-5shot-flexible-api-v1",
   "--transport",
   "openrouter",
 ];
@@ -67,7 +67,7 @@ it.each(
   expect(config.comparisons).toEqual([]);
   expect(config.models).toHaveLength(3);
   expect(
-    config.models.every((model) => model.pricing === undefined && model.maxOutputTokens === 2048),
+    config.models.every((model) => model.pricing === undefined && model.maxOutputTokens === null),
   ).toBe(true);
   const jobs = createJobs(config, questions, "cli");
   expect(jobs).toHaveLength(2 * 2 * 3 * 5 * 3);
@@ -241,7 +241,7 @@ it.each([["obsolete-models"], [[null, "obsolete"]]])(
           transport: "openrouter",
           model: "fixtures/replacement:free",
           efforts: ["max"],
-          maxOutputTokens: 2048,
+          maxOutputTokens: null,
         },
       ]);
       expect(config.execution).toEqual({ concurrency: 4, maxAttempts: 2, timeoutMs: 5000 });
@@ -250,3 +250,61 @@ it.each([["obsolete-models"], [[null, "obsolete"]]])(
     }
   },
 );
+
+it("omits absent caps, preserves explicit YAML caps, and accepts numeric CLI overrides", async () => {
+  const args = [...flags, "--models=fixtures/a:free", "--languages=ru,en"];
+  const config = await configure(args);
+  expect(config.models[0]!.maxOutputTokens).toBeNull();
+  expect(
+    createJobs(config, questions, "uncapped").every((j) => j.request.maxOutputTokens === null),
+  ).toBe(true);
+  expect((await configure([...args, "--max-output-tokens=4096"])).models[0]!.maxOutputTokens).toBe(
+    4096,
+  );
+  const directory = await mkdtemp(join(tmpdir(), "llang-cap-"));
+  try {
+    const path = join(directory, "config.yaml");
+    await writeFile(path, stringify(config));
+    expect((await configure([path])).models[0]!.maxOutputTokens).toBeNull();
+    await writeFile(
+      path,
+      stringify({
+        ...config,
+        models: config.models.map((m) => ({ ...m, maxOutputTokens: undefined })),
+      }),
+    );
+    expect((await configure([path])).models[0]!.maxOutputTokens).toBeNull();
+    await writeFile(
+      path,
+      stringify({ ...config, models: config.models.map((m) => ({ ...m, maxOutputTokens: 4096 })) }),
+    );
+    expect((await configure([path])).models[0]!.maxOutputTokens).toBe(4096);
+    expect((await configure([path, "--max-output-tokens=8192"])).models[0]!.maxOutputTokens).toBe(
+      8192,
+    );
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+  const pinnedArgs = [...args, "--protocol", "mmluprox-lite-5shot-author-api-v3"];
+  const pinned = await configure(pinnedArgs);
+  expect(() => createJobs(pinned, questions, "pinned")).toThrow("2048-token");
+  expect(() =>
+    createJobs(
+      { ...pinned, models: pinned.models.map((m) => ({ ...m, maxOutputTokens: 2048 })) },
+      questions,
+      "pinned-cap",
+    ),
+  ).not.toThrow();
+  await expect(
+    configure([
+      ...flags,
+      "--languages=ja",
+      "--protocol",
+      "multiple-choice-v1",
+      "--transport",
+      "anthropic",
+      "--models",
+      "claude-test",
+    ]),
+  ).rejects.toThrow("requires an explicit");
+});

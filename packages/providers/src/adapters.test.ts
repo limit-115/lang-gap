@@ -255,3 +255,22 @@ describe("SDK adapters with intercepted HTTP transport", () => {
     }
   });
 });
+
+it("omits the OpenAI output cap and rejects uncapped Anthropic before HTTP", async () => {
+  const transport = vi.fn<typeof fetch>().mockResolvedValue(Response.json(openAIResponse));
+  await createOpenAIAdapter("synthetic-key", 1000, transport).generate({
+    ...request("low"),
+    maxOutputTokens: null,
+  });
+  const rawBody = transport.mock.calls[0]![1]!.body;
+  if (typeof rawBody !== "string") throw new Error("Expected JSON body");
+  expect(JSON.parse(rawBody)).not.toHaveProperty("max_output_tokens");
+  transport.mockClear();
+  await expect(
+    createAnthropicAdapter("synthetic-key", 1000, transport).generate({
+      ...request("low"),
+      maxOutputTokens: null,
+    }),
+  ).rejects.toThrow("requires an explicit");
+  expect(transport).not.toHaveBeenCalled();
+});

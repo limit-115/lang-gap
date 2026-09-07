@@ -15,6 +15,8 @@ export { createFakeAdapter } from "./fake";
 
 export function validateModel(model: ModelConfig): void {
   modelSchema.parse(model);
+  if (model.transport === "anthropic" && model.maxOutputTokens === null)
+    throw new Error("Anthropic requires an explicit maxOutputTokens cap");
 }
 
 const transports = {

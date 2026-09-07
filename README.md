@@ -40,7 +40,7 @@ pnpm bench plan experiments/smoke.yaml --dataset mmlu-prox-lite --languages ru e
 
 # Free smoke test with no YAML, prices, budget, or preceding plan required.
 pnpm bench run --dataset mmlu-prox-lite --languages ru,en \
-  --protocol mmluprox-lite-5shot-author-api-v3 --transport fake \
+  --protocol mmluprox-lite-5shot-author-api-v3 --max-output-tokens 2048 --transport fake \
   --models fake-one,fake-two --efforts low,medium,high,xhigh,max \
   --question-limit 2 --repeats 2 --max-jobs 5 --offline
 pnpm bench resume <run-id>
@@ -204,3 +204,6 @@ TypeScript paths are resolved relative to the config that declares them, without
 When adding paths in a child tsconfig, remember that `paths` replaces the inherited
 map rather than merging it. Keep aliases scoped to the owning app or package;
 do not reach into another workspace package's private source files.
+
+CLI runs omit the API token cap unless `--max-output-tokens` is supplied (or YAML
+sets a cap). Select a compatible protocol. See [output token policy](docs/runner.md#omitting-the-output-token-cap).

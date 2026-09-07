@@ -2,9 +2,10 @@ import {
   parseTerminalAnswer,
   parseMmluproxAuthorAnswer,
   mmluproxTextBeforeStop,
+  usesAuthorExtraction,
 } from "#src/protocols/mmluprox";
 import type { Language, ProtocolId } from "@llang-gap/contracts";
-import { getProtocol, multipleChoiceProtocol, protocol, protocolV1 } from "./prompts";
+import { getProtocol, multipleChoiceProtocol, protocolV1 } from "./prompts";
 
 export function parseAnswer(
   text: string,
@@ -26,7 +27,7 @@ export function parseAnswer(
 
 export function textBeforeStop(text: string, language: Language, protocolId: ProtocolId): string {
   getProtocol(protocolId);
-  return protocolId === protocol.id ? mmluproxTextBeforeStop(text, language) : text;
+  return usesAuthorExtraction(protocolId) ? mmluproxTextBeforeStop(text, language) : text;
 }
 
 export function scoreAnswer(
@@ -44,7 +45,7 @@ export function scoreAnswer(
         ? parseTerminalAnswer(text, language, optionCount)
         : null
       : parseAnswer(
-          protocolId === protocol.id ? textBeforeStop(text, language, protocolId) : text,
+          usesAuthorExtraction(protocolId) ? textBeforeStop(text, language, protocolId) : text,
           language,
           optionCount,
           protocolId,
