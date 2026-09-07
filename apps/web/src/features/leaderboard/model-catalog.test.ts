@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   getModelHref,
   getModelOptions,
+  getModelGroups,
   getModelPresentation,
   matchesModel,
   plannedRows,
@@ -55,7 +56,7 @@ it.each([
   (transport, model, label, ownerName) => {
     const native = { transport, model };
     const routed = { transport: "openrouter" as const, model: `${transport}/${model}` };
-    expect(getModelPresentation(native)).toEqual({ label, ownerName });
+    expect(getModelPresentation(native)).toMatchObject({ label, ownerName });
     expect(getModelPresentation(routed)).toEqual(getModelPresentation(native));
     const options = getModelOptions([native, routed]);
     expect(options).toHaveLength(2);
@@ -68,5 +69,22 @@ it.each([
   ["new-owner/new-model", "new-model", "new-owner"],
   ["unnamespaced", "unnamespaced", "—"],
 ])("presents model namespace %s without inventing its owner", (model, label, ownerName) => {
-  expect(getModelPresentation({ transport: "openrouter", model })).toEqual({ label, ownerName });
+  expect(getModelPresentation({ transport: "openrouter", model })).toMatchObject({
+    label,
+    ownerName,
+  });
+});
+
+it("groups by model owner across transports and retains unregistered owners", () => {
+  const options = getModelOptions([
+    { transport: "openai", model: "gpt-6-astra" },
+    { transport: "openrouter", model: "openai/gpt-6-astra" },
+    { transport: "openrouter", model: "anthropic/claude-fable-5-1" },
+    { transport: "openrouter", model: "new-owner/new-model" },
+  ]);
+  const groups = getModelGroups(options);
+  expect(groups.map((group) => group.label)).toEqual(["OpenAI", "Anthropic", "new-owner"]);
+  expect(groups.map((group) => group.items.length)).toEqual([2, 1, 1]);
+  expect(groups[0]!.items.every((option) => option.ownerId === "openai")).toBe(true);
+  expect(new Set(groups.flatMap((group) => group.items.map((item) => item.value))).size).toBe(4);
 });

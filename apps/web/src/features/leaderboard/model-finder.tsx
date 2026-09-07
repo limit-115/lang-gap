@@ -12,8 +12,10 @@ import {
   getModelHref,
   matchesModel,
   plannedRows,
+  getModelGroups,
   type ModelOption,
 } from "./model-catalog";
+import { ProviderLogo } from "./provider-logo";
 import styles from "./model-finder.module.css";
 
 export function ModelFinderHero({ rows }: { rows: Aggregate[] }) {
@@ -22,7 +24,7 @@ export function ModelFinderHero({ rows }: { rows: Aggregate[] }) {
   const options = useMemo(() => getModelOptions(rows.length ? rows : plannedRows), [rows]);
   const [selected, setSelected] = useState<ModelOption | null>(null);
   const [input, setInput] = useState("");
-  const canContinue = selected !== null && input === selected.label;
+  const groups = useMemo(() => getModelGroups(options), [options]);
 
   return (
     <div className={styles.hero}>
@@ -36,33 +38,40 @@ export function ModelFinderHero({ rows }: { rows: Aggregate[] }) {
         </h2>
         <div className={styles.controls}>
           <Combobox.Root
-            items={options}
+            items={groups}
             value={selected}
             onValueChange={setSelected}
             inputValue={input}
             onInputValueChange={setInput}
+            onOpenChange={() => setInput("")}
             filter={matchesModel}
             autoHighlight
           >
-            <label htmlFor={`${id}-input`} className="sr-only">
-              {t("finderSelect")}
-            </label>
-            <Combobox.InputGroup className={styles.inputGroup}>
-              <Search aria-hidden="true" className={styles.searchIcon} />
-              <Combobox.Input
-                id={`${id}-input`}
-                placeholder={t("finderPlaceholder")}
-                className={styles.input}
-              />
-              {input && (
-                <Combobox.Clear className={styles.inputButton} aria-label={t("finderClear")}>
-                  <X aria-hidden="true" />
-                </Combobox.Clear>
-              )}
-              <Combobox.Trigger className={styles.inputButton} aria-label={t("finderBrowse")}>
-                <ChevronDown aria-hidden="true" />
+            <div className={styles.selection}>
+              <Combobox.Trigger className={styles.trigger} aria-label={t("finderSelect")}>
+                {selected ? (
+                  <>
+                    <span className={styles.providerIcon} aria-hidden="true">
+                      <ProviderLogo ownerId={selected.ownerId} size={20} />
+                    </span>
+                    <span className={styles.selectedName}>{selected.label}</span>
+                  </>
+                ) : (
+                  <span className={styles.placeholder}>{t("finderSelect")}</span>
+                )}
+                <ChevronDown aria-hidden="true" className={styles.chevron} />
               </Combobox.Trigger>
-            </Combobox.InputGroup>
+              {selected && (
+                <button
+                  type="button"
+                  className={styles.clearButton}
+                  aria-label={t("finderClear")}
+                  onClick={() => setSelected(null)}
+                >
+                  <X aria-hidden="true" />
+                </button>
+              )}
+            </div>
             <Combobox.Portal>
               <Combobox.Positioner
                 side="bottom"
@@ -71,33 +80,49 @@ export function ModelFinderHero({ rows }: { rows: Aggregate[] }) {
                 className={styles.positioner}
               >
                 <Combobox.Popup className={styles.popup}>
+                  <Combobox.InputGroup className={styles.inputGroup}>
+                    <Search aria-hidden="true" className={styles.searchIcon} />
+                    <Combobox.Input
+                      aria-label={t("finderPlaceholder")}
+                      placeholder={t("finderPlaceholder")}
+                      className={styles.input}
+                    />
+                  </Combobox.InputGroup>
                   <Combobox.Empty className={styles.empty}>
                     <strong>{t("finderNoResults")}</strong>
                     <span>{t("finderNoResultsHelp")}</span>
                   </Combobox.Empty>
                   <Combobox.List className={styles.list}>
-                    {(item: ModelOption) => (
-                      <Combobox.Item key={item.value} value={item} className={styles.option}>
-                        <span className={styles.providerIcon} aria-hidden="true">
-                          {item.ownerName.slice(0, 1)}
-                        </span>
-                        <span className={styles.optionText}>
-                          <strong>{item.label}</strong>
-                          <span>{item.ownerName}</span>
-                        </span>
-                        {!rows.length && <span className={styles.planned}>{t("planned")}</span>}
-                        <Combobox.ItemIndicator className={styles.check}>
-                          <Check aria-hidden="true" />
-                        </Combobox.ItemIndicator>
-                      </Combobox.Item>
+                    {(group: (typeof groups)[number]) => (
+                      <Combobox.Group
+                        key={group.value}
+                        items={group.items}
+                        className={styles.group}
+                      >
+                        <Combobox.GroupLabel className={styles.groupLabel}>
+                          {group.label}
+                        </Combobox.GroupLabel>
+                        <Combobox.Collection>
+                          {(item: ModelOption) => (
+                            <Combobox.Item key={item.value} value={item} className={styles.option}>
+                              <span className={styles.providerIcon} aria-hidden="true">
+                                <ProviderLogo ownerId={item.ownerId} size={20} />
+                              </span>
+                              <span className={styles.optionText}>{item.label}</span>
+                              <Combobox.ItemIndicator className={styles.check}>
+                                <Check aria-hidden="true" />
+                              </Combobox.ItemIndicator>
+                            </Combobox.Item>
+                          )}
+                        </Combobox.Collection>
+                      </Combobox.Group>
                     )}
                   </Combobox.List>
-                  <div className={styles.listFooter}>{t("finderListHelp")}</div>
                 </Combobox.Popup>
               </Combobox.Positioner>
             </Combobox.Portal>
           </Combobox.Root>
-          {canContinue ? (
+          {selected ? (
             <Link
               href={getModelHref(selected)}
               prefetch={false}

@@ -8,6 +8,7 @@ import type { Aggregate } from "@llang-gap/contracts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { efforts, getModelPresentation } from "./model-catalog";
+import { ProviderLogo } from "./provider-logo";
 import type { LeaderboardFeatures } from "./data-table-features";
 
 export type LeaderboardRow = Pick<Aggregate, "model" | "transport" | "effort"> & {
@@ -81,11 +82,19 @@ export function useLeaderboardColumns(hasResults: boolean) {
           id: "model",
           header: ({ column }) => <ColumnHeader column={column} title={t("model")} />,
           cell: ({ row }) => {
-            const { label, ownerName } = getModelPresentation(row.original);
+            const { label, ownerName, ownerId } = getModelPresentation(row.original);
             return (
-              <div className="flex flex-col gap-1">
-                <span className="font-medium">{label}</span>
-                <span className="text-xs text-muted-foreground">{ownerName}</span>
+              <div className="flex items-center gap-3">
+                <span
+                  className="flex size-8 shrink-0 items-center justify-center"
+                  aria-hidden="true"
+                >
+                  <ProviderLogo ownerId={ownerId} />
+                </span>
+                <div className="flex flex-col gap-1">
+                  <span className="font-medium">{label}</span>
+                  <span className="text-xs text-muted-foreground">{ownerName}</span>
+                </div>
               </div>
             );
           },

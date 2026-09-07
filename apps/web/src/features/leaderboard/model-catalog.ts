@@ -27,6 +27,7 @@ const modelNames = new Map(
 export function getModelPresentation(reference: ModelReference) {
   const { owner, name } = getModelIdentity(reference);
   return {
+    ownerId: owner,
     label: modelNames.get(`${owner}/${name}`) ?? name,
     ownerName: owner === null ? "—" : Object.hasOwn(ownerNames, owner) ? ownerNames[owner]! : owner,
   };
@@ -75,4 +76,22 @@ export function matchesModel(item: ModelOption, query: string) {
 
 export function getModelHref(option: ModelOption) {
   return `/models/${encodeURIComponent(option.transport)}/${encodeURIComponent(option.model)}`;
+}
+
+export function getModelGroups(options: readonly ModelOption[]) {
+  const groups = new Map<string, { value: string; label: string; items: ModelOption[] }>();
+  for (const option of options) {
+    const value = option.ownerId ?? "";
+    const group = groups.get(value) ?? { value, label: option.ownerName, items: [] };
+    group.items.push(option);
+    groups.set(value, group);
+  }
+  const owners = Object.keys(ownerNames);
+  const rank = (owner: string) => {
+    const index = owners.indexOf(owner);
+    return index === -1 ? owners.length : index;
+  };
+  return [...groups.values()].sort(
+    (a, b) => rank(a.value) - rank(b.value) || a.label.localeCompare(b.label, "en"),
+  );
 }

@@ -6,7 +6,8 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { getMessagesForLocale } from "@/i18n/messages";
 import { Link } from "@/i18n/navigation";
-import { pageMetadata } from "@/shared/metadata";
+import { pageMetadata, siteUrl } from "@/shared/metadata";
+import { JsonLd } from "@/shared/json-ld";
 import { ModelFinderHero } from "@/features/leaderboard/model-finder";
 import { LeaderboardTable } from "@/features/leaderboard/leaderboard-table";
 import { getLatestRelease } from "@/features/releases/data";
@@ -16,7 +17,12 @@ export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   const t = await getTranslations({ locale, namespace: "Leaderboard" });
-  return pageMetadata(locale, "", t("metadataTitle"), t("metadataDescription"));
+  return pageMetadata(
+    locale,
+    "",
+    t("metadataTitle"),
+    t((await getLatestRelease()) ? "metadataDescription" : "metadataPlannedDescription"),
+  );
 }
 export default async function LeaderboardPage({ params }: Props) {
   const { locale } = await params;
@@ -26,6 +32,22 @@ export default async function LeaderboardPage({ params }: Props) {
   const release = await getLatestRelease();
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "@id": `${siteUrl}/#website`,
+          url: `${siteUrl}/`,
+          name: "Llang Gap",
+          description: t(release ? "metadataDescription" : "metadataPlannedDescription"),
+          inLanguage: ["en", "ru"],
+          publisher: {
+            "@type": "Organization",
+            name: "Limit 115",
+            url: "https://github.com/limit-115",
+          },
+        }}
+      />
       <NextIntlClientProvider messages={{ Leaderboard: getMessagesForLocale(locale).Leaderboard }}>
         <ModelFinderHero rows={release?.aggregate ?? []} />
       </NextIntlClientProvider>
