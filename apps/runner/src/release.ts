@@ -104,8 +104,8 @@ export async function scoreRun(directory: string) {
 
 const csv = (rows: ReturnType<typeof aggregateResults>) => {
   const header =
-    "provider,model,effort,n,repeats,accuracy_en,accuracy_ru,gap_pp,ci95_low_pp,ci95_high_pp";
-  return `${header}\n${rows.map((r) => [r.provider, r.model, r.effort, r.n, r.repeats, r.en, r.ru, r.gapPp, ...r.gapCi95].join(",")).join("\n")}\n`;
+    "provider,model,effort,n,repeats,accuracy_en,accuracy_ru,gap_pp,ci95_low_pp,ci95_high_pp,cost_usd,average_cost_usd_en,average_cost_usd_ru";
+  return `${header}\n${rows.map((r) => [r.provider, r.model, r.effort, r.n, r.repeats, r.en, r.ru, r.gapPp, ...r.gapCi95, r.costUsd, r.averageCostUsd?.en, r.averageCostUsd?.ru].join(",")).join("\n")}\n`;
 };
 
 export async function buildRelease(

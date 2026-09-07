@@ -22,23 +22,25 @@ export default async function MethodologyPage({ params }: Props) {
         <h1>{t("title")}</h1>
         <p>{t("intro")}</p>
       </header>
-      {(["protocol", "dataset", "score", "errors", "limits", "audit"] as const).map((key) => (
-        <section key={key}>
-          <h2>{t(`${key}Title`)}</h2>
-          <p>{t(key)}</p>
-          {key === "protocol" && <p>{t("adaptation")}</p>}
-          {key === "score" && (
-            <>
-              <div className="formula">
-                Δ = 100 × ({t("accuracy")}
-                <sub>A</sub> − {t("accuracy")}
-                <sub>B</sub>)
-              </div>
-              <p>{t("interval")}</p>
-            </>
-          )}
-        </section>
-      ))}
+      {(["protocol", "dataset", "score", "cost", "errors", "limits", "audit"] as const).map(
+        (key) => (
+          <section key={key}>
+            <h2>{t(`${key}Title`)}</h2>
+            <p>{t(key)}</p>
+            {key === "protocol" && <p>{t("adaptation")}</p>}
+            {key === "score" && (
+              <>
+                <div className="formula">
+                  Δ = 100 × ({t("accuracy")}
+                  <sub>A</sub> − {t("accuracy")}
+                  <sub>B</sub>)
+                </div>
+                <p>{t("interval")}</p>
+              </>
+            )}
+          </section>
+        ),
+      )}
       <section>
         <h2>{t("sources")}</h2>
         <div className="source-links">

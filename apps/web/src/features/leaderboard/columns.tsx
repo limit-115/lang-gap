@@ -3,14 +3,15 @@
 import { useMemo } from "react";
 import { createColumnHelper, type Column } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 import type { Aggregate } from "@llang-gap/contracts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { efforts, modelNames, providerNames } from "./model-catalog";
+import { formatCostUsd } from "@/shared/format-cost";
 import type { LeaderboardFeatures } from "./data-table-features";
 
-export type LeaderboardRow = Pick<Aggregate, "model" | "provider" | "effort"> & {
+export type LeaderboardRow = Pick<Aggregate, "model" | "provider" | "effort" | "averageCostUsd"> & {
   en: number | null;
   ru: number | null;
   gapPp: number | null;
@@ -62,6 +63,7 @@ function ColumnHeader<TValue>({
 export function useLeaderboardColumns(hasResults: boolean) {
   const t = useTranslations("Leaderboard");
   const f = useFormatter();
+  const locale = useLocale();
   return useMemo(() => {
     const percent = (value: number) =>
       f.number(value, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -70,6 +72,39 @@ export function useLeaderboardColumns(hasResults: boolean) {
         minimumFractionDigits: 1,
         maximumFractionDigits: 1,
         signDisplay: "exceptZero",
+      });
+    const costColumn = (language: "en" | "ru") =>
+      columnHelper.accessor((row) => row.averageCostUsd?.[language] ?? undefined, {
+        id: `${language}Cost`,
+        header: ({ column }) => (
+          <ColumnHeader
+            column={column}
+            title={t("costLanguage", { language: language.toUpperCase() })}
+            description={t("costUnit")}
+            numeric
+          />
+        ),
+        cell: ({ getValue }) => {
+          const value = getValue();
+          return (
+            <div className="text-right font-mono tabular-nums">
+              {value === undefined ? (
+                <span
+                  className="text-muted-foreground"
+                  aria-label={t(hasResults ? "unknownCost" : "planned")}
+                >
+                  —
+                </span>
+              ) : (
+                formatCostUsd(value, locale)
+              )}
+            </div>
+          );
+        },
+        sortFn: "basic",
+        sortUndefined: "last",
+        sortDescFirst: false,
+        enableSorting: hasResults,
       });
     return columnHelper.columns([
       columnHelper.accessor(
@@ -106,7 +141,7 @@ export function useLeaderboardColumns(hasResults: boolean) {
         sortDescFirst: false,
         enableHiding: false,
       }),
-      ...(["en", "ru", "gapPp"] as const).map((key) =>
+      ...(["en", "ru", "gapPp"] as const).flatMap((key) => [
         columnHelper.accessor(key, {
           header: ({ column }) => (
             <ColumnHeader
@@ -137,7 +172,8 @@ export function useLeaderboardColumns(hasResults: boolean) {
           enableSorting: hasResults,
           enableHiding: key !== "gapPp",
         }),
-      ),
+        ...(key === "gapPp" ? [] : [costColumn(key)]),
+      ]),
       columnHelper.accessor("gapCi95", {
         header: () => <div className="text-right">{t("confidence")}</div>,
         cell: ({ getValue }) => {
@@ -167,5 +203,5 @@ export function useLeaderboardColumns(hasResults: boolean) {
         enableHiding: false,
       }),
     ]);
-  }, [f, t, hasResults]);
+  }, [f, t, hasResults, locale]);
 }

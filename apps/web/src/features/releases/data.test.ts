@@ -80,6 +80,15 @@ describe("public release boundary", () => {
   it("accepts matching verified aggregate bytes", async () => {
     expect((await getLatestRelease())?.aggregate).toEqual([row]);
     expect(await getReleaseAssetsUrl(manifest.id)).toBe(baseUrl.slice(0, -1));
+    expect((await getLatestRelease())?.aggregate[0]).not.toHaveProperty("averageCostUsd");
+  });
+  it("reads per-language costs, including unknown and zero, from the verified aggregate", async () => {
+    manifest.aggregate[0]!.averageCostUsd = { en: 0, ru: null };
+    aggregateFile = Buffer.from(JSON.stringify(manifest.aggregate));
+    manifest.files["aggregate.json"] = createHash("sha256").update(aggregateFile).digest("hex");
+    expect((await getLatestRelease())?.aggregate[0]?.averageCostUsd).toEqual({ en: 0, ru: null });
+    manifest.aggregate[0]!.averageCostUsd.ru = 0.1;
+    await expect(getReleases()).rejects.toThrow("differs from manifest");
   });
   it("rejects test artifacts even if indexed", async () => {
     manifest.kind = "test";

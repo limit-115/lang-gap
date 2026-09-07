@@ -23,6 +23,72 @@ describe("run → resume → independent release verification", () => {
   });
   const manifest = () => readManifest(join(workspace, "datasets/mmlu-prox-lite/manifest.json"));
 
+  it.each([false, true])(
+    "exports and verifies per-task prices (missing RU usage: %s)",
+    async (missing) => {
+      const directory = join(root, "cost-run");
+      const fake = createFakeAdapter();
+      const adapter: ProviderAdapter = {
+        ...fake,
+        async generate(request) {
+          return {
+            ...(await fake.generate(request)),
+            usage:
+              missing && request.language === "ru"
+                ? null
+                : {
+                    inputTokens: request.language === "en" ? 100 : 200,
+                    cachedInputTokens: 0,
+                    cacheWriteTokens: 0,
+                    cacheWrite1hTokens: 0,
+                    outputTokens: 20,
+                    reasoningTokens: 0,
+                  },
+          };
+        },
+      };
+      await createRun({
+        directory,
+        experiment: {
+          ...experiment,
+          models: experiment.models.map((model) => ({
+            ...model,
+            pricing: { ...model.pricing, inputPerMillion: 100, outputPerMillion: 50 },
+          })),
+        },
+        questions,
+        manifest: await manifest(),
+        budgetUsd: 100,
+        adapters: new Map([["fake", adapter]]),
+      });
+      const release = await buildRelease(directory, "cost-release", "test", root);
+      const verified = await verifyRelease(release.directory);
+      expect(verified.aggregate[0]?.averageCostUsd?.en).toBeCloseTo(0.011);
+      if (missing) expect(verified.aggregate[0]?.averageCostUsd?.ru).toBeNull();
+      else expect(verified.aggregate[0]?.averageCostUsd?.ru).toBeCloseTo(0.021);
+      const [header, values] = (await readFile(join(release.directory, "aggregate.csv"), "utf8"))
+        .trimEnd()
+        .split("\n");
+      const csvRow = Object.fromEntries(
+        header!.split(",").map((key, i) => [key, values!.split(",")[i]]),
+      );
+      expect(Number(csvRow.average_cost_usd_en)).toBeCloseTo(0.011);
+      if (missing) {
+        expect(csvRow.average_cost_usd_ru).toBe("");
+        expect(csvRow.cost_usd).toBe("");
+      } else {
+        expect(Number(csvRow.average_cost_usd_ru)).toBeCloseTo(0.021);
+        expect(Number(csvRow.cost_usd)).toBeCloseTo(0.192);
+      }
+      verified.aggregate[0]!.averageCostUsd!.en = 999;
+      const modified = json(verified.aggregate);
+      await writeFile(join(release.directory, "aggregate.json"), modified);
+      verified.files["aggregate.json"] = hash(modified);
+      await writeFile(join(release.directory, "manifest.json"), json(verified));
+      await expect(verifyRelease(release.directory)).rejects.toThrow("aggregates do not reproduce");
+    },
+  );
+
   it("completes a paused run without reissuing completed jobs and exports an auditable test release", async () => {
     const directory = join(root, "run");
     const fake = createFakeAdapter();

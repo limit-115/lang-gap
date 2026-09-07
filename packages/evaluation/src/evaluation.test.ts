@@ -115,4 +115,34 @@ describe("paired cluster bootstrap", () => {
     expect(() => aggregateResults(base.slice(1), 42)).toThrow("Incomplete");
     expect(() => aggregateResults([...base, base[0]!], 42)).toThrow("duplicated");
   });
+  it("averages costs per language over every question and repeat, including unsuccessful answers", () => {
+    const rows = [0, 1].flatMap((repeat) =>
+      base.map((row, index) => ({
+        ...row,
+        repeat,
+        costUsd: (index + 1) * (repeat + 1),
+        ...(index === 0 ? { outcome: "refusal" as const, correct: false, answer: null } : {}),
+        ...(index === 2 ? { correct: false, answer: null } : {}),
+      })),
+    );
+    const [score] = aggregateResults(rows, 42, 10);
+    expect(score).toMatchObject({
+      n: 2,
+      repeats: 2,
+      costUsd: 30,
+      averageCostUsd: { en: 3, ru: 4.5 },
+    });
+    const other = rows.map((row) => ({ ...row, effort: "high" as const, costUsd: 10 }));
+    expect(
+      aggregateResults([...rows, ...other], 42, 10).find((r) => r.effort === "high"),
+    ).toMatchObject({ averageCostUsd: { en: 10, ru: 10 } });
+  });
+  it("keeps a missing cost unknown only for its language, and preserves real zero costs", () => {
+    const rows = base.map((row, index) => ({ ...row, costUsd: index === 0 ? null : 0 }));
+    expect(aggregateResults(rows, 42, 10)[0]).toMatchObject({
+      costUsd: null,
+      averageCostUsd: { en: null, ru: 0 },
+    });
+    expect(aggregateResults(base, 42, 10)[0]?.averageCostUsd).toEqual({ en: null, ru: null });
+  });
 });

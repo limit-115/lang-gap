@@ -150,7 +150,10 @@ export function LeaderboardTable({ rows }: { rows: Aggregate[] }) {
                 indicatorVariant="checkbox"
                 className="cursor-pointer rounded-md"
                 checked={column.getIsVisible()}
-                onCheckedChange={(checked) => column.toggleVisibility(checked)}
+                onCheckedChange={(checked) => {
+                  column.toggleVisibility(checked);
+                  table.getColumn(`${column.id}Cost`)!.toggleVisibility(checked);
+                }}
                 closeOnClick={false}
               >
                 <span>{label}</span>
@@ -226,6 +229,7 @@ export function LeaderboardTable({ rows }: { rows: Aggregate[] }) {
           </TableBody>
         </Table>
       </div>
+      <p className="mt-3 max-w-3xl text-xs leading-5 text-muted-foreground">{t("costNote")}</p>
       <div className="flex flex-wrap items-center justify-between gap-4 pt-4 text-sm">
         <output className="text-muted-foreground">
           {t("rowRange", {
