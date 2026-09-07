@@ -5,7 +5,7 @@
   </picture>
 </h1>
 
-**See how LLM accuracy changes across languages—with open results you can check.**
+**See how LLM accuracy changes across languages. With open results you can check.**
 
 Llang Gap is an open multilingual benchmark for comparing model accuracy on the
 same academic questions in different prompt languages. Read each language’s score
@@ -102,8 +102,8 @@ the [issue forms](https://github.com/limit-115/llang-gap/issues/new/choose).
 ## Live experiments
 
 The initial experiment compares the English and Russian versions of
-**MMLU-ProX Lite**: 588 test questions per language, five worked examples per
-subject, and GPT-6 Astra and Claude Fable 5.1 at low, medium and high reasoning
+**MMLU-ProX Lite**: 588 test questions per language, 5-shot CoT prompts with five
+worked examples per subject, and GPT-6 Astra and Claude Fable 5.1 at low, medium and high native reasoning
 effort. It measures academic multiple-choice accuracy.
 
 Read [the operator guide](docs/runner.md) and [the exact protocol](docs/protocol.md)

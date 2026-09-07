@@ -1,9 +1,9 @@
 export default {
-  title: "See how LLM accuracy changes across languages—with open results you can check.",
+  title: "See how LLM accuracy changes across languages. With open results you can check.",
   description:
     "Compare model accuracy across languages on the same academic questions, with uncertainty estimates and evidence you can inspect.",
   tableTitle: "Compare model accuracy across languages",
-  tableDescription: "MMLU-ProX Lite · Five worked examples per subject",
+  tableDescription: "MMLU-ProX Lite · 5-shot CoT · Native reasoning",
   model: "Model",
   effort: "Reasoning effort",
   en: "English",
@@ -52,5 +52,5 @@ export default {
   release: "Release {id}",
   metadataTitle: "Compare LLM accuracy across languages",
   metadataDescription:
-    "See how LLM accuracy changes across languages—with open results you can check. Compare models, understand the gaps, and inspect the evidence.",
+    "See how LLM accuracy changes across languages. With open results you can check. Compare models, understand the gaps, and inspect the evidence.",
 } as const;
