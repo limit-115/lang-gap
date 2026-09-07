@@ -20,6 +20,7 @@ import { createRun, resumeRun, runPath } from "./run";
 import { readSnapshot } from "./snapshot";
 import { buildRelease, scoreRun, stageRelease, verifyRelease } from "./release";
 import { RunState, unlockRun } from "./state";
+import { loadEnvironment } from "./env";
 
 const program = new Command()
   .name("bench")
@@ -265,6 +266,7 @@ release
   });
 
 try {
+  loadEnvironment();
   await program.parseAsync();
 } catch (error) {
   const message = error instanceof Error ? error.message : "Unexpected failure";
