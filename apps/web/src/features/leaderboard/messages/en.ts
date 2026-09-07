@@ -47,7 +47,8 @@ export default {
   filterEffort: "Filter by reasoning effort",
   allEfforts: "All effort levels",
   resetFilters: "Reset filters",
-  columns: "Columns",
+  languageColumns: "Languages",
+  visibleLanguages: "{count} of {total} shown",
   noResults: "No models match these filters",
   noResultsDescription:
     "Try another model or provider name, or choose a different reasoning effort.",

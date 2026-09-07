@@ -50,7 +50,8 @@ export default {
   filterEffort: "Фильтр по уровню рассуждений",
   allEfforts: "Все уровни рассуждений",
   resetFilters: "Сбросить фильтры",
-  columns: "Колонки",
+  languageColumns: "Языки",
+  visibleLanguages: "Показано {count} из {total}",
   noResults: "Нет моделей с такими фильтрами",
   noResultsDescription:
     "Попробуйте другое название модели или провайдера либо выберите другой уровень рассуждений.",
