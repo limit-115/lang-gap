@@ -28,3 +28,9 @@ it.each([
   expect(experimentSchema.safeParse(config).success).toBe(accepted);
   expect(validate(config)).toBe(accepted);
 });
+
+it("allows omitted comparison presets in runtime and editor schemas", () => {
+  const { comparisons: _comparisons, ...config } = experiment;
+  expect(experimentSchema.parse(config).comparisons).toEqual([]);
+  expect(validate(config)).toBe(true);
+});

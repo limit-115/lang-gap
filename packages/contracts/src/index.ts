@@ -119,7 +119,7 @@ export const experimentSchema = z
     dataset: safeIdSchema,
     protocol: protocolIdSchema,
     languages: languagesSchema,
-    comparisons: comparisonsSchema,
+    comparisons: comparisonsSchema.default([]),
     repeats: z.number().int().min(1).max(10),
     seed: z.number().int().min(1).max(2_147_483_647),
     models: z
@@ -130,6 +130,7 @@ export const experimentSchema = z
         "Duplicate model",
       ),
     execution: z.strictObject({
+      budgetUsd: z.number().nonnegative().nullable().optional(),
       concurrency: z.number().int().min(1).max(32),
       maxAttempts: z.number().int().min(1).max(5),
       timeoutMs: z.number().int().min(1000).max(3_600_000),
@@ -153,7 +154,7 @@ export const experimentSchema = z
   );
 export type Experiment = z.infer<typeof experimentSchema>;
 export const experimentJsonSchema = () =>
-  z.toJSONSchema(experimentSchema, { target: "draft-2020-12" });
+  z.toJSONSchema(experimentSchema, { target: "draft-2020-12", io: "input" });
 
 const datasetFileSchema = z.strictObject({
   // Relative source paths only, including sharded files; never allow cache traversal.
@@ -342,3 +343,72 @@ export const releaseManifestSchema = z
     "Aggregate conditions differ from release",
   );
 export type ReleaseManifest = z.infer<typeof releaseManifestSchema>;
+
+// Analysis settings are saved separately from immutable execution inputs.
+export const releaseAnalysisSchema = z.strictObject({
+  schemaVersion: z.literal(1),
+  comparisons: comparisonsSchema,
+});
+export type ReleaseAnalysis = z.infer<typeof releaseAnalysisSchema>;
+export const analysisSelectionSchema = z.strictObject({
+  models: z.array(z.string()).min(1).optional(),
+  transports: z.array(transportSchema).min(1).optional(),
+  efforts: z.array(effortSchema).min(1).optional(),
+  languages: languagesSchema.optional(),
+});
+export type AnalysisSelection = z.infer<typeof analysisSelectionSchema>;
+export const analysisConditionSchema = z.strictObject({
+  id: hashSchema,
+  runId: safeIdSchema,
+  transport: transportSchema,
+  model: z.string(),
+  effort: effortSchema,
+  language: languageSchema,
+  maxOutputTokens: z.number().int().positive(),
+  repeats: z.number().int().positive(),
+  n: z.number().int().positive(),
+  accuracy: accuracySchema,
+  repeatAccuracy: z.array(accuracySchema).min(1),
+  costUsd: z.number().nonnegative().nullable(),
+});
+export type AnalysisCondition = z.infer<typeof analysisConditionSchema>;
+export const analysisReportSchema = z.strictObject({
+  schemaVersion: z.literal(1),
+  id: safeIdSchema,
+  createdAt: z.iso.datetime(),
+  method: z.literal("post-hoc-paired-question-bootstrap"),
+  seed: z.number().int().min(1).max(2_147_483_647),
+  samples: z.literal(10_000),
+  selection: analysisSelectionSchema,
+  sources: z
+    .array(
+      z.strictObject({
+        runId: safeIdSchema,
+        configHash: hashSchema,
+        dataset: safeIdSchema,
+        datasetHash: hashSchema,
+        manifestHash: hashSchema,
+        protocolHash: hashSchema,
+        itemsHash: hashSchema,
+      }),
+    )
+    .min(1),
+  conditions: z.array(analysisConditionSchema).min(1),
+  comparisons: z.array(
+    z.strictObject({
+      baseline: hashSchema,
+      candidate: hashSchema,
+      n: z.number().int().positive(),
+      gapPp: z.number().min(-100).max(100),
+      gapCi95: z.tuple([z.number().min(-100).max(100), z.number().min(-100).max(100)]),
+    }),
+  ),
+  incompatible: z.array(
+    z.strictObject({
+      baseline: hashSchema,
+      candidate: hashSchema,
+      reason: z.string(),
+    }),
+  ),
+});
+export type AnalysisReport = z.infer<typeof analysisReportSchema>;

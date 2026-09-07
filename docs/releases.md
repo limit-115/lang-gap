@@ -4,7 +4,8 @@
 
 ```sh
 pnpm bench score <run-id>
-pnpm bench release build <run-id> --id <release-id>
+# Optional language comparisons can be chosen after execution.
+pnpm bench release build <run-id> --id <release-id> --compare ja:de
 pnpm bench release verify .llang-gap/releases/<release-id>
 ```
 
@@ -31,8 +32,10 @@ at PR #16's revision. See [protocol history](protocols/mmluprox.md#historical-v1
 New experiments, run snapshots and release manifests use schema v3. Aggregates
 contain `scores: [{ language, n, accuracy, repeatAccuracy }]` and
 `comparisons: [{ baseline, language, n, gapPp, gapCi95 }]` for each transport/model/
-effort. The release declares the same ordered `languages` and `comparisons` as its
-resolved experiment. CSV is long-form: `metric=accuracy` rows name a language;
+effort. The release preserves the resolved experiment's ordered `languages`. Its
+`comparisons` come from the independently recorded `analysis.json` selection,
+using `--compare` at release build or the optional run preset. The original
+`resolved.json` remains byte-for-byte unchanged. CSV is long-form: `metric=accuracy` rows name a language;
 `metric=comparison` rows name both language and baseline. It has no per-language
 column names. Empty comparison lists are valid, including single-language releases.
 
@@ -52,6 +55,7 @@ snapshot identity and must not overwrite or silently pool historical artifacts.
 | `dataset-manifest.json` | Original repository, revision, source hashes and localized instructions                            |
 | `dataset.jsonl`         | Normalized selected-language test and validation input snapshot                                    |
 | `items.jsonl`           | One selected completed response per job, prompt, visible output, score, usage and latency          |
+| `analysis.json`         | Post-run language comparison selection; defaults to the run preset                                 |
 | `aggregate.json`        | Model/effort rows, language scores and explicitly named paired comparisons                         |
 | `aggregate.csv`         | Long-form language scores and named comparison intervals                                           |
 | `attempts.jsonl`        | Every technical attempt, timestamps, status, known/uncertain charge and request ID                 |
@@ -66,8 +70,9 @@ model produced the response. Git history and open artifacts supply the audit tra
 `release verify <directory>` works without the original SQLite file or API keys.
 It requires this repository's recorded protocol version. It validates the complete
 file set and hashes, matches prompts and labels to the supplied input snapshot,
-checks the full job matrix, then independently recomputes scores and bootstrap
-intervals. Keep the recorded source revision for future rechecks.
+checks the full job matrix and analysis selection, then independently recomputes
+scores and bootstrap intervals. Historical schema-v3 assets without `analysis.json`
+use their original snapshot comparisons. Keep the recorded source revision for future rechecks.
 
 ## Staging for the website
 
