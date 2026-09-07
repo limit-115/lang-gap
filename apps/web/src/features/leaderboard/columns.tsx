@@ -17,6 +17,12 @@ export type LeaderboardRow = Pick<Aggregate, "model" | "provider" | "effort"> & 
   gapCi95: Aggregate["gapCi95"] | null;
 };
 
+const providerLogos: Record<Aggregate["provider"], string | null> = {
+  openai: "/providers/openai.svg",
+  anthropic: "/providers/anthropic.svg",
+  fake: null,
+};
+
 const columnHelper = createColumnHelper<LeaderboardFeatures, LeaderboardRow>();
 
 function ColumnHeader<TValue>({
@@ -79,13 +85,26 @@ export function useLeaderboardColumns(hasResults: boolean) {
           id: "model",
           header: ({ column }) => <ColumnHeader column={column} title={t("model")} />,
           cell: ({ row }) => (
-            <div className="flex flex-col gap-1">
-              <span className="font-medium">
-                {modelNames[row.original.model] ?? row.original.model}
+            <div className="flex items-center gap-3">
+              <span className="flex size-8 shrink-0 items-center justify-center" aria-hidden="true">
+                {providerLogos[row.original.provider] && (
+                  <img
+                    src={providerLogos[row.original.provider]!}
+                    width={24}
+                    height={24}
+                    alt=""
+                    className="size-6 dark:invert"
+                  />
+                )}
               </span>
-              <span className="text-xs text-muted-foreground">
-                {providerNames[row.original.provider]}
-              </span>
+              <div className="flex flex-col gap-1">
+                <span className="font-medium">
+                  {modelNames[row.original.model] ?? row.original.model}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {providerNames[row.original.provider]}
+                </span>
+              </div>
             </div>
           ),
           filterFn: "includesString",
