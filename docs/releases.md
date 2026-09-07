@@ -44,19 +44,19 @@ snapshot identity and must not overwrite or silently pool historical artifacts.
 
 ## Files
 
-| File                    | Contents                                                                                  |
-| ----------------------- | ----------------------------------------------------------------------------------------- |
-| `manifest.json`         | ID, kind, date, provenance, aggregate rows and SHA-256 of every other file                |
-| `resolved.json`         | Exact resolved experiment, protocol, dataset manifest, implementation and SDK versions    |
-| `identity.json`         | Hash of the resolved snapshot                                                             |
-| `dataset-manifest.json` | Original repository, revision, source hashes and localized instructions                   |
-| `dataset.jsonl`         | Normalized selected-language test and validation input snapshot                           |
-| `items.jsonl`           | One selected completed response per job, prompt, visible output, score, usage and latency |
-| `aggregate.json`        | Model/effort rows, language scores and explicitly named paired comparisons                |
-| `aggregate.csv`         | Long-form language scores and named comparison intervals                                  |
-| `attempts.jsonl`        | Every technical attempt, timestamps, status, known/uncertain charge and request ID        |
-| `execution.json`        | Overall charged/reserved amount, completion counts and operational event log              |
-| `ATTRIBUTION.md`        | Selected dataset attribution and applicable protocol license notices                      |
+| File                    | Contents                                                                                           |
+| ----------------------- | -------------------------------------------------------------------------------------------------- |
+| `manifest.json`         | ID, kind, date, provenance, aggregate rows and SHA-256 of every other file                         |
+| `resolved.json`         | Exact resolved experiment, protocol, dataset manifest, implementation and SDK versions             |
+| `identity.json`         | Hash of the resolved snapshot                                                                      |
+| `dataset-manifest.json` | Original repository, revision, source hashes and localized instructions                            |
+| `dataset.jsonl`         | Normalized selected-language test and validation input snapshot                                    |
+| `items.jsonl`           | One selected completed response per job, prompt, visible output, score, usage and latency          |
+| `aggregate.json`        | Model/effort rows, language scores and explicitly named paired comparisons                         |
+| `aggregate.csv`         | Long-form language scores and named comparison intervals                                           |
+| `attempts.jsonl`        | Every technical attempt, timestamps, status, known/uncertain charge and request ID                 |
+| `execution.json`        | Overall charged/reserved amount (`null` when unknown), completion counts and operational event log |
+| `ATTRIBUTION.md`        | Selected dataset attribution and applicable protocol license notices                               |
 
 Raw SDK response bodies remain in the private SQLite journal. Public results
 include visible final text, not provider thinking blocks/signatures, keys or HTTP

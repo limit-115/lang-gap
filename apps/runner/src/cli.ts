@@ -44,7 +44,7 @@ const log = (value: string) => process.stderr.write(`${value}\n`);
 const progress = (summary: ReturnType<RunState["summary"]>) => {
   if (summary.completed % 20 === 0 || summary.completed === summary.total)
     log(
-      `${summary.completed}/${summary.total} complete · $${summary.chargedOrReservedUsd.toFixed(4)} charged/reserved`,
+      `${summary.completed}/${summary.total} complete · $${summary.chargedOrReservedUsd?.toFixed(4) ?? "unknown"} charged/reserved`,
     );
 };
 
@@ -127,7 +127,7 @@ program
   });
 program
   .command("run <experiment>")
-  .description("Execute an experiment; API calls require configured keys and an explicit budget")
+  .description("Execute an experiment; cost planning and a budget are optional")
   .option("--budget-usd <amount>", "Maximum total charged/reserved USD", number)
   .option("--concurrency <count>", "Concurrent requests per transport", concurrencyValue)
   .option(
@@ -142,16 +142,13 @@ program
   .option("--protocol <id>", "Select the versioned evaluation protocol")
   .option("--compare <pairs...>", "Explicit baseline:language comparisons")
   .action(async (path, options) => {
-    const configured = await loadExperiment(resolve(path));
-    if (configured.models.some((m) => m.transport !== "fake") && options.budgetUsd === undefined)
-      throw new Error("Live runs require --budget-usd");
     const { experiment, questions, manifest } = await prepare(path, options.offline, options);
     const result = await withSignals((signal) =>
       createRun({
         experiment,
         questions,
         manifest,
-        budgetUsd: options.budgetUsd ?? 0,
+        budgetUsd: options.budgetUsd ?? null,
         signal,
         onProgress: progress,
         ...(options.concurrency === undefined ? {} : { concurrency: options.concurrency }),
@@ -177,7 +174,7 @@ program
 program
   .command("resume <run-id>")
   .description("Continue using the original immutable configuration")
-  .requiredOption("--budget-usd <amount>", "Total run budget, including previous attempts", number)
+  .option("--budget-usd <amount>", "Total budget; omit to retain the previous setting", number)
   .option("--concurrency <count>", "Concurrent requests per transport", concurrencyValue)
   .option("--max-jobs <count>", "Pause after this many additional jobs", positiveInteger)
   .option(
@@ -197,7 +194,7 @@ program
     output(
       await withSignals((signal) =>
         resumeRun(runPath(id), {
-          budgetUsd: options.budgetUsd,
+          ...(options.budgetUsd === undefined ? {} : { budgetUsd: options.budgetUsd }),
           signal,
           onProgress: progress,
           ...(options.retryUncertain ? { retryUncertain: true } : {}),

@@ -52,7 +52,7 @@ fresh complete comparison; a pilot never silently changes the author baseline.
 At creation, the runner writes `resolved.json`, `identity.json`, `dataset.jsonl`
 and `state.sqlite` under `.llang-gap/runs/<run-id>/`. The resolved snapshot records
 the full experiment, dataset and protocol hashes, code fingerprint, Git revision,
-Node and SDK versions, transport endpoints and initial budget. Resume reads this
+Node and SDK versions, transport endpoints and initial optional budget. Resume reads this
 snapshot, never the current YAML. Modified inputs, job payloads, runtime source or
 runtime dependency closure prevent resume. Changes to website-only dependencies do not block the runner. Keep the original checkout and lockfile available.
 
@@ -75,8 +75,10 @@ model: openai/gpt-5-nano
 model ID passed unchanged to that API. Supported transports are `openai`
 (Responses), `anthropic` (Messages), `openrouter` (Chat Completions through the
 OpenAI SDK), and `fake` (local, no network). Native transports use native IDs such
-as `gpt-6-astra`; OpenRouter requires `organization/model`. Efforts, token limits
-and dated pricing remain explicit experiment settings.
+as `gpt-6-astra`; OpenRouter requires `organization/model`. Efforts and token limits remain explicit experiment settings. Dated pricing is optional.
+Supported effort labels are `low`, `medium`, `high`, `xhigh`, and `max`; they are
+forwarded unchanged. Model IDs are not checked against a capability catalog. The
+provider decides whether it accepts the requested model and effort.
 
 One adapter is shared by all models on a transport, with concurrency per transport.
 The transport/model pair identifies jobs, results, aggregates and calibration
@@ -110,17 +112,16 @@ OpenRouter selects the serving endpoint for the requested model. There is no
 upstream setting in the experiment. The adapter disables gateway fallbacks and
 requires parameter support, following [provider routing](https://openrouter.ai/docs/guides/routing/provider-selection).
 This does not pin an endpoint across requests. Raw private responses retain the
-returned gateway provider, model and usage metadata. Model variants (`:online`,
-`:free`), auto-model routing and presets are not accepted.
+returned gateway provider, model and usage metadata. The `:free` model variant is accepted and preserved in all identities. Other variants
+(such as `:online`), auto-model routing and presets are not accepted.
 
 Reasoning uses `reasoning.effort`; prompt compression is disabled. Stops are applied
 locally by the protocol scorer, with no server stop or sampling override. Reasoning
 fields never enter answer extraction. See [protocol differences](protocols/mmluprox.md#openrouter-transport).
-Verify effort support and token limits in the [model catalog](https://openrouter.ai/api/v1/models)
-before a paid run. `require_parameters` does not establish support for every effort
+`require_parameters` does not establish support for every effort
 value or equal compute across models. CI uses intercepted HTTP responses only.
 
-Use dated rates covering the model's eligible endpoints. The pilot uses the highest rates listed
+When estimating costs, use dated rates covering the model's eligible endpoints. The pilot uses the highest rates listed
 by the [model endpoints API](https://openrouter.ai/api/v1/models/openai/gpt-5-nano/endpoints)
 on 2026-09-07, including Azure Sweden Central: $0.055/M input, $0.011/M cache reads
 and $0.44/M output. Both cache-write rates reserve $0.055/M. Costs are token-based estimates at those rates,
@@ -174,13 +175,25 @@ input/cache usage. This is a sensitivity scenario, not an upper bound or confide
 interval. Both estimates assume representative input and cache usage; different
 question lengths, subjects and reasoning difficulty can change spending. A two-question
 technical pilot supports only a provisional forecast, not a precise full-run budget.
-The runtime safety reservations and explicit `--budget-usd` remain unchanged.
+Forecasting is opt-in and requires target prices. It never gates an unbudgeted run.
 
 ## Budget and retries
 
-Every live run requires `--budget-usd`. On resume this is the **total** budget,
-including earlier attempts, not an additional allowance. Before each request the
-single process synchronously reserves a conservative cost bound. It uses prompt
+Cost estimation and `--budget-usd` are optional. `run` does not require a preceding
+`plan`, rates, or a budget; `resume` without a budget retains the last recorded
+budget setting (including no budget). An explicit resume budget is the **total**
+budget, including earlier attempts, not an additional allowance.
+
+Omit a model's `pricing` block when prices are unknown. Its reservations, completion
+costs and execution total remain `null`; token usage and responses are still saved.
+Explicit zero rates are valid, including for OpenRouter `:free` models, and produce
+zero token-based cost when usage is known. Missing usage is still unknown. No rate
+is inferred from a model suffix. New SQLite journals use schema v2 with nullable
+amounts; existing journals and immutable snapshots are not rewritten.
+
+With an explicit budget, every model needs prices and prior charged/reserved totals
+must be known. Before each request the single process synchronously reserves a
+conservative cost bound. It uses prompt
 UTF-8 bytes plus API framing, the most expensive applicable input/cache rate, and
 the maximum output tokens. Inputs exceeding the supported short-context pricing
 bound are rejected.
@@ -188,7 +201,7 @@ bound are rejected.
 The reservation is replaced by usage-based cost when known. Reasoning tokens are
 already included in output tokens and are not billed twice. Cache reads, writes
 and one-hour writes are accounted separately. Missing usage remains `null` in the
-public result; its reservation remains charged in the ledger. Unexpected usage
+public result; its reservation remains charged in the ledger when rates exist. With an explicit budget, unexpected usage
 above the bound stops dispatch. This protects against ordinary concurrent spend;
 it cannot enforce an external account-wide billing cap or predict price changes.
 

@@ -54,9 +54,7 @@ describe("provider accounting", () => {
     const known = new ProviderError("incomplete", true, true, "request-1");
     expect(normalizeError(known)).toBe(known);
   });
-  it("fails fast for unregistered model capabilities", () => {
-    expect(() => validateModel({ ...experiment.models[0]!, model: "imaginary-model" })).toThrow(
-      "not registered",
-    );
+  it("passes model IDs through without a capability catalog", () => {
+    expect(() => validateModel({ ...experiment.models[0]!, model: "new-model" })).not.toThrow();
   });
 });

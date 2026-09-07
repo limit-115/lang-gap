@@ -19,7 +19,7 @@ export const snapshotSchema = z.strictObject({
     clean: z.boolean(),
   }),
   node: z.string(),
-  initialBudgetUsd: z.number().nonnegative(),
+  initialBudgetUsd: z.number().nonnegative().nullable(),
   transportMetadata: z.array(
     z.strictObject({ transport: z.string(), sdkVersion: z.string(), endpoint: z.string() }),
   ),

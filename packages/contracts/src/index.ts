@@ -32,7 +32,7 @@ export const promptLabelsSchema = z.strictObject({
   options: z.string().min(1),
 });
 export type PromptLabels = z.infer<typeof promptLabelsSchema>;
-export const effortSchema = z.enum(["low", "medium", "high"]);
+export const effortSchema = z.enum(["low", "medium", "high", "xhigh", "max"]);
 export const transportSchema = z.enum(["openai", "anthropic", "openrouter", "fake"]);
 export const safeIdSchema = z.string().regex(/^[a-z0-9][a-z0-9._-]{0,99}$/);
 export const hashSchema = z.string().regex(/^[a-f0-9]{64}$/);
@@ -80,7 +80,7 @@ const modelSettings = {
     .min(1)
     .refine((v) => new Set(v).size === v.length, "Duplicate effort"),
   maxOutputTokens: z.number().int().min(256).max(128_000),
-  pricing: pricingSchema,
+  pricing: pricingSchema.optional(),
 };
 export const modelSchema = z.discriminatedUnion("transport", [
   z.strictObject({
@@ -93,7 +93,7 @@ export const modelSchema = z.discriminatedUnion("transport", [
     transport: z.literal("openrouter"),
     model: z
       .string()
-      .regex(/^(?!openrouter\/)[a-z0-9][a-z0-9._-]{0,99}\/[a-z0-9][a-z0-9._-]{0,99}$/),
+      .regex(/^(?!openrouter\/)[a-z0-9][a-z0-9._-]{0,99}\/[a-z0-9][a-z0-9._-]{0,99}(?::free)?$/),
   }),
 ]);
 export type ModelConfig = z.infer<typeof modelSchema>;

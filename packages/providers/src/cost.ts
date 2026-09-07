@@ -1,6 +1,7 @@
 import type { GenerationRequest, ModelConfig, Usage } from "@llang-gap/contracts";
 
-export function calculateCost(usage: Usage, pricing: ModelConfig["pricing"]): number {
+export function calculateCost(usage: Usage, pricing: ModelConfig["pricing"]): number | null {
+  if (!pricing) return null;
   const uncached =
     usage.inputTokens - usage.cachedInputTokens - usage.cacheWriteTokens - usage.cacheWrite1hTokens;
   return (
@@ -13,7 +14,11 @@ export function calculateCost(usage: Usage, pricing: ModelConfig["pricing"]): nu
   );
 }
 
-export function reserveCost(request: GenerationRequest, pricing: ModelConfig["pricing"]): number {
+export function reserveCost(
+  request: GenerationRequest,
+  pricing: ModelConfig["pricing"],
+): number | null {
+  if (!pricing) return null;
   // UTF-8 bytes bound text tokens conservatively; reserve additional API framing.
   // Restrict to short context pricing. Dataset prompts are far below this limit.
   const inputBound = Buffer.byteLength(request.prompt, "utf8") + 4096;

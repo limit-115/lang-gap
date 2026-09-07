@@ -207,6 +207,64 @@ describe("durable execution", () => {
     expect(state.summary()).toMatchObject({ uncertain: 0, pending: 2, chargedOrReservedUsd: 1 });
   });
 
+  it("runs and resumes without rates or budget while preserving unknown charges", async () => {
+    const config = {
+      ...experiment,
+      models: experiment.models.map(({ pricing: _pricing, ...model }) => model),
+    };
+    const jobs = createJobs(config, questions, "unpriced").slice(0, 3);
+    state.initialize(jobs);
+    const fake = createFakeAdapter();
+    let calls = 0;
+    const generate = vi.fn(async (request: Parameters<TransportAdapter["generate"]>[0]) => {
+      if (++calls === 1) throw new ProviderError("timeout", true, true);
+      return fake.generate(request);
+    });
+    const options = {
+      state,
+      jobs,
+      adapters: new Map([["fake", { ...fake, generate }]]),
+      concurrency: 1,
+      maxAttempts: 3,
+      sleep: async () => {},
+    };
+    const first = await execute({ ...options, maxJobs: 1 });
+    expect(first).toMatchObject({ completed: 1, attempts: 2, chargedOrReservedUsd: null });
+    await expect(execute({ ...options, budgetUsd: 100 })).rejects.toThrow("requires prices");
+    const resumed = await execute(options);
+    expect(resumed).toMatchObject({ completed: 3, attempts: 4, chargedOrReservedUsd: null });
+    expect(generate).toHaveBeenCalledTimes(4);
+    expect(state.results().every((item) => item.costUsd === null && item.usage !== null)).toBe(
+      true,
+    );
+    expect(state.audit().every((row) => row.reserve_usd === null && row.charged_usd === null)).toBe(
+      true,
+    );
+  });
+
+  it("does not impose a reservation stop without a budget", async () => {
+    const jobs = createJobs(experiment, questions, "unbounded")
+      .slice(0, 1)
+      .map((job) => ({
+        ...job,
+        reservationUsd: 0,
+        model: {
+          ...job.model,
+          pricing: { ...experiment.models[0]!.pricing!, outputPerMillion: 100 },
+        },
+      }));
+    state.initialize(jobs);
+    const result = await execute({
+      state,
+      jobs,
+      adapters: new Map([["fake", createFakeAdapter()]]),
+      concurrency: 1,
+      maxAttempts: 1,
+    });
+    expect(result.completed).toBe(1);
+    expect(result.chargedOrReservedUsd).toBeGreaterThan(0);
+  });
+
   it("enforces exclusive run ownership", async () => {
     const unlock = await acquireLock(directory);
     try {

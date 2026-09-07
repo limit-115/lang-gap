@@ -124,7 +124,7 @@ describe("SDK adapters with intercepted HTTP transport", () => {
     });
   });
 
-  it.each(["low", "medium", "high"] as const)(
+  it.each(["low", "medium", "high", "xhigh", "max"] as const)(
     "sends OpenAI native effort %s without hidden sampling, tools or retries",
     async (effort) => {
       const fetcher = vi
@@ -161,7 +161,7 @@ describe("SDK adapters with intercepted HTTP transport", () => {
     },
   );
 
-  it.each(["low", "medium", "high"] as const)(
+  it.each(["low", "medium", "high", "xhigh", "max"] as const)(
     "sends Anthropic adaptive thinking and native effort %s",
     async (effort) => {
       const fetcher = vi.fn<typeof fetch>().mockResolvedValue(

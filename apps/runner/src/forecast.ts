@@ -13,6 +13,8 @@ export function forecastCost(
 ) {
   if (source.protocol !== experiment.protocol || source.dataset !== experiment.dataset)
     throw new Error("Calibration requires the same protocol and dataset");
+  if (experiment.models.some((model) => !model.pricing))
+    throw new Error("Cost forecasting requires target prices for every model");
   const conditions = experiment.models.flatMap((model) =>
     model.efforts.flatMap((effort) =>
       experiment.languages.map((language) => {
@@ -43,7 +45,7 @@ export function forecastCost(
             j.request.language === language,
         );
         const averageCost =
-          samples.reduce((sum, r) => sum + calculateCost(r.usage!, model.pricing), 0) /
+          samples.reduce((sum, r) => sum + calculateCost(r.usage!, model.pricing)!, 0) /
           samples.length;
         const capCost =
           samples.reduce(
@@ -52,7 +54,7 @@ export function forecastCost(
               calculateCost(
                 { ...r.usage!, outputTokens: model.maxOutputTokens, reasoningTokens: null },
                 model.pricing,
-              ),
+              )!,
             0,
           ) / samples.length;
         return {

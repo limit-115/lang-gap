@@ -9,7 +9,7 @@ export interface ExecuteOptions {
   state: RunState;
   jobs: readonly Job[];
   adapters: ReadonlyMap<string, TransportAdapter>;
-  budgetUsd: number;
+  budgetUsd?: number | null;
   concurrency: number;
   maxAttempts: number;
   signal?: AbortSignal;
@@ -18,19 +18,31 @@ export interface ExecuteOptions {
   sleep?: (milliseconds: number) => Promise<void>;
 }
 
+export function validateBudget(
+  budgetUsd: number | null,
+  jobs: readonly Job[],
+  priorCost: number | null = 0,
+) {
+  if (budgetUsd !== null) {
+    if (!Number.isFinite(budgetUsd) || budgetUsd < 0)
+      throw new Error("Budget must be a finite nonnegative USD amount");
+    if (jobs.some((job) => job.reservationUsd === null) || priorCost === null)
+      throw new Error("A USD budget requires prices for every model and known prior charges");
+    if (budgetUsd < priorCost) throw new Error("Budget is below already charged or reserved costs");
+  }
+}
+
 export async function execute(options: ExecuteOptions) {
-  const { state, jobs, adapters, budgetUsd, concurrency, maxAttempts, signal } = options;
-  if (!Number.isFinite(budgetUsd) || budgetUsd < 0)
-    throw new Error("Budget must be a finite nonnegative USD amount");
-  if (budgetUsd < state.charged())
-    throw new Error("Budget is below already charged or reserved costs");
+  const { state, jobs, adapters, concurrency, maxAttempts, signal } = options;
+  const budgetUsd = options.budgetUsd ?? null;
+  validateBudget(budgetUsd, jobs, state.charged());
   const wait = options.sleep ?? ((ms) => delay(ms));
   const pending = state.pendingIds();
   const queue = jobs.filter((job) => pending.has(job.id));
   let started = 0;
   let stopped = false;
   let budgetExhausted = false;
-  let charged = state.charged();
+  let charged = state.charged() ?? 0;
   const errors: unknown[] = [];
   const canStart = () => !stopped && !signal?.aborted && started < (options.maxJobs ?? Infinity);
 
@@ -39,14 +51,14 @@ export async function execute(options: ExecuteOptions) {
       const prior = state.attemptsFor(job.id);
       if (prior >= maxAttempts) return;
       // No await between budget check and durable reservation; all workers share this process.
-      if (charged + job.reservationUsd > budgetUsd + 1e-10) {
+      if (budgetUsd !== null && charged + job.reservationUsd! > budgetUsd + 1e-10) {
         stopped = true;
         budgetExhausted = true;
         state.event("budget-stop", { budgetUsd, requiredReservation: job.reservationUsd });
         return;
       }
       const attempt = state.begin(job);
-      charged += job.reservationUsd;
+      charged += job.reservationUsd ?? 0;
       const start = performance.now();
       let response;
       try {
@@ -55,7 +67,7 @@ export async function execute(options: ExecuteOptions) {
         const error = normalizeError(cause);
         const retry = error.retryable && prior + 1 < maxAttempts;
         state.fail(job, attempt, error, retry);
-        if (!error.uncertain) charged -= job.reservationUsd;
+        if (!error.uncertain) charged -= job.reservationUsd ?? 0;
         if (!error.retryable) stopped = true;
         if (!retry || signal?.aborted) return;
         await wait(Math.max(error.retryAfterMs, Math.min(30_000, 1000 * 2 ** prior)));
@@ -89,8 +101,8 @@ export async function execute(options: ExecuteOptions) {
         requestId: response.requestId,
       };
       state.complete(job, attempt, response, result);
-      charged += (result.costUsd ?? job.reservationUsd) - job.reservationUsd;
-      if ((result.costUsd ?? 0) > job.reservationUsd + 1e-10) {
+      charged += (result.costUsd ?? job.reservationUsd ?? 0) - (job.reservationUsd ?? 0);
+      if (budgetUsd !== null && (result.costUsd ?? 0) > job.reservationUsd! + 1e-10) {
         state.event("reservation-exceeded", {
           jobId: job.id,
           actualUsd: result.costUsd,
