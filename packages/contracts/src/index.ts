@@ -42,30 +42,28 @@ export const pricingSchema = z.strictObject({
   cacheWrite1hPerMillion: z.number().nonnegative(),
   outputPerMillion: z.number().nonnegative(),
 });
-export const modelSchema = z
-  .strictObject({
-    transport: transportSchema,
-    model: z.string().regex(/^[a-z0-9][a-z0-9._-]{0,99}(\/[a-z0-9][a-z0-9._-]{0,99})?$/),
-    efforts: z
-      .array(effortSchema)
-      .min(1)
-      .refine((v) => new Set(v).size === v.length, "Duplicate effort"),
-    maxOutputTokens: z.number().int().min(256).max(128_000),
-    pricing: pricingSchema,
-  })
-  .superRefine((model, ctx) => {
-    if (model.transport === "openrouter") {
-      if (!model.model.includes("/") || model.model.startsWith("openrouter/"))
-        ctx.addIssue({
-          code: "custom",
-          path: ["model"],
-          message: "OpenRouter requires an explicit organization/model ID",
-        });
-    } else {
-      if (!safeIdSchema.safeParse(model.model).success)
-        ctx.addIssue({ code: "custom", path: ["model"], message: "Invalid native model ID" });
-    }
-  });
+const modelSettings = {
+  efforts: z
+    .array(effortSchema)
+    .min(1)
+    .refine((v) => new Set(v).size === v.length, "Duplicate effort"),
+  maxOutputTokens: z.number().int().min(256).max(128_000),
+  pricing: pricingSchema,
+};
+export const modelSchema = z.discriminatedUnion("transport", [
+  z.strictObject({
+    ...modelSettings,
+    transport: transportSchema.exclude(["openrouter"]),
+    model: safeIdSchema,
+  }),
+  z.strictObject({
+    ...modelSettings,
+    transport: z.literal("openrouter"),
+    model: z
+      .string()
+      .regex(/^(?!openrouter\/)[a-z0-9][a-z0-9._-]{0,99}\/[a-z0-9][a-z0-9._-]{0,99}$/),
+  }),
+]);
 export type ModelConfig = z.infer<typeof modelSchema>;
 export type ModelReference = Pick<ModelConfig, "transport" | "model">;
 

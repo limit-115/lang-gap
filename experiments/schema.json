@@ -51,91 +51,176 @@
       "minItems": 1,
       "type": "array",
       "items": {
-        "type": "object",
-        "properties": {
-          "transport": {
-            "type": "string",
-            "enum": [
-              "openai",
-              "anthropic",
-              "openrouter",
-              "fake"
-            ]
-          },
-          "model": {
-            "type": "string",
-            "pattern": "^[a-z0-9][a-z0-9._-]{0,99}(\\/[a-z0-9][a-z0-9._-]{0,99})?$"
-          },
-          "efforts": {
-            "minItems": 1,
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "low",
-                "medium",
-                "high"
-              ]
-            }
-          },
-          "maxOutputTokens": {
-            "type": "integer",
-            "minimum": 256,
-            "maximum": 128000
-          },
-          "pricing": {
+        "oneOf": [
+          {
             "type": "object",
             "properties": {
-              "asOf": {
+              "efforts": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high"
+                  ]
+                }
+              },
+              "maxOutputTokens": {
+                "type": "integer",
+                "minimum": 256,
+                "maximum": 128000
+              },
+              "pricing": {
+                "type": "object",
+                "properties": {
+                  "asOf": {
+                    "type": "string",
+                    "format": "date",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                  },
+                  "source": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "inputPerMillion": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "cachedInputPerMillion": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "cacheWritePerMillion": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "cacheWrite1hPerMillion": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "outputPerMillion": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "asOf",
+                  "source",
+                  "inputPerMillion",
+                  "cachedInputPerMillion",
+                  "cacheWritePerMillion",
+                  "cacheWrite1hPerMillion",
+                  "outputPerMillion"
+                ],
+                "additionalProperties": false
+              },
+              "transport": {
                 "type": "string",
-                "format": "date",
-                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                "enum": [
+                  "openai",
+                  "anthropic",
+                  "fake"
+                ]
               },
-              "source": {
+              "model": {
                 "type": "string",
-                "format": "uri"
-              },
-              "inputPerMillion": {
-                "type": "number",
-                "minimum": 0
-              },
-              "cachedInputPerMillion": {
-                "type": "number",
-                "minimum": 0
-              },
-              "cacheWritePerMillion": {
-                "type": "number",
-                "minimum": 0
-              },
-              "cacheWrite1hPerMillion": {
-                "type": "number",
-                "minimum": 0
-              },
-              "outputPerMillion": {
-                "type": "number",
-                "minimum": 0
+                "pattern": "^[a-z0-9][a-z0-9._-]{0,99}$"
               }
             },
             "required": [
-              "asOf",
-              "source",
-              "inputPerMillion",
-              "cachedInputPerMillion",
-              "cacheWritePerMillion",
-              "cacheWrite1hPerMillion",
-              "outputPerMillion"
+              "efforts",
+              "maxOutputTokens",
+              "pricing",
+              "transport",
+              "model"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "efforts": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high"
+                  ]
+                }
+              },
+              "maxOutputTokens": {
+                "type": "integer",
+                "minimum": 256,
+                "maximum": 128000
+              },
+              "pricing": {
+                "type": "object",
+                "properties": {
+                  "asOf": {
+                    "type": "string",
+                    "format": "date",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                  },
+                  "source": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "inputPerMillion": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "cachedInputPerMillion": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "cacheWritePerMillion": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "cacheWrite1hPerMillion": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "outputPerMillion": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "asOf",
+                  "source",
+                  "inputPerMillion",
+                  "cachedInputPerMillion",
+                  "cacheWritePerMillion",
+                  "cacheWrite1hPerMillion",
+                  "outputPerMillion"
+                ],
+                "additionalProperties": false
+              },
+              "transport": {
+                "type": "string",
+                "const": "openrouter"
+              },
+              "model": {
+                "type": "string",
+                "pattern": "^(?!openrouter\\/)[a-z0-9][a-z0-9._-]{0,99}\\/[a-z0-9][a-z0-9._-]{0,99}$"
+              }
+            },
+            "required": [
+              "efforts",
+              "maxOutputTokens",
+              "pricing",
+              "transport",
+              "model"
             ],
             "additionalProperties": false
           }
-        },
-        "required": [
-          "transport",
-          "model",
-          "efforts",
-          "maxOutputTokens",
-          "pricing"
-        ],
-        "additionalProperties": false
+        ]
       }
     },
     "execution": {

@@ -96,8 +96,10 @@ Verify effort support and token limits in the [model catalog](https://openrouter
 before a paid run. `require_parameters` does not establish support for every effort
 value or equal compute across models. CI uses intercepted HTTP responses only.
 
-Use dated rates covering the model's eligible endpoints. The pilot rates were read
-from the public catalog on 2026-09-07. Costs are token-based estimates at those rates,
+Use dated rates covering the model's eligible endpoints. The pilot uses the highest rates listed
+by the [model endpoints API](https://openrouter.ai/api/v1/models/openai/gpt-5-nano/endpoints)
+on 2026-09-07, including Azure Sweden Central: $0.055/M input, $0.011/M cache reads
+and $0.44/M output. Both cache-write rates reserve $0.055/M. Costs are token-based estimates at those rates,
 not gateway invoices; endpoint selection and pricing changes can affect actual
 spending. Missing/invalid usage keeps the reservation charged. Reasoning is counted
 within output once. Cache writes have no TTL split: configure both write rates to
