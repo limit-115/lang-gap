@@ -9,8 +9,8 @@
 
 Llang Gap is an open multilingual benchmark across datasets and prompt languages.
 Choose a dataset and one or more languages at launch. Evaluate each language
-independently, or explicitly compare aligned questions with a paired uncertainty
-interval. Inspect prompts and responses or independently recompute a release.
+independently, then compare compatible saved models and languages on aligned
+questions with a paired uncertainty interval. Inspect prompts and responses or independently recompute a release.
 There is no built-in benchmark language pair; website locales are separate.
 
 Use the results to identify models for further testing on your own tasks. Each
@@ -46,8 +46,9 @@ pnpm bench run --dataset mmlu-prox-lite --languages ru,en \
 pnpm bench resume <run-id>
 # Copy runId from the JSON output into the commands below.
 pnpm bench status <run-id>
-pnpm bench score <run-id>
-pnpm bench release build <run-id> --id smoke-author-v3 --test
+pnpm bench score <run-id> --compare ru:en
+pnpm bench compare <run-id> --models fake-one,fake-two --efforts max --languages ru,en
+pnpm bench release build <run-id> --id smoke-author-v3 --test --compare ru:en
 pnpm bench release verify .llang-gap/releases/smoke-author-v3
 ```
 

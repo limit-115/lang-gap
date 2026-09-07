@@ -70,8 +70,9 @@ answer parsing, scoring, or statistics. Explain the effect on comparability and
 update the protocol documentation and versioned inputs when the methodology changes.
 Preserve pinned revisions, hashes, and upstream attribution. Keep target answers
 out of model prompts. Preserve every selected language condition. Compute paired statistics
-only for explicitly configured comparisons with validated question alignment; never
-assume a fixed language pair or pool scores across datasets.
+only for explicitly selected analysis conditions with validated question alignment;
+comparisons may be selected after execution. Never assume a fixed language pair or
+pool scores across datasets.
 
 Use the fake provider for routine development. `--offline` only disables dataset
 downloads; it does not disable live provider APIs. Paid evaluations require an

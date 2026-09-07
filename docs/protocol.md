@@ -44,32 +44,59 @@ Its currently vendored language coverage belongs to that adapter. Extending that
 coverage requires pinned and reviewed localized source inputs plus a new protocol
 version; accepting an arbitrary language tag never implies those sources exist.
 
-## Accuracy and explicit comparisons
+## Accuracy and post-run comparisons
 
 Each selected language has its own test-question count, accuracy and per-repeat
 accuracies. Questions have equal weight; repeat correctness is averaged without
 majority voting or best-of selection. Independent languages may have different
 question sets. A single-language experiment produces scores and no gap.
 
-`comparisons` explicitly lists `{ baseline, language }` conditions within the same
-dataset. Each pair must have identical test IDs, categories, gold labels and option
-counts. Missing questions fail validation; no intersection, exclusion or silent
-pairing is allowed. Datasets are never pooled into an aggregate or language gap.
+Comparisons can be selected after execution. `score --compare baseline:language`
+and `release build --compare baseline:language` select language pairs within the
+saved run. YAML `comparisons` remains an optional preset, defaulting to `[]`.
+Analysis settings are separate from the immutable run snapshot; changing a
+post-run comparison does not require executing model requests again.
+
+`compare <run-id...>` compares model/effort/language conditions within or across
+completed runs. Filters select saved models, efforts, transports and languages.
+It enumerates each unordered pair once and records its explicit baseline and
+candidate, retaining every condition's scores. Compatible pairs require the same
+dataset ID and full pinned manifest, protocol hash, token cap, repeat count and
+aligned selected test IDs, categories, gold labels and option counts. Same-language
+comparisons also require identical prompt bytes. When snapshot hashes differ,
+all saved rows for every language present in both runs must match, including
+question and option text outside the selected analysis pair. Synthetic and live conditions
+are separate. Different efforts may be compared; their labels do not imply equal
+compute. Different dataset snapshots caused solely by selecting different
+languages can be compatible when these checks pass.
+Disjoint language selections rely on the pinned manifest and recorded implementation
+identity; their translated text cannot be checked against one another.
+
+No intersection, dropped questions or pooling across datasets is allowed. The
+comparison report lists incompatible pairs and reasons instead of inventing a gap.
+A requested filter that matches no condition fails. Incomplete runs must be resumed
+before analysis. Completed truncated responses can be scored and analyzed with
+their recorded parser; truncation continues to block release publication.
 
 `gapPp = 100 × (accuracy_baseline − accuracy_language)`
 
-For each comparison and model/effort, 10,000 deterministic paired bootstrap
-samples resample unique question IDs, retaining both languages and all repeats
-in each cluster. The 2.5th/97.5th percentiles use linear interpolation. Repeats
+For each comparison, 10,000 deterministic paired bootstrap samples resample unique
+question IDs, retaining both conditions and all repeats in each cluster. The 2.5th/97.5th percentiles use linear interpolation. Repeats
 are not independent questions. Positive gaps favour the explicitly named baseline;
 an interval containing zero does not establish the direction of the difference.
-Input result ordering cannot change the estimate. Report both language scores,
-question counts, repeats and explicit subtraction order with every gap.
+Input result ordering cannot change the estimate. General comparison reports use
+`gapPp = 100 × (accuracy_baseline − accuracy_candidate)` and name both conditions
+by run, transport, model, effort and language. Report both scores, question counts,
+repeats and explicit subtraction order with every gap. These are exploratory,
+unadjusted pairwise intervals; selecting many comparisons after seeing results is
+not a preregistered confirmatory test or a multiple-comparison correction.
 
 ## Identity, execution and publication
 
-Changing dataset, languages, comparisons, protocol, localized inputs or scientific
-settings creates a new run identity. Schema-v3 snapshots contain the complete
+Changing execution inputs (dataset, languages, protocol, localized prompts, model
+conditions, repeats or question selection) creates a new run identity. Optional
+legacy comparisons in YAML remain part of that snapshot, while post-run analysis
+choices are saved separately. Schema-v3 snapshots contain the complete
 resolved experiment, selected dataset snapshot, original manifest, protocol object
 and implementation fingerprint. Resume uses that snapshot, never edited YAML or
 new selection flags. Completion, cost accounting, retry and release gates apply
@@ -77,8 +104,7 @@ to every selected condition. See [runner](runner.md) and [releases](releases.md)
 
 Historical schema-v1/v2 runs and releases remain immutable and require their
 recorded checkout and dependencies. New aggregate shapes must not be written over
-them. For a fresh run, update the experiment schema and explicitly choose its
-comparisons. The old protocol IDs keep their scientific meaning.
+them. For a fresh run, update the experiment schema and choose its scientific inputs. The old protocol IDs keep their scientific meaning.
 
 ## Scope and uncertainty
 

@@ -13,4 +13,4 @@ export {
   toPromptQuestion,
 } from "./prompts";
 export { parseAnswer, scoreAnswer, textBeforeStop } from "./scoring";
-export { aggregateResults, seededRandom, shuffled } from "./statistics";
+export { aggregateResults, pairedDifference, seededRandom, shuffled } from "./statistics";

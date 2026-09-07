@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { parseDocument } from "yaml";
 import { z } from "zod";
-import { experimentSchema, type Experiment } from "@llang-gap/contracts";
+import { comparisonsSchema, experimentSchema, type Experiment } from "@llang-gap/contracts";
 import { validateModel } from "@llang-gap/providers";
 import { getMaxOutputTokens } from "@llang-gap/evaluation";
 
@@ -41,11 +41,13 @@ export function splitList(values: readonly string[]): string[] {
   return result;
 }
 export function parseComparisons(values: readonly string[]) {
-  return splitList(values).map((value) => {
-    const parts = value.split(":");
-    if (parts.length !== 2) throw new Error("Comparison must be baseline:language");
-    return { baseline: parts[0], language: parts[1] };
-  });
+  return comparisonsSchema.parse(
+    splitList(values).map((value) => {
+      const parts = value.split(":");
+      if (parts.length !== 2) throw new Error("Comparison must be baseline:language");
+      return { baseline: parts[0], language: parts[1] };
+    }),
+  );
 }
 
 export interface ExperimentSelection {
