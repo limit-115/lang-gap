@@ -58,7 +58,7 @@ export async function createRun(
     options.adapters ??
     new Map(
       experiment.models.map((model) => [
-        model.provider,
+        `${model.provider}/${model.model}`,
         createAdapter(model, experiment.execution.timeoutMs),
       ]),
     );
@@ -142,7 +142,7 @@ export async function resumeRun(
       options.adapters ??
       new Map(
         snapshot.experiment.models.map((model) => [
-          model.provider,
+          `${model.provider}/${model.model}`,
           createAdapter(model, snapshot.experiment.execution.timeoutMs),
         ]),
       );

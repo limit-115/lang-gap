@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const languageSchema = z.enum(["en", "ru"]);
 export const effortSchema = z.enum(["low", "medium", "high"]);
-export const providerSchema = z.enum(["openai", "anthropic", "fake"]);
+export const providerSchema = z.enum(["openai", "anthropic", "openrouter", "fake"]);
 export const safeIdSchema = z.string().regex(/^[a-z0-9][a-z0-9._-]{0,99}$/);
 export const hashSchema = z.string().regex(/^[a-f0-9]{64}$/);
 export const protocolIdSchema = z.enum([
@@ -42,16 +42,46 @@ export const pricingSchema = z.strictObject({
   cacheWrite1hPerMillion: z.number().nonnegative(),
   outputPerMillion: z.number().nonnegative(),
 });
-export const modelSchema = z.strictObject({
-  provider: providerSchema,
-  model: safeIdSchema,
-  efforts: z
-    .array(effortSchema)
-    .min(1)
-    .refine((v) => new Set(v).size === v.length, "Duplicate effort"),
-  maxOutputTokens: z.number().int().min(256).max(128_000),
-  pricing: pricingSchema,
-});
+export const modelSchema = z
+  .strictObject({
+    provider: providerSchema,
+    model: z.string().regex(/^[a-z0-9][a-z0-9._-]{0,99}(\/[a-z0-9][a-z0-9._-]{0,99})?$/),
+    openrouterProvider: z
+      .string()
+      .regex(/^[a-zA-Z0-9][a-zA-Z0-9._/-]{0,99}$/)
+      .optional(),
+    efforts: z
+      .array(effortSchema)
+      .min(1)
+      .refine((v) => new Set(v).size === v.length, "Duplicate effort"),
+    maxOutputTokens: z.number().int().min(256).max(128_000),
+    pricing: pricingSchema,
+  })
+  .superRefine((model, ctx) => {
+    if (model.provider === "openrouter") {
+      if (!model.model.includes("/") || model.model.startsWith("openrouter/"))
+        ctx.addIssue({
+          code: "custom",
+          path: ["model"],
+          message: "OpenRouter requires an explicit organization/model ID",
+        });
+      if (!model.openrouterProvider)
+        ctx.addIssue({
+          code: "custom",
+          path: ["openrouterProvider"],
+          message: "Pin an OpenRouter upstream provider",
+        });
+    } else {
+      if (!safeIdSchema.safeParse(model.model).success)
+        ctx.addIssue({ code: "custom", path: ["model"], message: "Invalid native model ID" });
+      if (model.openrouterProvider !== undefined)
+        ctx.addIssue({
+          code: "custom",
+          path: ["openrouterProvider"],
+          message: "Only valid for OpenRouter",
+        });
+    }
+  });
 export type ModelConfig = z.infer<typeof modelSchema>;
 
 export const experimentSchema = z.strictObject({

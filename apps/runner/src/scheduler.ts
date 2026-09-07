@@ -106,7 +106,7 @@ export async function execute(options: ExecuteOptions) {
     }
   }
 
-  const workers = [...adapters.entries()].flatMap(([provider, adapter]) =>
+  const workers = [...new Set(jobs.map((job) => job.model.provider))].flatMap((provider) =>
     Array.from({ length: concurrency }, async () => {
       try {
         while (canStart()) {
@@ -114,6 +114,8 @@ export async function execute(options: ExecuteOptions) {
           if (index === -1) return;
           const [job] = queue.splice(index, 1);
           if (!job) return;
+          const adapter = adapters.get(`${provider}/${job.model.model}`) ?? adapters.get(provider);
+          if (!adapter) throw new Error(`Missing adapter: ${provider}/${job.model.model}`);
           started++;
           await runJob(job, adapter);
         }

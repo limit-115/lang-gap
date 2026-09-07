@@ -9,6 +9,7 @@ export const modelNames: Record<string, string> = {
 export const providerNames: Record<Aggregate["provider"], string> = {
   openai: "OpenAI",
   anthropic: "Anthropic",
+  openrouter: "OpenRouter",
   fake: "fake",
 };
 

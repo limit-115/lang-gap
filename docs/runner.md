@@ -36,6 +36,51 @@ v3. Keep the original checkout and dependencies for their verification/resume.
 The [current plan](first-comparison.md) uses unchanged data and every test question;
 no 100% parse-rate requirement or translation/key correction is a readiness gate.
 
+## OpenRouter
+
+`provider: openrouter` uses the existing runner through Chat Completions. Set
+`OPENROUTER_API_KEY`; the adapter never falls back to another provider's key.
+`experiments/openrouter-pilot.yaml` is a two-question, three-effort GPT-5 nano
+technical pilot (12 paired EN/RU requests), not a publishable comparison.
+
+```sh
+# Planning does not call model APIs or require credentials.
+pnpm bench plan experiments/openrouter-pilot.yaml
+# Explicitly load the ignored local .env using the pinned Node runtime.
+# Run only after agreeing the paid pilot budget.
+pnpm exec node --env-file=.env --import tsx apps/runner/src/cli.ts run experiments/openrouter-pilot.yaml --budget-usd 1
+# Resume also needs the environment and the recorded implementation.
+pnpm exec node --env-file=.env --import tsx apps/runner/src/cli.ts resume <run-id> --budget-usd 1
+```
+
+Each model requires an explicit `organization/model` ID and `openrouterProvider`
+with one upstream slug, such as `openai`. Model variants (`:online`, `:free`),
+auto routing and presets are not accepted. Different upstreams require separate
+experiments/runs. The model and upstream are hashed into the resolved snapshot;
+resume uses that snapshot and forecasts reject calibration from another upstream.
+Multiple models retain their own adapters while sharing OpenRouter concurrency.
+
+The request pins `provider.only`, disables fallbacks and requires parameter support
+as described in [provider routing](https://openrouter.ai/docs/guides/routing/provider-selection).
+Reasoning uses `reasoning.effort`; prompt compression is disabled. Stops are applied
+locally by the protocol scorer, with no server stop or sampling override. Reasoning
+fields never enter answer extraction. See [protocol differences](protocol.md#openrouter-transport).
+
+Unlike the small native-provider registry, OpenRouter accepts explicit model IDs.
+Before a new model run, verify that the pinned endpoint supports each selected effort
+and the token cap using the [model catalog](https://openrouter.ai/api/v1/models).
+`require_parameters` is a routing constraint, not proof of equal compute or support
+for every effort value. CI validates the transport with synthetic responses only.
+
+Record dated rates for the pinned endpoint in YAML; the pilot rates were read from
+the public catalog on 2026-09-07. Cost remains a token-based estimate at those rates,
+not OpenRouter's invoice. Raw private responses retain gateway usage/cost/provider
+metadata. Reasoning is included in output once; missing/invalid usage keeps the
+reservation charged. OpenRouter cache writes have no TTL split: configure both write
+rates to the highest applicable rate. Per-request fees, tools, multimodal billing,
+BYOK fees and changing/tiered prices are outside this text-only accounting model;
+choose an endpoint whose billing fits it. Existing budget and retry rules apply.
+
 ## Download and cache
 
 The Git manifest pins Hugging Face revision

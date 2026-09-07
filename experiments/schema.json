@@ -58,12 +58,17 @@
             "enum": [
               "openai",
               "anthropic",
+              "openrouter",
               "fake"
             ]
           },
           "model": {
             "type": "string",
-            "pattern": "^[a-z0-9][a-z0-9._-]{0,99}$"
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,99}(\\/[a-z0-9][a-z0-9._-]{0,99})?$"
+          },
+          "openrouterProvider": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._/-]{0,99}$"
           },
           "efforts": {
             "minItems": 1,

@@ -18,7 +18,10 @@ export function forecastCost(
       experiment.languages.map((language) => {
         const sourceModel = source.models.find(
           (m) =>
-            m.provider === model.provider && m.model === model.model && m.efforts.includes(effort),
+            m.provider === model.provider &&
+            m.model === model.model &&
+            m.openrouterProvider === model.openrouterProvider &&
+            m.efforts.includes(effort),
         );
         if (!sourceModel || sourceModel.maxOutputTokens !== model.maxOutputTokens)
           throw new Error(`Calibration model/effort/token cap mismatch: ${model.model}/${effort}`);

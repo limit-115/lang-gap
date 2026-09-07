@@ -1,4 +1,5 @@
-import type { ModelConfig, ProviderAdapter } from "@llang-gap/contracts";
+import { modelSchema, type ModelConfig, type ProviderAdapter } from "@llang-gap/contracts";
+import { createOpenRouterAdapter } from "./openrouter";
 import { createOpenAIAdapter } from "./openai";
 import { createAnthropicAdapter } from "./anthropic";
 import { createFakeAdapter } from "./fake";
@@ -13,7 +14,11 @@ const capabilities = {
   fake: ["fake-v1"],
 } as const;
 export function validateModel(model: ModelConfig): void {
-  if (!(capabilities[model.provider] as readonly string[]).includes(model.model))
+  modelSchema.parse(model);
+  if (
+    model.provider !== "openrouter" &&
+    !(capabilities[model.provider] as readonly string[]).includes(model.model)
+  )
     throw new Error(`Model capabilities are not registered: ${model.provider}/${model.model}`);
   if (
     model.provider !== "fake" &&
@@ -24,6 +29,12 @@ export function validateModel(model: ModelConfig): void {
 export function createAdapter(model: ModelConfig, timeoutMs: number): ProviderAdapter {
   validateModel(model);
   if (model.provider === "fake") return createFakeAdapter();
+  if (model.provider === "openrouter") {
+    const key = process.env.OPENROUTER_API_KEY;
+    if (!key) throw new Error("Missing OPENROUTER_API_KEY");
+    if (!model.openrouterProvider) throw new Error("Pin an OpenRouter upstream provider");
+    return createOpenRouterAdapter(key, timeoutMs, model.openrouterProvider);
+  }
   const env = model.provider === "openai" ? "OPENAI_API_KEY" : "ANTHROPIC_API_KEY";
   const key = process.env[env];
   if (!key) throw new Error(`Missing ${env}`);

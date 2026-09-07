@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=./schema.json
+# Technical pilot only: 12 requests. Verify endpoint rates before a paid run.
+schemaVersion: 1
+id: openrouter-nano-pilot-author-v3
+dataset: mmlu-prox-lite
+protocol: mmluprox-lite-5shot-author-api-v3
+languages: [en, ru]
+repeats: 1
+questionLimit: 2
+seed: 20260907
+models:
+  - provider: openrouter
+    model: openai/gpt-5-nano
+    openrouterProvider: openai
+    efforts: [low, medium, high]
+    maxOutputTokens: 2048
+    pricing:
+      asOf: 2026-09-07
+      source: https://openrouter.ai/api/v1/models
+      inputPerMillion: 0.05
+      cachedInputPerMillion: 0.005
+      # No explicit cache-write fee for this endpoint; reserve the input rate.
+      cacheWritePerMillion: 0.05
+      cacheWrite1hPerMillion: 0.05
+      outputPerMillion: 0.4
+execution:
+  concurrency: 2
+  maxAttempts: 3
+  timeoutMs: 600000

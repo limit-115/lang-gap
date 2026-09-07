@@ -31,3 +31,9 @@ describe("model shortcuts", () => {
     expect(getModelHref(option)).toBe("/models/openai/model%2Fsnapshot%3Fversion%3D2");
   });
 });
+
+it("keeps OpenRouter namespaced models searchable and links escaped", () => {
+  const option = getModelOptions([{ provider: "openrouter", model: "openai/gpt-5-nano" }])[0]!;
+  expect(matchesModel(option, "OpenRouter nano")).toBe(true);
+  expect(getModelHref(option)).toBe("/models/openrouter/openai%2Fgpt-5-nano");
+});

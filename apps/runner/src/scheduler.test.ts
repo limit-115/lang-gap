@@ -21,6 +21,43 @@ describe("durable execution", () => {
     await rm(directory, { recursive: true, force: true });
   });
 
+  it("selects each model adapter while sharing provider concurrency", async () => {
+    const models = ["openai/gpt-5-nano", "anthropic/test-model"].map((model) => ({
+      ...experiment.models[0]!,
+      provider: "openrouter" as const,
+      model,
+      openrouterProvider: model.split("/")[0]!,
+    }));
+    const jobs = createJobs({ ...experiment, models }, questions, "router");
+    state.initialize(jobs);
+    const fake = createFakeAdapter();
+    let active = 0;
+    let peak = 0;
+    const adapters = new Map(
+      models.map((model) => [
+        `openrouter/${model.model}`,
+        {
+          ...fake,
+          name: "openrouter" as const,
+          generate: vi.fn(async (request) => {
+            expect(request.model).toBe(model.model);
+            peak = Math.max(peak, ++active);
+            await new Promise((resolve) => setTimeout(resolve, 1));
+            active--;
+            return fake.generate(request);
+          }),
+        } satisfies ProviderAdapter,
+      ]),
+    );
+    const options = { state, jobs, adapters, budgetUsd: 0, concurrency: 2, maxAttempts: 1 };
+    await execute({ ...options, maxJobs: 3 });
+    const result = await execute(options);
+    expect(result.completed).toBe(jobs.length);
+    expect(peak).toBeLessThanOrEqual(2);
+    for (const adapter of adapters.values())
+      expect(adapter.generate).toHaveBeenCalledTimes(jobs.length / 2);
+  });
+
   it("retries only technical failures, recording each attempt", async () => {
     const jobs = createJobs(experiment, questions, "fixed").slice(0, 2);
     state.initialize(jobs);
