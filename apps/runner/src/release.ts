@@ -99,6 +99,7 @@ export async function recompute(
   });
   return {
     snapshot,
+    questions,
     configHash,
     jobs,
     analysis: { schemaVersion: 1 as const, comparisons },

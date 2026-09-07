@@ -38,6 +38,7 @@ async function readAnalysisRun(directory: string) {
 interface ConditionData {
   condition: AnalysisCondition;
   source: AnalysisReport["sources"][number];
+  datasetSignatures: ReadonlyMap<string, string>;
   questionSignature: string;
   promptSignature: string;
   scores: ReadonlyMap<string, number>;
@@ -45,6 +46,14 @@ interface ConditionData {
 function incompatible(a: ConditionData, b: ConditionData): string | null {
   if (a.source.dataset !== b.source.dataset || a.source.manifestHash !== b.source.manifestHash)
     return "Different dataset identity, revision or manifest inputs";
+  // Whole-snapshot hashes also change when the selected languages change. Check
+  // every shared language, including inputs outside the selected analysis pair.
+  if (a.source.datasetHash !== b.source.datasetHash)
+    for (const [language, signature] of a.datasetSignatures) {
+      const other = b.datasetSignatures.get(language);
+      if (other !== undefined && signature !== other)
+        return `Different saved dataset inputs: ${language}`;
+    }
   if (a.source.protocolHash !== b.source.protocolHash) return "Different protocol inputs";
   if (a.condition.maxOutputTokens !== b.condition.maxOutputTokens) return "Different token caps";
   if (a.condition.repeats !== b.condition.repeats) return "Different repeat counts";
@@ -86,6 +95,18 @@ export async function compareRuns(
       itemsHash: hash(jsonl([...run.items].sort((a, b) => a.jobId.localeCompare(b.jobId)))),
     };
     sources.push(source);
+    const datasetSignatures = new Map(
+      snapshot.experiment.languages.map((language) => [
+        language,
+        hash(
+          jsonl(
+            run.questions
+              .filter((question) => question.language === language)
+              .sort((a, b) => json([a.split, a.id]).localeCompare(json([b.split, b.id]))),
+          ),
+        ),
+      ]),
+    );
     const groups = new Map<string, ItemResult[]>();
     for (const item of run.items) {
       if (
@@ -130,6 +151,7 @@ export async function compareRuns(
       conditions.push({
         condition,
         source,
+        datasetSignatures,
         questionSignature: hash(
           json(
             unique.map((item) => [

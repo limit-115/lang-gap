@@ -52,6 +52,7 @@ async function run(
     questionLimit?: number;
     maxJobs?: number;
     promptSuffix?: string;
+    questions?: Question[];
     truncated?: boolean;
   } = {},
 ) {
@@ -100,7 +101,7 @@ async function run(
   await createRun({
     directory,
     experiment: config,
-    questions: questions
+    questions: (options.questions ?? questions)
       .filter((q) => config.languages.includes(q.language))
       .map((q) => ({ ...q, question: q.question + (options.promptSuffix ?? "") })),
     manifest,
@@ -172,12 +173,57 @@ it.each(["arithmetic-fixture", "another-fixture"])(
   },
 );
 
+it("compares matching saved inputs with partially overlapping language selections", async () => {
+  const a = await run("first", { languages: ["ja"], models: ["fixtures/a:free"] });
+  const b = await run("second", { models: ["fixtures/b"] });
+  const result = await compareRuns([a, b], { outputRoot: root });
+  expect(result.report.sources[0]!.datasetHash).not.toBe(result.report.sources[1]!.datasetHash);
+  expect(result.report.conditions).toHaveLength(3);
+  expect(result.report.comparisons).toHaveLength(3);
+  expect(result.report.incompatible).toEqual([]);
+});
+
+it.each(["question", "options"] as const)(
+  "rejects cross-run language pairs when saved %s text differs under the same manifest",
+  async (field) => {
+    const a = await run("first", { models: ["fixtures/a:free"] });
+    const b = await run("second", {
+      models: ["fixtures/b"],
+      questions: questions.map((question) =>
+        question.language !== "de"
+          ? question
+          : {
+              ...question,
+              ...(field === "question"
+                ? { question: `${question.question} changed` }
+                : { options: question.options.map((option) => `${option} changed`) }),
+            },
+      ),
+    });
+    const result = await compareRuns([a, b], { outputRoot: root });
+    expect(result.report.sources[0]!.manifestHash).toBe(result.report.sources[1]!.manifestHash);
+    expect(result.report.sources[0]!.datasetHash).not.toBe(result.report.sources[1]!.datasetHash);
+    expect(result.report.comparisons).toHaveLength(2);
+    const conditions = new Map(
+      result.report.conditions.map((condition) => [condition.id, condition]),
+    );
+    for (const pair of result.report.comparisons)
+      expect(conditions.get(pair.baseline)!.runId).toBe(conditions.get(pair.candidate)!.runId);
+    expect(result.report.incompatible).toHaveLength(4);
+    expect(
+      result.report.incompatible.every(
+        (pair) => pair.reason === "Different saved dataset inputs: de",
+      ),
+    ).toBe(true);
+  },
+);
+
 it.each([
   [{ dataset: "different" }, "dataset"],
   [{ cap: 2048 }, "token caps"],
   [{ repeats: 1 }, "repeat counts"],
   [{ questionLimit: 1 }, "Questions are not aligned"],
-  [{ promptSuffix: " changed" }, "prompt inputs"],
+  [{ promptSuffix: " changed" }, "saved dataset inputs"],
 ] as const)("reports incompatible pairs without intersection: %j", async (change, reason) => {
   const baseline = { languages: ["ja"], models: ["fixtures/a:free"] };
   const a = await run("first", baseline);

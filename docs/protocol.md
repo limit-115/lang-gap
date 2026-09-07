@@ -63,10 +63,14 @@ It enumerates each unordered pair once and records its explicit baseline and
 candidate, retaining every condition's scores. Compatible pairs require the same
 dataset ID and full pinned manifest, protocol hash, token cap, repeat count and
 aligned selected test IDs, categories, gold labels and option counts. Same-language
-comparisons also require identical prompt bytes. Synthetic and live conditions
+comparisons also require identical prompt bytes. When snapshot hashes differ,
+all saved rows for every language present in both runs must match, including
+question and option text outside the selected analysis pair. Synthetic and live conditions
 are separate. Different efforts may be compared; their labels do not imply equal
 compute. Different dataset snapshots caused solely by selecting different
 languages can be compatible when these checks pass.
+Disjoint language selections rely on the pinned manifest and recorded implementation
+identity; their translated text cannot be checked against one another.
 
 No intersection, dropped questions or pooling across datasets is allowed. The
 comparison report lists incompatible pairs and reasons instead of inventing a gap.

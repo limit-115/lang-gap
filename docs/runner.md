@@ -285,7 +285,10 @@ With no filters, every saved condition is considered. `--models`, `--transports`
 reported once in deterministic condition order; `baseline` and `candidate` point
 to the full condition identities in the report. Positive `gapPp` favors the named
 baseline. Incompatible pairs are listed with reasons; no common-question subset
-is silently substituted. See the [compatibility and statistics rules](protocol.md#accuracy-and-post-run-comparisons).
+is silently substituted. Across runs, saved dataset contents must match for every
+shared language, even when the selected comparison uses different languages.
+Different language selections alone do not make runs incompatible. See the
+[compatibility and statistics rules](protocol.md#accuracy-and-post-run-comparisons).
 
 The command writes an exclusive `.llang-gap/analyses/<id>.json` artifact (or uses
 a generated ID). It contains the selection, bootstrap seed (`--seed`, default 42),
