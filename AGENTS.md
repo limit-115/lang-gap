@@ -21,6 +21,9 @@ website work also follows [apps/web/AGENTS.md](apps/web/AGENTS.md).
 
 ## Working defaults
 
+- Unless explicitly instructed otherwise, do all work in a separate Git worktree
+  on a new branch based on freshly fetched `origin/main`, and submit changes through
+  a PR targeting `main`.
 - Use the pinned Node and pnpm versions. Inspect the relevant package scripts and
   existing patterns before changing code; do not introduce another package manager.
 - Keep changes focused and preserve other contributors' work. Keep temporary
