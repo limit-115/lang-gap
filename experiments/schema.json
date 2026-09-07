@@ -77,7 +77,9 @@
                   "enum": [
                     "low",
                     "medium",
-                    "high"
+                    "high",
+                    "xhigh",
+                    "max"
                   ]
                 }
               },
@@ -146,7 +148,6 @@
             "required": [
               "efforts",
               "maxOutputTokens",
-              "pricing",
               "transport",
               "model"
             ],
@@ -163,7 +164,9 @@
                   "enum": [
                     "low",
                     "medium",
-                    "high"
+                    "high",
+                    "xhigh",
+                    "max"
                   ]
                 }
               },
@@ -222,13 +225,12 @@
               },
               "model": {
                 "type": "string",
-                "pattern": "^(?!openrouter\\/)[a-z0-9][a-z0-9._-]{0,99}\\/[a-z0-9][a-z0-9._-]{0,99}$"
+                "pattern": "^(?!openrouter\\/)[a-z0-9][a-z0-9._-]{0,99}\\/[a-z0-9][a-z0-9._-]{0,99}(?::free)?$"
               }
             },
             "required": [
               "efforts",
               "maxOutputTokens",
-              "pricing",
               "transport",
               "model"
             ],

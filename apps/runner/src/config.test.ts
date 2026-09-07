@@ -71,7 +71,7 @@ const routerModel = {
   ...experiment.models[0]!,
   transport: "openrouter" as const,
   model: "openai/gpt-5-nano",
-  pricing: { ...experiment.models[0]!.pricing, inputPerMillion: 1, outputPerMillion: 1 },
+  pricing: { ...experiment.models[0]!.pricing!, inputPerMillion: 1, outputPerMillion: 1 },
 };
 it("plans a transport and model without gateway-specific configuration", () => {
   const config = parseExperiment(stringify({ ...experiment, models: [routerModel] }));
@@ -90,7 +90,6 @@ it.each([
   { model: "gpt-5-nano" },
   { openrouterProvider: "openai" },
   { provider: "openrouter" },
-  { pricing: { ...routerModel.pricing, inputPerMillion: 0 } },
 ])("rejects invalid OpenRouter configuration %j", (override) => {
   expect(() =>
     parseExperiment(stringify({ ...experiment, models: [{ ...routerModel, ...override }] })),
@@ -101,4 +100,20 @@ it("accepts native transport/model configurations and rejects the previous schem
   const model = { ...routerModel, transport: "openai", model: "gpt-6-astra" };
   expect(parseExperiment(stringify({ ...experiment, models: [model] })).models[0]).toEqual(model);
   expect(() => parseExperiment(stringify({ ...experiment, schemaVersion: 1 }))).toThrow();
+});
+
+it("accepts free variants and zero or absent prices without a capability lookup", () => {
+  for (const pricing of [undefined, experiment.models[0]!.pricing]) {
+    const model = {
+      ...routerModel,
+      model: "fixtures/reasoner:free",
+      efforts: ["low", "medium", "high", "xhigh", "max"],
+      pricing,
+    };
+    const config = parseExperiment(stringify({ ...experiment, models: [model] }));
+    const jobs = createJobs(config, questions, "free");
+    expect(jobs).toHaveLength(60);
+    expect(jobs.every((job) => job.request.model === model.model)).toBe(true);
+    expect(jobs.every((job) => job.reservationUsd === (pricing ? 0 : null))).toBe(true);
+  }
 });

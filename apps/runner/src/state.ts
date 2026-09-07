@@ -59,7 +59,7 @@ export class RunState {
     const version = z
       .object({ user_version: z.number() })
       .parse(this.db.prepare("PRAGMA user_version").get()).user_version;
-    if (version > 1) {
+    if (version > 2) {
       this.db.close();
       throw new Error("Unsupported future SQLite schema");
     }
@@ -68,9 +68,9 @@ export class RunState {
       BEGIN IMMEDIATE;
       CREATE TABLE jobs (id TEXT PRIMARY KEY, ordinal INTEGER NOT NULL UNIQUE, payload TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending', attempts INTEGER NOT NULL DEFAULT 0);
       CREATE INDEX idx_jobs_status_ordinal ON jobs(status, ordinal);
-      CREATE TABLE attempts (id INTEGER PRIMARY KEY, job_id TEXT NOT NULL REFERENCES jobs(id), number INTEGER NOT NULL, started_at TEXT NOT NULL, finished_at TEXT, status TEXT NOT NULL, reserve_usd REAL NOT NULL, charged_usd REAL NOT NULL, error TEXT, request_id TEXT, raw TEXT, result TEXT, UNIQUE(job_id, number));
+      CREATE TABLE attempts (id INTEGER PRIMARY KEY, job_id TEXT NOT NULL REFERENCES jobs(id), number INTEGER NOT NULL, started_at TEXT NOT NULL, finished_at TEXT, status TEXT NOT NULL, reserve_usd REAL, charged_usd REAL, error TEXT, request_id TEXT, raw TEXT, result TEXT, UNIQUE(job_id, number));
       CREATE TABLE events (id INTEGER PRIMARY KEY, created_at TEXT NOT NULL, kind TEXT NOT NULL, detail TEXT NOT NULL);
-      PRAGMA user_version=1;
+      PRAGMA user_version=2;
       COMMIT;
       PRAGMA optimize;
     `);
@@ -128,11 +128,27 @@ export class RunState {
     if (index !== jobs.length)
       throw new Error("SQLite job matrix differs from the resolved experiment");
   }
-  charged(): number {
+  charged(): number | null {
     return z
-      .object({ total: z.number() })
-      .parse(this.db.prepare("SELECT COALESCE(SUM(charged_usd),0) AS total FROM attempts").get())
-      .total;
+      .object({ total: z.number().nullable() })
+      .parse(
+        this.db
+          .prepare(
+            "SELECT CASE WHEN COUNT(*) != COUNT(charged_usd) THEN NULL ELSE COALESCE(SUM(charged_usd),0) END AS total FROM attempts",
+          )
+          .get(),
+      ).total;
+  }
+  lastBudget(initial: number | null): number | null {
+    const row = this.db
+      .prepare(
+        "SELECT detail FROM events WHERE kind IN ('created','resumed') ORDER BY id DESC LIMIT 1",
+      )
+      .get();
+    if (!row) return initial;
+    return z
+      .object({ budgetUsd: z.number().nonnegative().nullable() })
+      .parse(JSON.parse(z.object({ detail: z.string() }).parse(row).detail)).budgetUsd;
   }
   begin(job: Job): number {
     return this.transaction(() => {

@@ -68,6 +68,63 @@ describe("run → resume → independent release verification", () => {
     await expect(verifyRelease(release.directory)).rejects.toThrow("checksum");
   });
 
+  it.each([false, true])(
+    "preserves optional accounting through resume and release (priced: %s)",
+    async (priced) => {
+      const directory = join(root, "optional-cost");
+      const config = {
+        ...experiment,
+        models: experiment.models.map(({ pricing, ...model }) => ({
+          ...model,
+          transport: "openrouter" as const,
+          model: "fixtures/model:free",
+          efforts: ["xhigh", "max"] as ("xhigh" | "max")[],
+          ...(priced ? { pricing } : {}),
+        })),
+      };
+      const adapter = { ...createFakeAdapter(), transport: "openrouter" as const };
+      const adapters = new Map([["openrouter", adapter]]);
+      const first = await createRun({
+        directory,
+        experiment: config,
+        questions,
+        manifest: await manifest(),
+        adapters,
+        maxJobs: 1,
+      });
+      expect(first.completed).toBe(1);
+      const original = await readFile(join(directory, "resolved.json"), "utf8");
+      expect(snapshotSchema.parse(JSON.parse(original)).initialBudgetUsd).toBeNull();
+      const done = await resumeRun(directory, { adapters });
+      expect(done.chargedOrReservedUsd).toBe(priced ? 0 : null);
+      const artifact = await buildRelease(directory, "optional-cost-release", "test", root);
+      const verified = await verifyRelease(artifact.directory);
+      expect(verified.aggregate).toHaveLength(2);
+      expect(verified.aggregate.every((row) => row.costUsd === (priced ? 0 : null))).toBe(true);
+      expect(await readFile(join(directory, "resolved.json"), "utf8")).toBe(original);
+    },
+  );
+
+  it("retains the last explicit budget on a later resume", async () => {
+    const directory = join(root, "budget-history");
+    await createRun({
+      directory,
+      experiment,
+      questions,
+      manifest: await manifest(),
+      budgetUsd: 1,
+      maxJobs: 1,
+    });
+    await resumeRun(directory, { budgetUsd: 2, maxJobs: 1 });
+    await resumeRun(directory, { maxJobs: 1 });
+    const state = new RunState(join(directory, "state.sqlite"));
+    try {
+      expect(state.lastBudget(null)).toBe(2);
+    } finally {
+      state.close();
+    }
+  });
+
   it("detects scientific configuration and SQLite job tampering", async () => {
     const directory = join(root, "run");
     await createRun({

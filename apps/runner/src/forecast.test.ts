@@ -10,7 +10,7 @@ const config = {
     {
       ...model,
       pricing: {
-        ...model.pricing,
+        ...model.pricing!,
         inputPerMillion: 10,
         outputPerMillion: 50,
         cachedInputPerMillion: 1,
@@ -38,7 +38,7 @@ describe("usage cost forecast", () => {
     expect(forecast.conditions.map((c) => c.sampleQuestions)).toEqual([1, 1]);
     expect(forecast.conditions.map((c) => c.requests)).toEqual([6, 6]);
     expect(forecast.outputCapScenarioUsd).toBeCloseTo(12 * (0.00895 + (1024 * 50) / 1e6));
-    expect(jobs.reduce((sum, j) => sum + j.reservationUsd, 0)).toBeGreaterThan(
+    expect(jobs.reduce((sum, j) => sum + j.reservationUsd!, 0)).toBeGreaterThan(
       forecast.estimatedUsd,
     );
   });

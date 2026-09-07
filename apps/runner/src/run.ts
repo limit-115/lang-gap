@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import {
+  experimentSchema,
   questionSchema,
   safeIdSchema,
   type DatasetManifest,
@@ -14,7 +15,7 @@ import { createAdapter, validateModel } from "@llang-gap/providers";
 import { getProtocol } from "@llang-gap/evaluation";
 import { atomicWrite, hash, implementationIdentity, json, jsonl, workspace } from "./files";
 import { createJobs } from "./plan";
-import { execute } from "./scheduler";
+import { execute, validateBudget } from "./scheduler";
 import { acquireLock, RunState } from "./state";
 import { readSnapshot, type Snapshot } from "./snapshot";
 
@@ -35,7 +36,7 @@ export async function readRunQuestions(
 }
 
 interface ExecutionControls {
-  budgetUsd: number;
+  budgetUsd?: number | null;
   concurrency?: number;
   maxJobs?: number;
   signal?: AbortSignal;
@@ -51,7 +52,9 @@ export async function createRun(
     adapters?: ReadonlyMap<string, TransportAdapter>;
   },
 ) {
-  const { experiment, questions, manifest, budgetUsd } = options;
+  const { questions, manifest } = options;
+  const experiment = experimentSchema.parse(options.experiment);
+  const budgetUsd = options.budgetUsd ?? null;
   validateManifestQuestions(questions, manifest, experiment.languages);
   for (const model of experiment.models) validateModel(model);
   const protocol = getProtocol(experiment.protocol);
@@ -86,6 +89,7 @@ export async function createRun(
   };
   const configHash = hash(json(snapshot));
   const jobs = createJobs(experiment, questions, configHash, manifest);
+  validateBudget(budgetUsd, jobs);
   if (!jobs.length) throw new Error("Empty experiment");
   await mkdir(join(directory, ".."), { recursive: true });
   await mkdir(directory, { mode: 0o700 });
@@ -139,6 +143,11 @@ export async function resumeRun(
     const jobs = createJobs(snapshot.experiment, questions, configHash, snapshot.datasetManifest);
     state = new RunState(join(directory, "state.sqlite"));
     state.assertJobs(jobs);
+    const budgetUsd =
+      options.budgetUsd === undefined
+        ? state.lastBudget(snapshot.initialBudgetUsd)
+        : options.budgetUsd;
+    validateBudget(budgetUsd, jobs, state.charged());
     const maxAttempts = options.maxAttempts ?? snapshot.experiment.execution.maxAttempts;
     state.recover(options.retryUncertain ?? false, maxAttempts, options.retryFailed ?? false);
     const adapters =
@@ -152,14 +161,14 @@ export async function resumeRun(
         ),
       );
     const concurrency = options.concurrency ?? snapshot.experiment.execution.concurrency;
-    state.event("resumed", { budgetUsd: options.budgetUsd, concurrency, maxAttempts });
+    state.event("resumed", { budgetUsd, concurrency, maxAttempts });
     return {
       runId: snapshot.runId,
       ...(await execute({
         state,
         jobs,
         adapters,
-        budgetUsd: options.budgetUsd,
+        budgetUsd,
         concurrency,
         maxAttempts,
         ...(options.maxJobs === undefined ? {} : { maxJobs: options.maxJobs }),

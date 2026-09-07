@@ -1,5 +1,4 @@
 import {
-  getModelIdentity,
   modelSchema,
   type ModelConfig,
   type Transport,
@@ -16,13 +15,6 @@ export { createFakeAdapter } from "./fake";
 
 export function validateModel(model: ModelConfig): void {
   modelSchema.parse(model);
-  if (model.transport !== "openrouter" && getModelIdentity(model).owner !== model.transport)
-    throw new Error(`Model capabilities are not registered: ${model.transport}/${model.model}`);
-  if (
-    model.transport !== "fake" &&
-    (model.pricing.inputPerMillion === 0 || model.pricing.outputPerMillion === 0)
-  )
-    throw new Error("Live model pricing must be positive");
 }
 
 const transports = {

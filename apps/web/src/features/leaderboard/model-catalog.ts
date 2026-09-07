@@ -1,7 +1,12 @@
-import { getModelIdentity, type Aggregate, type ModelReference } from "@llang-gap/contracts";
+import {
+  effortSchema,
+  getModelIdentity,
+  type Aggregate,
+  type ModelReference,
+} from "@llang-gap/contracts";
 import type { LeaderboardRow } from "./columns";
 
-export const efforts = ["low", "medium", "high"] as const;
+export const efforts = effortSchema.options;
 const ownerNames: Record<string, string> = {
   openai: "OpenAI",
   anthropic: "Anthropic",
@@ -34,7 +39,7 @@ export function getModelPresentation(reference: ModelReference) {
 }
 
 export const plannedRows: LeaderboardRow[] = plannedModels.flatMap(({ transport, model }) =>
-  efforts.map((effort) => ({
+  (["low", "medium", "high"] as const).map((effort) => ({
     model,
     transport,
     effort,

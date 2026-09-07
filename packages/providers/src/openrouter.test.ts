@@ -29,7 +29,7 @@ const response = {
 };
 afterEach(() => vi.unstubAllEnvs());
 describe("OpenRouter intercepted transport", () => {
-  it.each(["low", "medium", "high"] as const)(
+  it.each(["low", "medium", "high", "xhigh", "max"] as const)(
     "forwards %s without changing prompt",
     async (effort) => {
       const transport = vi.fn<typeof fetch>().mockResolvedValue(Response.json(response));

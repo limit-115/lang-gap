@@ -11,8 +11,8 @@ const attemptSchema = z.strictObject({
   started_at: z.iso.datetime(),
   finished_at: z.iso.datetime().nullable(),
   status: z.enum(["completed", "failed", "uncertain"]),
-  reserve_usd: z.number().nonnegative(),
-  charged_usd: z.number().nonnegative(),
+  reserve_usd: z.number().nonnegative().nullable(),
+  charged_usd: z.number().nonnegative().nullable(),
   error: z.string().nullable(),
   request_id: z.string().nullable(),
 });
@@ -31,6 +31,7 @@ export async function verifyAttemptLedger(
   const numbers = new Map<string, number>();
   const completed = new Set<string>();
   let total = 0;
+  let unknown = false;
   for (const attempt of rows) {
     const job = jobMap.get(attempt.job_id);
     if (
@@ -49,7 +50,8 @@ export async function verifyAttemptLedger(
           ? job.reservationUsd
           : 0;
     if (attempt.charged_usd !== charged) throw new Error("Attempt ledger cost does not reproduce");
-    total += charged;
+    if (charged === null) unknown = true;
+    else total += charged;
     if (attempt.status === "completed") {
       if (!item || !attempt.finished_at || attempt.request_id !== item.requestId)
         throw new Error("Attempt ledger does not match selected response");
@@ -67,7 +69,7 @@ export async function verifyAttemptLedger(
         failed: z.literal(0),
         uncertain: z.literal(0),
         attempts: z.number(),
-        chargedOrReservedUsd: z.number(),
+        chargedOrReservedUsd: z.number().nullable(),
       }),
     })
     .parse(await readJson(join(directory, "execution.json")));
@@ -75,7 +77,10 @@ export async function verifyAttemptLedger(
     execution.summary.total !== jobs.length ||
     execution.summary.completed !== jobs.length ||
     execution.summary.attempts !== rows.length ||
-    Math.abs(execution.summary.chargedOrReservedUsd - total) > 1e-9
+    (unknown
+      ? execution.summary.chargedOrReservedUsd !== null
+      : execution.summary.chargedOrReservedUsd === null ||
+        Math.abs(execution.summary.chargedOrReservedUsd - total) > 1e-9)
   )
     throw new Error("Execution totals do not reproduce from the attempt ledger");
 }

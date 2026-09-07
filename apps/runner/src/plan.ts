@@ -31,7 +31,7 @@ export interface Job {
   optionCount: number;
   model: ModelConfig;
   request: GenerationRequest;
-  reservationUsd: number;
+  reservationUsd: number | null;
 }
 
 export function createJobs(
@@ -137,7 +137,9 @@ export function createJobs(
 }
 
 export function summarizePlan(experiment: Experiment, jobs: readonly Job[]) {
-  const attemptBound = jobs.reduce((sum, j) => sum + j.reservationUsd, 0);
+  const attemptBound = jobs.some((job) => job.reservationUsd === null)
+    ? null
+    : jobs.reduce((sum, j) => sum + j.reservationUsd!, 0);
   return {
     experiment: experiment.id,
     synthetic: experiment.models.every((m) => m.transport === "fake"),
@@ -155,7 +157,8 @@ export function summarizePlan(experiment: Experiment, jobs: readonly Job[]) {
     requests: jobs.length,
     maxAttemptsPerRequest: experiment.execution.maxAttempts,
     upperBoundUsdOneAttempt: attemptBound,
-    upperBoundUsdAllAttempts: attemptBound * experiment.execution.maxAttempts,
-    note: "upperBoundUsd fields are safety reservations, not spending forecasts. Use --calibrate-from for an empirical forecast. Live runs require an explicit USD budget.",
+    upperBoundUsdAllAttempts:
+      attemptBound === null ? null : attemptBound * experiment.execution.maxAttempts,
+    note: "upperBoundUsd fields are safety reservations, not spending forecasts. Use --calibrate-from for an empirical forecast. Missing prices produce null bounds. Cost planning and a USD budget are optional.",
   };
 }
