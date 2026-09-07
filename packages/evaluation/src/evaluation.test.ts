@@ -10,7 +10,7 @@ import {
   toPromptQuestion,
   aggregateResults,
 } from "./index";
-import { questions, item } from "@tests/fixtures";
+import { questions, item, experiment } from "@tests/fixtures";
 
 describe("five-shot prompt", () => {
   for (const language of ["en", "ru"] as const) {
@@ -20,6 +20,7 @@ describe("five-shot prompt", () => {
       const prompt = buildPrompt(
         toPromptQuestion(target),
         questions.filter((q) => q.split === "validation"),
+        protocol.id,
       );
       const expected = await readFile(
         new URL(`../fixtures/${language}-5shot.txt`, import.meta.url),
@@ -31,6 +32,7 @@ describe("five-shot prompt", () => {
         buildPrompt(
           toPromptQuestion({ ...target, answer: "D", cot: "LEAK" }),
           questions.filter((q) => q.split === "validation"),
+          protocol.id,
         ),
       ).toBe(prompt);
       expect(Object.keys(toPromptQuestion(target))).not.toEqual(
@@ -58,9 +60,9 @@ describe("five-shot prompt", () => {
   it("rejects test questions disguised as demonstrations", () => {
     const q = questions.find((q) => q.split === "test")!;
     const examples = questions.filter((q) => q.language === "en" && q.split === "validation");
-    expect(() => buildPrompt(toPromptQuestion(q), [...examples.slice(0, 4), q])).toThrow(
-      "validation",
-    );
+    expect(() =>
+      buildPrompt(toPromptQuestion(q), [...examples.slice(0, 4), q], protocol.id),
+    ).toThrow("validation");
   });
 });
 
@@ -97,22 +99,29 @@ describe("paired cluster bootstrap", () => {
     item({ questionId: "q2", language: "ru", correct: true }),
   ];
   it("uses signed percentage points and a known paired interval", () => {
-    const [score] = aggregateResults(base, 42, 1000);
-    expect(score).toMatchObject({ en: 1, ru: 0.5, gapPp: 50, gapCi95: [0, 100], n: 2, repeats: 1 });
+    const [score] = aggregateResults(base, 42, 1000, experiment);
+    expect(score).toMatchObject({
+      scores: [
+        { language: "en", accuracy: 1, n: 2 },
+        { language: "ru", accuracy: 0.5, n: 2 },
+      ],
+      comparisons: [{ baseline: "en", language: "ru", gapPp: 50, gapCi95: [0, 100] }],
+      repeats: 1,
+    });
   });
   it("preserves question clusters across repeats", () => {
     const repeated = [0, 1, 2].flatMap((repeat) => base.map((row) => ({ ...row, repeat })));
-    const [a] = aggregateResults(base, 42, 1000);
-    const [b] = aggregateResults(repeated, 42, 1000);
-    expect(b?.gapCi95).toEqual(a?.gapCi95);
-    expect(b?.n).toBe(2);
+    const [a] = aggregateResults(base, 42, 1000, experiment);
+    const [b] = aggregateResults(repeated, 42, 1000, experiment);
+    expect(b?.comparisons[0]?.gapCi95).toEqual(a?.comparisons[0]?.gapCi95);
+    expect(b?.scores[0]?.n).toBe(2);
     expect(b?.repeats).toBe(3);
-    expect(aggregateResults([...repeated].reverse(), 42, 1000)).toEqual(
-      aggregateResults(repeated, 42, 1000),
+    expect(aggregateResults([...repeated].reverse(), 42, 1000, experiment)).toEqual(
+      aggregateResults(repeated, 42, 1000, experiment),
     );
   });
   it("rejects incomplete and duplicate language/repeat sets", () => {
-    expect(() => aggregateResults(base.slice(1), 42)).toThrow("Incomplete");
-    expect(() => aggregateResults([...base, base[0]!], 42)).toThrow("duplicated");
+    expect(() => aggregateResults(base.slice(1), 42, 1000, experiment)).toThrow("Incomplete");
+    expect(() => aggregateResults([...base, base[0]!], 42, 1000, experiment)).toThrow("duplicated");
   });
 });

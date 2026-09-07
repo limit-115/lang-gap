@@ -35,6 +35,17 @@ website work also follows [apps/web/AGENTS.md](apps/web/AGENTS.md).
 - Update documentation for changed user workflows or durable constraints. Avoid
   duplicating types, obvious control flow, or PR summaries in internal docs.
 
+## Benchmark identity — architectural invariant
+
+Llang Gap is a **multilingual benchmark across datasets**, selected at run time.
+A dataset ID and one or more benchmark language tags are experiment inputs, not
+application constants. The website's UI locales do not define benchmark languages.
+Never introduce fixed language tuples, language-specific score fields, a default
+comparison pair, a universal dataset, or a universal question count. Dataset and
+protocol adapters declare their supported inputs; historical pinned conditions
+remain local to their versioned adapter/configuration. Test cross-package changes
+with non-default languages, multiple dataset identities, and single-language runs.
+
 ## Project constraints
 
 - Keep shared schemas and types in `packages/contracts`. The website reads
@@ -47,7 +58,8 @@ website work also follows [apps/web/AGENTS.md](apps/web/AGENTS.md).
 - Preserve local run state and immutable releases. Follow
   [docs/releases.md](docs/releases.md) when correcting or staging results.
 - Keep credentials and private run artifacts out of commits and public evidence.
-- Keep EN/RU messages consistent and display identical numerical results in both locales.
+- Keep messages consistent across supported UI locales and display identical numerical results.
+  UI locale support is independent of dataset and experiment language selection.
 
 Contribution-workflow guidance is adapted from T3 Code; see
 [source attribution](.github/ATTRIBUTION.md).

@@ -42,10 +42,10 @@ export default async function MethodologyPage({ params }: Props) {
       <section>
         <h2>{t("sources")}</h2>
         <div className="source-links">
-          <a href="https://huggingface.co/datasets/li-lab/MMLU-ProX-Lite/tree/e82aafb9460529687d3c7e51b401d8dd1dd309dd">
+          <a href="https://github.com/limit-115/llang-gap/tree/main/datasets">
             {t("datasetLink")} ↗
           </a>
-          <a href="https://github.com/EleutherAI/lm-evaluation-harness/tree/b954108c9baaaa934b4ad842033b31a97ee30816/lm_eval/tasks/mmlu_prox">
+          <a href="https://github.com/limit-115/llang-gap/blob/main/docs/protocol.md">
             {t("harnessLink")} ↗
           </a>
         </div>

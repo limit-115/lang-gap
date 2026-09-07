@@ -1,4 +1,6 @@
+import { validateAlignment, validateDataset } from "@llang-gap/datasets";
 import type {
+  DatasetManifest,
   Experiment,
   GenerationRequest,
   ModelConfig,
@@ -8,7 +10,11 @@ import type {
 import {
   buildPrompt,
   getProtocol,
-  protocol,
+  getAnswerFormat,
+  getMaxOutputTokens,
+  getPromptLabels,
+  getStopSequences,
+  validateProtocolDataset,
   shuffled,
   toPromptQuestion,
 } from "@llang-gap/evaluation";
@@ -16,7 +22,7 @@ import { reserveCost } from "@llang-gap/providers";
 import { hash } from "./files";
 
 export interface Job {
-  protocol?: ProtocolId;
+  protocol: ProtocolId;
   id: string;
   questionId: string;
   category: string;
@@ -32,20 +38,43 @@ export function createJobs(
   experiment: Experiment,
   questions: readonly Question[],
   configHash: string,
+  manifest?: DatasetManifest,
 ): Job[] {
   getProtocol(experiment.protocol);
-  const authorProtocol = experiment.protocol === protocol.id;
-  if (
-    authorProtocol &&
-    experiment.models.some((m) => m.maxOutputTokens !== protocol.generation.maxGenTokens)
-  )
+  validateProtocolDataset(experiment.protocol, experiment.dataset, experiment.languages, manifest);
+  validateDataset(questions, undefined, experiment.languages);
+  for (const pair of experiment.comparisons)
+    validateAlignment(questions, pair.baseline, pair.language);
+  const cap = getMaxOutputTokens(experiment.protocol);
+  if (cap !== undefined && experiment.models.some((model) => model.maxOutputTokens !== cap))
     throw new Error(
-      "Author API protocol requires a 2048-token cap; a different cap needs a separate protocol",
+      `Selected protocol requires a ${cap}-token cap; a different cap needs a separate protocol`,
     );
-  const ids = [...new Set(questions.filter((q) => q.split === "test").map((q) => q.id))].sort();
-  const selectedIds = shuffled(ids, experiment.seed).slice(
-    0,
-    experiment.questionLimit ?? ids.length,
+  const ids = [
+    ...new Set(
+      questions
+        .filter((q) => q.split === "test" && experiment.languages.includes(q.language))
+        .map((q) => q.id),
+    ),
+  ].sort();
+  const orderedIds = shuffled(ids, experiment.seed);
+  // Shared ordering gives aligned conditions the same pilot subset, while independent
+  // language sets retain their own requested sample size.
+  const testKeys = new Set(
+    questions.filter((q) => q.split === "test").map((q) => `${q.id}/${q.language}`),
+  );
+  const selectedByLanguage = new Map(
+    experiment.languages.map((language) => [
+      language,
+      new Set(
+        orderedIds
+          .filter((id) => testKeys.has(`${id}/${language}`))
+          .slice(0, experiment.questionLimit),
+      ),
+    ]),
+  );
+  const selectedIds = orderedIds.filter((id) =>
+    [...selectedByLanguage.values()].some((set) => set.has(id)),
   );
   const test = new Map(
     questions.filter((q) => q.split === "test").map((q) => [`${q.id}/${q.language}`, q]),
@@ -57,39 +86,49 @@ export function createJobs(
     for (const model of experiment.models) {
       for (const effort of model.efforts) {
         for (let repeat = 0; repeat < experiment.repeats; repeat++) {
-          const pair = experiment.languages.map((language) => {
-            const q = test.get(`${id}/${language}`);
-            if (!q) throw new Error(`Missing paired question ${id}/${language}`);
-            const promptKey = `${id}/${language}`;
-            let prompt = prompts.get(promptKey);
-            if (prompt === undefined) {
-              prompt = buildPrompt(toPromptQuestion(q), validation, experiment.protocol);
-              prompts.set(promptKey, prompt);
-            }
-            const request: GenerationRequest = {
-              model: model.model,
-              effort,
-              language,
-              maxOutputTokens: model.maxOutputTokens,
-              prompt,
-              ...(authorProtocol ? { stopSequences: protocol.generation.until[language] } : {}),
-            };
-            const key = [configHash, model.transport, model.model, effort, id, language, repeat];
-            return {
-              ...(authorProtocol ? { protocol: experiment.protocol } : {}),
-              id: hash(JSON.stringify(key)),
-              questionId: id,
-              category: q.category,
-              repeat,
-              expected: q.answer,
-              optionCount: q.options.length,
-              model,
-              request,
-              reservationUsd: reserveCost(request, model.pricing),
-            };
-          });
-          // Adjacent language pairs minimize time drift; alternate which language goes first.
-          pairs.push(pairs.length % 2 === 0 ? pair : [...pair].reverse());
+          const pair = experiment.languages
+            .filter((language) => selectedByLanguage.get(language)!.has(id))
+            .map((language) => {
+              const q = test.get(`${id}/${language}`);
+              if (!q) throw new Error(`Missing selected question ${id}/${language}`);
+              const promptKey = `${id}/${language}`;
+              let prompt = prompts.get(promptKey);
+              if (prompt === undefined) {
+                prompt = buildPrompt(
+                  toPromptQuestion(q),
+                  validation,
+                  experiment.protocol,
+                  getPromptLabels(manifest, language),
+                );
+                prompts.set(promptKey, prompt);
+              }
+              const stopSequences = getStopSequences(experiment.protocol, language);
+              const request: GenerationRequest = {
+                model: model.model,
+                effort,
+                language,
+                maxOutputTokens: model.maxOutputTokens,
+                prompt,
+                ...(stopSequences ? { stopSequences } : {}),
+                answerFormat: getAnswerFormat(experiment.protocol, language),
+              };
+              const key = [configHash, model.transport, model.model, effort, id, language, repeat];
+              return {
+                protocol: experiment.protocol,
+                id: hash(JSON.stringify(key)),
+                questionId: id,
+                category: q.category,
+                repeat,
+                expected: q.answer,
+                optionCount: q.options.length,
+                model,
+                request,
+                reservationUsd: reserveCost(request, model.pricing),
+              };
+            });
+          // Keep language conditions adjacent; rotate the first condition to distribute time drift.
+          const offset = pairs.length % pair.length;
+          pairs.push([...pair.slice(offset), ...pair.slice(0, offset)]);
         }
       }
     }
@@ -102,7 +141,15 @@ export function summarizePlan(experiment: Experiment, jobs: readonly Job[]) {
   return {
     experiment: experiment.id,
     synthetic: experiment.models.every((m) => m.transport === "fake"),
-    questionsPerLanguage: new Set(jobs.map((j) => j.questionId)).size,
+    dataset: experiment.dataset,
+    languages: experiment.languages,
+    comparisons: experiment.comparisons,
+    questionsPerLanguage: Object.fromEntries(
+      experiment.languages.map((language) => [
+        language,
+        new Set(jobs.filter((j) => j.request.language === language).map((j) => j.questionId)).size,
+      ]),
+    ),
     repeats: experiment.repeats,
     configurations: experiment.models.reduce((sum, m) => sum + m.efforts.length, 0),
     requests: jobs.length,

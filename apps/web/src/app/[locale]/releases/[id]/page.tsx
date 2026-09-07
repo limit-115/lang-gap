@@ -59,6 +59,8 @@ export default async function ReleasePage({ params }: Props) {
   const date = new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(
     new Date(release.createdAt),
   );
+  const languageName = (language: string) =>
+    new Intl.DisplayNames([locale], { type: "language" }).of(language) ?? language;
   const percent = (n: number) =>
     new Intl.NumberFormat(locale, {
       style: "percent",
@@ -100,13 +102,19 @@ export default async function ReleasePage({ params }: Props) {
             </caption>
             <TableHeader>
               <TableRow>
-                {[l("model"), l("effort"), l("en"), l("ru"), l("gapUnit"), l("confidence")].map(
-                  (label) => (
-                    <TableHead key={label} scope="col">
-                      {label}
-                    </TableHead>
-                  ),
-                )}
+                {[
+                  l("model"),
+                  l("effort"),
+                  ...release.languages.map(languageName),
+                  ...release.comparisons.flatMap((pair) => [
+                    `${pair.baseline.toUpperCase()} − ${pair.language.toUpperCase()} · ${l("gapUnit")}`,
+                    `${pair.baseline.toUpperCase()} − ${pair.language.toUpperCase()} · ${l("confidence")}`,
+                  ]),
+                ].map((label) => (
+                  <TableHead key={label} scope="col">
+                    {label}
+                  </TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -118,10 +126,22 @@ export default async function ReleasePage({ params }: Props) {
                     {getModelPresentation(row).ownerName}
                   </TableCell>
                   <TableCell>{l(row.effort)}</TableCell>
-                  <TableCell className="font-mono">{percent(row.en)}</TableCell>
-                  <TableCell className="font-mono">{percent(row.ru)}</TableCell>
-                  <TableCell className="font-mono">{pp(row.gapPp)}</TableCell>
-                  <TableCell className="font-mono">[{row.gapCi95.map(pp).join(", ")}]</TableCell>
+                  {row.scores.map((score) => (
+                    <TableCell key={score.language} className="font-mono">
+                      {percent(score.accuracy)}
+                    </TableCell>
+                  ))}
+                  {row.comparisons.flatMap((pair) => [
+                    <TableCell key={`gap:${pair.baseline}:${pair.language}`} className="font-mono">
+                      {pp(pair.gapPp)}
+                    </TableCell>,
+                    <TableCell
+                      key={`interval:${pair.baseline}:${pair.language}`}
+                      className="font-mono"
+                    >
+                      [{pair.gapCi95.map(pp).join(", ")}]
+                    </TableCell>,
+                  ])}
                 </TableRow>
               ))}
             </TableBody>
@@ -136,15 +156,19 @@ export default async function ReleasePage({ params }: Props) {
               <h3 className="font-semibold">
                 {getModelPresentation(row).label} · {l(row.effort)}
               </h3>
-              <p>{t("sample", { count: row.n, repeats: row.repeats })}</p>
-              <ul className="space-y-1 font-mono text-sm">
-                {row.repeatAccuracy.en.map((score, i) => (
-                  <li key={i}>
-                    {t("repeat", { number: i + 1 })}: {l("en")} {percent(score)} · {l("ru")}{" "}
-                    {percent(row.repeatAccuracy.ru[i]!)}
-                  </li>
-                ))}
-              </ul>
+              {row.scores.map((score) => (
+                <div key={score.language}>
+                  <h4>{languageName(score.language)}</h4>
+                  <p>{t("sample", { count: score.n, repeats: row.repeats })}</p>
+                  <ul className="space-y-1 font-mono text-sm">
+                    {score.repeatAccuracy.map((accuracy, i) => (
+                      <li key={i}>
+                        {t("repeat", { number: i + 1 })}: {percent(accuracy)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
               <p>{t("counts", { refusals: row.refusals, unparseable: row.unparseable })}</p>
               <p>
                 {t("costs", {

@@ -3,11 +3,12 @@ import questionData from "@tests/fixtures/questions.json";
 
 export const questions = questionData.map((q) => questionSchema.parse(q));
 export const experiment = experimentSchema.parse({
-  schemaVersion: 2,
+  schemaVersion: 3,
   id: "test-v1",
   dataset: "mmlu-prox-lite",
   protocol: "mmluprox-lite-5shot-native-reasoning-v1",
   languages: ["en", "ru"],
+  comparisons: [{ baseline: "en", language: "ru" }],
   repeats: 2,
   seed: 42,
   questionLimit: 3,

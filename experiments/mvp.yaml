@@ -1,9 +1,10 @@
 # yaml-language-server: $schema=./schema.json
-schemaVersion: 2
+schemaVersion: 3
 id: mvp-en-ru-author-v3
 dataset: mmlu-prox-lite
 protocol: mmluprox-lite-5shot-author-api-v3
 languages: [en, ru]
+comparisons: [{ baseline: en, language: ru }]
 repeats: 3
 seed: 20260906
 models:

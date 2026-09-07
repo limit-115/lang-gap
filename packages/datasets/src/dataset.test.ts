@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { normalizeRow, prepareDataset, readManifest, validateDataset } from "./index";
+import {
+  normalizeRow,
+  validateAlignment,
+  prepareDataset,
+  readManifest,
+  validateDataset,
+} from "./index";
 import { questions } from "@tests/fixtures";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -10,16 +16,31 @@ describe("dataset alignment", () => {
     expect(() => validateDataset([...questions].reverse(), 3)).not.toThrow();
   });
   it("detects missing rows, duplicate identities and shifted answer keys", () => {
-    expect(() => validateDataset(questions.slice(1), 3)).toThrow();
-    expect(() => validateDataset([...questions, questions[0]!], 3)).toThrow("Duplicate");
     expect(() =>
       validateDataset(
+        questions.filter((_, index) => index !== questions.findIndex((q) => q.split === "test")),
+        3,
+      ),
+    ).toThrow();
+    expect(() => validateDataset([...questions, questions[0]!], 3)).toThrow("Duplicate");
+    expect(() =>
+      validateAlignment(
         questions.map((q) =>
           q.language === "ru" && q.split === "test" ? { ...q, answer: "A" } : q,
         ),
-        3,
+        "en",
+        "ru",
       ),
     ).toThrow("alignment");
+  });
+  it("rejects source identity leakage even when split-prefixed question IDs differ", () => {
+    const test = questions.find((q) => q.split === "test")!;
+    expect(() =>
+      validateDataset(
+        [...questions, { ...test, split: "validation", id: "disguised-demonstration" }],
+        3,
+      ),
+    ).toThrow("overlap");
   });
   it("never downloads when offline; corrupted cache fails before decoding", async () => {
     const root = await mkdtemp(join(tmpdir(), "llang-dataset-"));

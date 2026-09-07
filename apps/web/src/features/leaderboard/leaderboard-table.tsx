@@ -12,8 +12,8 @@ import {
   ChevronDown,
   X,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
-import type { Aggregate } from "@llang-gap/contracts";
+import { useLocale, useTranslations } from "next-intl";
+import type { Aggregate, Comparison } from "@llang-gap/contracts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -38,14 +38,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useLeaderboardColumns } from "./columns";
+import { accuracyColumnId, useLeaderboardColumns } from "./columns";
 import { efforts, plannedRows } from "./model-catalog";
 import { features } from "./data-table-features";
 
-export function LeaderboardTable({ rows }: { rows: Aggregate[] }) {
+export function LeaderboardTable({
+  rows,
+  languages,
+  comparisons,
+}: {
+  rows: Aggregate[];
+  languages: string[];
+  comparisons: Comparison[];
+}) {
+  const locale = useLocale();
   const t = useTranslations("Leaderboard");
   const pageSizeId = useId();
-  const columns = useLeaderboardColumns(rows.length > 0);
+  const columns = useLeaderboardColumns(rows.length > 0, languages, comparisons);
   const table = useTable({
     features,
     data: rows.length ? rows : plannedRows,
@@ -65,9 +74,10 @@ export function LeaderboardTable({ rows }: { rows: Aggregate[] }) {
   const pageCount = table.getPageCount();
   const visibleRows = table.getRowModel().rows;
   const hasFilters = table.state.columnFilters.length > 0;
-  const languageColumns = (["en", "ru"] as const).map((id) => ({
-    column: table.getColumn(id)!,
-    label: t(id),
+  const languageColumns = languages.map((language) => ({
+    language,
+    column: table.getColumn(accuracyColumnId(language))!,
+    label: new Intl.DisplayNames([locale], { type: "language" }).of(language) ?? language,
   }));
   const visibleLanguageCount = languageColumns.filter(({ column }) => column.getIsVisible()).length;
   const effortItems = [
@@ -124,43 +134,47 @@ export function LeaderboardTable({ rows }: { rows: Aggregate[] }) {
             {t("resetFilters")} <X aria-hidden="true" />
           </Button>
         )}
-        <DropdownMenu>
-          <DropdownMenuTrigger render={<Button variant="outline" className="ml-auto rounded-lg" />}>
-            <Languages aria-hidden="true" /> {t("languageColumns")}
-            <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs tabular-nums text-muted-foreground">
-              <span aria-hidden="true">
-                {visibleLanguageCount}/{languageColumns.length}
-              </span>
-              <span className="sr-only">
-                {t("visibleLanguages", {
-                  count: visibleLanguageCount,
-                  total: languageColumns.length,
-                })}
-              </span>
-            </span>
-            <ChevronDown aria-hidden="true" className="size-3.5 text-muted-foreground" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="end"
-            className="max-w-[calc(100vw-2rem)] rounded-xl border border-border ring-0"
-          >
-            {languageColumns.map(({ column, label }) => (
-              <DropdownMenuCheckboxItem
-                key={column.id}
-                indicatorVariant="checkbox"
-                className="cursor-pointer rounded-md"
-                checked={column.getIsVisible()}
-                onCheckedChange={(checked) => column.toggleVisibility(checked)}
-                closeOnClick={false}
-              >
-                <span>{label}</span>
-                <span aria-hidden="true" className="ml-auto text-xs text-muted-foreground">
-                  {column.id.toUpperCase()}
+        {languageColumns.length > 0 && (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={<Button variant="outline" className="ml-auto rounded-lg" />}
+            >
+              <Languages aria-hidden="true" /> {t("languageColumns")}
+              <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs tabular-nums text-muted-foreground">
+                <span aria-hidden="true">
+                  {visibleLanguageCount}/{languageColumns.length}
                 </span>
-              </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+                <span className="sr-only">
+                  {t("visibleLanguages", {
+                    count: visibleLanguageCount,
+                    total: languageColumns.length,
+                  })}
+                </span>
+              </span>
+              <ChevronDown aria-hidden="true" className="size-3.5 text-muted-foreground" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="max-w-[calc(100vw-2rem)] rounded-xl border border-border ring-0"
+            >
+              {languageColumns.map(({ column, label, language }) => (
+                <DropdownMenuCheckboxItem
+                  key={column.id}
+                  indicatorVariant="checkbox"
+                  className="cursor-pointer rounded-md"
+                  checked={column.getIsVisible()}
+                  onCheckedChange={(checked) => column.toggleVisibility(checked)}
+                  closeOnClick={false}
+                >
+                  <span>{label}</span>
+                  <span aria-hidden="true" className="ml-auto text-xs text-muted-foreground">
+                    {language.toUpperCase()}
+                  </span>
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
       <div className="overflow-hidden rounded-lg border bg-background/96">
         <Table className="[&_td]:h-16 [&_td]:px-4 [&_th]:h-16 [&_th]:px-4">

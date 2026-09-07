@@ -20,7 +20,7 @@ export function releaseStructuredData(
     identifier: release.id,
     version: release.id,
     dateCreated: release.createdAt,
-    inLanguage: ["en", "ru"],
+    inLanguage: release.languages,
     creator: { "@type": "Organization", name: "Limit 115", url: "https://github.com/limit-115" },
     measurementTechnique: release.protocol,
     isAccessibleForFree: true,

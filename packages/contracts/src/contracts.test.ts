@@ -12,14 +12,14 @@ describe("public contracts", () => {
       }).success,
     ).toBe(false);
   });
-  it("rejects duplicate conditions, unsupported efforts and reversed language tuples", () => {
+  it("rejects duplicate conditions, unsupported efforts and duplicate languages", () => {
     expect(
       experimentSchema.safeParse({
         ...experiment,
         models: [...experiment.models, ...experiment.models],
       }).success,
     ).toBe(false);
-    expect(experimentSchema.safeParse({ ...experiment, languages: ["ru", "en"] }).success).toBe(
+    expect(experimentSchema.safeParse({ ...experiment, languages: ["ru", "ru"] }).success).toBe(
       false,
     );
     expect(

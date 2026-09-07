@@ -7,10 +7,11 @@
 
 **See how LLM accuracy changes across languages. With open results you can check.**
 
-Llang Gap is an open multilingual benchmark for comparing model accuracy on the
-same academic questions in different prompt languages. Read each language’s score
-alongside the gap and its uncertainty interval, then inspect the prompts and
-responses or independently recompute the scores from a published release.
+Llang Gap is an open multilingual benchmark across datasets and prompt languages.
+Choose a dataset and one or more languages at launch. Evaluate each language
+independently, or explicitly compare aligned questions with a paired uncertainty
+interval. Inspect prompts and responses or independently recompute a release.
+There is no built-in benchmark language pair; website locales are separate.
 
 Use the results to identify models for further testing on your own tasks. Each
 experiment records its languages, dataset, model settings and scope, so you can
@@ -28,9 +29,14 @@ is used in CI. Node's built-in SQLite keeps the runner self-contained.
 corepack enable
 pnpm install --frozen-lockfile
 
-# Download only the four pinned EN/RU Parquet files, verify and normalize them.
+# Download and verify only the languages selected by this example experiment.
 pnpm bench dataset prepare experiments/smoke.yaml
 pnpm bench plan experiments/smoke.yaml --offline
+
+# Select one language from the example dataset; no implicit comparison.
+pnpm bench plan experiments/smoke.yaml --dataset mmlu-prox-lite --language ru --offline
+# Select languages and an explicit subtraction order.
+pnpm bench plan experiments/smoke.yaml --dataset mmlu-prox-lite --languages ru en --compare ru:en --offline
 
 # Free smoke test against real, pinned dataset inputs.
 pnpm bench run experiments/smoke.yaml --offline
@@ -45,20 +51,26 @@ pnpm bench release verify .llang-gap/releases/smoke-author-v3
 The fake provider never uses the network. CLI results go to stdout as JSON; progress
 and errors go to stderr. Add `--json` for structured errors too.
 
+Dataset and language overrides are available on `dataset prepare`, `plan` and
+`run`. `--languages` (or singular `--language`) replaces the YAML language list
+and clears its comparisons; use `--compare baseline:language ...` to request gaps.
+`--protocol` selects a reviewed protocol compatible with that dataset/language set.
+See [adding a dataset](docs/datasets.md) for normalized JSONL and localized inputs.
+
 ## Layout
 
-| Location              | Responsibility                                                                        |
-| --------------------- | ------------------------------------------------------------------------------------- |
-| `apps/runner`         | Commander CLI, execution, retries, budget ledger, SQLite, release export              |
-| `apps/web`            | Next.js site and feature-owned next-intl dictionaries; developed separately           |
-| `packages/contracts`  | Strict Zod schemas and shared types                                                   |
-| `packages/datasets`   | Verified download, Parquet normalization and cross-language alignment                 |
-| `packages/evaluation` | Pinned prompt protocol, versioned author/legacy parsers, scoring and paired bootstrap |
-| `packages/providers`  | Official SDK adapters, capabilities, cost accounting and a fake provider              |
-| `experiments`         | Strict YAML definitions and generated editor JSON Schema                              |
-| `datasets`            | Versioned source manifest; data files stay out of Git                                 |
-| `results`             | Public release index and small manifests/aggregates                                   |
-| `.llang-gap`          | Ignored local cache, durable run state and release artifacts                          |
+| Location              | Responsibility                                                              |
+| --------------------- | --------------------------------------------------------------------------- |
+| `apps/runner`         | Commander CLI, execution, retries, budget ledger, SQLite, release export    |
+| `apps/web`            | Next.js site and feature-owned next-intl dictionaries; developed separately |
+| `packages/contracts`  | Strict Zod schemas and shared types                                         |
+| `packages/datasets`   | Manifest-driven download, format adapters and explicit alignment checks     |
+| `packages/evaluation` | Versioned protocol adapters, scoring and explicit paired bootstrap          |
+| `packages/providers`  | Official SDK adapters, capabilities, cost accounting and a fake provider    |
+| `experiments`         | Strict YAML definitions and generated editor JSON Schema                    |
+| `datasets`            | Versioned dataset manifests; data files stay out of Git                     |
+| `results`             | Public release index and small manifests/aggregates                         |
+| `.llang-gap`          | Ignored local cache, durable run state and release artifacts                |
 
 Internal packages expose their source through package exports. Next.js transpiles
 the contracts package; the CLI uses `tsx`. Library builds typecheck the source.
@@ -81,7 +93,9 @@ implementation.
 
 The leaderboard’s **Languages** menu shows or hides individual language accuracy
 columns. Model, effort, gap and the 95% interval always remain visible; hiding a
-language does not change the gap calculation. Both languages are shown by default.
+language does not change the gap calculation. All languages declared by the selected
+release are shown by default. Gaps appear only for its explicit comparisons.
+A release covers one dataset and protocol; unrelated datasets are never pooled.
 
 ## Checks
 
@@ -110,13 +124,13 @@ the [issue forms](https://github.com/limit-115/llang-gap/issues/new/choose).
 
 ## Live experiments
 
-The initial experiment compares the English and Russian versions of
+The checked-in initial configuration selects two available language versions of
 **MMLU-ProX Lite**: 588 test questions per language, 5-shot CoT prompts with five
 worked examples per subject, and GPT-6 Astra and Claude Fable 5.1 at low, medium and high native reasoning
 effort. It measures academic multiple-choice accuracy.
 
-Read [the operator guide](docs/runner.md) and [the exact protocol](docs/protocol.md)
-before running paid evaluations. The [primary comparison plan](docs/first-comparison.md)
+Read [the operator guide](docs/runner.md) and [its exact protocol](docs/protocols/mmluprox.md)
+before running paid evaluations. These are example conditions, not benchmark-wide defaults. The [primary comparison plan](docs/first-comparison.md)
 uses author prompts/extraction with the 2048-token API cap (`author-api-v3`);
 experimental v2 is historical only. Pricing, model availability and the output cap
 must be checked for your API account. The configured USD rates are dated

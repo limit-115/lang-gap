@@ -9,7 +9,7 @@ import {
   type ItemResult,
 } from "@llang-gap/contracts";
 import { aggregateResults, scoreAnswer } from "@llang-gap/evaluation";
-import { validateDataset } from "@llang-gap/datasets";
+import { validateManifestQuestions } from "@llang-gap/datasets";
 import { calculateCost } from "@llang-gap/providers";
 import {
   atomicWrite,
@@ -34,7 +34,7 @@ export async function recompute(directory: string, items: ItemResult[], benchmar
     );
   const questions = await readRunQuestions(directory, snapshot.datasetHash);
   if (benchmark) {
-    validateDataset(questions);
+    validateManifestQuestions(questions, snapshot.datasetManifest, snapshot.experiment.languages);
     if (
       snapshot.experiment.questionLimit ||
       snapshot.experiment.models.some((m) => m.transport === "fake")
@@ -43,7 +43,7 @@ export async function recompute(directory: string, items: ItemResult[], benchmar
     if (!snapshot.implementation.commit || !snapshot.implementation.clean)
       throw new Error("Benchmark runs must start from a clean committed source tree");
   }
-  const jobs = createJobs(snapshot.experiment, questions, configHash);
+  const jobs = createJobs(snapshot.experiment, questions, configHash, snapshot.datasetManifest);
   const byId = new Map(items.map((item) => [item.jobId, item]));
   if (items.length !== jobs.length || byId.size !== items.length)
     throw new Error("Incomplete or duplicate release matrix");
@@ -81,7 +81,7 @@ export async function recompute(directory: string, items: ItemResult[], benchmar
     configHash,
     jobs,
     items: rescored,
-    aggregate: aggregateResults(rescored, snapshot.experiment.seed),
+    aggregate: aggregateResults(rescored, snapshot.experiment.seed, 10_000, snapshot.experiment),
   };
 }
 
@@ -102,10 +102,43 @@ export async function scoreRun(directory: string) {
   }
 }
 
-const csv = (rows: ReturnType<typeof aggregateResults>) => {
-  const header =
-    "transport,model,effort,n,repeats,accuracy_en,accuracy_ru,gap_pp,ci95_low_pp,ci95_high_pp";
-  return `${header}\n${rows.map((r) => [r.transport, r.model, r.effort, r.n, r.repeats, r.en, r.ru, r.gapPp, ...r.gapCi95].join(",")).join("\n")}\n`;
+export const aggregateCsv = (rows: ReturnType<typeof aggregateResults>) => {
+  const records = rows.flatMap((row) => [
+    ...row.scores.map((score) => [
+      row.transport,
+      row.model,
+      row.effort,
+      "accuracy",
+      score.language,
+      "",
+      score.n,
+      row.repeats,
+      score.accuracy,
+      "",
+      "",
+      "",
+    ]),
+    ...row.comparisons.map((pair) => [
+      row.transport,
+      row.model,
+      row.effort,
+      "comparison",
+      pair.language,
+      pair.baseline,
+      pair.n,
+      row.repeats,
+      "",
+      pair.gapPp,
+      ...pair.gapCi95,
+    ]),
+  ]);
+  const cell = (value: string | number) =>
+    typeof value === "string" ? `"${value.replaceAll('"', '""')}"` : String(value);
+  return (
+    "transport,model,effort,metric,language,baseline,n,repeats,accuracy,gap_pp,ci95_low_pp,ci95_high_pp\n" +
+    records.map((row) => row.map(cell).join(",")).join("\n") +
+    "\n"
+  );
 };
 
 export async function buildRelease(
@@ -140,15 +173,18 @@ export async function buildRelease(
       "dataset-manifest.json": json(scored.snapshot.datasetManifest),
       "items.jsonl": jsonl(scored.items),
       "aggregate.json": json(scored.aggregate),
-      "aggregate.csv": csv(scored.aggregate),
+      "aggregate.csv": aggregateCsv(scored.aggregate),
       "attempts.jsonl": jsonl(state.audit()),
       "execution.json": json({
         summary,
         events: state.db.prepare("SELECT created_at,kind,detail FROM events ORDER BY id").all(),
       }),
       "ATTRIBUTION.md":
-        "# Source attribution\n\nDataset: li-lab/MMLU-ProX-Lite, MIT per its dataset card.\nhttps://huggingface.co/datasets/li-lab/MMLU-ProX-Lite\n\nPrompts adapted from EleutherAI/lm-evaluation-harness (MIT).\nSee resolved.json for pinned revisions and protocol differences.\n\n" +
-        (await readFile(join(workspace, "packages/evaluation/reference/LICENSE.md"), "utf8")),
+        `# Source attribution\n\nDataset: ${scored.snapshot.datasetManifest.repository}\n${scored.snapshot.datasetManifest.source}\nLicense: ${scored.snapshot.datasetManifest.license}\n\nSee resolved.json for pinned dataset, localized instructions and protocol.\n` +
+        (scored.snapshot.experiment.protocol.startsWith("mmluprox-")
+          ? "\nPrompts adapted from EleutherAI/lm-evaluation-harness (MIT).\n\n" +
+            (await readFile(join(workspace, "packages/evaluation/reference/LICENSE.md"), "utf8"))
+          : ""),
     };
     const files: Record<string, string> = {};
     for (const [name, content] of Object.entries(assets)) {
@@ -156,13 +192,15 @@ export async function buildRelease(
       files[name] = hash(content);
     }
     const manifest = releaseManifestSchema.parse({
-      schemaVersion: 2,
+      schemaVersion: 3,
       id,
       runId: scored.snapshot.runId,
       kind,
       createdAt: new Date().toISOString(),
       dataset: scored.snapshot.experiment.dataset,
       datasetRevision: scored.snapshot.datasetManifest.revision,
+      languages: scored.snapshot.experiment.languages,
+      comparisons: scored.snapshot.experiment.comparisons,
       protocol: scored.snapshot.experiment.protocol,
       configHash: scored.configHash,
       files,
@@ -219,13 +257,16 @@ export async function verifyRelease(directory: string) {
     manifest.runId !== recomputed.snapshot.runId ||
     manifest.dataset !== recomputed.snapshot.experiment.dataset ||
     manifest.datasetRevision !== recomputed.snapshot.datasetManifest.revision ||
-    manifest.protocol !== recomputed.snapshot.experiment.protocol
+    manifest.protocol !== recomputed.snapshot.experiment.protocol ||
+    json(manifest.languages) !== json(recomputed.snapshot.experiment.languages) ||
+    json(manifest.comparisons) !== json(recomputed.snapshot.experiment.comparisons)
   )
     throw new Error("Release provenance mismatch");
   if (
     json(manifest.aggregate) !== json(recomputed.aggregate) ||
     (await readFile(join(directory, "aggregate.json"), "utf8")) !== json(recomputed.aggregate) ||
-    (await readFile(join(directory, "aggregate.csv"), "utf8")) !== csv(recomputed.aggregate)
+    (await readFile(join(directory, "aggregate.csv"), "utf8")) !==
+      aggregateCsv(recomputed.aggregate)
   )
     throw new Error("Release aggregates do not reproduce");
   return manifest;

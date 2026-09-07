@@ -25,14 +25,6 @@ export async function getReleases() {
       const aggregate = aggregateSchema.array().parse(JSON.parse(aggregateFile.toString("utf8")));
       if (JSON.stringify(aggregate) !== JSON.stringify(release.aggregate))
         throw new Error(`Aggregate differs from manifest for ${id}`);
-      if (
-        aggregate.some(
-          (row) =>
-            row.repeatAccuracy.en.length !== row.repeats ||
-            row.repeatAccuracy.ru.length !== row.repeats,
-        )
-      )
-        throw new Error(`Incomplete per-repeat scores for ${id}`);
       return release;
     }),
   );

@@ -53,50 +53,88 @@ export function normalizeRow(
   });
 }
 
-export function validateDataset(questions: Question[], expectedTestCount = 588): void {
-  const byLanguage = new Map<Language, Map<string, Question>>();
-  for (const language of ["en", "ru"] as const) {
+export function validateDataset(
+  questions: readonly Question[],
+  expectedTestCount?: number,
+  languages = [...new Set(questions.map((q) => q.language))],
+): void {
+  if (!languages.length) throw new Error("Empty dataset language selection");
+  for (const language of languages) {
     const rows = questions.filter((q) => q.language === language);
-    const map = new Map(rows.map((q) => [q.id, q]));
-    if (map.size !== rows.length) throw new Error(`Duplicate ${language} question ID`);
-    if (rows.filter((q) => q.split === "test").length !== expectedTestCount)
+    const keys = new Set(rows.map((q) => `${q.split}/${q.id}`));
+    if (keys.size !== rows.length) throw new Error(`Duplicate ${language} question ID`);
+    const test = rows.filter((q) => q.split === "test");
+    if (!test.length || (expectedTestCount !== undefined && test.length !== expectedTestCount))
       throw new Error(`Unexpected ${language} test count`);
-    const validation = rows.filter((q) => q.split === "validation");
-    const categories = new Set(rows.map((q) => q.category));
-    if (expectedTestCount === 588 && (validation.length !== 70 || categories.size !== 14))
-      throw new Error("Expected 70 validation examples in 14 subjects");
-    for (const category of categories) {
-      if (validation.filter((q) => q.category === category).length !== 5)
-        throw new Error(`Expected five validation examples: ${category}`);
-    }
-    byLanguage.set(language, map);
+    const testIds = new Set(test.map((q) => q.id));
+    const testSourceIds = new Set(test.map((q) => q.sourceId));
+    if (
+      rows.some(
+        (q) => q.split === "validation" && (testIds.has(q.id) || testSourceIds.has(q.sourceId)),
+      )
+    )
+      throw new Error("Test / validation question ID overlap");
   }
-  const en = byLanguage.get("en");
-  const ru = byLanguage.get("ru");
-  if (!en || !ru || en.size !== ru.size) throw new Error("Language sets differ");
-  for (const [id, a] of en) {
-    const b = ru.get(id);
+}
+
+// Alignment is a property of an explicitly requested comparison, not of every dataset.
+export function validateAlignment(
+  questions: readonly Question[],
+  baseline: Language,
+  language: Language,
+): void {
+  const first = questions.filter((q) => q.language === baseline && q.split === "test");
+  const second = new Map(
+    questions.filter((q) => q.language === language && q.split === "test").map((q) => [q.id, q]),
+  );
+  if (!first.length || first.length !== second.size)
+    throw new Error("Language alignment sets differ");
+  for (const a of first) {
+    const b = second.get(a.id);
     if (
       !b ||
-      a.split !== b.split ||
       a.category !== b.category ||
       a.answer !== b.answer ||
       a.options.length !== b.options.length
-    ) {
-      throw new Error(`Language alignment mismatch: ${id}`);
+    )
+      throw new Error(`Language alignment mismatch: ${a.id}`);
+  }
+}
+
+export function validateManifestQuestions(
+  questions: readonly Question[],
+  manifest: DatasetManifest,
+  languages: readonly Language[],
+) {
+  validateDataset(questions, undefined, [...languages]);
+  for (const language of languages) {
+    const sources = manifest.files.filter((file) => file.language === language);
+    if (!sources.some((file) => file.split === "test"))
+      throw new Error(`Dataset ${manifest.id} does not support ${language}`);
+    for (const split of ["test", "validation"] as const) {
+      const expected = sources
+        .filter((file) => file.split === split)
+        .reduce((sum, file) => sum + file.rows, 0);
+      if (questions.filter((q) => q.language === language && q.split === split).length !== expected)
+        throw new Error(`Dataset manifest row count mismatch: ${language}/${split}`);
     }
   }
-  const testIds = new Set(questions.filter((q) => q.split === "test").map((q) => q.sourceId));
-  if (questions.some((q) => q.split === "validation" && testIds.has(q.sourceId)))
-    throw new Error("Test / validation source ID overlap");
+  if (questions.some((q) => !languages.includes(q.language)))
+    throw new Error("Unselected dataset language");
 }
 
 export async function prepareDataset(options: {
   manifest: DatasetManifest;
   cacheDir: string;
   offline?: boolean;
+  languages?: readonly Language[];
 }): Promise<{ questions: Question[]; directory: string; hash: string }> {
   const { manifest, cacheDir, offline = false } = options;
+  const languages = options.languages ?? [...new Set(manifest.files.map((file) => file.language))];
+  for (const language of languages) {
+    if (!manifest.files.some((file) => file.language === language && file.split === "test"))
+      throw new Error(`Dataset ${manifest.id} does not support ${language}`);
+  }
   const directory = join(
     cacheDir,
     manifest.id,
@@ -104,7 +142,7 @@ export async function prepareDataset(options: {
     `normalizer-${manifest.normalizerVersion}`,
   );
   const questions: Question[] = [];
-  for (const source of manifest.files) {
+  for (const source of manifest.files.filter((file) => languages.includes(file.language))) {
     const path = join(directory, source.path);
     let bytes: Buffer;
     try {
@@ -127,16 +165,34 @@ export async function prepareDataset(options: {
       }
     }
     if (sha256(bytes) !== source.sha256) throw new Error(`Corrupted dataset cache: ${source.path}`);
-    const rows = await parquetReadObjects({ file: await asyncBufferFromFile(path) });
+    const normalized = manifest.schemaVersion === 2 && manifest.format === "normalized-jsonl";
+    const rows: Record<string, unknown>[] = normalized
+      ? bytes
+          .toString("utf8")
+          .trimEnd()
+          .split("\n")
+          .map((line) => questionSchema.parse(JSON.parse(line)))
+      : await parquetReadObjects({ file: await asyncBufferFromFile(path) });
     if (rows.length !== source.rows) throw new Error(`Unexpected row count: ${source.path}`);
-    questions.push(...rows.map((row) => normalizeRow(row, source.language, source.split)));
+    const decoded = rows.map((row) =>
+      normalized ? questionSchema.parse(row) : normalizeRow(row, source.language, source.split),
+    );
+    if (decoded.some((q) => q.language !== source.language || q.split !== source.split))
+      throw new Error(`Dataset source language/split mismatch: ${source.path}`);
+    questions.push(...decoded);
   }
-  validateDataset(questions);
+  validateManifestQuestions(questions, manifest, languages);
   const normalized = `${questions.map((q) => JSON.stringify(q)).join("\n")}\n`;
   const temporary = join(directory, `normalized.${randomUUID()}.tmp`);
   try {
     await writeFile(temporary, normalized);
-    await rename(temporary, join(directory, "normalized.jsonl"));
+    await rename(
+      temporary,
+      join(
+        directory,
+        `normalized-${sha256(JSON.stringify([...languages].sort())).slice(0, 16)}.jsonl`,
+      ),
+    );
   } finally {
     await rm(temporary, { force: true });
   }

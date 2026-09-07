@@ -38,10 +38,8 @@ export const plannedRows: LeaderboardRow[] = plannedModels.flatMap(({ transport,
     model,
     transport,
     effort,
-    en: null,
-    ru: null,
-    gapPp: null,
-    gapCi95: null,
+    scores: [],
+    comparisons: [],
   })),
 );
 

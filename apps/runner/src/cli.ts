@@ -3,7 +3,7 @@ import { join, resolve } from "node:path";
 import { stat } from "node:fs/promises";
 import { Command, InvalidArgumentError } from "@commander-js/extra-typings";
 import { prepareDataset, readManifest } from "@llang-gap/datasets";
-import { loadExperiment } from "./config";
+import { loadExperiment, selectExperiment, type ExperimentSelection } from "./config";
 import { hash, json, workspace } from "./files";
 import { createJobs, summarizePlan } from "./plan";
 import { readCalibration } from "./forecast";
@@ -48,13 +48,17 @@ const progress = (summary: ReturnType<RunState["summary"]>) => {
     );
 };
 
-async function prepare(path: string, offline = false) {
-  const experiment = await loadExperiment(resolve(path));
-  const manifest = await readManifest(join(workspace, "datasets/mmlu-prox-lite/manifest.json"));
+async function prepare(path: string, offline = false, selection: ExperimentSelection = {}) {
+  const experiment = selectExperiment(await loadExperiment(resolve(path)), selection);
+  const manifest = await readManifest(
+    join(workspace, "datasets", experiment.dataset, "manifest.json"),
+  );
+  if (manifest.id !== experiment.dataset) throw new Error("Experiment / dataset manifest mismatch");
   const dataset = await prepareDataset({
     manifest,
     cacheDir: join(workspace, ".llang-gap/datasets"),
     offline,
+    languages: experiment.languages,
   });
   return { experiment, manifest, ...dataset };
 }
@@ -80,8 +84,13 @@ program
   .description("Manage verified local dataset cache")
   .command("prepare <experiment>")
   .option("--offline", "Use verified cache only")
+  .option("--dataset <id>", "Dataset manifest ID under datasets/<id>/manifest.json")
+  .option("--language <tag>", "Select one benchmark language")
+  .option("--languages <tags...>", "Select benchmark languages")
+  .option("--protocol <id>", "Select the versioned evaluation protocol")
+  .option("--compare <pairs...>", "Explicit baseline:language comparisons")
   .action(async (path, options) => {
-    const data = await prepare(path, options.offline);
+    const data = await prepare(path, options.offline, options);
     output({
       dataset: data.manifest.id,
       revision: data.manifest.revision,
@@ -98,9 +107,19 @@ program
     "Forecast costs from a completed compatible run with recorded usage",
   )
   .option("--offline", "Use verified dataset cache only")
+  .option("--dataset <id>", "Dataset manifest ID under datasets/<id>/manifest.json")
+  .option("--language <tag>", "Select one benchmark language")
+  .option("--languages <tags...>", "Select benchmark languages")
+  .option("--protocol <id>", "Select the versioned evaluation protocol")
+  .option("--compare <pairs...>", "Explicit baseline:language comparisons")
   .action(async (path, options) => {
-    const { experiment, questions, hash: datasetHash } = await prepare(path, options.offline);
-    const jobs = createJobs(experiment, questions, hash(json(experiment)));
+    const {
+      experiment,
+      manifest,
+      questions,
+      hash: datasetHash,
+    } = await prepare(path, options.offline, options);
+    const jobs = createJobs(experiment, questions, hash(json(experiment)), manifest);
     const forecast = options.calibrateFrom
       ? await readCalibration(resolve(options.calibrateFrom), experiment, jobs, datasetHash)
       : null;
@@ -117,11 +136,16 @@ program
     positiveInteger,
   )
   .option("--offline", "Disallow dataset downloads (model APIs may still use the network)")
+  .option("--dataset <id>", "Dataset manifest ID under datasets/<id>/manifest.json")
+  .option("--language <tag>", "Select one benchmark language")
+  .option("--languages <tags...>", "Select benchmark languages")
+  .option("--protocol <id>", "Select the versioned evaluation protocol")
+  .option("--compare <pairs...>", "Explicit baseline:language comparisons")
   .action(async (path, options) => {
     const configured = await loadExperiment(resolve(path));
     if (configured.models.some((m) => m.transport !== "fake") && options.budgetUsd === undefined)
       throw new Error("Live runs require --budget-usd");
-    const { experiment, questions, manifest } = await prepare(path, options.offline);
+    const { experiment, questions, manifest } = await prepare(path, options.offline, options);
     const result = await withSignals((signal) =>
       createRun({
         experiment,

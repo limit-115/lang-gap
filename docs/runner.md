@@ -1,5 +1,31 @@
 # Runner operator guide
 
+## Dataset and language selection
+
+`dataset prepare`, `plan` and `run` accept the same selection flags:
+
+```sh
+pnpm bench plan experiments/smoke.yaml --dataset mmlu-prox-lite --language ru
+pnpm bench run experiments/smoke.yaml --dataset mmlu-prox-lite --languages ru en --compare ru:en
+# After registering a compatible manifest and localized protocol inputs:
+pnpm bench plan experiments/custom.yaml --dataset my-dataset --languages de fr ja --protocol multiple-choice-v1 --compare fr:ja ja:de
+```
+
+`--dataset` resolves `datasets/<id>/manifest.json` and validates its identity.
+`--language` selects one language; `--languages` selects a nonempty unique list of
+canonical language tags (for example `de`, `ja`, `zh-Hant`). These options replace
+the YAML list and clear inherited comparisons. `--compare baseline:language ...`
+sets explicit ordered pairs; omitting it after a language override means independent
+scores. Without selection flags, the YAML conditions are used exactly as written.
+`--protocol` chooses an implemented protocol; unsupported inputs fail before calls.
+The plan reports dataset, selected languages, comparisons and counts per language.
+
+Only selected source files are downloaded/decoded. The original full manifest and
+selected normalized rows enter the immutable snapshot. Cache output filenames are
+scoped by the selected language set. A language limit is not a question subset:
+a full single-language run can be released if all other release gates pass.
+See [adding datasets](datasets.md) and [the protocol](protocol.md).
+
 ## Configuration
 
 `experiments/*.yaml` is the scientific source of truth. Commander.js provides the
@@ -15,9 +41,9 @@ Schema cannot express them.
 - `smoke.yaml`: four questions with the deterministic fake provider, two repeats.
   Free and permanently ineligible for the public index.
 
-Changing the model, protocol, token cap, repeats, question subset or seed means a
+Changing the dataset, languages, comparisons, model, protocol, token cap, repeats, question subset or seed means a
 new run. Provider-native effort names are not equivalent compute budgets. The
-primary protocol fixes the cap at 2048 tokens including reasoning, matching the
+MMLU-ProX author adapter fixes the cap at 2048 tokens including reasoning, matching the
 author task numerically. Planning rejects a different cap under this ID. API
 limitations and the stricter publication gate are explicit in the
 [protocol](protocol.md). Any larger cap requires a separately named protocol and
@@ -38,7 +64,7 @@ no 100% parse-rate requirement or translation/key correction is a readiness gate
 
 ## Transport and model
 
-Experiment schema v2 identifies each condition with two fields:
+Experiment schema v3 identifies each condition with two fields:
 
 ```yaml
 transport: openrouter
@@ -58,12 +84,10 @@ conditions. Snapshots record `transportMetadata`. The website derives the model
 owner from model metadata/namespace, independently of the transport or serving
 endpoint. Native and routed results retain distinct IDs and links.
 
-To start a new run from an old YAML, set `schemaVersion: 2` and rename each model's
-`provider` field to `transport`. The old gateway-specific routing field is removed.
-Unknown fields are rejected. Saved snapshots and release manifests also use schema
-v2 for the new `transport` result field. Never rewrite existing run directories or
-immutable releases; resume, score and verify v1 artifacts with their recorded
-source and dependencies. Dataset/protocol versions are unaffected.
+For a fresh run from an old YAML, use `schemaVersion: 3`, `transport` and `model`,
+and explicitly specify `languages` and `comparisons` (use `[]` for independent
+scores). Never rewrite existing snapshots or releases; schema-v1/v2 artifacts
+require their recorded source and dependencies for resume, scoring and verification.
 
 ## OpenRouter
 
@@ -91,7 +115,7 @@ returned gateway provider, model and usage metadata. Model variants (`:online`,
 
 Reasoning uses `reasoning.effort`; prompt compression is disabled. Stops are applied
 locally by the protocol scorer, with no server stop or sampling override. Reasoning
-fields never enter answer extraction. See [protocol differences](protocol.md#openrouter-transport).
+fields never enter answer extraction. See [protocol differences](protocols/mmluprox.md#openrouter-transport).
 Verify effort support and token limits in the [model catalog](https://openrouter.ai/api/v1/models)
 before a paid run. `require_parameters` does not establish support for every effort
 value or equal compute across models. CI uses intercepted HTTP responses only.
@@ -175,7 +199,7 @@ answers are never retried. A timeout can still have generated a billable respons
 server-side; uncertain attempts retain their full reservation. Exactly-once remote
 execution is not promised.
 
-Concurrency is per transport. Paired EN/RU requests remain adjacent in a seeded,
+Concurrency is per transport. Selected language conditions remain adjacent in a seeded,
 shuffled schedule; the first language alternates. This seed controls scheduling
 and statistics, not model generation. Request wall time is recorded as observed
 API latency, without presenting it as pure inference time.
@@ -223,7 +247,7 @@ Shared network filesystems, multiple hosts and distributed workers are outside M
 ## Validation performed
 
 The automated suite covers strict config parsing, dataset pairing and corruption,
-gold-answer leakage, reference prompts in all EN/RU subjects, first-match author
+gold-answer leakage, reference prompts for all pinned adapter subjects, first-match author
 extraction and the frozen historical terminal parser,
 bootstrap clustering, every native effort through intercepted SDK HTTP calls,
 technical retries, budget reservations, cancellation, restart recovery, locks,

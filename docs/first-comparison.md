@@ -1,10 +1,13 @@
 # Initial benchmark plan
 
+This is one explicitly configured MMLU-ProX experiment. Its dataset, language pair
+and question count are not benchmark-wide architectural defaults.
+
 The primary baseline is `mmluprox-lite-5shot-author-api-v3` in
 [experiments/mvp.yaml](../experiments/mvp.yaml). It uses the author prompts,
 first five subject validation examples in source order, exact first-match regex,
 localized stops and the numeric 2048-token generation cap. The
-[protocol](protocol.md) records source pins, verified behavior and API limitations.
+[protocol](protocols/mmluprox.md) records source pins, verified behavior and API limitations.
 **No full or paid run is authorized by this plan.**
 
 ## Fixed scope

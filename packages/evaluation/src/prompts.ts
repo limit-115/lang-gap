@@ -1,57 +1,38 @@
-import type { Language, PromptQuestion, ProtocolId, Question } from "@llang-gap/contracts";
-import reference from "./reference.json";
+import type {
+  DatasetManifest,
+  PromptLabels,
+  PromptQuestion,
+  ProtocolId,
+  Question,
+} from "@llang-gap/contracts";
 
-// Immutable: existing snapshots hash this exact object.
-export const protocolV1 = {
-  id: "mmluprox-lite-5shot-native-reasoning-v1",
+import {
+  protocol,
+  protocolV1,
+  mmluproxLanguage,
+  buildMmluproxPrompt,
+  validateMmluproxDataset,
+  mmluproxAnswerFormat,
+} from "#src/protocols/mmluprox";
+export { protocol, protocolV1, formatQuestion } from "#src/protocols/mmluprox";
+
+export const multipleChoiceProtocol = {
+  id: "multiple-choice-v1",
   version: 1,
-  referenceCommit: "b954108c9baaaa934b4ad842033b31a97ee30816",
-  parserVersion: "terminal-answer-v1",
+  parserVersion: "bare-option-letter-v1",
   bootstrapSamples: 10_000,
-  reference,
+  fewshot: { count: 0 },
+  prompt:
+    "Dataset-manifest localized instruction, question label, target text, options label, A-J options. Blank line separates each section. Final newline.",
+  extraction:
+    "Trim surrounding whitespace; accept exactly one uppercase A-J letter within the option count. All other visible outputs score zero.",
   adaptations: [
-    "Single user message; no system prompt, tools or conversation history.",
-    "Native effort; no temperature, sampling or stop-sequence override.",
-    "Output token cap from the resolved experiment includes native reasoning.",
-    "Parse the terminal answer marker, accepting case and Unicode dash variants; no bare-letter fallback.",
-  ],
-} as const;
-
-export const protocol = {
-  id: "mmluprox-lite-5shot-author-api-v3",
-  version: 3,
-  referenceCommit: protocolV1.referenceCommit,
-  parserVersion: "mmluprox-regex-first-v1",
-  bootstrapSamples: 10_000,
-  reference,
-  fewshot: { split: "validation", sampler: "first_n", count: 5, order: "source" },
-  extraction: {
-    en: "answer is \\(?([ABCDEFGHIJ])\\)?",
-    ru: "Ответ - \\(?([ABCDEFGHIJ])\\)?",
-    groupSelect: 0,
-    fallback: "[invalid]",
-  },
-  generation: {
-    doSample: false,
-    temperature: 0,
-    maxGenTokens: 2048,
-    until: {
-      en: ["</s>", "Q:", "Question:", "<|im_end|>"],
-      ru: ["</s>", "Q:", "Вопрос:", "<|im_end|>"],
-    },
-  },
-  adaptations: [
-    "Single user message instead of vLLM text completion; no system prompt, tools or history.",
-    "Native effort; selected APIs reject temperature=0 and do not expose greedy decoding.",
-    "The 2048-token API cap includes hidden reasoning; visible-only token budgeting is unavailable.",
-    "Anthropic receives native stop sequences; OpenAI Responses has no stop parameter. Both are cut at the first visible task stop before extraction; provider EOS is not exposed.",
-    "Score visible text, including cap-limited outputs; provider reasoning blocks are unavailable for extraction. Represent the harness invalid sentinel as null.",
-    "Missing technical outcomes and truncation block publication under the project's release policy; cap-limited text is still scored by the author regex, without exclusions or selective retries.",
-    "Prespecified native-effort conditions, repeats and paired bootstrap are Llang Gap extensions.",
+    "One independent user message. Native effort and output cap are explicit experiment settings.",
   ],
 } as const;
 
 export function getProtocol(id: ProtocolId) {
+  if (id === multipleChoiceProtocol.id) return multipleChoiceProtocol;
   if (id === protocolV1.id) return protocolV1;
   if (id === protocol.id) return protocol;
   throw new Error(`Unsupported protocol: ${String(id)}`);
@@ -66,41 +47,51 @@ export function toPromptQuestion(q: Question): PromptQuestion {
     options: [...q.options],
   };
 }
-export function formatQuestion(q: PromptQuestion): string {
-  const words = reference[q.language].labels;
-  return `${words[0]}\n${q.question}\n${words[1]}\n${q.options.map((option, i) => `${String.fromCharCode(65 + i)}. ${option}\n`).join("")}`;
-}
 export function buildPrompt(
   target: PromptQuestion,
   validation: readonly Question[],
-  protocolId: ProtocolId = protocol.id,
+  protocolId: ProtocolId,
+  labels?: PromptLabels,
 ): string {
   getProtocol(protocolId);
-  const language: Language = target.language;
-  const spec = reference[language];
-  const category = target.category.replaceAll(" ", "_");
-  if (!(category in spec.descriptions)) throw new Error(`Unsupported subject: ${category}`);
-  const pool = validation.filter((q) => q.category === target.category && q.language === language);
-  // first_n follows the subject-filtered validation split, never a sort or RNG.
-  // Keep the historical v1 validation behavior for its existing snapshots.
-  const examples =
-    protocolId === protocolV1.id ? pool : pool.filter((q) => q.split === "validation").slice(0, 5);
-  if (examples.length !== 5 || examples.some((q) => q.split !== "validation" || q.id === target.id))
-    throw new Error("Five distinct validation examples required");
-  if (new Set(examples.map((q) => q.id)).size !== 5) throw new Error("Duplicate few-shot example");
-  const description = spec.descriptions[category as keyof typeof spec.descriptions];
-  const cotPrefix = spec.labels[4];
-  const answerPrefix = spec.labels[2];
-  if (!cotPrefix || !answerPrefix) throw new Error("Invalid pinned prompt labels");
-  return (
-    description +
-    examples
-      .map(
-        (q) =>
-          formatQuestion(toPromptQuestion(q)) + q.cot.replaceAll(cotPrefix, answerPrefix) + "\n\n",
-      )
-      .join("") +
-    formatQuestion(target) +
-    answerPrefix
-  );
+  if (protocolId !== multipleChoiceProtocol.id)
+    return buildMmluproxPrompt(target, validation, protocolId);
+  if (!labels) throw new Error(`Missing localized prompt instructions: ${target.language}`);
+  return `${labels.instruction}\n\n${labels.question}\n${target.question}\n\n${labels.options}\n${target.options.map((option, i) => `${String.fromCharCode(65 + i)}. ${option}`).join("\n")}\n`;
+}
+
+export function getPromptLabels(
+  manifest: DatasetManifest | undefined,
+  language: string,
+): PromptLabels | undefined {
+  return manifest?.schemaVersion === 2 ? manifest.prompts[language] : undefined;
+}
+export function getStopSequences(id: ProtocolId, language: string): readonly string[] | undefined {
+  return id === protocol.id ? protocol.generation.until[mmluproxLanguage(language)] : undefined;
+}
+export function validateProtocolDataset(
+  id: ProtocolId,
+  dataset: string,
+  languages: readonly string[],
+  manifest?: DatasetManifest,
+) {
+  getProtocol(id);
+  if (manifest && manifest.id !== dataset)
+    throw new Error("Experiment / dataset manifest mismatch");
+  if (id === multipleChoiceProtocol.id) {
+    for (const language of languages)
+      if (!getPromptLabels(manifest, language))
+        throw new Error(`Missing localized prompt instructions: ${language}`);
+  } else {
+    validateMmluproxDataset(dataset, languages);
+  }
+}
+
+export function getAnswerFormat(id: ProtocolId, language: string) {
+  return id === multipleChoiceProtocol.id
+    ? { prefix: "", suffix: "" }
+    : mmluproxAnswerFormat(language);
+}
+export function getMaxOutputTokens(id: ProtocolId): number | undefined {
+  return id === protocol.id ? protocol.generation.maxGenTokens : undefined;
 }

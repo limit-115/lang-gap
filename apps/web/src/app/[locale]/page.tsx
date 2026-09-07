@@ -40,7 +40,7 @@ export default async function LeaderboardPage({ params }: Props) {
           url: `${siteUrl}/`,
           name: "Llang Gap",
           description: t(release ? "metadataDescription" : "metadataPlannedDescription"),
-          inLanguage: ["en", "ru"],
+          inLanguage: [...routing.locales],
           publisher: {
             "@type": "Organization",
             name: "Limit 115",
@@ -55,7 +55,7 @@ export default async function LeaderboardPage({ params }: Props) {
         <div className="panel-heading">
           <div>
             <h2 id="benchmark-title">{t("tableTitle")}</h2>
-            <p>{t("tableDescription")}</p>
+            <p>{release ? `${release.dataset} · ${release.protocol}` : t("tableDescription")}</p>
           </div>
           {release && (
             <Badge
@@ -69,15 +69,27 @@ export default async function LeaderboardPage({ params }: Props) {
         <NextIntlClientProvider
           messages={{ Leaderboard: getMessagesForLocale(locale).Leaderboard }}
         >
-          <LeaderboardTable rows={release?.aggregate ?? []} />
+          <LeaderboardTable
+            rows={release?.aggregate ?? []}
+            languages={release?.languages ?? []}
+            comparisons={release?.comparisons ?? []}
+          />
         </NextIntlClientProvider>
         <div className="panel-meta">
-          <span>{t("questions", { count: release?.aggregate[0]?.n ?? 588 })}</span>
-          <span>{t("repeats", { count: release?.aggregate[0]?.repeats ?? 3 })}</span>
-          <span>{t("languages")}</span>
-          <span className="meta-last">
-            {release ? t("release", { id: release.id }) : t("models")}
-          </span>
+          {release ? (
+            <>
+              {release.aggregate[0]!.scores.map((score) => (
+                <span key={score.language}>
+                  {score.language.toUpperCase()} · {t("questions", { count: score.n })}
+                </span>
+              ))}
+              <span>{t("repeats", { count: release.aggregate[0]!.repeats })}</span>
+              <span>{t("languages", { count: release.languages.length })}</span>
+              <span className="meta-last">{t("release", { id: release.id })}</span>
+            </>
+          ) : (
+            <span>{t("noPublishedResults")}</span>
+          )}
         </div>
       </section>
       {release && (

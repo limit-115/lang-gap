@@ -26,12 +26,21 @@ create a new ID and describe the correction in the version-control change.
 Historical v1/v2 artifacts remain immutable and keep their original scoring. Do
 not run the new parser over old outputs or edit their protocol IDs. Verification
 requires their recorded source and runtime dependencies; v2's original code stays
-at PR #16's revision. See [protocol history](protocol.md#historical-v1v2-and-offline-evidence).
+at PR #16's revision. See [protocol history](protocols/mmluprox.md#historical-v1v2-and-offline-evidence).
 
-New run snapshots and release manifests use schema v2. Item, aggregate and CSV
-records identify execution with `transport` and `model`; model ownership is display
-metadata. Existing schema-v1 artifacts retain `provider` and must be verified with
-their recorded implementation. Do not rename fields inside saved artifacts.
+New experiments, run snapshots and release manifests use schema v3. Aggregates
+contain `scores: [{ language, n, accuracy, repeatAccuracy }]` and
+`comparisons: [{ baseline, language, n, gapPp, gapCi95 }]` for each transport/model/
+effort. The release declares the same ordered `languages` and `comparisons` as its
+resolved experiment. CSV is long-form: `metric=accuracy` rows name a language;
+`metric=comparison` rows name both language and baseline. It has no per-language
+column names. Empty comparison lists are valid, including single-language releases.
+
+Schema-v1/v2 artifacts must be resumed and verified with their recorded checkout;
+never rename or add fields inside saved artifacts. No public releases were indexed
+when schema v3 was introduced. Existing local state remains untouched. New runs
+using old protocol IDs retain the pinned prompt/parser inputs, but have a new
+snapshot identity and must not overwrite or silently pool historical artifacts.
 
 ## Files
 
@@ -40,14 +49,14 @@ their recorded implementation. Do not rename fields inside saved artifacts.
 | `manifest.json`         | ID, kind, date, provenance, aggregate rows and SHA-256 of every other file                |
 | `resolved.json`         | Exact resolved experiment, protocol, dataset manifest, implementation and SDK versions    |
 | `identity.json`         | Hash of the resolved snapshot                                                             |
-| `dataset-manifest.json` | Original repository, revision and Parquet hashes                                          |
-| `dataset.jsonl`         | Normalized EN/RU test and validation input snapshot                                       |
+| `dataset-manifest.json` | Original repository, revision, source hashes and localized instructions                   |
+| `dataset.jsonl`         | Normalized selected-language test and validation input snapshot                           |
 | `items.jsonl`           | One selected completed response per job, prompt, visible output, score, usage and latency |
-| `aggregate.json`        | Model/effort rows, EN/RU accuracy, gap in pp, paired 95% interval, repeat accuracies      |
-| `aggregate.csv`         | Portable table of scores and paired intervals                                             |
+| `aggregate.json`        | Model/effort rows, language scores and explicitly named paired comparisons                |
+| `aggregate.csv`         | Long-form language scores and named comparison intervals                                  |
 | `attempts.jsonl`        | Every technical attempt, timestamps, status, known/uncertain charge and request ID        |
 | `execution.json`        | Overall charged/reserved amount, completion counts and operational event log              |
-| `ATTRIBUTION.md`        | Dataset and harness source attribution and upstream license notice                        |
+| `ATTRIBUTION.md`        | Selected dataset attribution and applicable protocol license notices                      |
 
 Raw SDK response bodies remain in the private SQLite journal. Public results
 include visible final text, not provider thinking blocks/signatures, keys or HTTP
@@ -88,7 +97,9 @@ The website should:
    SDKs, dataset loader or scientific scoring code.
 3. Render the same numerical aggregates at `/en/` and `/ru/`, localizing only labels,
    number/date formatting and explanatory text. Default ordering should not imply
-   a winner. Display EN, RU, signed `gapPp`, `gapCi95`, `n`, `repeats`, protocol and date.
+   a winner. Derive columns, language names,
+   question counts and named gaps from the release. Display its dataset, protocol,
+   date and repeats; never substitute a global dataset or question count.
 4. Generate history and permanent release detail pages from the index. Download
    URLs are `${baseUrl}/${filename}`, including `manifest.json`. The manifest
    provides the checksums; avoid embedding the full response archive in bundles.
