@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@llang-gap/contracts": "workspace:*",
+    "@logtape/logtape": "2.3.3",
     "hyparquet": "1.29.1"
   }
 }

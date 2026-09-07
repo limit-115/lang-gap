@@ -71,6 +71,108 @@ models, efforts and repeats. With 2 questions in each of 2 languages, 3 models,
 For unequal language sets or per-model effort lists, the plan reports the actual
 counts. `--max-jobs` only pauses dispatch; it does not reduce the saved experiment.
 
+## Console logs and diagnostic journals
+
+The CLI uses [LogTape](https://logtape.org/manual/config). Logs go to **stderr**;
+command results remain a single JSON document on **stdout**, including when stdout
+is redirected. `--json` also requests JSON for command errors. Redirect stdout to
+save a result without losing live progress:
+
+```sh
+pnpm --silent bench --json run experiments/smoke.yaml > run-summary.json
+```
+
+The default console level is `info`. Timestamps are UTC. Color is enabled only on
+an interactive stderr; `NO_COLOR` disables it. Output is append-only, so scrollback,
+SSH sessions and redirected logs retain the same history.
+
+| Level     | What it tells the operator                                                                                                                                |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `debug`   | Every attempt's start and saved response, job/condition identity, latency, usage, cost and request ID; verified dataset files and diagnostic stack frames |
+| `info`    | Preparation, downloads, run ID and directory, execution settings, progress, condition results and completion                                              |
+| `warning` | Retriable failures and their delay, refusals/truncation/unparseable answers, missing usage, budget pauses, interruption and uncertain crash recovery      |
+| `error`   | Non-retryable provider failures, exhausted attempts, execution/CLI failures and unusable logging destinations                                             |
+
+Progress appears at start/end, on completions at most once per five seconds, and
+on a ten-second heartbeat while requests or retries are waiting. It includes saved,
+active, retrying, queued, failed and uncertain counts, elapsed time, the oldest
+active call, and charged/reserved cost. Queued jobs exclude current retry waits;
+the durable `pending` count in JSON/status includes them. Costs remain `unknown`
+when accounting is unknown.
+
+An error identifies the transport/model, effort, language, question, repeat and
+attempt; it retains the provider's diagnostic, HTTP status/code and request ID
+when available. Retriable failures say when the next attempt is due. A terminal
+failure explains why dispatch stopped and suggests the applicable recovery step.
+Ctrl+C/SIGTERM cancels retry waits immediately and still drains active API calls.
+
+At the end, each model/effort/language condition shows saved/expected coverage,
+correct answers, observed accuracy, parse failures, refusals and truncation.
+Partial coverage is provisional; these counters are not a published aggregate
+or paired analysis. Use `bench score` for analysis. `bench status <run-id>` also
+shows these counters and the five most recent failed/uncertain attempts (including
+attempts that later recovered), without contacting model APIs.
+
+### Configuration
+
+These environment variables also work in the root `.env`; existing process values
+retain precedence. No experiment/YAML setting is needed.
+
+| Variable           | Default  | Values / effect                                                                                                                                         |
+| ------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LLANG_LOG_LEVEL`  | `info`   | Console threshold: `debug`, `info`, `warning`, `error`                                                                                                  |
+| `LLANG_LOG_FORMAT` | `pretty` | `pretty` for humans; `json` for JSONL events on stderr                                                                                                  |
+| `LLANG_LOG_FILE`   | `auto`   | `auto`: append to `<run-directory>/runner.jsonl` for `run`/`resume`; `off`: disable the journal; any other value: append to that path for every command |
+| `NO_COLOR`         | unset    | Any value disables ANSI color                                                                                                                           |
+
+```sh
+# Show individual requests in the console.
+LLANG_LOG_LEVEL=debug pnpm bench resume <run-id>
+# Quiet console; detailed debug events still go to the run's journal.
+LLANG_LOG_LEVEL=warning pnpm bench resume <run-id>
+# Include preparation/validation failures before a run directory exists.
+LLANG_LOG_FILE=.llang-gap/logs/operator.jsonl pnpm bench plan experiments/smoke.yaml
+# JSONL stderr and an independent JSON result on stdout.
+LLANG_LOG_FORMAT=json pnpm --silent bench --json resume <run-id> > result.json 2> events.jsonl
+```
+
+File paths are relative to the invoking working directory. New journal files use
+mode `0600`; parent directories created for them use `0700`. The file always
+receives `debug` and above, independently of the console threshold. `auto` starts
+once the durable run is ready; earlier failures remain on stderr. Resume appends,
+with a new `sessionId` to distinguish invocations. Records include `timestamp`,
+`level`, `category`, `message`, and `properties` containing a stable `event` name
+and run/job context where applicable. For example:
+
+```sh
+jq 'select(.properties.event == "request.failed") | .properties' .llang-gap/runs/<run-id>/runner.jsonl
+tail -f .llang-gap/runs/<run-id>/runner.jsonl
+```
+
+Journals contain diagnostics, never intentionally serialized prompts, target
+answers, model output, headers or raw SDK bodies. Provider diagnostic messages are
+bounded; known credentials, echoed full prompts and terminal control characters
+are removed. Review provider-authored diagnostic text before sharing it. Journals
+are private local artifacts, excluded from releases and Git. They are written
+without an application buffer and closed on normal exit; SQLite remains the
+authoritative, transactionally durable record. A file failure before dispatch
+aborts the command; a write failure during execution is reported on stderr and
+disables that sink while responses continue to be saved. There is no automatic
+rotation: archive/remove diagnostic journals with the corresponding run, and use
+separate explicit paths for concurrent processes. Removing a journal does not
+change results or make uncertain API calls safe to repeat.
+
+`run`/`resume` results include `stopReason`. Full completion and deliberate
+`--max-jobs`/budget pauses exit `0`; unresolved failed/uncertain jobs and execution
+errors exit `1`; SIGINT/SIGTERM exit `130`/`143`. A successful `status` command exits
+`0` even when the inspected run has failures. Completed but incorrect, refused or
+unparseable answers are benchmark outcomes and do not make execution fail.
+
+This logging change updates the recorded runtime fingerprint. Existing runs must
+still be resumed from their original source and dependency lock; journals and
+snapshots are not migrated. Prompt inputs, retry limits, scoring, cost accounting
+and publication gates are unchanged.
+
 ## Dataset and language selection
 
 `--dataset` resolves `datasets/<id>/manifest.json` and validates its identity.

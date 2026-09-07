@@ -1,3 +1,4 @@
+import { getLogger } from "@logtape/logtape";
 import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -130,6 +131,7 @@ export async function prepareDataset(options: {
   languages?: readonly Language[];
 }): Promise<{ questions: Question[]; directory: string; hash: string }> {
   const { manifest, cacheDir, offline = false } = options;
+  const log = getLogger(["llang-gap", "datasets"]).with({ dataset: manifest.id });
   const languages = options.languages ?? [...new Set(manifest.files.map((file) => file.language))];
   for (const language of languages) {
     if (!manifest.files.some((file) => file.language === language && file.split === "test"))
@@ -144,6 +146,12 @@ export async function prepareDataset(options: {
   const questions: Question[] = [];
   for (const source of manifest.files.filter((file) => languages.includes(file.language))) {
     const path = join(directory, source.path);
+    log.debug("Verifying source {source} · {language}/{split}", {
+      event: "dataset.source",
+      source: source.path,
+      language: source.language,
+      split: source.split,
+    });
     let bytes: Buffer;
     try {
       bytes = await readFile(path);
@@ -151,6 +159,12 @@ export async function prepareDataset(options: {
       if (!(error instanceof Error && "code" in error && error.code === "ENOENT")) throw error;
       if (offline) throw new Error(`Dataset is not cached: ${source.path}`);
       const url = `https://huggingface.co/datasets/${manifest.repository}/resolve/${manifest.revision}/${source.path}`;
+      log.info("Downloading {source} · {language}/{split}", {
+        event: "dataset.download",
+        source: source.path,
+        language: source.language,
+        split: source.split,
+      });
       const response = await fetch(url, { signal: AbortSignal.timeout(60_000) });
       if (!response.ok) throw new Error(`Dataset download failed: HTTP ${response.status}`);
       bytes = Buffer.from(await response.arrayBuffer());
@@ -180,6 +194,12 @@ export async function prepareDataset(options: {
     if (decoded.some((q) => q.language !== source.language || q.split !== source.split))
       throw new Error(`Dataset source language/split mismatch: ${source.path}`);
     questions.push(...decoded);
+    log.debug("Verified {source} · {rows} rows · {bytes} bytes", {
+      event: "dataset.verified",
+      source: source.path,
+      rows: decoded.length,
+      bytes: bytes.length,
+    });
   }
   validateManifestQuestions(questions, manifest, languages);
   const normalized = `${questions.map((q) => JSON.stringify(q)).join("\n")}\n`;

@@ -42,7 +42,18 @@ export function createOpenRouterAdapter(
             typeof error.code === "number"
           )
             throw normalizeError(
-              Object.assign(new Error("OpenRouter error"), { status: error.code }),
+              Object.assign(
+                new Error(
+                  "message" in error && typeof error.message === "string"
+                    ? error.message
+                    : "OpenRouter error",
+                ),
+                {
+                  status: error.code,
+                  request_id: typeof response.id === "string" ? response.id : null,
+                },
+              ),
+              [apiKey, request.prompt],
             );
           throw new ProviderError("OpenRouter error response", true, true);
         }
@@ -83,7 +94,7 @@ export function createOpenRouterAdapter(
           raw: response,
         };
       } catch (error) {
-        throw normalizeError(error);
+        throw normalizeError(error, [apiKey, request.prompt]);
       }
     },
   };

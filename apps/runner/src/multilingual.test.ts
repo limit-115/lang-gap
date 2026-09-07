@@ -23,6 +23,7 @@ import { createJobs } from "./plan";
 import { createRun, resumeRun } from "./run";
 import { aggregateCsv, buildRelease, verifyRelease } from "./release";
 import { readSnapshot } from "./snapshot";
+import { RunState } from "./state";
 
 const languages = ["de", "fr", "ja"];
 const prompts = {
@@ -166,6 +167,16 @@ describe("dataset and language selection", () => {
         const snapshot = await readFile(join(directory, "resolved.json"), "utf8");
         expect((await resumeRun(directory, { budgetUsd: 0, adapters })).completed).toBe(12);
         expect(generate).toHaveBeenCalledTimes(12);
+        const state = new RunState(join(directory, "state.sqlite"));
+        try {
+          expect(
+            state
+              .conditionSummary()
+              .map(({ language, completed, total }) => ({ language, completed, total })),
+          ).toEqual(languages.map((language) => ({ language, completed: 4, total: 4 })));
+        } finally {
+          state.close();
+        }
         expect(
           generate.mock.calls.every(
             ([request]) =>
@@ -207,6 +218,14 @@ describe("dataset and language selection", () => {
           budgetUsd: 0,
           adapters,
         });
+        const singleState = new RunState(join(singleRun.directory, "state.sqlite"));
+        try {
+          expect(singleState.conditionSummary()).toMatchObject([
+            { language: "ja", total: 4, completed: 4 },
+          ]);
+        } finally {
+          singleState.close();
+        }
         const singleRelease = await buildRelease(
           singleRun.directory,
           "single-release",

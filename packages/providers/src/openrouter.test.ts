@@ -91,18 +91,22 @@ describe("OpenRouter intercepted transport", () => {
     },
   );
   it.each([401, 402, 429, 503])("classifies HTTP %s and does not retry in SDK", async (status) => {
-    const transport = vi
-      .fn<typeof fetch>()
-      .mockImplementation(async () =>
-        Response.json(
-          { error: { message: "secret must not escape" } },
-          { status, headers: { "retry-after": "2" } },
-        ),
-      );
+    const transport = vi.fn<typeof fetch>().mockImplementation(async () =>
+      Response.json(
+        {
+          error: {
+            message: "Model access denied for Bearer fixture-token",
+            metadata: { raw: "PRIVATE_PROVIDER_BODY" },
+          },
+        },
+        { status, headers: { "retry-after": "2" } },
+      ),
+    );
     await expect(
       createOpenRouterAdapter("synthetic", 1000, transport).generate(request),
     ).rejects.toMatchObject({
-      message: `Provider HTTP ${status}`,
+      message: `Provider HTTP ${status}: Model access denied for Bearer [REDACTED]`,
+      status,
       retryable: status === 429 || status >= 500,
       uncertain: status >= 500,
       retryAfterMs: 2000,
