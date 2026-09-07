@@ -142,3 +142,31 @@ describe("pinned author protocol", () => {
     expect(parseAnswer("ответ — b", "ru", 2, protocolV1.id)).toBe("B");
   });
 });
+
+it("keeps flexible-cap prompt bytes and stop/extraction behavior identical to author v3", () => {
+  const flexible = "mmluprox-lite-5shot-flexible-api-v1";
+  expect(getProtocol(flexible).id).toBe(flexible);
+  for (const target of questions.filter((q) => q.split === "test")) {
+    expect(
+      buildPrompt(
+        toPromptQuestion(target),
+        questions.filter((q) => q.split === "validation"),
+        flexible,
+      ),
+    ).toBe(
+      buildPrompt(
+        toPromptQuestion(target),
+        questions.filter((q) => q.split === "validation"),
+        protocol.id,
+      ),
+    );
+  }
+  for (const language of ["en", "ru"] as const) {
+    for (const fixture of parity.extraction[language]) {
+      expect(textBeforeStop(fixture.text, language, flexible)).toBe(fixture.stoppedText);
+      expect(scoreAnswer(fixture.text, language, "B", 10, "completed", flexible)).toEqual(
+        scoreAnswer(fixture.text, language, "B", 10, "completed", protocol.id),
+      );
+    }
+  }
+});

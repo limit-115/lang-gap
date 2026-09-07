@@ -25,7 +25,9 @@ export function createOpenAIAdapter(
             model: request.model,
             input: [{ role: "user", content: request.prompt }],
             reasoning: { effort: request.effort },
-            max_output_tokens: request.maxOutputTokens,
+            ...(request.maxOutputTokens === null
+              ? {}
+              : { max_output_tokens: request.maxOutputTokens }),
             service_tier: "default",
             store: false,
           })

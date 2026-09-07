@@ -47,16 +47,19 @@ export function forecastCost(
         const averageCost =
           samples.reduce((sum, r) => sum + calculateCost(r.usage!, model.pricing)!, 0) /
           samples.length;
+        const outputCap = model.maxOutputTokens;
         const capCost =
-          samples.reduce(
-            (sum, r) =>
-              sum +
-              calculateCost(
-                { ...r.usage!, outputTokens: model.maxOutputTokens, reasoningTokens: null },
-                model.pricing,
-              )!,
-            0,
-          ) / samples.length;
+          outputCap === null
+            ? null
+            : samples.reduce(
+                (sum, r) =>
+                  sum +
+                  calculateCost(
+                    { ...r.usage!, outputTokens: outputCap, reasoningTokens: null },
+                    model.pricing,
+                  )!,
+                0,
+              ) / samples.length;
         return {
           transport: model.transport,
           model: model.model,
@@ -67,7 +70,7 @@ export function forecastCost(
           sampleTruncated: samples.filter((r) => r.outcome === "truncated").length,
           requests: target.length,
           estimatedUsd: averageCost * target.length,
-          outputCapScenarioUsd: capCost * target.length,
+          outputCapScenarioUsd: capCost === null ? null : capCost * target.length,
         };
       }),
     ),
@@ -75,7 +78,9 @@ export function forecastCost(
   return {
     method: "mean-observed-usage-per-model-effort-language",
     estimatedUsd: conditions.reduce((sum, c) => sum + c.estimatedUsd, 0),
-    outputCapScenarioUsd: conditions.reduce((sum, c) => sum + c.outputCapScenarioUsd, 0),
+    outputCapScenarioUsd: conditions.some((c) => c.outputCapScenarioUsd === null)
+      ? null
+      : conditions.reduce((sum, c) => sum + c.outputCapScenarioUsd!, 0),
     conditions,
     limitations:
       "One attempt per request, repriced using target configuration. Assumes the same mean input/output/cache usage as the calibration sample; question length and difficulty may differ. Output-cap scenario keeps observed input/cache usage and is not an upper bound or confidence interval. Technical retries and unknown charges are excluded. Small samples are provisional; repeated responses are not independent questions.",

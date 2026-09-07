@@ -9,6 +9,8 @@ import type {
 import {
   protocol,
   protocolV1,
+  flexibleProtocol,
+  usesAuthorExtraction,
   mmluproxLanguage,
   buildMmluproxPrompt,
   validateMmluproxDataset,
@@ -35,6 +37,7 @@ export function getProtocol(id: ProtocolId) {
   if (id === multipleChoiceProtocol.id) return multipleChoiceProtocol;
   if (id === protocolV1.id) return protocolV1;
   if (id === protocol.id) return protocol;
+  if (id === flexibleProtocol.id) return flexibleProtocol;
   throw new Error(`Unsupported protocol: ${String(id)}`);
 }
 
@@ -67,7 +70,9 @@ export function getPromptLabels(
   return manifest?.schemaVersion === 2 ? manifest.prompts[language] : undefined;
 }
 export function getStopSequences(id: ProtocolId, language: string): readonly string[] | undefined {
-  return id === protocol.id ? protocol.generation.until[mmluproxLanguage(language)] : undefined;
+  return usesAuthorExtraction(id)
+    ? protocol.generation.until[mmluproxLanguage(language)]
+    : undefined;
 }
 export function validateProtocolDataset(
   id: ProtocolId,

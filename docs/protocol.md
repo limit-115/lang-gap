@@ -44,6 +44,21 @@ Its currently vendored language coverage belongs to that adapter. Extending that
 coverage requires pinned and reviewed localized source inputs plus a new protocol
 version; accepting an arbitrary language tag never implies those sources exist.
 
+## Explicitly omitted token caps
+
+An experiment can record a numeric `maxOutputTokens` or explicit `null`, meaning
+that no cap is sent to the provider. This is distinct from infinite output: serving
+endpoints retain their own defaults and limits. Token policy remains part of run
+and comparison identity. The general multiple-choice adapter supports this mode.
+
+`mmluprox-lite-5shot-flexible-api-v1` is a separate condition that reuses the pinned
+author-v3 five-shot prompts, first-match extraction and local task stops while
+allowing an experiment-selected numeric or null cap. Its protocol object and hash
+are distinct. Author v3 retains exactly 2048 tokens and its original hash;
+historical v1 remains numeric. Existing snapshots are never rewritten. These
+conditions cannot be pooled or treated as the same author baseline. Publication
+still requires the complete dataset and all existing verification gates.
+
 ## Accuracy and post-run comparisons
 
 Each selected language has its own test-question count, accuracy and per-repeat

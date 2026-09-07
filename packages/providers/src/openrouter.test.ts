@@ -136,3 +136,17 @@ describe("OpenRouter intercepted transport", () => {
     },
   );
 });
+
+it("omits the token parameter when the resolved cap is null", async () => {
+  const transport = vi.fn<typeof fetch>().mockResolvedValue(Response.json(response));
+  await createOpenRouterAdapter("synthetic-key", 1000, transport).generate({
+    ...request,
+    maxOutputTokens: null,
+  });
+  const rawBody = transport.mock.calls[0]![1]!.body;
+  if (typeof rawBody !== "string") throw new Error("Expected JSON body");
+  const body = JSON.parse(rawBody);
+  expect(body).not.toHaveProperty("max_tokens");
+  expect(body).not.toHaveProperty("max_completion_tokens");
+  expect(body.messages).toEqual([{ role: "user", content: request.prompt }]);
+});

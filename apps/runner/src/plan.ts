@@ -18,7 +18,7 @@ import {
   shuffled,
   toPromptQuestion,
 } from "@llang-gap/evaluation";
-import { reserveCost } from "@llang-gap/providers";
+import { reserveCost, validateModel } from "@llang-gap/providers";
 import { hash } from "./files";
 
 export interface Job {
@@ -41,14 +41,22 @@ export function createJobs(
   manifest?: DatasetManifest,
 ): Job[] {
   getProtocol(experiment.protocol);
+  for (const model of experiment.models) validateModel(model);
   validateProtocolDataset(experiment.protocol, experiment.dataset, experiment.languages, manifest);
   validateDataset(questions, undefined, experiment.languages);
   for (const pair of experiment.comparisons)
     validateAlignment(questions, pair.baseline, pair.language);
+  if (
+    experiment.protocol === "mmluprox-lite-5shot-native-reasoning-v1" &&
+    experiment.models.some((model) => model.maxOutputTokens === null)
+  )
+    throw new Error(
+      "Historical protocol requires a numeric cap; select mmluprox-lite-5shot-flexible-api-v1",
+    );
   const cap = getMaxOutputTokens(experiment.protocol);
   if (cap !== undefined && experiment.models.some((model) => model.maxOutputTokens !== cap))
     throw new Error(
-      `Selected protocol requires a ${cap}-token cap; a different cap needs a separate protocol`,
+      `Selected protocol requires a ${cap}-token cap; a different cap needs a separate protocol, such as mmluprox-lite-5shot-flexible-api-v1`,
     );
   const ids = [
     ...new Set(
@@ -159,6 +167,6 @@ export function summarizePlan(experiment: Experiment, jobs: readonly Job[]) {
     upperBoundUsdOneAttempt: attemptBound,
     upperBoundUsdAllAttempts:
       attemptBound === null ? null : attemptBound * experiment.execution.maxAttempts,
-    note: "upperBoundUsd fields are safety reservations, not spending forecasts. Use --calibrate-from for an empirical forecast. Missing prices produce null bounds. Cost planning and a USD budget are optional.",
+    note: "upperBoundUsd fields are safety reservations, not spending forecasts. Use --calibrate-from for an empirical forecast. Missing prices or an unbounded priced output produce null bounds. Cost planning and a USD budget are optional.",
   };
 }

@@ -34,3 +34,17 @@ it("allows omitted comparison presets in runtime and editor schemas", () => {
   expect(experimentSchema.parse(config).comparisons).toEqual([]);
   expect(validate(config)).toBe(true);
 });
+
+it.each([null, 2048, 0, -1, "unlimited"])(
+  "runtime and editor agree on explicit token cap %j",
+  (cap) => {
+    const config = {
+      ...experiment,
+      protocol: "mmluprox-lite-5shot-flexible-api-v1",
+      models: experiment.models.map((model) => ({ ...model, maxOutputTokens: cap })),
+    };
+    const accepted = cap === null || cap === 2048;
+    expect(experimentSchema.safeParse(config).success).toBe(accepted);
+    expect(validate(config)).toBe(accepted);
+  },
+);

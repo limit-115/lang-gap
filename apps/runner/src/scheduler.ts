@@ -27,7 +27,9 @@ export function validateBudget(
     if (!Number.isFinite(budgetUsd) || budgetUsd < 0)
       throw new Error("Budget must be a finite nonnegative USD amount");
     if (jobs.some((job) => job.reservationUsd === null) || priorCost === null)
-      throw new Error("A USD budget requires prices for every model and known prior charges");
+      throw new Error(
+        "A USD budget requires prices for every model, finite reservations and known prior charges",
+      );
     if (budgetUsd < priorCost) throw new Error("Budget is below already charged or reserved costs");
   }
 }

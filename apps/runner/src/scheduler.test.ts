@@ -276,3 +276,25 @@ describe("durable execution", () => {
     await again();
   });
 });
+
+it("rejects an unbounded paid reservation before dispatch while permitting no budget and zero prices", async () => {
+  const { validateBudget } = await import("./scheduler");
+  const config = {
+    ...experiment,
+    protocol: "mmluprox-lite-5shot-flexible-api-v1" as const,
+    models: experiment.models.map((m) => ({
+      ...m,
+      maxOutputTokens: null,
+      pricing: { ...m.pricing!, outputPerMillion: 1 },
+    })),
+  };
+  const jobs = createJobs(config, questions, "uncapped-paid");
+  expect(jobs.every((j) => j.reservationUsd === null)).toBe(true);
+  expect(() => validateBudget(1, jobs)).toThrow("finite reservations");
+  expect(() => validateBudget(null, jobs)).not.toThrow();
+  const free = {
+    ...config,
+    models: config.models.map((m) => ({ ...m, pricing: { ...m.pricing, outputPerMillion: 0 } })),
+  };
+  expect(() => validateBudget(0, createJobs(free, questions, "uncapped-free"))).not.toThrow();
+});
