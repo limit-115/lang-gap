@@ -1,6 +1,16 @@
 import type { Dictionary } from "@/i18n/routing";
 import type en from "./en";
 export default {
+  finderTitle: "Ищете конкретную модель?",
+  finderSelect: "Найти модель",
+  finderPlaceholder: "Найти модель…",
+  finderClear: "Сбросить выбранную модель",
+  finderBrowse: "Открыть список моделей",
+  finderNoResults: "Этой модели пока нет в списке.",
+  finderNoResultsHelp: "Попробуйте другое название модели или провайдера.",
+  finderAction: "Перейти к выводам",
+  finderListHelp: "Поиск по названию модели или провайдеру",
+
   title: "Тот же вопрос. Другой язык.",
   description:
     "Многоязычный бенчмарк: измеряем, как язык промпта влияет на точность LLM на одних и тех же академических заданиях.",

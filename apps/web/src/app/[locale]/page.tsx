@@ -7,6 +7,7 @@ import { routing } from "@/i18n/routing";
 import { getMessagesForLocale } from "@/i18n/messages";
 import { Link } from "@/i18n/navigation";
 import { pageMetadata } from "@/shared/metadata";
+import { ModelFinderHero } from "@/features/leaderboard/model-finder";
 import { LeaderboardTable } from "@/features/leaderboard/leaderboard-table";
 import { getLatestRelease } from "@/features/releases/data";
 
@@ -25,10 +26,9 @@ export default async function LeaderboardPage({ params }: Props) {
   const release = await getLatestRelease();
   return (
     <>
-      <section className="intro">
-        <h1>{t("title")}</h1>
-        <p>{t("description")}</p>
-      </section>
+      <NextIntlClientProvider messages={{ Leaderboard: getMessagesForLocale(locale).Leaderboard }}>
+        <ModelFinderHero rows={release?.aggregate ?? []} />
+      </NextIntlClientProvider>
       <section aria-labelledby="benchmark-title">
         <div className="panel-heading">
           <div>

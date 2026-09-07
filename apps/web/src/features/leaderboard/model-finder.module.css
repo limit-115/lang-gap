@@ -1,0 +1,233 @@
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 352px;
+  align-items: start;
+  gap: 48px;
+  padding-block: 44px 36px;
+}
+.intro {
+  padding-block: 0;
+}
+.intro h1 {
+  text-wrap: balance;
+}
+.intro p {
+  max-width: 620px;
+}
+.card {
+  --finder-border: color-mix(in srgb, var(--foreground) 17%, var(--background));
+  --finder-input: var(--background);
+  --finder-cta: var(--foreground);
+  --finder-cta-text: var(--background);
+  min-width: 0;
+  color: var(--foreground);
+}
+.cardHeading {
+  font-size: 1.125rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+.controls {
+  margin-top: 20px;
+}
+.inputGroup {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 56px;
+  border: 1px solid var(--finder-border);
+  border-radius: 8px;
+  padding-left: 14px;
+  padding-right: 6px;
+  background: var(--finder-input);
+  transition:
+    border-color 150ms,
+    box-shadow 150ms;
+}
+.inputGroup:focus-within {
+  border-color: var(--muted-foreground);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+.searchIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--muted-foreground);
+  margin-right: 10px;
+}
+.input {
+  width: 100%;
+  min-width: 0;
+  height: 54px;
+  background: transparent;
+  outline: none;
+  font-size: 0.9375rem;
+  color: var(--foreground);
+}
+.input::placeholder {
+  color: var(--muted-foreground);
+  opacity: 1;
+}
+.inputButton {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 44px;
+  border-radius: 5px;
+  color: var(--muted-foreground);
+}
+.inputButton:hover {
+  background: var(--accent);
+}
+.inputButton:focus-visible {
+  outline: 2px solid var(--muted-foreground);
+}
+.inputButton svg {
+  width: 16px;
+  height: 16px;
+}
+.action {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height: 52px;
+  margin-top: 10px;
+  padding-inline: 16px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--finder-cta);
+  color: var(--finder-cta-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.action:hover {
+  background: color-mix(in srgb, var(--finder-cta) 88%, var(--finder-cta-text));
+}
+.action:disabled {
+  opacity: 1;
+  background: color-mix(in srgb, var(--foreground) 9%, var(--background));
+  color: var(--muted-foreground);
+  border-color: var(--finder-border);
+}
+.action:focus-visible {
+  outline: 2px solid var(--muted-foreground);
+  outline-offset: 3px;
+}
+.action svg {
+  width: 18px;
+  height: 18px;
+}
+.positioner {
+  z-index: 50;
+  width: var(--anchor-width);
+  max-width: calc(100vw - 32px);
+}
+.popup {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: 0 16px 48px -12px #00000050;
+}
+.list {
+  max-height: min(300px, calc(var(--available-height) - 50px));
+  overflow-y: auto;
+  scroll-padding: 6px;
+  padding: 6px;
+}
+.list[data-empty] {
+  padding: 0;
+}
+.option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  outline: none;
+}
+.option[data-highlighted] {
+  background: var(--accent);
+}
+.providerIcon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.optionText {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.optionText strong {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.optionText > span,
+.planned,
+.listFooter {
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+.check svg {
+  width: 16px;
+  height: 16px;
+}
+.listFooter {
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+}
+.empty:not(:empty) {
+  padding: 24px 18px;
+  line-height: 1.6;
+}
+.empty strong,
+.empty span {
+  display: block;
+  font-size: 0.875rem;
+}
+.empty strong {
+  font-weight: 500;
+}
+.empty span {
+  color: var(--muted-foreground);
+  margin-top: 4px;
+}
+@media (max-width: 1020px) {
+  .hero {
+    gap: 32px;
+    grid-template-columns: minmax(0, 1fr) 336px;
+  }
+}
+@media (max-width: 800px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    padding-block: 32px 36px;
+  }
+  .card {
+    width: 100%;
+    max-width: 440px;
+  }
+}
+@media (max-width: 380px) {
+  .inputGroup {
+    padding-left: 10px;
+  }
+  .searchIcon {
+    display: none;
+  }
+}
