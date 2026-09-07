@@ -140,15 +140,24 @@ export function LeaderboardTable({ rows }: { rows: Aggregate[] }) {
             </span>
             <ChevronDown aria-hidden="true" className="size-3.5 text-muted-foreground" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent
+            align="end"
+            sideOffset={8}
+            className="w-64 max-w-[calc(100vw-2rem)] rounded-xl border border-border p-1.5 ring-0"
+          >
             {languageColumns.map(({ column, label }) => (
               <DropdownMenuCheckboxItem
                 key={column.id}
+                indicatorVariant="checkbox"
+                className="min-h-12 cursor-pointer rounded-md text-base font-normal"
                 checked={column.getIsVisible()}
                 onCheckedChange={(checked) => column.toggleVisibility(checked)}
                 closeOnClick={false}
               >
-                {label}
+                <span>{label}</span>
+                <span aria-hidden="true" className="ml-auto text-sm text-muted-foreground">
+                  {column.id.toUpperCase()}
+                </span>
               </DropdownMenuCheckboxItem>
             ))}
           </DropdownMenuContent>

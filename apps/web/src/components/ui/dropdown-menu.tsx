@@ -149,23 +149,33 @@ function DropdownMenuCheckboxItem({
   children,
   checked,
   inset,
+  indicatorVariant = "check",
   ...props
 }: MenuPrimitive.CheckboxItem.Props & {
   inset?: boolean;
+  indicatorVariant?: "check" | "checkbox";
 }) {
   return (
     <MenuPrimitive.CheckboxItem
       data-slot="dropdown-menu-checkbox-item"
       data-inset={inset}
       className={cn(
-        "relative flex cursor-default items-center gap-2.5 rounded-2xl py-2 pr-8 pl-3 text-sm font-medium outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:pl-9.5 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "relative flex cursor-default items-center gap-2.5 rounded-2xl py-2 pr-8 pl-3 text-sm font-medium outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-inset:pl-9.5 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        indicatorVariant === "checkbox"
+          ? "group/checkbox gap-3 pr-3 pl-11"
+          : "focus:**:text-accent-foreground",
         className,
       )}
       checked={checked}
       {...props}
     >
       <span
-        className="pointer-events-none absolute right-2 flex items-center justify-center"
+        className={cn(
+          "pointer-events-none absolute flex items-center justify-center",
+          indicatorVariant === "checkbox"
+            ? "left-3 size-4 rounded-[3px] border border-muted-foreground/60 bg-muted group-data-checked/checkbox:border-foreground group-data-checked/checkbox:bg-foreground group-data-checked/checkbox:text-background [&_svg]:size-3.5 [&_svg]:stroke-[3]"
+            : "right-2",
+        )}
         data-slot="dropdown-menu-checkbox-item-indicator"
       >
         <MenuPrimitive.CheckboxItemIndicator>
