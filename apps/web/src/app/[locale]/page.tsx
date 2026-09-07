@@ -44,6 +44,11 @@ export default async function LeaderboardPage({ params }: Props) {
             </Badge>
           )}
         </div>
+        {!release && (
+          <p className="pb-4 text-sm leading-relaxed text-muted-foreground">
+            {t("unpublishedDescription")}
+          </p>
+        )}
         <NextIntlClientProvider
           messages={{ Leaderboard: getMessagesForLocale(locale).Leaderboard }}
         >

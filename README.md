@@ -5,16 +5,25 @@
   </picture>
 </h1>
 
-A multilingual benchmark for open, reproducible comparisons of LLM accuracy across
-prompt languages.
+**See how LLM accuracy changes across languages—with open results you can check.**
 
-Language coverage will expand over time. The initial experiment uses
-**MMLU-ProX Lite** with two prompt languages, five worked examples per subject and
-native reasoning effort. The planned matrix is GPT-6 Astra and Claude Fable 5.1 at
-low, medium and high effort.
+Llang Gap compares model accuracy on the same academic questions in different
+prompt languages. Read each language’s score alongside the gap and its uncertainty
+interval, then inspect the prompts and responses or independently recompute the
+scores from a published release.
 
-**No model scores have been published.** The included fake provider exercises the
-entire pipeline without paid API calls and cannot enter the public leaderboard.
+The first comparison is planned for **English and Russian** on **MMLU-ProX Lite**:
+588 test questions per language, five worked examples per subject, and GPT-6 Astra
+and Claude Fable 5.1 at low, medium and high reasoning effort. This measures
+academic multiple-choice accuracy; use it to identify models for further testing
+on your own tasks. More languages will follow over time.
+
+**No benchmark scores have been published yet.** The included fake provider lets
+you try the full pipeline without paid API calls. Its synthetic answers cannot
+appear in public results.
+
+Read [how the comparison works](docs/protocol.md) and
+[how to check a published release](docs/releases.md).
 
 ## Quick start
 

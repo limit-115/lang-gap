@@ -1,4 +1,4 @@
-import { Empty, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -48,6 +48,10 @@ export default async function ReleasesPage({ params }: Props) {
             <EmptyTitle className="tracking-normal">
               <h2>{t("emptyTitle")}</h2>
             </EmptyTitle>
+            <EmptyDescription>
+              <p>{t("emptyDescription")}</p>
+              <Link href="/methodology">{t("methodologyLink")}</Link>
+            </EmptyDescription>
           </EmptyHeader>
         </Empty>
       )}
