@@ -54,7 +54,8 @@ export async function createRun(
 ) {
   const { questions, manifest } = options;
   const experiment = experimentSchema.parse(options.experiment);
-  const budgetUsd = options.budgetUsd ?? null;
+  const budgetUsd =
+    options.budgetUsd === undefined ? (experiment.execution.budgetUsd ?? null) : options.budgetUsd;
   validateManifestQuestions(questions, manifest, experiment.languages);
   for (const model of experiment.models) validateModel(model);
   const protocol = getProtocol(experiment.protocol);

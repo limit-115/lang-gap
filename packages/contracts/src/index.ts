@@ -119,7 +119,7 @@ export const experimentSchema = z
     dataset: safeIdSchema,
     protocol: protocolIdSchema,
     languages: languagesSchema,
-    comparisons: comparisonsSchema,
+    comparisons: comparisonsSchema.default([]),
     repeats: z.number().int().min(1).max(10),
     seed: z.number().int().min(1).max(2_147_483_647),
     models: z
@@ -130,6 +130,7 @@ export const experimentSchema = z
         "Duplicate model",
       ),
     execution: z.strictObject({
+      budgetUsd: z.number().nonnegative().nullable().optional(),
       concurrency: z.number().int().min(1).max(32),
       maxAttempts: z.number().int().min(1).max(5),
       timeoutMs: z.number().int().min(1000).max(3_600_000),
@@ -153,7 +154,7 @@ export const experimentSchema = z
   );
 export type Experiment = z.infer<typeof experimentSchema>;
 export const experimentJsonSchema = () =>
-  z.toJSONSchema(experimentSchema, { target: "draft-2020-12" });
+  z.toJSONSchema(experimentSchema, { target: "draft-2020-12", io: "input" });
 
 const datasetFileSchema = z.strictObject({
   // Relative source paths only, including sharded files; never allow cache traversal.
