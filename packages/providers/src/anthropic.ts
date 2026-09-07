@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { usageSchema, type GenerationRequest, type ProviderAdapter } from "@llang-gap/contracts";
+import { usageSchema, type GenerationRequest, type TransportAdapter } from "@llang-gap/contracts";
 import { normalizeError, ProviderError } from "./errors";
 import sdk from "#package.json";
 
@@ -7,7 +7,7 @@ export function createAnthropicAdapter(
   apiKey: string,
   timeoutMs: number,
   transport?: typeof fetch,
-): ProviderAdapter {
+): TransportAdapter {
   const client = new Anthropic({
     apiKey,
     timeout: timeoutMs,
@@ -15,7 +15,7 @@ export function createAnthropicAdapter(
     ...(transport ? { fetch: transport } : {}),
   });
   return {
-    name: "anthropic",
+    transport: "anthropic",
     sdkVersion: sdk.dependencies["@anthropic-ai/sdk"],
     endpoint: "https://api.anthropic.com/v1/messages",
     async generate(request: GenerationRequest) {

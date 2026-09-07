@@ -1,4 +1,10 @@
-import { modelSchema, type ModelConfig, type ProviderAdapter } from "@llang-gap/contracts";
+import {
+  getModelIdentity,
+  modelSchema,
+  type ModelConfig,
+  type Transport,
+  type TransportAdapter,
+} from "@llang-gap/contracts";
 import { createOpenRouterAdapter } from "./openrouter";
 import { createOpenAIAdapter } from "./openai";
 import { createAnthropicAdapter } from "./anthropic";
@@ -8,37 +14,26 @@ export { calculateCost, reserveCost } from "./cost";
 export { ProviderError, normalizeError } from "./errors";
 export { createFakeAdapter } from "./fake";
 
-const capabilities = {
-  openai: ["gpt-6-astra"],
-  anthropic: ["claude-fable-5-1"],
-  fake: ["fake-v1"],
-} as const;
 export function validateModel(model: ModelConfig): void {
   modelSchema.parse(model);
+  if (model.transport !== "openrouter" && getModelIdentity(model).owner !== model.transport)
+    throw new Error(`Model capabilities are not registered: ${model.transport}/${model.model}`);
   if (
-    model.provider !== "openrouter" &&
-    !(capabilities[model.provider] as readonly string[]).includes(model.model)
-  )
-    throw new Error(`Model capabilities are not registered: ${model.provider}/${model.model}`);
-  if (
-    model.provider !== "fake" &&
+    model.transport !== "fake" &&
     (model.pricing.inputPerMillion === 0 || model.pricing.outputPerMillion === 0)
   )
     throw new Error("Live model pricing must be positive");
 }
-export function createAdapter(model: ModelConfig, timeoutMs: number): ProviderAdapter {
-  validateModel(model);
-  if (model.provider === "fake") return createFakeAdapter();
-  if (model.provider === "openrouter") {
-    const key = process.env.OPENROUTER_API_KEY;
-    if (!key) throw new Error("Missing OPENROUTER_API_KEY");
-    if (!model.openrouterProvider) throw new Error("Pin an OpenRouter upstream provider");
-    return createOpenRouterAdapter(key, timeoutMs, model.openrouterProvider);
-  }
-  const env = model.provider === "openai" ? "OPENAI_API_KEY" : "ANTHROPIC_API_KEY";
-  const key = process.env[env];
-  if (!key) throw new Error(`Missing ${env}`);
-  return model.provider === "openai"
-    ? createOpenAIAdapter(key, timeoutMs)
-    : createAnthropicAdapter(key, timeoutMs);
+
+const transports = {
+  openai: { key: "OPENAI_API_KEY", create: createOpenAIAdapter },
+  anthropic: { key: "ANTHROPIC_API_KEY", create: createAnthropicAdapter },
+  openrouter: { key: "OPENROUTER_API_KEY", create: createOpenRouterAdapter },
+};
+export function createAdapter(transport: Transport, timeoutMs: number): TransportAdapter {
+  if (transport === "fake") return createFakeAdapter();
+  const adapter = transports[transport];
+  const key = process.env[adapter.key];
+  if (!key) throw new Error(`Missing ${adapter.key}`);
+  return adapter.create(key, timeoutMs);
 }

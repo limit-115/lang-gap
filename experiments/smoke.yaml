@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=./schema.json
 # Free integration smoke test against real pinned inputs. Never public benchmark data.
-schemaVersion: 1
+schemaVersion: 2
 id: smoke-en-ru-author-v3
 dataset: mmlu-prox-lite
 protocol: mmluprox-lite-5shot-author-api-v3
@@ -9,7 +9,7 @@ repeats: 2
 seed: 20260906
 questionLimit: 4
 models:
-  - provider: fake
+  - transport: fake
     model: fake-v1
     efforts: [low, medium, high]
     maxOutputTokens: 2048

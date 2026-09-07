@@ -2,7 +2,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ProviderAdapter } from "@llang-gap/contracts";
+import type { TransportAdapter } from "@llang-gap/contracts";
 import { createFakeAdapter, ProviderError } from "@llang-gap/providers";
 import { experiment, questions } from "@tests/fixtures";
 import { createJobs } from "./plan";
@@ -21,41 +21,39 @@ describe("durable execution", () => {
     await rm(directory, { recursive: true, force: true });
   });
 
-  it("selects each model adapter while sharing provider concurrency", async () => {
+  it("dispatches multiple models through one transport adapter with shared concurrency", async () => {
     const models = ["openai/gpt-5-nano", "anthropic/test-model"].map((model) => ({
       ...experiment.models[0]!,
-      provider: "openrouter" as const,
+      transport: "openrouter" as const,
       model,
-      openrouterProvider: model.split("/")[0]!,
     }));
     const jobs = createJobs({ ...experiment, models }, questions, "router");
     state.initialize(jobs);
     const fake = createFakeAdapter();
     let active = 0;
     let peak = 0;
-    const adapters = new Map(
-      models.map((model) => [
-        `openrouter/${model.model}`,
-        {
-          ...fake,
-          name: "openrouter" as const,
-          generate: vi.fn(async (request) => {
-            expect(request.model).toBe(model.model);
-            peak = Math.max(peak, ++active);
-            await new Promise((resolve) => setTimeout(resolve, 1));
-            active--;
-            return fake.generate(request);
-          }),
-        } satisfies ProviderAdapter,
-      ]),
-    );
+    const adapter: TransportAdapter = {
+      ...fake,
+      transport: "openrouter",
+      generate: vi.fn(async (request) => {
+        peak = Math.max(peak, ++active);
+        await new Promise((resolve) => setTimeout(resolve, 1));
+        active--;
+        return fake.generate(request);
+      }),
+    };
+    const adapters = new Map([["openrouter", adapter]]);
     const options = { state, jobs, adapters, budgetUsd: 0, concurrency: 2, maxAttempts: 1 };
     await execute({ ...options, maxJobs: 3 });
     const result = await execute(options);
     expect(result.completed).toBe(jobs.length);
     expect(peak).toBeLessThanOrEqual(2);
-    for (const adapter of adapters.values())
-      expect(adapter.generate).toHaveBeenCalledTimes(jobs.length / 2);
+    expect(adapter.generate).toHaveBeenCalledTimes(jobs.length);
+    for (const model of models) {
+      expect(state.results().filter((result) => result.model === model.model)).toHaveLength(
+        jobs.length / 2,
+      );
+    }
   });
 
   it("retries only technical failures, recording each attempt", async () => {
@@ -63,7 +61,7 @@ describe("durable execution", () => {
     state.initialize(jobs);
     const fake = createFakeAdapter();
     let calls = 0;
-    const generate = vi.fn(async (request: Parameters<ProviderAdapter["generate"]>[0]) => {
+    const generate = vi.fn(async (request: Parameters<TransportAdapter["generate"]>[0]) => {
       if (++calls === 1) throw new ProviderError("429", true, false);
       return { ...(await fake.generate(request)), text: "Unparseable answer" };
     });
@@ -92,7 +90,7 @@ describe("durable execution", () => {
     const gate = new Promise<void>((resolve) => {
       finish = resolve;
     });
-    const generate = vi.fn(async (request: Parameters<ProviderAdapter["generate"]>[0]) => {
+    const generate = vi.fn(async (request: Parameters<TransportAdapter["generate"]>[0]) => {
       await gate;
       return { ...(await fake.generate(request)), usage: null };
     });
@@ -124,7 +122,7 @@ describe("durable execution", () => {
     state.initialize(jobs);
     const fake = createFakeAdapter();
     let calls = 0;
-    const adapter: ProviderAdapter = {
+    const adapter: TransportAdapter = {
       ...fake,
       async generate(request) {
         if (++calls === 1) throw new ProviderError("timeout", true, true);
@@ -146,7 +144,7 @@ describe("durable execution", () => {
   it("stops new dispatch on authentication failures", async () => {
     const jobs = createJobs(experiment, questions, "auth");
     state.initialize(jobs);
-    const adapter: ProviderAdapter = {
+    const adapter: TransportAdapter = {
       ...createFakeAdapter(),
       generate: vi.fn(() => Promise.reject(new ProviderError("401", false, false))),
     };
@@ -167,7 +165,7 @@ describe("durable execution", () => {
     state.initialize(jobs);
     const stop = new AbortController();
     const fake = createFakeAdapter();
-    const generate = vi.fn(async (request: Parameters<ProviderAdapter["generate"]>[0]) => {
+    const generate = vi.fn(async (request: Parameters<TransportAdapter["generate"]>[0]) => {
       stop.abort();
       return fake.generate(request);
     });

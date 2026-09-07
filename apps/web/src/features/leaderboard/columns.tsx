@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { efforts, getModelPresentation } from "./model-catalog";
 import type { LeaderboardFeatures } from "./data-table-features";
 
-export type LeaderboardRow = Pick<Aggregate, "model" | "provider" | "effort"> & {
+export type LeaderboardRow = Pick<Aggregate, "model" | "transport" | "effort"> & {
   en: number | null;
   ru: number | null;
   gapPp: number | null;

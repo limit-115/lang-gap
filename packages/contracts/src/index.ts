@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const languageSchema = z.enum(["en", "ru"]);
 export const effortSchema = z.enum(["low", "medium", "high"]);
-export const providerSchema = z.enum(["openai", "anthropic", "openrouter", "fake"]);
+export const transportSchema = z.enum(["openai", "anthropic", "openrouter", "fake"]);
 export const safeIdSchema = z.string().regex(/^[a-z0-9][a-z0-9._-]{0,99}$/);
 export const hashSchema = z.string().regex(/^[a-f0-9]{64}$/);
 export const protocolIdSchema = z.enum([
@@ -12,7 +12,7 @@ export const protocolIdSchema = z.enum([
 export type ProtocolId = z.infer<typeof protocolIdSchema>;
 export type Language = z.infer<typeof languageSchema>;
 export type Effort = z.infer<typeof effortSchema>;
-export type Provider = z.infer<typeof providerSchema>;
+export type Transport = z.infer<typeof transportSchema>;
 
 export const questionSchema = z
   .strictObject({
@@ -44,12 +44,8 @@ export const pricingSchema = z.strictObject({
 });
 export const modelSchema = z
   .strictObject({
-    provider: providerSchema,
+    transport: transportSchema,
     model: z.string().regex(/^[a-z0-9][a-z0-9._-]{0,99}(\/[a-z0-9][a-z0-9._-]{0,99})?$/),
-    openrouterProvider: z
-      .string()
-      .regex(/^[a-zA-Z0-9][a-zA-Z0-9._/-]{0,99}$/)
-      .optional(),
     efforts: z
       .array(effortSchema)
       .min(1)
@@ -58,44 +54,36 @@ export const modelSchema = z
     pricing: pricingSchema,
   })
   .superRefine((model, ctx) => {
-    if (model.provider === "openrouter") {
+    if (model.transport === "openrouter") {
       if (!model.model.includes("/") || model.model.startsWith("openrouter/"))
         ctx.addIssue({
           code: "custom",
           path: ["model"],
           message: "OpenRouter requires an explicit organization/model ID",
         });
-      if (!model.openrouterProvider)
-        ctx.addIssue({
-          code: "custom",
-          path: ["openrouterProvider"],
-          message: "Pin an OpenRouter upstream provider",
-        });
     } else {
       if (!safeIdSchema.safeParse(model.model).success)
         ctx.addIssue({ code: "custom", path: ["model"], message: "Invalid native model ID" });
-      if (model.openrouterProvider !== undefined)
-        ctx.addIssue({
-          code: "custom",
-          path: ["openrouterProvider"],
-          message: "Only valid for OpenRouter",
-        });
     }
   });
 export type ModelConfig = z.infer<typeof modelSchema>;
-export type ModelReference = Pick<ModelConfig, "provider" | "model">;
+export type ModelReference = Pick<ModelConfig, "transport" | "model">;
 
-// `provider` identifies execution transport. OpenRouter namespaces identify model owners.
-export function getModelIdentity({ provider, model }: ModelReference) {
-  if (provider !== "openrouter") return { owner: provider, name: model };
+// Native API IDs have no owner namespace; their registered metadata supplies it.
+const nativeModelOwners = new Map([
+  ["gpt-6-astra", "openai"],
+  ["claude-fable-5-1", "anthropic"],
+  ["fake-v1", "fake"],
+]);
+export function getModelIdentity({ model }: Pick<ModelReference, "model">) {
   const separator = model.indexOf("/");
   return separator > 0
     ? { owner: model.slice(0, separator), name: model.slice(separator + 1) }
-    : { owner: null, name: model };
+    : { owner: nativeModelOwners.get(model) ?? null, name: model };
 }
 
 export const experimentSchema = z.strictObject({
-  schemaVersion: z.literal(1),
+  schemaVersion: z.literal(2),
   id: safeIdSchema,
   dataset: z.literal("mmlu-prox-lite"),
   protocol: protocolIdSchema,
@@ -106,7 +94,7 @@ export const experimentSchema = z.strictObject({
     .array(modelSchema)
     .min(1)
     .refine(
-      (models) => new Set(models.map((m) => `${m.provider}/${m.model}`)).size === models.length,
+      (models) => new Set(models.map((m) => `${m.transport}/${m.model}`)).size === models.length,
       "Duplicate model",
     ),
   execution: z.strictObject({
@@ -174,8 +162,8 @@ export interface GenerationResponse {
   usage: Usage | null;
   raw: unknown;
 }
-export interface ProviderAdapter {
-  readonly name: Provider;
+export interface TransportAdapter {
+  readonly transport: Transport;
   readonly sdkVersion: string;
   readonly endpoint: string;
   generate(this: void, request: GenerationRequest): Promise<GenerationResponse>;
@@ -187,7 +175,7 @@ export const itemResultSchema = z.strictObject({
   category: z.string(),
   language: languageSchema,
   repeat: z.number().int().nonnegative(),
-  provider: providerSchema,
+  transport: transportSchema,
   model: z.string(),
   returnedModel: z.string(),
   effort: effortSchema,
@@ -207,7 +195,7 @@ export const itemResultSchema = z.strictObject({
 });
 export type ItemResult = z.infer<typeof itemResultSchema>;
 export const aggregateSchema = z.strictObject({
-  provider: providerSchema,
+  transport: transportSchema,
   model: z.string(),
   effort: effortSchema,
   n: z.number().int().positive(),
@@ -223,7 +211,7 @@ export const aggregateSchema = z.strictObject({
 });
 export type Aggregate = z.infer<typeof aggregateSchema>;
 export const releaseManifestSchema = z.strictObject({
-  schemaVersion: z.literal(1),
+  schemaVersion: z.literal(2),
   id: safeIdSchema,
   runId: safeIdSchema,
   createdAt: z.iso.datetime(),

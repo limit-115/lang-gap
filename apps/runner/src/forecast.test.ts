@@ -92,14 +92,13 @@ describe("usage cost forecast", () => {
   });
 });
 
-it("rejects calibration from a different OpenRouter upstream", () => {
+it("rejects calibration from a different transport", () => {
   const model = {
     ...config.models[0]!,
-    provider: "openrouter" as const,
+    transport: "openrouter" as const,
     model: "openai/gpt-5-nano",
-    openrouterProvider: "openai",
   };
   const target = { ...config, models: [model] };
-  const source = { ...target, models: [{ ...model, openrouterProvider: "azure" }] };
+  const source = { ...target, models: [{ ...model, transport: "openai" as const }] };
   expect(() => forecastCost(target, [], source, [])).toThrow("mismatch");
 });

@@ -28,6 +28,11 @@ not run the new parser over old outputs or edit their protocol IDs. Verification
 requires their recorded source and runtime dependencies; v2's original code stays
 at PR #16's revision. See [protocol history](protocol.md#historical-v1v2-and-offline-evidence).
 
+New run snapshots and release manifests use schema v2. Item, aggregate and CSV
+records identify execution with `transport` and `model`; model ownership is display
+metadata. Existing schema-v1 artifacts retain `provider` and must be verified with
+their recorded implementation. Do not rename fields inside saved artifacts.
+
 ## Files
 
 | File                    | Contents                                                                                  |

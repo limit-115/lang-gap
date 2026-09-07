@@ -26,7 +26,7 @@ fresh complete comparison; a pilot never silently changes the author baseline.
 At creation, the runner writes `resolved.json`, `identity.json`, `dataset.jsonl`
 and `state.sqlite` under `.llang-gap/runs/<run-id>/`. The resolved snapshot records
 the full experiment, dataset and protocol hashes, code fingerprint, Git revision,
-Node and SDK versions, provider endpoints and initial budget. Resume reads this
+Node and SDK versions, transport endpoints and initial budget. Resume reads this
 snapshot, never the current YAML. Modified inputs, job payloads, runtime source or
 runtime dependency closure prevent resume. Changes to website-only dependencies do not block the runner. Keep the original checkout and lockfile available.
 
@@ -36,54 +36,72 @@ v3. Keep the original checkout and dependencies for their verification/resume.
 The [current plan](first-comparison.md) uses unchanged data and every test question;
 no 100% parse-rate requirement or translation/key correction is a readiness gate.
 
+## Transport and model
+
+Experiment schema v2 identifies each condition with two fields:
+
+```yaml
+transport: openrouter
+model: openai/gpt-5-nano
+```
+
+`transport` selects the SDK adapter, API endpoint and credential. `model` is the
+model ID passed unchanged to that API. Supported transports are `openai`
+(Responses), `anthropic` (Messages), `openrouter` (Chat Completions through the
+OpenAI SDK), and `fake` (local, no network). Native transports use native IDs such
+as `gpt-6-astra`; OpenRouter requires `organization/model`. Efforts, token limits
+and dated pricing remain explicit experiment settings.
+
+One adapter is shared by all models on a transport, with concurrency per transport.
+The transport/model pair identifies jobs, results, aggregates and calibration
+conditions. Snapshots record `transportMetadata`. The website derives the model
+owner from model metadata/namespace, independently of the transport or serving
+endpoint. Native and routed results retain distinct IDs and links.
+
+To start a new run from an old YAML, set `schemaVersion: 2` and rename each model's
+`provider` field to `transport`. The old gateway-specific routing field is removed.
+Unknown fields are rejected. Saved snapshots and release manifests also use schema
+v2 for the new `transport` result field. Never rewrite existing run directories or
+immutable releases; resume, score and verify v1 artifacts with their recorded
+source and dependencies. Dataset/protocol versions are unaffected.
+
 ## OpenRouter
 
-`provider: openrouter` uses the existing runner through Chat Completions. Set
-`OPENROUTER_API_KEY`; the adapter never falls back to another provider's key.
-`experiments/openrouter-pilot.yaml` is a two-question, three-effort GPT-5 nano
-technical pilot (12 paired EN/RU requests), not a publishable comparison.
+Set `OPENROUTER_API_KEY`. `experiments/openrouter-pilot.yaml` is a two-question,
+three-effort GPT-5 nano technical pilot (12 EN/RU requests), not a publishable
+comparison.
 
 ```sh
 # Planning does not call model APIs or require credentials.
 pnpm bench plan experiments/openrouter-pilot.yaml
-# Explicitly load the ignored local .env using the pinned Node runtime.
+# Explicitly load the ignored local .env with the pinned Node runtime.
 # Run only after agreeing the paid pilot budget.
 pnpm exec node --env-file=.env --import tsx apps/runner/src/cli.ts run experiments/openrouter-pilot.yaml --budget-usd 1
-# Resume also needs the environment and the recorded implementation.
 pnpm exec node --env-file=.env --import tsx apps/runner/src/cli.ts resume <run-id> --budget-usd 1
 ```
 
-Each model requires an explicit `organization/model` ID and `openrouterProvider`
-with one upstream slug, such as `openai`. Model variants (`:online`, `:free`),
-auto routing and presets are not accepted. Different upstreams require separate
-experiments/runs. The model and upstream are hashed into the resolved snapshot;
-resume uses that snapshot and forecasts reject calibration from another upstream.
-Multiple models retain their own adapters while sharing OpenRouter concurrency.
-In results, `provider` remains the execution transport. The website resolves the
-model owner from the OpenRouter namespace (`openai/...` → OpenAI), independently
-of the serving upstream. Native and routed conditions retain distinct result IDs
-and links while sharing model/owner display names.
+OpenRouter selects the serving endpoint for the requested model. There is no
+upstream setting in the experiment. The adapter disables gateway fallbacks and
+requires parameter support, following [provider routing](https://openrouter.ai/docs/guides/routing/provider-selection).
+This does not pin an endpoint across requests. Raw private responses retain the
+returned gateway provider, model and usage metadata. Model variants (`:online`,
+`:free`), auto-model routing and presets are not accepted.
 
-The request pins `provider.only`, disables fallbacks and requires parameter support
-as described in [provider routing](https://openrouter.ai/docs/guides/routing/provider-selection).
 Reasoning uses `reasoning.effort`; prompt compression is disabled. Stops are applied
 locally by the protocol scorer, with no server stop or sampling override. Reasoning
 fields never enter answer extraction. See [protocol differences](protocol.md#openrouter-transport).
+Verify effort support and token limits in the [model catalog](https://openrouter.ai/api/v1/models)
+before a paid run. `require_parameters` does not establish support for every effort
+value or equal compute across models. CI uses intercepted HTTP responses only.
 
-Unlike the small native-provider registry, OpenRouter accepts explicit model IDs.
-Before a new model run, verify that the pinned endpoint supports each selected effort
-and the token cap using the [model catalog](https://openrouter.ai/api/v1/models).
-`require_parameters` is a routing constraint, not proof of equal compute or support
-for every effort value. CI validates the transport with synthetic responses only.
-
-Record dated rates for the pinned endpoint in YAML; the pilot rates were read from
-the public catalog on 2026-09-07. Cost remains a token-based estimate at those rates,
-not OpenRouter's invoice. Raw private responses retain gateway usage/cost/provider
-metadata. Reasoning is included in output once; missing/invalid usage keeps the
-reservation charged. OpenRouter cache writes have no TTL split: configure both write
-rates to the highest applicable rate. Per-request fees, tools, multimodal billing,
-BYOK fees and changing/tiered prices are outside this text-only accounting model;
-choose an endpoint whose billing fits it. Existing budget and retry rules apply.
+Use dated rates covering the model's eligible endpoints. The pilot rates were read
+from the public catalog on 2026-09-07. Costs are token-based estimates at those rates,
+not gateway invoices; endpoint selection and pricing changes can affect actual
+spending. Missing/invalid usage keeps the reservation charged. Reasoning is counted
+within output once. Cache writes have no TTL split: configure both write rates to
+the highest applicable rate. Per-request fees, tools, multimodal billing, BYOK fees
+and tiered prices are outside this text-only accounting model. Existing budget and
+retry rules apply.
 
 ## Download and cache
 
@@ -153,7 +171,7 @@ answers are never retried. A timeout can still have generated a billable respons
 server-side; uncertain attempts retain their full reservation. Exactly-once remote
 execution is not promised.
 
-Concurrency is per provider. Paired EN/RU requests remain adjacent in a seeded,
+Concurrency is per transport. Paired EN/RU requests remain adjacent in a seeded,
 shuffled schedule; the first language alternates. This seed controls scheduling
 and statistics, not model generation. Request wall time is recorded as observed
 API latency, without presenting it as pure inference time.

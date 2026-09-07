@@ -67,18 +67,17 @@ describe("experiment plan", () => {
 
 const routerModel = {
   ...experiment.models[0]!,
-  provider: "openrouter" as const,
+  transport: "openrouter" as const,
   model: "openai/gpt-5-nano",
-  openrouterProvider: "openai",
   pricing: { ...experiment.models[0]!.pricing, inputPerMillion: 1, outputPerMillion: 1 },
 };
-it("plans namespaced OpenRouter models with a pinned upstream", () => {
+it("plans a transport and model without gateway-specific configuration", () => {
   const config = parseExperiment(stringify({ ...experiment, models: [routerModel] }));
   const jobs = createJobs(config, questions, "router");
   expect(jobs.length).toBeGreaterThan(0);
   expect(
     jobs.every(
-      (job) => job.model.openrouterProvider === "openai" && job.request.model === routerModel.model,
+      (job) => job.model.transport === "openrouter" && job.request.model === routerModel.model,
     ),
   ).toBe(true);
 });
@@ -87,11 +86,17 @@ it.each([
   { model: "openrouter/auto" },
   { model: "openai/gpt-5-nano:online" },
   { model: "gpt-5-nano" },
-  { openrouterProvider: undefined },
-  { provider: "openai", model: "gpt-6-astra" },
+  { openrouterProvider: "openai" },
+  { provider: "openrouter" },
   { pricing: { ...routerModel.pricing, inputPerMillion: 0 } },
 ])("rejects invalid OpenRouter configuration %j", (override) => {
   expect(() =>
     parseExperiment(stringify({ ...experiment, models: [{ ...routerModel, ...override }] })),
   ).toThrow();
+});
+
+it("accepts native transport/model configurations and rejects the previous schema", () => {
+  const model = { ...routerModel, transport: "openai", model: "gpt-6-astra" };
+  expect(parseExperiment(stringify({ ...experiment, models: [model] })).models[0]).toEqual(model);
+  expect(() => parseExperiment(stringify({ ...experiment, schemaVersion: 1 }))).toThrow();
 });

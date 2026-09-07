@@ -4,7 +4,7 @@
   "properties": {
     "schemaVersion": {
       "type": "number",
-      "const": 1
+      "const": 2
     },
     "id": {
       "type": "string",
@@ -53,7 +53,7 @@
       "items": {
         "type": "object",
         "properties": {
-          "provider": {
+          "transport": {
             "type": "string",
             "enum": [
               "openai",
@@ -65,10 +65,6 @@
           "model": {
             "type": "string",
             "pattern": "^[a-z0-9][a-z0-9._-]{0,99}(\\/[a-z0-9][a-z0-9._-]{0,99})?$"
-          },
-          "openrouterProvider": {
-            "type": "string",
-            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._/-]{0,99}$"
           },
           "efforts": {
             "minItems": 1,
@@ -133,7 +129,7 @@
           }
         },
         "required": [
-          "provider",
+          "transport",
           "model",
           "efforts",
           "maxOutputTokens",

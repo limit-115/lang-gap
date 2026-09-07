@@ -1,9 +1,9 @@
 import { createHash } from "node:crypto";
-import type { ProviderAdapter } from "@llang-gap/contracts";
+import type { TransportAdapter } from "@llang-gap/contracts";
 
-export function createFakeAdapter(): ProviderAdapter {
+export function createFakeAdapter(): TransportAdapter {
   return {
-    name: "fake",
+    transport: "fake",
     sdkVersion: "1",
     endpoint: "local:fake",
     generate(request) {

@@ -14,25 +14,28 @@ const ownerNames: Record<string, string> = {
   fake: "fake",
 };
 const plannedModels = [
-  { provider: "openai", model: "gpt-6-astra", label: "GPT-6 Astra" },
-  { provider: "anthropic", model: "claude-fable-5-1", label: "Claude Fable 5.1" },
+  { transport: "openai", model: "gpt-6-astra", label: "GPT-6 Astra" },
+  { transport: "anthropic", model: "claude-fable-5-1", label: "Claude Fable 5.1" },
 ] as const satisfies readonly (ModelReference & { label: string })[];
 const modelNames = new Map(
-  plannedModels.map(({ provider, model, label }) => [`${provider}/${model}`, label]),
+  plannedModels.map((model) => {
+    const { owner, name } = getModelIdentity(model);
+    return [`${owner}/${name}`, model.label];
+  }),
 );
 
 export function getModelPresentation(reference: ModelReference) {
   const { owner, name } = getModelIdentity(reference);
   return {
     label: modelNames.get(`${owner}/${name}`) ?? name,
-    ownerName: owner === null ? "—" : (ownerNames[owner] ?? owner),
+    ownerName: owner === null ? "—" : Object.hasOwn(ownerNames, owner) ? ownerNames[owner]! : owner,
   };
 }
 
-export const plannedRows: LeaderboardRow[] = plannedModels.flatMap(({ provider, model }) =>
+export const plannedRows: LeaderboardRow[] = plannedModels.flatMap(({ transport, model }) =>
   efforts.map((effort) => ({
     model,
-    provider,
+    transport,
     effort,
     en: null,
     ru: null,
@@ -41,17 +44,17 @@ export const plannedRows: LeaderboardRow[] = plannedModels.flatMap(({ provider, 
   })),
 );
 
-export function getModelOptions(rows: Pick<Aggregate, "model" | "provider">[]) {
+export function getModelOptions(rows: Pick<Aggregate, "model" | "transport">[]) {
   const unique = new Map<
     string,
     ModelReference & ReturnType<typeof getModelPresentation> & { value: string }
   >();
   for (const row of rows) {
-    const value = `${row.provider}/${row.model}`;
+    const value = `${row.transport}/${row.model}`;
     unique.set(value, {
       value,
       model: row.model,
-      provider: row.provider,
+      transport: row.transport,
       ...getModelPresentation(row),
     });
   }
@@ -71,5 +74,5 @@ export function matchesModel(item: ModelOption, query: string) {
 }
 
 export function getModelHref(option: ModelOption) {
-  return `/models/${encodeURIComponent(option.provider)}/${encodeURIComponent(option.model)}`;
+  return `/models/${encodeURIComponent(option.transport)}/${encodeURIComponent(option.model)}`;
 }

@@ -12,8 +12,8 @@ export function parseExperiment(text: string): Experiment {
   const experiment = experimentSchema.parse(document.toJS({ maxAliasCount: 0 }));
   for (const model of experiment.models) validateModel(model);
   if (
-    experiment.models.some((m) => m.provider === "fake") &&
-    experiment.models.some((m) => m.provider !== "fake")
+    experiment.models.some((m) => m.transport === "fake") &&
+    experiment.models.some((m) => m.transport !== "fake")
   )
     throw new Error("Synthetic and live providers cannot be mixed");
   return experiment;

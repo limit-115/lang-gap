@@ -18,16 +18,15 @@ export function forecastCost(
       experiment.languages.map((language) => {
         const sourceModel = source.models.find(
           (m) =>
-            m.provider === model.provider &&
+            m.transport === model.transport &&
             m.model === model.model &&
-            m.openrouterProvider === model.openrouterProvider &&
             m.efforts.includes(effort),
         );
         if (!sourceModel || sourceModel.maxOutputTokens !== model.maxOutputTokens)
           throw new Error(`Calibration model/effort/token cap mismatch: ${model.model}/${effort}`);
         const samples = items.filter(
           (r) =>
-            r.provider === model.provider &&
+            r.transport === model.transport &&
             r.model === model.model &&
             r.effort === effort &&
             r.language === language,
@@ -38,7 +37,7 @@ export function forecastCost(
           );
         const target = jobs.filter(
           (j) =>
-            j.model.provider === model.provider &&
+            j.model.transport === model.transport &&
             j.model.model === model.model &&
             j.request.effort === effort &&
             j.request.language === language,
@@ -57,7 +56,7 @@ export function forecastCost(
             0,
           ) / samples.length;
         return {
-          provider: model.provider,
+          transport: model.transport,
           model: model.model,
           effort,
           language,

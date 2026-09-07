@@ -1,4 +1,4 @@
-import type { ProviderAdapter, ItemResult } from "@llang-gap/contracts";
+import type { TransportAdapter, ItemResult } from "@llang-gap/contracts";
 import { protocolV1, scoreAnswer } from "@llang-gap/evaluation";
 import { calculateCost, normalizeError } from "@llang-gap/providers";
 import { setTimeout as delay } from "node:timers/promises";
@@ -8,7 +8,7 @@ import { RunState } from "./state";
 export interface ExecuteOptions {
   state: RunState;
   jobs: readonly Job[];
-  adapters: ReadonlyMap<string, ProviderAdapter>;
+  adapters: ReadonlyMap<string, TransportAdapter>;
   budgetUsd: number;
   concurrency: number;
   maxAttempts: number;
@@ -34,7 +34,7 @@ export async function execute(options: ExecuteOptions) {
   const errors: unknown[] = [];
   const canStart = () => !stopped && !signal?.aborted && started < (options.maxJobs ?? Infinity);
 
-  async function runJob(job: Job, adapter: ProviderAdapter) {
+  async function runJob(job: Job, adapter: TransportAdapter) {
     while (!stopped && !signal?.aborted) {
       const prior = state.attemptsFor(job.id);
       if (prior >= maxAttempts) return;
@@ -67,7 +67,7 @@ export async function execute(options: ExecuteOptions) {
         category: job.category,
         language: job.request.language,
         repeat: job.repeat,
-        provider: job.model.provider,
+        transport: job.model.transport,
         model: job.model.model,
         returnedModel: response.model,
         effort: job.request.effort,
@@ -98,7 +98,7 @@ export async function execute(options: ExecuteOptions) {
         });
         stopped = true;
         throw new Error(
-          "Provider usage exceeded the reservation bound; review pricing before continuing",
+          "Transport usage exceeded the reservation bound; review pricing before continuing",
         );
       }
       options.onProgress?.(state.summary());
@@ -106,16 +106,16 @@ export async function execute(options: ExecuteOptions) {
     }
   }
 
-  const workers = [...new Set(jobs.map((job) => job.model.provider))].flatMap((provider) =>
+  const workers = [...new Set(jobs.map((job) => job.model.transport))].flatMap((transport) =>
     Array.from({ length: concurrency }, async () => {
       try {
         while (canStart()) {
-          const index = queue.findIndex((job) => job.model.provider === provider);
+          const index = queue.findIndex((job) => job.model.transport === transport);
           if (index === -1) return;
           const [job] = queue.splice(index, 1);
           if (!job) return;
-          const adapter = adapters.get(`${provider}/${job.model.model}`) ?? adapters.get(provider);
-          if (!adapter) throw new Error(`Missing adapter: ${provider}/${job.model.model}`);
+          const adapter = adapters.get(transport);
+          if (!adapter) throw new Error(`Missing adapter: ${transport}/${job.model.model}`);
           started++;
           await runJob(job, adapter);
         }

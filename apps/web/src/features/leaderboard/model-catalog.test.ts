@@ -10,9 +10,9 @@ import {
 describe("model shortcuts", () => {
   it("offers each model once across effort levels and keeps providers distinct", () => {
     const options = getModelOptions([
-      { model: "test-model", provider: "openai" },
-      { model: "test-model", provider: "openai" },
-      { model: "test-model", provider: "anthropic" },
+      { model: "test-model", transport: "openai" },
+      { model: "test-model", transport: "openai" },
+      { model: "test-model", transport: "anthropic" },
     ]);
     expect(options.map((option) => option.value)).toEqual([
       "anthropic/test-model",
@@ -23,8 +23,8 @@ describe("model shortcuts", () => {
     expect(getModelOptions([])).toEqual([]);
   });
 
-  it("finds models by display name, API ID, provider, or a combination", () => {
-    const option = getModelOptions([{ provider: "openai", model: "gpt-6-astra" }])[0]!;
+  it("finds models by display name, API ID, owner, or a combination", () => {
+    const option = getModelOptions([{ transport: "openai", model: "gpt-6-astra" }])[0]!;
     for (const query of ["  GPT-6   Astra ", "gpt-6-astra", "OPENAI", "astra openai", ""]) {
       expect(matchesModel(option, query)).toBe(true);
     }
@@ -33,13 +33,15 @@ describe("model shortcuts", () => {
   });
 
   it("links to a separate model page and escapes model IDs", () => {
-    const option = getModelOptions([{ provider: "openai", model: "model/snapshot?version=2" }])[0]!;
+    const option = getModelOptions([
+      { transport: "openai", model: "model/snapshot?version=2" },
+    ])[0]!;
     expect(getModelHref(option)).toBe("/models/openai/model%2Fsnapshot%3Fversion%3D2");
   });
 });
 
 it("keeps OpenRouter namespaced models searchable and links escaped", () => {
-  const option = getModelOptions([{ provider: "openrouter", model: "openai/gpt-5-nano" }])[0]!;
+  const option = getModelOptions([{ transport: "openrouter", model: "openai/gpt-5-nano" }])[0]!;
   expect(matchesModel(option, "OpenAI nano")).toBe(true);
   expect(matchesModel(option, "OpenRouter")).toBe(false);
   expect(getModelHref(option)).toBe("/models/openrouter/openai%2Fgpt-5-nano");
@@ -50,9 +52,9 @@ it.each([
   ["anthropic", "claude-fable-5-1", "Claude Fable 5.1", "Anthropic"],
 ] as const)(
   "presents native and routed %s models identically without merging their runs",
-  (provider, model, label, ownerName) => {
-    const native = { provider, model };
-    const routed = { provider: "openrouter" as const, model: `${provider}/${model}` };
+  (transport, model, label, ownerName) => {
+    const native = { transport, model };
+    const routed = { transport: "openrouter" as const, model: `${transport}/${model}` };
     expect(getModelPresentation(native)).toEqual({ label, ownerName });
     expect(getModelPresentation(routed)).toEqual(getModelPresentation(native));
     const options = getModelOptions([native, routed]);
@@ -66,5 +68,5 @@ it.each([
   ["new-owner/new-model", "new-model", "new-owner"],
   ["unnamespaced", "unnamespaced", "—"],
 ])("presents model namespace %s without inventing its owner", (model, label, ownerName) => {
-  expect(getModelPresentation({ provider: "openrouter", model })).toEqual({ label, ownerName });
+  expect(getModelPresentation({ transport: "openrouter", model })).toEqual({ label, ownerName });
 });

@@ -5,7 +5,7 @@ import { hash, json, readJson } from "./files";
 import { join } from "node:path";
 
 export const snapshotSchema = z.strictObject({
-  schemaVersion: z.literal(1),
+  schemaVersion: z.literal(2),
   runId: z.string(),
   createdAt: z.iso.datetime(),
   experiment: experimentSchema,
@@ -20,8 +20,8 @@ export const snapshotSchema = z.strictObject({
   }),
   node: z.string(),
   initialBudgetUsd: z.number().nonnegative(),
-  providerMetadata: z.array(
-    z.strictObject({ provider: z.string(), sdkVersion: z.string(), endpoint: z.string() }),
+  transportMetadata: z.array(
+    z.strictObject({ transport: z.string(), sdkVersion: z.string(), endpoint: z.string() }),
   ),
 });
 export type Snapshot = z.infer<typeof snapshotSchema>;
@@ -30,6 +30,10 @@ export async function readSnapshot(
   directory: string,
 ): Promise<{ snapshot: Snapshot; configHash: string }> {
   const raw = await readJson(join(directory, "resolved.json"));
+  if (typeof raw === "object" && raw !== null && "schemaVersion" in raw && raw.schemaVersion === 1)
+    throw new Error(
+      "Run schema v1 requires its recorded source and dependencies; do not rewrite the saved snapshot",
+    );
   const snapshot = snapshotSchema.parse(raw);
   const configHash = hash(json(raw));
   const expected = await readJson(join(directory, "identity.json"));

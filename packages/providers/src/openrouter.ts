@@ -1,14 +1,13 @@
 import OpenAI from "openai";
-import { usageSchema, type ProviderAdapter } from "@llang-gap/contracts";
+import { usageSchema, type TransportAdapter } from "@llang-gap/contracts";
 import { normalizeError, ProviderError } from "./errors";
 import sdk from "#package.json";
 
 export function createOpenRouterAdapter(
   apiKey: string,
   timeoutMs: number,
-  upstream: string,
   transport?: typeof fetch,
-): ProviderAdapter {
+): TransportAdapter {
   const client = new OpenAI({
     apiKey,
     baseURL: "https://openrouter.ai/api/v1",
@@ -17,7 +16,7 @@ export function createOpenRouterAdapter(
     ...(transport ? { fetch: transport } : {}),
   });
   return {
-    name: "openrouter",
+    transport: "openrouter",
     sdkVersion: sdk.dependencies.openai,
     endpoint: "https://openrouter.ai/api/v1/chat/completions",
     async generate(request) {
@@ -28,7 +27,7 @@ export function createOpenRouterAdapter(
           messages: [{ role: "user" as const, content: request.prompt }],
           max_tokens: request.maxOutputTokens,
           reasoning: { effort: request.effort },
-          provider: { only: [upstream], allow_fallbacks: false, require_parameters: true },
+          provider: { allow_fallbacks: false, require_parameters: true },
           // Preserve prompt bytes; task stops are applied by the protocol scorer.
           transforms: [],
         };

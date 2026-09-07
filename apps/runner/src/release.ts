@@ -37,7 +37,7 @@ export async function recompute(directory: string, items: ItemResult[], benchmar
     validateDataset(questions);
     if (
       snapshot.experiment.questionLimit ||
-      snapshot.experiment.models.some((m) => m.provider === "fake")
+      snapshot.experiment.models.some((m) => m.transport === "fake")
     )
       throw new Error("Synthetic or subset runs cannot become benchmark releases");
     if (!snapshot.implementation.commit || !snapshot.implementation.clean)
@@ -56,7 +56,7 @@ export async function recompute(directory: string, items: ItemResult[], benchmar
       item.model !== job.model.model ||
       item.effort !== job.request.effort ||
       item.repeat !== job.repeat ||
-      item.provider !== job.model.provider ||
+      item.transport !== job.model.transport ||
       item.expected !== job.expected ||
       item.prompt !== job.request.prompt ||
       item.category !== job.category
@@ -104,8 +104,8 @@ export async function scoreRun(directory: string) {
 
 const csv = (rows: ReturnType<typeof aggregateResults>) => {
   const header =
-    "provider,model,effort,n,repeats,accuracy_en,accuracy_ru,gap_pp,ci95_low_pp,ci95_high_pp";
-  return `${header}\n${rows.map((r) => [r.provider, r.model, r.effort, r.n, r.repeats, r.en, r.ru, r.gapPp, ...r.gapCi95].join(",")).join("\n")}\n`;
+    "transport,model,effort,n,repeats,accuracy_en,accuracy_ru,gap_pp,ci95_low_pp,ci95_high_pp";
+  return `${header}\n${rows.map((r) => [r.transport, r.model, r.effort, r.n, r.repeats, r.en, r.ru, r.gapPp, ...r.gapCi95].join(",")).join("\n")}\n`;
 };
 
 export async function buildRelease(
@@ -156,7 +156,7 @@ export async function buildRelease(
       files[name] = hash(content);
     }
     const manifest = releaseManifestSchema.parse({
-      schemaVersion: 1,
+      schemaVersion: 2,
       id,
       runId: scored.snapshot.runId,
       kind,

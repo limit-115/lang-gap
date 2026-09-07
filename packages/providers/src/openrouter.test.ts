@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createOpenRouterAdapter } from "./openrouter";
 import { createAdapter } from "./index";
-import { experiment } from "@tests/fixtures";
 
 const request = {
   model: "openai/gpt-5-nano",
@@ -31,15 +30,13 @@ const response = {
 afterEach(() => vi.unstubAllEnvs());
 describe("OpenRouter intercepted transport", () => {
   it.each(["low", "medium", "high"] as const)(
-    "pins routing and forwards %s without changing prompt",
+    "forwards %s without changing prompt",
     async (effort) => {
       const transport = vi.fn<typeof fetch>().mockResolvedValue(Response.json(response));
-      const result = await createOpenRouterAdapter(
-        "synthetic-key",
-        1000,
-        "openai",
-        transport,
-      ).generate({ ...request, effort });
+      const result = await createOpenRouterAdapter("synthetic-key", 1000, transport).generate({
+        ...request,
+        effort,
+      });
       expect(transport.mock.calls[0]![0]).toBe("https://openrouter.ai/api/v1/chat/completions");
       const init = transport.mock.calls[0]![1]!;
       expect(new Headers(init.headers).get("authorization")).toBe("Bearer synthetic-key");
@@ -49,7 +46,7 @@ describe("OpenRouter intercepted transport", () => {
         messages: [{ role: "user", content: request.prompt }],
         max_tokens: 2048,
         reasoning: { effort },
-        provider: { only: ["openai"], allow_fallbacks: false, require_parameters: true },
+        provider: { allow_fallbacks: false, require_parameters: true },
         transforms: [],
       });
       expect(result).toMatchObject({
@@ -79,7 +76,7 @@ describe("OpenRouter intercepted transport", () => {
       }),
     );
     expect(
-      await createOpenRouterAdapter("synthetic", 1000, "openai", transport).generate(request),
+      await createOpenRouterAdapter("synthetic", 1000, transport).generate(request),
     ).toMatchObject({ outcome, text: "" });
   });
   it.each([undefined, { prompt_tokens: -1, completion_tokens: 50 }])(
@@ -89,8 +86,7 @@ describe("OpenRouter intercepted transport", () => {
         .fn<typeof fetch>()
         .mockResolvedValue(Response.json({ ...response, usage }));
       expect(
-        (await createOpenRouterAdapter("synthetic", 1000, "openai", transport).generate(request))
-          .usage,
+        (await createOpenRouterAdapter("synthetic", 1000, transport).generate(request)).usage,
       ).toBeNull();
     },
   );
@@ -104,7 +100,7 @@ describe("OpenRouter intercepted transport", () => {
         ),
       );
     await expect(
-      createOpenRouterAdapter("synthetic", 1000, "openai", transport).generate(request),
+      createOpenRouterAdapter("synthetic", 1000, transport).generate(request),
     ).rejects.toMatchObject({
       message: `Provider HTTP ${status}`,
       retryable: status === 429 || status >= 500,
@@ -120,20 +116,23 @@ describe("OpenRouter intercepted transport", () => {
   ])("rejects error envelopes and invalid completions", async (body) => {
     const transport = vi.fn<typeof fetch>().mockResolvedValue(Response.json(body));
     await expect(
-      createOpenRouterAdapter("synthetic", 1000, "openai", transport).generate(request),
+      createOpenRouterAdapter("synthetic", 1000, transport).generate(request),
     ).rejects.toMatchObject({ retryable: true, uncertain: true });
   });
-  it("requires the dedicated key and wires the factory", () => {
-    const model = {
-      ...experiment.models[0]!,
-      provider: "openrouter" as const,
-      model: request.model,
-      openrouterProvider: "openai",
-      pricing: { ...experiment.models[0]!.pricing, inputPerMillion: 1, outputPerMillion: 1 },
-    };
-    vi.stubEnv("OPENROUTER_API_KEY", "");
-    expect(() => createAdapter(model, 1000)).toThrow("Missing OPENROUTER_API_KEY");
-    vi.stubEnv("OPENROUTER_API_KEY", "synthetic");
-    expect(createAdapter(model, 1000).name).toBe("openrouter");
-  });
+  it.each([
+    ["openai", "OPENAI_API_KEY", "https://api.openai.com/v1/responses"],
+    ["anthropic", "ANTHROPIC_API_KEY", "https://api.anthropic.com/v1/messages"],
+    ["openrouter", "OPENROUTER_API_KEY", "https://openrouter.ai/api/v1/chat/completions"],
+  ] as const)(
+    "selects the %s adapter and its own credential from transport alone",
+    (transport, env, endpoint) => {
+      vi.stubEnv("OPENAI_API_KEY", "synthetic-other");
+      vi.stubEnv("ANTHROPIC_API_KEY", "synthetic-other");
+      vi.stubEnv("OPENROUTER_API_KEY", "synthetic-other");
+      vi.stubEnv(env, "");
+      expect(() => createAdapter(transport, 1000)).toThrow(`Missing ${env}`);
+      vi.stubEnv(env, "synthetic");
+      expect(createAdapter(transport, 1000)).toMatchObject({ transport, endpoint });
+    },
+  );
 });
