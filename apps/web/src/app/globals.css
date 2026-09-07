@@ -138,6 +138,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Keep the decorative background behind content and above the body's fill. */
+    isolation: isolate;
     margin: 0;
     min-height: 100svh;
     display: flex;

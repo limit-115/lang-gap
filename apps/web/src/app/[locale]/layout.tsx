@@ -7,6 +7,7 @@ import { getMessagesForLocale } from "@/i18n/messages";
 import { SiteHeader } from "@/shared/navigation/site-header";
 import { SiteFooter } from "@/shared/navigation/site-footer";
 import { ThemeProvider } from "@/shared/theme-provider";
+import { SiteBackground } from "@/shared/site-background";
 import { siteUrl } from "@/shared/metadata";
 import "@/app/globals.css";
 
@@ -32,6 +33,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body>
+        <SiteBackground />
         <ThemeProvider>
           <NextIntlClientProvider
             locale={locale}
