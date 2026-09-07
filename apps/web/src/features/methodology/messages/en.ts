@@ -4,7 +4,7 @@ export default {
     "See what we ask each model, how we measure the difference, and how you can check a published result.",
   protocolTitle: "What each model receives",
   protocol:
-    "We compare English and Russian versions of the same questions. Each prompt includes an instruction, five worked examples from the same subject, and one test question, all in the language being tested. Question IDs, answer order and model settings are matched across the language pair. Each request starts fresh, without conversation history, browsing or tools.",
+    "We compare versions of the same questions in different languages. Each prompt includes an instruction, five worked examples from the same subject, and one test question, all in the language being tested. Question IDs, answer order and model settings are matched across the language pair. Each request starts fresh, without conversation history, browsing or tools.",
   adaptation:
     "We use the MMLU-ProX authors’ prompts with five worked examples (5-shot CoT), adapted for hosted model APIs. We test each model at low, medium and high reasoning effort with a 2,048-token output limit that includes hidden reasoning. These API settings differ from the original study, so our scores are a separate comparison.",
   datasetTitle: "Which questions count",

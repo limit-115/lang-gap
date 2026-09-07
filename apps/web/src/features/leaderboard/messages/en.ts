@@ -1,11 +1,9 @@
 export default {
   title: "See how LLM accuracy changes across languages—with open results you can check.",
   description:
-    "Compare English and Russian accuracy on the same academic questions, with uncertainty estimates and the evidence behind each score.",
-  tableTitle: "Compare accuracy in English and Russian",
+    "Compare model accuracy across languages on the same academic questions, with uncertainty estimates and evidence you can inspect.",
+  tableTitle: "Compare model accuracy across languages",
   tableDescription: "MMLU-ProX Lite · Five worked examples per subject",
-  unpublishedDescription:
-    "No benchmark scores have been published yet. These are the models and reasoning settings planned for the first comparison.",
   model: "Model",
   effort: "Reasoning effort",
   en: "English",
@@ -14,7 +12,7 @@ export default {
   accuracy: "Accuracy",
   gapUnit: "EN − RU · pp",
   confidence: "Gap · 95% interval",
-  planned: "Not yet published",
+  planned: "Planned",
   low: "Low",
   medium: "Medium",
   high: "High",
@@ -22,11 +20,11 @@ export default {
   viewRelease: "View results and supporting data",
   questions: "{count, plural, one {# unique question} other {# unique questions}}",
   repeats: "{count, plural, one {# repeat} other {# repeats}}",
-  languages: "English and Russian prompts",
+  languages: "2 prompt languages in this experiment",
   models: "2 models · 3 effort levels",
   guideTitle: "What does the gap tell you?",
   guideBody:
-    "The gap is English accuracy minus Russian accuracy, in percentage points. A positive value means lower accuracy in Russian. Read both scores too: a small gap can mean equally low accuracy.",
+    "The gap is the difference in accuracy between two languages, in percentage points. The column label shows the subtraction order. Read both scores too: a small gap can mean equally low accuracy.",
   uncertaintyTitle: "How certain is the difference?",
   uncertaintyBody:
     "The 95% interval shows how precisely this question set lets us estimate the gap. If it includes zero, the results do not establish which language has higher accuracy. Translation quality and model changes add uncertainty beyond this interval.",
@@ -54,5 +52,5 @@ export default {
   release: "Release {id}",
   metadataTitle: "Compare LLM accuracy across languages",
   metadataDescription:
-    "See how LLM accuracy changes across languages—with open results you can check. Starting with English and Russian on MMLU-ProX Lite.",
+    "See how LLM accuracy changes across languages—with open results you can check. Compare models, understand the gaps, and inspect the evidence.",
 } as const;
