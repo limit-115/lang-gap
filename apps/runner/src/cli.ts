@@ -1,9 +1,16 @@
 #!/usr/bin/env node
 import { join, resolve } from "node:path";
 import { stat } from "node:fs/promises";
-import { Command, InvalidArgumentError } from "@commander-js/extra-typings";
+import { Command } from "@commander-js/extra-typings";
+import {
+  experimentOptions,
+  number,
+  positiveInteger,
+  concurrencyValue,
+  attemptsValue,
+} from "./cli-options";
 import { prepareDataset, readManifest } from "@llang-gap/datasets";
-import { loadExperiment, selectExperiment, type ExperimentSelection } from "./config";
+import { resolveExperiment, type ExperimentSelection } from "./config";
 import { hash, json, workspace } from "./files";
 import { createJobs, summarizePlan } from "./plan";
 import { readCalibration } from "./forecast";
@@ -12,28 +19,6 @@ import { readSnapshot } from "./snapshot";
 import { buildRelease, scoreRun, stageRelease, verifyRelease } from "./release";
 import { RunState, unlockRun } from "./state";
 
-const number = (value: string) => {
-  const parsed = Number(value);
-  if (!value.trim() || !Number.isFinite(parsed) || parsed < 0)
-    throw new InvalidArgumentError("Expected a finite nonnegative number");
-  return parsed;
-};
-const positiveInteger = (value: string) => {
-  const parsed = number(value);
-  if (!Number.isSafeInteger(parsed) || parsed < 1)
-    throw new InvalidArgumentError("Expected a positive integer");
-  return parsed;
-};
-const concurrencyValue = (value: string) => {
-  const parsed = positiveInteger(value);
-  if (parsed > 32) throw new InvalidArgumentError("Maximum concurrency is 32 per transport");
-  return parsed;
-};
-const attemptsValue = (value: string) => {
-  const parsed = positiveInteger(value);
-  if (parsed > 5) throw new InvalidArgumentError("Maximum attempts is 5");
-  return parsed;
-};
 const program = new Command()
   .name("bench")
   .description("Reproducible LLM language comparisons")
@@ -48,8 +33,15 @@ const progress = (summary: ReturnType<RunState["summary"]>) => {
     );
 };
 
-async function prepare(path: string, offline = false, selection: ExperimentSelection = {}) {
-  const experiment = selectExperiment(await loadExperiment(resolve(path)), selection);
+async function prepare(
+  path: string | undefined,
+  offline = false,
+  selection: ExperimentSelection = {},
+) {
+  const experiment = await resolveExperiment(
+    path === undefined ? undefined : resolve(path),
+    selection,
+  );
   const manifest = await readManifest(
     join(workspace, "datasets", experiment.dataset, "manifest.json"),
   );
@@ -82,81 +74,67 @@ async function withSignals<T>(work: (signal: AbortSignal) => Promise<T>): Promis
 program
   .command("dataset")
   .description("Manage verified local dataset cache")
-  .command("prepare <experiment>")
-  .option("--offline", "Use verified cache only")
-  .option("--dataset <id>", "Dataset manifest ID under datasets/<id>/manifest.json")
-  .option("--language <tag>", "Select one benchmark language")
-  .option("--languages <tags...>", "Select benchmark languages")
-  .option("--protocol <id>", "Select the versioned evaluation protocol")
-  .option("--compare <pairs...>", "Explicit baseline:language comparisons")
-  .action(async (path, options) => {
-    const data = await prepare(path, options.offline, options);
-    output({
-      dataset: data.manifest.id,
-      revision: data.manifest.revision,
-      rows: data.questions.length,
-      hash: data.hash,
-      directory: data.directory,
-    });
-  });
-program
-  .command("plan <experiment>")
-  .description("Validate and expand an experiment without model requests")
-  .option(
-    "--calibrate-from <directory>",
-    "Forecast costs from a completed compatible run with recorded usage",
-  )
-  .option("--offline", "Use verified dataset cache only")
-  .option("--dataset <id>", "Dataset manifest ID under datasets/<id>/manifest.json")
-  .option("--language <tag>", "Select one benchmark language")
-  .option("--languages <tags...>", "Select benchmark languages")
-  .option("--protocol <id>", "Select the versioned evaluation protocol")
-  .option("--compare <pairs...>", "Explicit baseline:language comparisons")
-  .action(async (path, options) => {
-    const {
-      experiment,
-      manifest,
-      questions,
-      hash: datasetHash,
-    } = await prepare(path, options.offline, options);
-    const jobs = createJobs(experiment, questions, hash(json(experiment)), manifest);
-    const forecast = options.calibrateFrom
-      ? await readCalibration(resolve(options.calibrateFrom), experiment, jobs, datasetHash)
-      : null;
-    output({ ...summarizePlan(experiment, jobs), forecast });
-  });
-program
-  .command("run <experiment>")
-  .description("Execute an experiment; cost planning and a budget are optional")
-  .option("--budget-usd <amount>", "Maximum total charged/reserved USD", number)
-  .option("--concurrency <count>", "Concurrent requests per transport", concurrencyValue)
-  .option(
-    "--max-jobs <count>",
-    "Pause after dispatching this many jobs; resume preserves the full experiment",
-    positiveInteger,
-  )
-  .option("--offline", "Disallow dataset downloads (model APIs may still use the network)")
-  .option("--dataset <id>", "Dataset manifest ID under datasets/<id>/manifest.json")
-  .option("--language <tag>", "Select one benchmark language")
-  .option("--languages <tags...>", "Select benchmark languages")
-  .option("--protocol <id>", "Select the versioned evaluation protocol")
-  .option("--compare <pairs...>", "Explicit baseline:language comparisons")
-  .action(async (path, options) => {
-    const { experiment, questions, manifest } = await prepare(path, options.offline, options);
-    const result = await withSignals((signal) =>
-      createRun({
-        experiment,
-        questions,
-        manifest,
-        budgetUsd: options.budgetUsd ?? null,
-        signal,
-        onProgress: progress,
-        ...(options.concurrency === undefined ? {} : { concurrency: options.concurrency }),
-        ...(options.maxJobs === undefined ? {} : { maxJobs: options.maxJobs }),
+  .addCommand(
+    experimentOptions()
+      .name("prepare")
+      .action(async (path, options) => {
+        const data = await prepare(path, options.offline, options);
+        output({
+          dataset: data.manifest.id,
+          revision: data.manifest.revision,
+          rows: data.questions.length,
+          hash: data.hash,
+          directory: data.directory,
+        });
       }),
-    );
-    output(result);
-  });
+  );
+program.addCommand(
+  experimentOptions()
+    .name("plan")
+    .description("Validate and expand an experiment without model requests")
+    .option(
+      "--calibrate-from <directory>",
+      "Forecast costs from a completed compatible run with usage",
+    )
+    .action(async (path, options) => {
+      const {
+        experiment,
+        manifest,
+        questions,
+        hash: datasetHash,
+      } = await prepare(path, options.offline, options);
+      const jobs = createJobs(experiment, questions, hash(json(experiment)), manifest);
+      const forecast = options.calibrateFrom
+        ? await readCalibration(resolve(options.calibrateFrom), experiment, jobs, datasetHash)
+        : null;
+      output({ ...summarizePlan(experiment, jobs), resolvedExperiment: experiment, forecast });
+    }),
+);
+program.addCommand(
+  experimentOptions()
+    .name("run")
+    .description("Execute an experiment; cost planning and a budget are optional")
+    .option(
+      "--max-jobs <count>",
+      "Pause after this many jobs; preserve the complete experiment",
+      positiveInteger,
+    )
+    .action(async (path, options) => {
+      const { experiment, questions, manifest } = await prepare(path, options.offline, options);
+      output(
+        await withSignals((signal) =>
+          createRun({
+            experiment,
+            questions,
+            manifest,
+            signal,
+            onProgress: progress,
+            ...(options.maxJobs === undefined ? {} : { maxJobs: options.maxJobs }),
+          }),
+        ),
+      );
+    }),
+);
 program
   .command("status <run-id>")
   .description("Inspect durable progress without contacting model APIs")

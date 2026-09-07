@@ -1,45 +1,85 @@
 # Runner operator guide
 
-## Dataset and language selection
+## CLI and YAML configuration
 
-`dataset prepare`, `plan` and `run` accept the same selection flags:
+`run`, `plan` and `dataset prepare` accept an optional YAML path followed by flags.
+A run can be configured entirely through the CLI. `plan` is optional and never
+calls model APIs. For example, this local fake run needs no YAML, prices or budget:
 
 ```sh
-pnpm bench plan experiments/smoke.yaml --dataset mmlu-prox-lite --language ru
-pnpm bench run experiments/smoke.yaml --dataset mmlu-prox-lite --languages ru en --compare ru:en
-# After registering a compatible manifest and localized protocol inputs:
-pnpm bench plan experiments/custom.yaml --dataset my-dataset --languages de fr ja --protocol multiple-choice-v1 --compare fr:ja ja:de
+pnpm bench run --id cli-smoke --dataset mmlu-prox-lite \
+  --protocol mmluprox-lite-5shot-author-api-v3 --languages ru,en \
+  --transport fake --models fake-one,fake-two --efforts low,medium,high,xhigh,max \
+  --question-limit 2 --repeats 3 --concurrency 2 --max-jobs 5
+pnpm bench resume <run-id>
 ```
 
+For live calls, choose a transport, supply its API key in the environment and pass
+its model IDs unchanged, for example `--transport openrouter
+--models organization/model:free,organization/another-model`. No model catalog or
+effort-capability lookup runs before dispatch. The provider may reject a request.
+
+YAML remains useful for named, reproducible experiments. Flags override YAML;
+defaults fill fields absent from both. Overrides are applied before final schema
+validation, so a CLI value can replace an obsolete YAML setting. Unknown fields,
+duplicate conditions, duplicate YAML keys, custom tags and aliases are rejected.
+`pnpm schema` regenerates the editor schema; `pnpm schema:check` detects drift.
+
+```sh
+pnpm bench plan experiments/smoke.yaml --models fake-one,fake-two \
+  --efforts low max --languages ru en --question-limit 2 --repeats 3
+pnpm bench run experiments/smoke.yaml --all-questions --no-pricing --no-budget
+```
+
+Lists accept commas, spaces, or both (including `--models=a,b,c`). An explicit
+model list replaces the YAML list. Matching transport/model conditions retain
+model-specific settings; new models use CLI settings and defaults. `--transport`
+applies to every selected model. Rates never transfer to a different model or
+transport. Without a transport override, a new model can inherit the YAML's single
+transport; mixed-transport YAML requires an explicit transport for new IDs.
+
+| Setting                            | CLI flag                                                                                                                                                                       | Default without YAML                                      |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
+| Experiment label                   | `--id`                                                                                                                                                                         | `cli` (the run ID also includes date and a random suffix) |
+| Dataset                            | `--dataset`                                                                                                                                                                    | Required                                                  |
+| Protocol                           | `--protocol`                                                                                                                                                                   | Required                                                  |
+| Benchmark languages                | `--languages` or `--language`                                                                                                                                                  | Required                                                  |
+| Models / transport                 | `--models`, `--transport`                                                                                                                                                      | Required                                                  |
+| Reasoning efforts                  | `--efforts`                                                                                                                                                                    | `medium`                                                  |
+| Combined reasoning/output cap      | `--max-output-tokens`                                                                                                                                                          | Protocol cap, otherwise 2048                              |
+| Repeats / selection seed           | `--repeats`, `--seed`                                                                                                                                                          | 1 / 42                                                    |
+| Unique test questions per language | `--question-limit`, `--all-questions`                                                                                                                                          | Entire selected test split                                |
+| Concurrency per transport          | `--concurrency`                                                                                                                                                                | 1                                                         |
+| Total attempts / request timeout   | `--max-attempts`, `--timeout-ms`                                                                                                                                               | 3 / 120000 ms                                             |
+| Optional total budget              | `--budget-usd`, `--no-budget`                                                                                                                                                  | No budget                                                 |
+| Optional rates                     | `--pricing-as-of`, `--pricing-source`, `--input-per-million`, `--cached-input-per-million`, `--cache-write-per-million`, `--cache-write1h-per-million`, `--output-per-million` | Unknown                                                   |
+
+Price flags apply to selected models and override matching YAML rates. A complete
+pricing block needs its date, source URL and all five rates. `--no-pricing` clears
+inherited rates; zero rates are valid. A YAML budget is `execution.budgetUsd`.
+`--no-budget` clears it; `--all-questions` clears `questionLimit`.
+
+`questionLimit` counts **unique test questions per language**, before expanding
+models, efforts and repeats. With 2 questions in each of 2 languages, 3 models,
+5 efforts each and 3 repeats, the plan has 180 requests, before technical retries.
+For unequal language sets or per-model effort lists, the plan reports the actual
+counts. `--max-jobs` only pauses dispatch; it does not reduce the saved experiment.
+
+## Dataset and language selection
+
 `--dataset` resolves `datasets/<id>/manifest.json` and validates its identity.
-`--language` selects one language; `--languages` selects a nonempty unique list of
-canonical language tags (for example `de`, `ja`, `zh-Hant`). These options replace
-the YAML list and clear inherited comparisons. `--compare baseline:language ...`
-sets explicit ordered pairs; omitting it after a language override means independent
-scores. Without selection flags, the YAML conditions are used exactly as written.
-`--protocol` chooses an implemented protocol; unsupported inputs fail before calls.
-The plan reports dataset, selected languages, comparisons and counts per language.
+There is no universal dataset or benchmark language list. Language tags must be
+canonical (for example `de`, `ja`, `zh-Hant`). Language overrides replace the YAML
+list and clear inherited comparisons. Optional `--compare baseline:language ...`
+sets ordered pairs; `comparisons` may be omitted in YAML for independent scores.
+`--protocol` chooses an implemented adapter; unsupported dataset/language inputs
+fail before calls. The plan includes the complete resolved experiment.
 
 Only selected source files are downloaded/decoded. The original full manifest and
 selected normalized rows enter the immutable snapshot. Cache output filenames are
-scoped by the selected language set. A language limit is not a question subset:
-a full single-language run can be released if all other release gates pass.
-See [adding datasets](datasets.md) and [the protocol](protocol.md).
-
-## Configuration
-
-`experiments/*.yaml` is the scientific source of truth. Commander.js provides the
-CLI, `yaml` parses the document, and Zod rejects unknown fields, duplicate model or
-effort conditions and invalid values. Duplicate YAML keys, custom tags and aliases
-are rejected. `pnpm schema` updates the editor JSON Schema; `pnpm schema:check`
-detects drift. Cross-field constraints are enforced at runtime even where JSON
-Schema cannot express them.
-
-- `mvp.yaml`: full two-model, three-effort, three-repeat author-api-v3 comparison.
-- `pilot.yaml`: two test questions in both languages across every configuration,
-  one repeat. Technical calibration only; cannot become a benchmark release.
-- `smoke.yaml`: four questions with the deterministic fake provider, two repeats.
-  Free and permanently ineligible for the public index.
+scoped by the selected language set. A full single-language run can be released
+if all other release gates pass. See [adding datasets](datasets.md) and
+[the protocol](protocol.md).
 
 Changing the dataset, languages, comparisons, model, protocol, token cap, repeats, question subset or seed means a
 new run. Provider-native effort names are not equivalent compute budgets. The
@@ -87,8 +127,8 @@ owner from model metadata/namespace, independently of the transport or serving
 endpoint. Native and routed results retain distinct IDs and links.
 
 For a fresh run from an old YAML, use `schemaVersion: 3`, `transport` and `model`,
-and explicitly specify `languages` and `comparisons` (use `[]` for independent
-scores). Never rewrite existing snapshots or releases; schema-v1/v2 artifacts
+and explicitly specify `languages`. Omit `comparisons` or use `[]` for independent
+scores. Never rewrite existing snapshots or releases; schema-v1/v2 artifacts
 require their recorded source and dependencies for resume, scoring and verification.
 
 ## OpenRouter
