@@ -119,9 +119,6 @@ export function ModelFinderHero({ rows }: { rows: Aggregate[] }) {
                                 <ProviderLogo provider={item.provider} size={20} />
                               </span>
                               <span className={styles.optionText}>{item.label}</span>
-                              {!rows.length && (
-                                <span className={styles.planned}>{t("planned")}</span>
-                              )}
                               <Combobox.ItemIndicator className={styles.check}>
                                 <Check aria-hidden="true" />
                               </Combobox.ItemIndicator>
