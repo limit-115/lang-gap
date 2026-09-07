@@ -81,7 +81,7 @@ scoped by the selected language set. A full single-language run can be released
 if all other release gates pass. See [adding datasets](datasets.md) and
 [the protocol](protocol.md).
 
-Changing the dataset, languages, comparisons, model, protocol, token cap, repeats, question subset or seed means a
+Changing the dataset, languages, model, protocol, token cap, repeats, question subset or seed means a
 new run. Provider-native effort names are not equivalent compute budgets. The
 MMLU-ProX author adapter fixes the cap at 2048 tokens including reasoning, matching the
 author task numerically. Planning rejects a different cap under this ID. API
@@ -256,6 +256,45 @@ Concurrency is per transport. Selected language conditions remain adjacent in a 
 shuffled schedule; the first language alternates. This seed controls scheduling
 and statistics, not model generation. Request wall time is recorded as observed
 API latency, without presenting it as pure inference time.
+
+## Analyze saved runs
+
+No predeclared `comparisons` are needed to run or publish independent scores.
+Select language gaps after execution, without changing the run snapshot:
+
+```sh
+pnpm bench score <run-id> --compare ja:de,de:fr
+pnpm bench release build <run-id> --id <release-id> --compare ja:de de:fr
+```
+
+Use languages actually present in the saved run. These commands record the
+selected language comparisons in `analysis.json`; the release builder records
+its own selection, so pass `--compare` there as well when publishing those gaps.
+Without the flag, the run's optional YAML comparison preset is used.
+
+For comparisons between models, efforts or languages, including separate runs:
+
+```sh
+pnpm bench compare <run-id> --models organization/model-a,organization/model-b \
+  --efforts low,max --languages ja,de --id model-language-analysis
+pnpm bench compare <first-run-id> <second-run-id> --languages ja de --efforts max
+```
+
+With no filters, every saved condition is considered. `--models`, `--transports`,
+`--efforts` and `--languages` accept commas or spaces. Each unordered pair is
+reported once in deterministic condition order; `baseline` and `candidate` point
+to the full condition identities in the report. Positive `gapPp` favors the named
+baseline. Incompatible pairs are listed with reasons; no common-question subset
+is silently substituted. See the [compatibility and statistics rules](protocol.md#accuracy-and-post-run-comparisons).
+
+The command writes an exclusive `.llang-gap/analyses/<id>.json` artifact (or uses
+a generated ID). It contains the selection, bootstrap seed (`--seed`, default 42),
+10,000-sample method, source configuration/dataset/protocol/result hashes, condition
+scores, gaps and incompatible pairs. It includes no raw provider response or local
+source paths. Repeating the same selection and seed reproduces its statistics;
+source run directories remain unchanged. Keep source runs or their release
+artifacts with the report for audit and publication. These general reports do not
+enter the website release index automatically.
 
 ## Stop and resume
 

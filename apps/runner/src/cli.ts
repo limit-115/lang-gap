@@ -9,8 +9,10 @@ import {
   concurrencyValue,
   attemptsValue,
 } from "./cli-options";
+import { analysisSelectionSchema } from "@llang-gap/contracts";
+import { compareRuns } from "./compare";
 import { prepareDataset, readManifest } from "@llang-gap/datasets";
-import { resolveExperiment, type ExperimentSelection } from "./config";
+import { resolveExperiment, parseComparisons, splitList, type ExperimentSelection } from "./config";
 import { hash, json, workspace } from "./files";
 import { createJobs, summarizePlan } from "./plan";
 import { readCalibration } from "./forecast";
@@ -194,8 +196,39 @@ program
 program
   .command("score <run-id>")
   .description("Independently recompute scores from saved visible outputs")
-  .action(async (id) => {
-    output(await scoreRun(runPath(id)));
+  .option("--compare <pairs...>", "Post-run baseline:language pairs; commas or spaces")
+  .action(async (id, options) => {
+    output(
+      await scoreRun(
+        runPath(id),
+        options.compare === undefined ? undefined : parseComparisons(options.compare),
+      ),
+    );
+  });
+program
+  .command("compare <run-ids...>")
+  .description("Compare compatible saved model/effort/language conditions; no model calls")
+  .option("--id <id>", "Immutable analysis artifact ID")
+  .option("--models <ids...>", "Filter saved model IDs; commas or spaces")
+  .option("--transports <names...>", "Filter saved transports; commas or spaces")
+  .option("--efforts <levels...>", "Filter saved efforts; commas or spaces")
+  .option("--languages <tags...>", "Filter saved benchmark languages; commas or spaces")
+  .option("--seed <number>", "Paired bootstrap seed (default: 42)", positiveInteger)
+  .action(async (ids, options) => {
+    const selection = analysisSelectionSchema.parse(
+      Object.fromEntries(
+        (["models", "transports", "efforts", "languages"] as const).flatMap((key) =>
+          options[key] === undefined ? [] : [[key, splitList(options[key])]],
+        ),
+      ),
+    );
+    output(
+      await compareRuns(splitList(ids).map(runPath), {
+        selection,
+        ...(options.id === undefined ? {} : { id: options.id }),
+        ...(options.seed === undefined ? {} : { seed: options.seed }),
+      }),
+    );
   });
 const release = program
   .command("release")
@@ -204,8 +237,17 @@ release
   .command("build <run-id>")
   .requiredOption("--id <id>", "Immutable release ID")
   .option("--test", "Build a clearly marked nonpublic test artifact")
+  .option("--compare <pairs...>", "Post-run baseline:language pairs saved in release analysis.json")
   .action(async (id, options) => {
-    output(await buildRelease(runPath(id), options.id, options.test ? "test" : "benchmark"));
+    output(
+      await buildRelease(
+        runPath(id),
+        options.id,
+        options.test ? "test" : "benchmark",
+        undefined,
+        options.compare === undefined ? undefined : parseComparisons(options.compare),
+      ),
+    );
   });
 release
   .command("verify <directory>")
