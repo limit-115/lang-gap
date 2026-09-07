@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Start with the problem and the smallest useful change. English or Russian is welcome.
+        Start with the problem and the smallest useful change.
         For substantial work, agree on scope here before opening an implementation PR.
         Use the bug report form for behavior that is already broken.
 

@@ -3,7 +3,6 @@
 Llang Gap compares LLM accuracy across prompt languages. Contributions should make
 the benchmark easier to reproduce, audit, or use. Bug reports, focused fixes,
 documentation improvements, and English/Russian translation corrections are welcome.
-Issues and PR explanations can be written in English or Russian.
 
 ## Before starting
 
