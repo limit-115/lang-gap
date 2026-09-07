@@ -3,7 +3,7 @@
   grid-template-columns: minmax(0, 1fr) 352px;
   align-items: start;
   gap: 48px;
-  padding-block: 44px 36px;
+  padding-block: 44px 72px;
 }
 .intro {
   padding-block: 0;
@@ -216,7 +216,7 @@
   .hero {
     grid-template-columns: minmax(0, 1fr);
     gap: 28px;
-    padding-block: 32px 36px;
+    padding-block: 32px 48px;
   }
   .card {
     width: 100%;

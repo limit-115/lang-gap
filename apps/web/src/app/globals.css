@@ -325,7 +325,7 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 32px;
-    padding-block: 36px 56px;
+    padding-block: 72px 56px;
   }
   .reading-guide h3 {
     font-size: 1rem;
@@ -529,7 +529,7 @@
   .reading-guide {
     grid-template-columns: 1fr;
     gap: 24px;
-    padding-block: 28px 40px;
+    padding-block: 48px 40px;
   }
   .reading-guide > div + div {
     border-top: 1px solid var(--border);
