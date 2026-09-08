@@ -18,17 +18,10 @@ export default async function RunPage({ params }: Props) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
-  const t = await getTranslations("RunBuilder");
   const datasets = await getRunDatasets();
   return (
-    <>
-      <div className="intro">
-        <h1>{t("title")}</h1>
-        <p>{t("intro")}</p>
-      </div>
-      <NextIntlClientProvider messages={{ RunBuilder: getMessagesForLocale(locale).RunBuilder }}>
-        <RunBuilder datasets={datasets} />
-      </NextIntlClientProvider>
-    </>
+    <NextIntlClientProvider messages={{ RunBuilder: getMessagesForLocale(locale).RunBuilder }}>
+      <RunBuilder datasets={datasets} />
+    </NextIntlClientProvider>
   );
 }
