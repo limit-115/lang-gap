@@ -10,6 +10,8 @@ import methodologyEn from "@/features/methodology/messages/en";
 import methodologyRu from "@/features/methodology/messages/ru";
 import releasesEn from "@/features/releases/messages/en";
 import releasesRu from "@/features/releases/messages/ru";
+import notFoundEn from "@/features/not-found/messages/en";
+import notFoundRu from "@/features/not-found/messages/ru";
 import type { Locale } from "./routing";
 
 export const englishMessages = {
@@ -19,6 +21,7 @@ export const englishMessages = {
   Leaderboard: leaderboardEn,
   Methodology: methodologyEn,
   Releases: releasesEn,
+  NotFound: notFoundEn,
 };
 const russianMessages = {
   Models: modelsRu,
@@ -27,6 +30,7 @@ const russianMessages = {
   Leaderboard: leaderboardRu,
   Methodology: methodologyRu,
   Releases: releasesRu,
+  NotFound: notFoundRu,
 };
 export function getMessagesForLocale(locale: Locale) {
   return locale === "en" ? englishMessages : russianMessages;
