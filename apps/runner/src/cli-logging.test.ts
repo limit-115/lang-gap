@@ -9,6 +9,9 @@ import { createFakeAdapter } from "@llang-gap/providers";
 import { experiment, questions } from "@tests/fixtures";
 import { createRun } from "./run";
 import { workspace, hash, json } from "./files";
+import { createJobs } from "./plan";
+import { readSnapshot } from "./snapshot";
+import { RunState } from "./state";
 
 let temp: string;
 const runs: string[] = [];
@@ -138,6 +141,81 @@ it("exits nonzero on a provider failure and exposes the saved reason through sta
   });
   expect(status.stderr).toContain("Provider HTTP 401: Access denied");
 });
+
+it.each([
+  { kind: "failed", limit: 3 },
+  { kind: "uncertain", limit: 3 },
+  { kind: "failed", limit: 5 },
+] as const)(
+  "explains exhausted $kind retries at limit $limit and preserves saved work",
+  async ({ kind, limit }) => {
+    const run = await seed();
+    const { snapshot, configHash } = await readSnapshot(run.directory);
+    const jobs = createJobs(snapshot.experiment, questions, configHash, snapshot.datasetManifest);
+    const state = new RunState(join(run.directory, "state.sqlite"));
+    try {
+      const pending = state.pendingIds();
+      for (const job of jobs.filter((job) => pending.has(job.id))) {
+        for (let number = 1; number <= limit; number++) {
+          const attempt = state.begin(job);
+          if (kind === "uncertain" && number === limit) break;
+          state.fail(
+            job,
+            attempt,
+            { message: "Synthetic HTTP 429", uncertain: false, requestId: null },
+            number < limit,
+          );
+        }
+      }
+      state.recover(false, limit);
+      const saved = state.results();
+      const audit = state.audit();
+      const snapshotText = await readFile(join(run.directory, "resolved.json"), "utf8");
+      const flag = `--retry-${kind}`;
+      const withoutRetry = await cli(["resume", run.runId]);
+      expect(withoutRetry.code).toBe(1);
+      expect(withoutRetry.stderr).not.toContain("Retry blocked");
+      const blocked = await cli([
+        "resume",
+        run.runId,
+        flag,
+        ...(limit === 5 ? ["--max-attempts", "5"] : []),
+      ]);
+      expect(blocked.code).toBe(1);
+      expect(JSON.parse(blocked.stdout)).toMatchObject({
+        completed: 1,
+        [kind]: 11,
+        pending: 0,
+        attempts: 1 + 11 * limit,
+      });
+      expect(blocked.stderr).toContain(`Retry blocked by the total attempt limit (${limit})`);
+      expect(blocked.stderr).toContain("Retry flags do not reset recorded attempts");
+      expect(state.results()).toEqual(saved);
+      expect(state.audit()).toEqual(audit);
+      if (limit === 5) {
+        expect(blocked.stderr).toContain("The maximum supported limit is 5");
+        expect(blocked.stderr).not.toContain("Use a higher --max-attempts");
+        return;
+      }
+      expect(blocked.stderr).toContain("Use a higher --max-attempts (up to 5)");
+
+      const resumed = await cli(["resume", run.runId, flag, "--max-attempts", "5"]);
+      expect(resumed.code).toBe(0);
+      expect(JSON.parse(resumed.stdout)).toMatchObject({
+        completed: 12,
+        failed: 0,
+        uncertain: 0,
+        attempts: 45,
+      });
+      expect(resumed.stderr).not.toContain("Retry blocked");
+      expect(state.results()).toEqual(expect.arrayContaining(saved));
+      expect(state.audit().slice(0, audit.length)).toEqual(audit);
+      expect(await readFile(join(run.directory, "resolved.json"), "utf8")).toBe(snapshotText);
+    } finally {
+      state.close();
+    }
+  },
+);
 
 it("formats CLI usage failures and leaves help successful", async () => {
   const result = await cli(["--json", "resume", "missing", "--concurrency", "0"], {

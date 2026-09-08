@@ -475,6 +475,15 @@ pnpm bench resume <run-id> --budget-usd 100 --retry-uncertain
 pnpm bench resume <run-id> --budget-usd 100 --retry-failed --max-attempts 5
 ```
 
+`--retry-failed` and `--retry-uncertain` only requeue jobs below the **total**
+attempt limit; they do not reset attempt counts. For example, a failed job with
+three recorded attempts and `maxAttempts: 3` needs `--max-attempts 5` to allow up
+to two additional attempts. Otherwise it stays failed and can produce
+`Dispatching 0/... jobs`; the CLI warns when requested retries are blocked by the
+limit. The supported maximum is five total attempts per job. Pass the raised
+`--max-attempts` on each resume that needs it; omitting it uses the original
+experiment's limit.
+
 Budget, concurrency and retry-limit changes are recorded in the event log. These
 commands never reset successful answers. Keep the entire run directory on durable
 storage. Back up after the runner has exited; copying only `state.sqlite` during
