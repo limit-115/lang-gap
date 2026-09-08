@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Languages, LockKeyhole, Search, X } from "lucide-react";
+import { ChevronDown, Languages, LockKeyhole } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -93,33 +93,15 @@ export function LanguageSelector({
         className="flex max-h-[min(30rem,var(--available-height))] w-80 max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl border border-border p-0 shadow-xl ring-0"
       >
         <div className="shrink-0 border-b p-3">
-          <div className="relative">
-            <Search
-              aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-            />
-            <Input
-              aria-label={t("searchLanguages")}
-              placeholder={t("searchLanguages")}
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key !== "Escape") event.stopPropagation();
-              }}
-              className="h-9 rounded-md border-input bg-background pr-9 pl-9 focus-visible:ring-1"
-            />
-            {search && (
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                aria-label={t("clearLanguageSearch")}
-                className="absolute top-1/2 right-1.5 -translate-y-1/2 rounded-md text-muted-foreground"
-                onClick={() => setSearch("")}
-              >
-                <X aria-hidden="true" />
-              </Button>
-            )}
-          </div>
+          <SearchInput
+            label={t("searchLanguages")}
+            clearLabel={t("clearLanguageSearch")}
+            value={search}
+            onValueChange={setSearch}
+            onKeyDown={(event) => {
+              if (event.key !== "Escape") event.stopPropagation();
+            }}
+          />
           <div className="mt-2 flex gap-2">
             <DropdownMenuItem
               className="h-7 flex-1 cursor-pointer justify-center rounded-md border px-2 py-1 text-xs font-normal focus:bg-foreground/5"

@@ -1,13 +1,13 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ArrowUpRight, Globe2, Search, X } from "lucide-react";
+import { ArrowUpRight, Globe2, Search } from "lucide-react";
 import type { ModelReference } from "@llang-gap/contracts";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import type { GuideModel } from "@llang-gap/contracts/guide";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
 import {
   Select,
   SelectContent,
@@ -161,21 +161,14 @@ export function ModelResults({
         {(overview.scores.length > 0 || profiles.length > 1) && (
           <div className={styles.toolbar}>
             {overview.scores.length > 0 && (
-              <div className={styles.search}>
-                <Search size={16} aria-hidden="true" />
-                <Input
-                  ref={input}
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                  placeholder={t("searchLanguage")}
-                  aria-label={t("searchLanguage")}
-                />
-                {search && (
-                  <button type="button" aria-label={t("clearSearch")} onClick={clearSearch}>
-                    <X size={15} aria-hidden="true" />
-                  </button>
-                )}
-              </div>
+              <SearchInput
+                ref={input}
+                value={search}
+                onValueChange={setSearch}
+                label={t("searchLanguage")}
+                clearLabel={t("clearSearch")}
+                className="sm:max-w-80"
+              />
             )}
             {profiles.length > 1 && (
               <div className={styles.profileSelect}>

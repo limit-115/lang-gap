@@ -1,21 +1,11 @@
 "use client";
 
 import { useState, type CSSProperties } from "react";
-import {
-  ArrowDown,
-  ArrowRight,
-  ArrowUpRight,
-  BookOpen,
-  Check,
-  Globe2,
-  Info,
-  Search,
-  X,
-} from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUpRight, BookOpen, Check, Globe2, Info } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { LanguageFinder } from "@/features/leaderboard/language-finder";
 import { guideConfigurationHref } from "@/features/leaderboard/table-state";
@@ -323,26 +313,13 @@ function Shortlist({
           </fieldset>
         )}
         <div className={styles.tableControls}>
-          <div className={styles.search}>
-            <Search size={16} aria-hidden="true" />
-            <Input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder={t("search")}
-              aria-label={t("search")}
-            />
-            {search && (
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                className={styles.clearSearch}
-                aria-label={t("clear")}
-                onClick={() => setSearch("")}
-              >
-                <X size={14} aria-hidden="true" />
-              </Button>
-            )}
-          </div>
+          <SearchInput
+            value={search}
+            onValueChange={setSearch}
+            label={t("search")}
+            clearLabel={t("clear")}
+            className="sm:max-w-80"
+          />
         </div>
         <div className={styles.tableScroll}>
           <table className={styles.rankTable}>

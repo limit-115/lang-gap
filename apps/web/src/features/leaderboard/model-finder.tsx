@@ -2,10 +2,11 @@
 
 import { useId, useMemo, useState } from "react";
 import { Combobox } from "@base-ui/react/combobox";
-import { ArrowRight, ChevronDown, Search } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Aggregate } from "@llang-gap/contracts";
 import { useRouter } from "@/i18n/navigation";
+import { SearchComboboxInput } from "@/components/ui/search-input";
 import {
   getModelOptions,
   getModelHref,
@@ -82,23 +83,13 @@ export function ModelFinder({
           filter={matchesModel}
           autoHighlight
         >
-          <Combobox.InputGroup className={styles.searchField}>
-            <Search aria-hidden="true" className={styles.searchIcon} />
-            <Combobox.Input
-              id={`${id}-input`}
-              aria-labelledby={`${id}-title`}
-              aria-describedby={`${id}-help`}
-              placeholder={t("finderSearch")}
-              className={styles.input}
-            />
-            <Combobox.Trigger
-              id={`${id}-toggle`}
-              className={styles.searchToggle}
-              aria-label={t("finderBrowse")}
-            >
-              <ChevronDown aria-hidden="true" />
-            </Combobox.Trigger>
-          </Combobox.InputGroup>
+          <SearchComboboxInput
+            id={`${id}-input`}
+            aria-labelledby={`${id}-title`}
+            aria-describedby={`${id}-help`}
+            placeholder={t("finderSearch")}
+            toggleLabel={t("finderBrowse")}
+          />
           <Combobox.Portal>
             <Combobox.Positioner
               side="bottom"

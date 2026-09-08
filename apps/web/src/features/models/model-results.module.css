@@ -159,36 +159,6 @@
   gap: 12px;
   margin-block: 23px 21px;
 }
-.search {
-  position: relative;
-  max-width: 315px;
-  width: 100%;
-}
-.search > svg {
-  position: absolute;
-  left: 12px;
-  top: 12px;
-  color: var(--model-muted);
-}
-.search input {
-  height: 40px;
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  background: var(--background);
-  padding-inline: 36px;
-  font-size: 13px;
-}
-.search button {
-  position: absolute;
-  right: 0;
-  top: 0;
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 40px;
-  color: var(--model-muted);
-  border-radius: 7px;
-}
 .axis,
 .row {
   display: grid;
@@ -354,9 +324,6 @@
     flex-direction: column;
     align-items: stretch;
   }
-  .search {
-    max-width: none;
-  }
   .profileSelect {
     justify-content: flex-end;
   }
@@ -432,9 +399,6 @@
   .picker {
     min-width: 120px;
     font-size: 12px;
-  }
-  .search input {
-    font-size: 16px;
   }
   .axis,
   .row {

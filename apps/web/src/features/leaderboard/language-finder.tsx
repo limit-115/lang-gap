@@ -2,9 +2,10 @@
 
 import { useId, useMemo, useState } from "react";
 import { Combobox } from "@base-ui/react/combobox";
-import { ArrowRight, ChevronDown, Search } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import { SearchComboboxInput } from "@/components/ui/search-input";
 import {
   getLanguageOptions,
   getLanguageHref,
@@ -51,23 +52,13 @@ export function LanguageFinder({
           filter={matchesLanguage}
           autoHighlight
         >
-          <Combobox.InputGroup className={styles.searchField}>
-            <Search aria-hidden="true" className={styles.searchIcon} />
-            <Combobox.Input
-              id={`${id}-input`}
-              aria-labelledby={`${id}-title`}
-              aria-describedby={`${id}-help`}
-              placeholder={t("languageFinderSearch")}
-              className={styles.input}
-            />
-            <Combobox.Trigger
-              id={`${id}-toggle`}
-              className={styles.searchToggle}
-              aria-label={t("languageFinderBrowse")}
-            >
-              <ChevronDown aria-hidden="true" />
-            </Combobox.Trigger>
-          </Combobox.InputGroup>
+          <SearchComboboxInput
+            id={`${id}-input`}
+            aria-labelledby={`${id}-title`}
+            aria-describedby={`${id}-help`}
+            placeholder={t("languageFinderSearch")}
+            toggleLabel={t("languageFinderBrowse")}
+          />
           <Combobox.Portal>
             <Combobox.Positioner
               side="bottom"

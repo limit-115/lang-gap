@@ -8,7 +8,7 @@ import { useTranslations } from "next-intl";
 import { effortSchema } from "@llang-gap/contracts";
 import { guideRowKey, type GuideModel } from "@llang-gap/contracts/guide";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
 import {
   Select,
   SelectContent,
@@ -88,19 +88,13 @@ export function LeaderboardTable({
   return (
     <div className="min-w-0 pb-4 sm:pb-5">
       <div className="flex flex-wrap items-center gap-2 pb-4">
-        <div className="relative w-full sm:max-w-72">
-          <Search
-            aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-          />
-          <Input
-            aria-label={t("searchModels")}
-            placeholder={t("searchModels")}
-            value={(table.getColumn("model")?.getFilterValue() as string) ?? ""}
-            onChange={(event) => table.getColumn("model")?.setFilterValue(event.target.value)}
-            className="rounded-lg border-input bg-background pl-9"
-          />
-        </div>
+        <SearchInput
+          label={t("searchModels")}
+          clearLabel={t("clearModelSearch")}
+          value={(table.getColumn("model")?.getFilterValue() as string) ?? ""}
+          onValueChange={(value) => table.getColumn("model")?.setFilterValue(value)}
+          className="sm:max-w-80"
+        />
         <Select
           items={effortItems}
           value={(table.getColumn("effort")?.getFilterValue() as string) ?? "all"}
