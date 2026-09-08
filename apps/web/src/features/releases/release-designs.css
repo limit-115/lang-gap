@@ -58,10 +58,10 @@
   --archive-accent: #6ee7b7;
   --archive-line: #404040;
   --archive-hero-bg: #000000;
-  --archive-tint-0: #e9bf73;
-  --archive-tint-1: #86b7ef;
-  --archive-tint-2: #b3a0e5;
-  --archive-tint-3: #e6a391;
+  --archive-tint-0: #b49b72;
+  --archive-tint-1: #819bb8;
+  --archive-tint-2: #9b8cad;
+  --archive-tint-3: #bb9388;
 }
 .release-design {
   min-width: 0;
@@ -1513,9 +1513,13 @@
   color: var(--foreground);
 }
 .dark .release-design-board .report-dataset,
-.dark .release-design-board .report-icon,
+.dark .release-design-board .report-icon {
+  background: color-mix(in srgb, var(--report-tint) 20%, var(--card));
+  color: var(--report-tint);
+}
 .dark .release-design-board .latest-day {
-  color: #171717;
+  background: color-mix(in srgb, var(--archive-tint-0) 20%, var(--card));
+  color: var(--archive-tint-0);
 }
 .dark .release-design-board .report-languages li {
   color: #d4d4d4;
