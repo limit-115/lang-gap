@@ -323,6 +323,9 @@
     font-size: 0.875rem;
     line-height: 1.6;
     overflow-wrap: anywhere;
+    transition:
+      border-color 150ms,
+      background-color 150ms;
   }
   .resource-link svg {
     width: 16px;
@@ -587,7 +590,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .header-inner {
+  .header-inner,
+  .resource-link {
     transition: none;
   }
 }
