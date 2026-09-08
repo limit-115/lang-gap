@@ -13,6 +13,7 @@ it("derives public setup metadata from the pinned manifest and adapters", async 
       ),
     ),
   );
+  if (manifest.schemaVersion === 3) throw new Error("Expected a historical manifest");
   const result = runDatasetSchema.parse(describeRunDataset(manifest));
   for (const { tag, questions } of result.languages)
     expect(questions).toBe(
@@ -30,6 +31,55 @@ it("derives public setup metadata from the pinned manifest and adapters", async 
     result.protocols.find((entry) => entry.id === "mmluprox-lite-5shot-native-reasoning-v1"),
   ).toMatchObject({ tokenCap: null, requiresTokenCap: true });
   expect(result.protocols.some((entry) => entry.id === "multiple-choice-v1")).toBe(false);
+});
+
+it.each([
+  { id: "science-human", tags: ["ja", "de"] },
+  { id: "history-machine", tags: ["zh-Hant"] },
+])("counts v3 test partitions for $id independently of source rows", ({ id, tags }) => {
+  const manifest = datasetManifestSchema.parse({
+    schemaVersion: 3,
+    id,
+    repository: "fixtures/data",
+    revision: "a".repeat(40),
+    hosting: "github",
+    normalizerVersion: 1,
+    adapter: { format: "normalized-jsonl" },
+    license: "MIT",
+    source: "https://example.org",
+    prompts: Object.fromEntries(
+      tags.map((tag) => [
+        tag,
+        { instruction: "Choose.", question: "Question", options: "Options" },
+      ]),
+    ),
+    files: [
+      {
+        path: "shared.jsonl",
+        rows: 100,
+        sha256: "b".repeat(64),
+        partitions: [
+          ...tags.map((language, i) => ({ language, split: "test", rows: 3 + i })),
+          { language: tags[0], split: "validation", rows: 20 },
+          { language: "fr", split: "validation", rows: 10 },
+        ],
+      },
+      {
+        path: "extra.jsonl",
+        rows: 50,
+        sha256: "c".repeat(64),
+        partitions: [{ language: tags[0], split: "test", rows: 7 }],
+      },
+    ],
+  });
+  const result = runDatasetSchema.parse(describeRunDataset(manifest));
+  expect(result.id).toBe(id);
+  expect(result.languages).toEqual(
+    tags.map((tag, i) => ({ tag, questions: i === 0 ? 10 : 3 + i })),
+  );
+  expect(result.protocols).toEqual([
+    { id: "multiple-choice-v1", languages: tags, tokenCap: null, requiresTokenCap: false },
+  ]);
 });
 
 it("sums shards, ignores validation rows and exposes only languages with reviewed prompts", () => {
