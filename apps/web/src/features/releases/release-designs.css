@@ -845,6 +845,23 @@
   margin-top: 19px;
   font-size: 0.75rem;
 }
+.archive-hero-art .archive-art-dark {
+  display: none;
+}
+.dark .release-design-board .archive-art-light {
+  display: none;
+}
+.dark .release-design-board .archive-art-dark {
+  display: block;
+}
+.dark .release-design-board .archive-hero-art {
+  background: #000000;
+  border-color: var(--border);
+  box-shadow: 3px 4px 0 #242424;
+}
+.dark .release-design-board .archive-hero-art .art-note {
+  color: var(--muted-foreground);
+}
 .release-design-board .report-open {
   border-top: 1px dashed var(--border);
   margin-top: 18px;

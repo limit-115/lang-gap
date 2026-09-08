@@ -408,13 +408,25 @@ export function ReleaseDesigns({
             </div>
             <div className="archive-hero-art" aria-hidden="true">
               <Image
+                className="archive-art-light"
                 src="/brand/release-researcher.png"
                 alt=""
                 width={320}
                 height={213}
                 sizes="(max-width: 540px) 95px, 280px"
-                loading="eager"
+                fetchPriority="high"
               />
+              {design === "board" && (
+                <Image
+                  className="archive-art-dark"
+                  src="/brand/release-researcher-dark.png"
+                  alt=""
+                  width={320}
+                  height={213}
+                  sizes="(max-width: 540px) 95px, 280px"
+                  fetchPriority="high"
+                />
+              )}
               <span className="art-note">{t("artNote")}</span>
             </div>
           </header>
