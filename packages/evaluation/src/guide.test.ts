@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Aggregate, ReleaseManifest } from "@llang-gap/contracts";
 import type { GuidePlan, ReleaseEvidence } from "@llang-gap/contracts/guide";
-import { buildGuide, type GuideRelease } from "./guide";
+import { buildGuide, reconcileGuidePlan, type GuideRelease } from "./guide";
 
 const h = (letter: string) => letter.repeat(64);
 const conditions = (languages: string[], n = 4) =>
@@ -362,4 +362,97 @@ it("keeps native and routed configurations separate even with the same model ide
   expect(
     unlisted.every((row) => row.profile?.effort === "low" && row.scores[0]!.value === null),
   ).toBe(true);
+});
+
+describe("publication inventory reconciliation", () => {
+  it("discovers separate runs, languages and efforts without erasing older results", () => {
+    const first = release("first", "first", ["de"]);
+    const incoming = release("incoming", "first", ["ja", "es"]);
+    incoming.manifest.aggregate.push({
+      ...structuredClone(incoming.manifest.aggregate[0]!),
+      effort: "high",
+    });
+    const basis = { ...plan([first]), configurationRows: true as const };
+    const resolved = reconcileGuidePlan(basis, [first, incoming]);
+    expect(basis.releases).toEqual(["first"]);
+    expect(resolved.suite.id).not.toBe(basis.suite.id);
+    expect(resolved.suite.families).toEqual(basis.suite.families);
+    expect(resolved.suite.tasks[0]!.languages.map((entry) => entry.language)).toEqual([
+      "de",
+      "es",
+      "ja",
+    ]);
+    expect(resolved.profiles.map((entry) => entry.effort).sort()).toEqual(["high", "low"]);
+    expect(reconcileGuidePlan(resolved, [incoming, first])).toEqual(resolved);
+    const snapshot = build([first, incoming], resolved);
+    expect(snapshot.models).toHaveLength(2);
+    const low = snapshot.models.find((entry) => entry.profile?.effort === "low")!;
+    expect(low.scores.find((entry) => entry.language === "de")!.value).toBeCloseTo(200 / 3);
+    const high = snapshot.models.find((entry) => entry.profile?.effort === "high")!;
+    expect(high.scores.find((entry) => entry.language === "de")!.value).toBeNull();
+    expect(high.scores.find((entry) => entry.language === "ja")!.value).toBeCloseTo(200 / 3);
+  });
+  it("does not invent task weights or language inputs for other datasets and token policies", () => {
+    const first = release("first", "first", ["de"]);
+    const other = release("other", "second", ["es"]);
+    const capped = release("capped", "first", ["ja"]);
+    capped.evidence!.configurations[0]!.maxOutputTokens = 8192;
+    const basis = { ...plan([first]), configurationRows: true as const };
+    const resolved = reconcileGuidePlan(basis, [first, other, capped]);
+    expect(resolved.suite).toEqual(basis.suite);
+    expect(
+      build([first, other, capped], resolved).models[0]!.scores.map((entry) => entry.language),
+    ).toEqual(["de"]);
+  });
+  it("requires all tasks before enabling a new language and withholds incomplete model scores", () => {
+    const a = release("a", "first", ["de"]);
+    const b = release("b", "second", ["de"]);
+    const jaA = release("ja-a", "first", ["ja"], 1);
+    const jaB = release("ja-b", "second", ["ja"], 0.25);
+    jaB.manifest.aggregate[0]!.model = "fixture/other";
+    jaB.evidence!.configurations[0]!.model = "fixture/other";
+    const basis = { ...plan([a, b]), configurationRows: true as const };
+    const partial = reconcileGuidePlan(basis, [a, b, jaA]);
+    expect(partial.suite).toEqual(basis.suite);
+    expect(
+      build([a, b, jaA], partial).models[0]!.scores.some((score) => score.language === "ja"),
+    ).toBe(false);
+    const complete = reconcileGuidePlan(partial, [a, b, jaA, jaB]);
+    expect(
+      complete.suite.tasks.every((task) => task.languages.some((entry) => entry.language === "ja")),
+    ).toBe(true);
+    expect(
+      build([a, b, jaA, jaB], complete).models.every(
+        (row) => row.scores.find((score) => score.language === "ja")!.value === null,
+      ),
+    ).toBe(true);
+  });
+  it("rejects conflicting new language identities without selecting by release order", () => {
+    const first = release("first", "first", ["de"]);
+    const a = release("a", "first", ["ja"]);
+    const b = release("b", "first", ["ja"]);
+    b.evidence!.languages[0]!.inputHash = h("f");
+    const basis = { ...plan([first]), configurationRows: true as const };
+    expect(() => reconcileGuidePlan(basis, [first, a, b])).toThrow("Conflicting new language");
+    expect(() => reconcileGuidePlan(basis, [first, b, a])).toThrow("Conflicting new language");
+  });
+  it("keeps existing pinned language inputs authoritative", () => {
+    const first = release("first", "first", ["ja"]);
+    const newer = release("newer", "first", ["ja"], 1);
+    newer.evidence!.languages[0]!.inputHash = h("f");
+    const basis = { ...plan([first]), configurationRows: true as const };
+    const resolved = reconcileGuidePlan(basis, [first, newer]);
+    expect(resolved.suite).toEqual(basis.suite);
+    expect(build([first, newer], resolved).models[0]!.scores[0]!.contributions[0]!.releaseId).toBe(
+      "first",
+    );
+  });
+  it("validates source provenance and requires explicit legacy migration", () => {
+    const first = release("first");
+    expect(() => reconcileGuidePlan(plan([first]), [first])).toThrow("configurationRows");
+    first.evidence!.configHash = h("f");
+    expect(() =>
+      reconcileGuidePlan({ ...plan([first]), configurationRows: true }, [first]),
+    ).toThrow("provenance mismatch");
+  });
 });

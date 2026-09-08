@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { ReleaseManifest } from "@llang-gap/contracts";
 import type { GuidePlan, ReleaseEvidence } from "@llang-gap/contracts/guide";
 import { hash, json } from "./files";
-import { publishGuide, verifyGuide } from "./guide";
+import { publishGuide, verifyGuide, syncGuide, verifyGuidePublication } from "./guide";
 
 describe("published guide artifacts", () => {
   let root: string;
@@ -96,6 +96,54 @@ describe("published guide artifacts", () => {
   });
   afterEach(async () => {
     await rm(root, { recursive: true, force: true });
+  });
+
+  it("detects missing staged evidence, syncs the homepage and preserves history on retry", async () => {
+    plan.configurationRows = true;
+    plan.releases = [];
+    plan.profiles = [];
+    await writeFile(planPath, json(plan));
+    await writeFile(join(root, "guide-plan.json"), json(plan));
+    await publishGuide(planPath, "before-sync", root);
+    const original = await readFile(join(root, "guide/before-sync/summary.json"));
+    await expect(verifyGuidePublication(root)).rejects.toThrow("stale");
+    const result = await syncGuide(root);
+    expect(result.changed).toBe(true);
+    expect(await verifyGuidePublication(root)).toMatchObject({ valid: true, id: result.id });
+    expect(await syncGuide(root)).toEqual({ id: result.id, changed: false });
+    expect(await readFile(join(root, "guide/before-sync/summary.json"))).toEqual(original);
+    expect(await verifyGuide("before-sync", root)).toMatchObject({ valid: true });
+    expect(await verifyGuide(result.id, root)).toMatchObject({ valid: true });
+  });
+
+  it("withdraws active evidence without making archived snapshots unverifiable", async () => {
+    plan.configurationRows = true;
+    await writeFile(join(root, "guide-plan.json"), json(plan));
+    const before = await syncGuide(root);
+    await writeFile(
+      join(root, "index.json"),
+      json({ schemaVersion: 1, latest: null, releases: [] }),
+    );
+    await expect(verifyGuidePublication(root)).rejects.toThrow("stale");
+    const after = await syncGuide(root);
+    expect(after.id).not.toBe(before.id);
+    expect(await verifyGuide(before.id, root)).toMatchObject({ valid: true });
+    expect(await verifyGuidePublication(root)).toMatchObject({ valid: true });
+    const snapshot = JSON.parse(
+      await readFile(join(root, "guide", after.id, "summary.json"), "utf8"),
+    ) as { models: unknown[] };
+    expect(snapshot.models).toEqual([]);
+  });
+
+  it("can initialize publication and leaves the current snapshot intact if evidence is corrupt", async () => {
+    plan.configurationRows = true;
+    await writeFile(join(root, "guide-plan.json"), json(plan));
+    const result = await syncGuide(root);
+    const previousIndex = await readFile(join(root, "guide/index.json"));
+    await writeFile(join(root, "fixture/aggregate.json"), "[]");
+    await expect(syncGuide(root)).rejects.toThrow("Invalid published aggregate");
+    expect(await readFile(join(root, "guide/index.json"))).toEqual(previousIndex);
+    expect(result.changed).toBe(true);
   });
 
   it("recomputes a stored guide without private state, credentials or network calls", async () => {

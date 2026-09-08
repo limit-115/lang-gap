@@ -11,7 +11,7 @@ import {
   releaseEvidenceSchema,
   type GuidePlan,
 } from "@llang-gap/contracts/guide";
-import { buildGuide } from "@llang-gap/evaluation/guide";
+import { buildGuide, reconcileGuidePlan } from "@llang-gap/evaluation/guide";
 import { atomicWrite, hash, json, readJson, workspace } from "./files";
 import { acquireLock } from "./state";
 import { createReleaseEvidence } from "./release-evidence";
@@ -43,11 +43,13 @@ export async function stageGuideEvidence(directory: string, root = join(workspac
   return { id: evidence.releaseId, path };
 }
 
-export async function readGuideInputs(plan: GuidePlan, root: string) {
-  const index = (await readJson(join(root, "index.json"))) as { releases: string[] };
+export async function readGuideInputs(plan: GuidePlan, root: string, requirePublished = true) {
+  const index = requirePublished
+    ? ((await readJson(join(root, "index.json"))) as { releases: string[] })
+    : null;
   return Promise.all(
     plan.releases.map(async (id) => {
-      if (!index.releases.includes(id)) throw new Error(`Unpublished release: ${id}`);
+      if (index && !index.releases.includes(id)) throw new Error(`Unpublished release: ${id}`);
       const directory = join(root, id);
       const raw = await readFile(join(directory, "manifest.json"));
       const manifest = releaseManifestSchema.parse(JSON.parse(raw.toString("utf8")));
@@ -78,7 +80,11 @@ export async function publishGuide(
   root = join(workspace, "results"),
 ) {
   safeIdSchema.parse(id);
-  const plan = guidePlanSchema.parse(await readJson(planPath));
+  return publishGuidePlan(guidePlanSchema.parse(await readJson(planPath)), id, root);
+}
+
+async function publishGuidePlan(plan: GuidePlan, id: string, root: string) {
+  safeIdSchema.parse(id);
   const snapshot = buildGuide(
     plan,
     await readGuideInputs(plan, root),
@@ -163,7 +169,7 @@ export async function verifyGuide(id: string, root = join(workspace, "results"))
   if (snapshot.id !== id) throw new Error("Guide ID mismatch");
   const rebuilt = buildGuide(
     snapshot.plan,
-    await readGuideInputs(snapshot.plan, root),
+    await readGuideInputs(snapshot.plan, root, false),
     id,
     snapshot.createdAt,
   );
@@ -175,4 +181,61 @@ export async function verifyGuide(id: string, root = join(workspace, "results"))
 export async function verifyAllGuides(root = join(workspace, "results")) {
   const index = guideIndexSchema.parse(await readJson(join(root, "guide/index.json")));
   return Promise.all(index.snapshots.map((entry) => verifyGuide(entry.id, root)));
+}
+
+async function publicationPlan(root: string) {
+  const plan = guidePlanSchema.parse(await readJson(join(root, "guide-plan.json")));
+  const index = (await readJson(join(root, "index.json"))) as { releases: string[] };
+  return reconcileGuidePlan(
+    plan,
+    await readGuideInputs({ ...plan, releases: index.releases }, root),
+  );
+}
+
+/** Publish a resolved, immutable snapshot from the staged inventory. Safe to retry. */
+export async function syncGuide(root = join(workspace, "results")) {
+  const unlock = await acquireLock(root);
+  try {
+    return await syncGuideUnlocked(root);
+  } finally {
+    await unlock();
+  }
+}
+
+async function syncGuideUnlocked(root: string) {
+  const plan = await publicationPlan(root);
+  const index = guideIndexSchema.parse(
+    (await optionalJson(join(root, "guide/index.json"))) ?? {
+      schemaVersion: 1,
+      latest: null,
+      snapshots: [],
+    },
+  );
+  if (index.latest) {
+    await verifyGuide(index.latest, root);
+    const current = guideSnapshotSchema.parse(
+      await readJson(join(root, "guide", index.latest, "summary.json")),
+    );
+    if (json(current.plan) === json(plan)) {
+      await atomicWrite(join(root, "guide-plan.json"), json(plan));
+      return { id: current.id, changed: false };
+    }
+  }
+  const id = `published-${hash(json(plan)).slice(0, 20)}-${randomUUID().slice(0, 8)}`;
+  const published = await publishGuidePlan(plan, id, root);
+  await atomicWrite(join(root, "guide-plan.json"), json(plan));
+  return { ...published, changed: true };
+}
+
+export async function verifyGuidePublication(root = join(workspace, "results")) {
+  const plan = await publicationPlan(root);
+  const index = guideIndexSchema.parse(await readJson(join(root, "guide/index.json")));
+  if (!index.latest) throw new Error("Missing published guide; run bench guide sync");
+  await verifyGuide(index.latest, root);
+  const snapshot = guideSnapshotSchema.parse(
+    await readJson(join(root, "guide", index.latest, "summary.json")),
+  );
+  if (json(snapshot.plan) !== json(plan))
+    throw new Error("Homepage guide is stale relative to staged releases; run bench guide sync");
+  return { valid: true, id: index.latest };
 }
