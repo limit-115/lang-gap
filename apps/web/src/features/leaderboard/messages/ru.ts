@@ -2,16 +2,12 @@ import type { Dictionary } from "@/i18n/routing";
 import type en from "./en";
 export default {
   unspecifiedEffort: "Не указан",
-  effortHelp:
-    "Каждая строка — отдельная конфигурация модели, API и effort. Одинаковые названия effort не означают одинаковый вычислительный бюджет.",
   guideScore: "Балл / 100",
   incompleteScore:
     "Для сопоставимой оценки нужны дополнительные результаты. Доступные результаты — на странице модели.",
   unmeasuredScore: "Сопоставимой оценки пока нет. Доступные данные — на странице модели.",
   scoreDetails: "Посмотреть результаты модели",
   baseline: "Базовая оценка",
-  baselineHelp:
-    "Английский — базовый язык, если есть результат. Разница в п.п.: оценка языка − оценка английского на сопоставимых тестах.",
   differencePp: "{value} п.п.",
   versusEnglish: "к английскому",
   differenceHelp:

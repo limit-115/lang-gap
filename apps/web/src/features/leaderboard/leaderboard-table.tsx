@@ -192,10 +192,6 @@ export function LeaderboardTable({ rows, languages }: { rows: GuideModel[]; lang
           </DropdownMenu>
         )}
       </div>
-      <p className="mb-3 text-sm text-muted-foreground">{t("effortHelp")}</p>
-      {rows.some((row) =>
-        row.scores.some((score) => score.language === "en" && score.value !== null),
-      ) && <p className="mb-3 text-sm text-muted-foreground">{t("baselineHelp")}</p>}
       <div className="overflow-hidden rounded-lg border bg-background/96">
         <Table className="[&_td]:h-16 [&_td]:px-4 [&_th]:h-16 [&_th]:px-4">
           <caption className="sr-only">

@@ -1,15 +1,11 @@
 export default {
   unspecifiedEffort: "Unspecified",
-  effortHelp:
-    "Each row is a separate model, API and effort configuration. Matching effort labels do not imply equal computing budgets.",
   guideScore: "Score / 100",
   incompleteScore:
     "More results are needed for a comparable score. Open the model to see available results.",
   unmeasuredScore: "No comparable score yet. Open the model for available evidence.",
   scoreDetails: "See how this model performed",
   baseline: "Baseline",
-  baselineHelp:
-    "English is the baseline where available. Differences show language score − English score in pp on matching tests.",
   differencePp: "{value} pp",
   versusEnglish: "vs English",
   differenceHelp:
