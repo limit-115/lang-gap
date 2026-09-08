@@ -51,17 +51,17 @@
   --primary-foreground: #062c20;
   --foreground: #f5f5f5;
   --muted-foreground: #a3a3a3;
-  --card: #111111;
+  --card: #000000;
   --border: #333333;
   --muted: #202020;
   --ring: #34d399;
   --archive-accent: #6ee7b7;
   --archive-line: #404040;
   --archive-hero-bg: #000000;
-  --archive-tint-0: #b49b72;
-  --archive-tint-1: #819bb8;
-  --archive-tint-2: #9b8cad;
-  --archive-tint-3: #bb9388;
+  --archive-tint-0: #9a8865;
+  --archive-tint-1: #788a9d;
+  --archive-tint-2: #81917c;
+  --archive-tint-3: #a3847a;
 }
 .release-design {
   min-width: 0;
@@ -1513,13 +1513,11 @@
   color: var(--foreground);
 }
 .dark .release-design-board .report-dataset,
-.dark .release-design-board .report-icon {
-  background: color-mix(in srgb, var(--report-tint) 20%, var(--card));
-  color: var(--report-tint);
-}
+.dark .release-design-board .report-icon,
 .dark .release-design-board .latest-day {
-  background: color-mix(in srgb, var(--archive-tint-0) 20%, var(--card));
-  color: var(--archive-tint-0);
+  background: #161616;
+  color: #d4d4d4;
+  border-color: var(--border);
 }
 .dark .release-design-board .report-languages li {
   color: #d4d4d4;
@@ -1551,6 +1549,9 @@
 .release-design-board .report-card:hover {
   transform: translate(-1px, -2px);
   box-shadow: 5px 6px 0 var(--archive-line);
+}
+.dark .release-design-board .report-card {
+  border-top-width: 3px;
 }
 .release-design-board .report-main-link,
 .release-design-board .report-main-link:hover {
