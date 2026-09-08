@@ -1,0 +1,418 @@
+[
+  {
+    "transport": "openrouter",
+    "model": "inception/mercury-2.5-preview",
+    "effort": "high",
+    "repeats": 1,
+    "scores": [
+      {
+        "language": "es",
+        "n": 25,
+        "accuracy": 0.9600000000000003,
+        "repeatAccuracy": [
+          0.9600000000000003
+        ]
+      },
+      {
+        "language": "zh",
+        "n": 25,
+        "accuracy": 0.8800000000000002,
+        "repeatAccuracy": [
+          0.8800000000000002
+        ]
+      },
+      {
+        "language": "en",
+        "n": 25,
+        "accuracy": 0.9600000000000003,
+        "repeatAccuracy": [
+          0.9600000000000003
+        ]
+      },
+      {
+        "language": "kk",
+        "n": 25,
+        "accuracy": 0.9200000000000003,
+        "repeatAccuracy": [
+          0.9200000000000003
+        ]
+      },
+      {
+        "language": "ru",
+        "n": 25,
+        "accuracy": 0.8800000000000002,
+        "repeatAccuracy": [
+          0.8800000000000002
+        ]
+      }
+    ],
+    "comparisons": [],
+    "unparseable": 0,
+    "refusals": 0,
+    "costUsd": null
+  },
+  {
+    "transport": "openrouter",
+    "model": "inception/mercury-2.5-preview",
+    "effort": "low",
+    "repeats": 1,
+    "scores": [
+      {
+        "language": "es",
+        "n": 25,
+        "accuracy": 0.8000000000000002,
+        "repeatAccuracy": [
+          0.8000000000000002
+        ]
+      },
+      {
+        "language": "zh",
+        "n": 25,
+        "accuracy": 0.7600000000000001,
+        "repeatAccuracy": [
+          0.7600000000000001
+        ]
+      },
+      {
+        "language": "en",
+        "n": 25,
+        "accuracy": 0.8000000000000002,
+        "repeatAccuracy": [
+          0.8000000000000002
+        ]
+      },
+      {
+        "language": "kk",
+        "n": 25,
+        "accuracy": 0.64,
+        "repeatAccuracy": [
+          0.64
+        ]
+      },
+      {
+        "language": "ru",
+        "n": 25,
+        "accuracy": 0.7200000000000001,
+        "repeatAccuracy": [
+          0.7200000000000001
+        ]
+      }
+    ],
+    "comparisons": [],
+    "unparseable": 5,
+    "refusals": 0,
+    "costUsd": null
+  },
+  {
+    "transport": "openrouter",
+    "model": "openai/gpt-oss-120b",
+    "effort": "high",
+    "repeats": 1,
+    "scores": [
+      {
+        "language": "es",
+        "n": 25,
+        "accuracy": 0.9200000000000003,
+        "repeatAccuracy": [
+          0.9200000000000003
+        ]
+      },
+      {
+        "language": "zh",
+        "n": 25,
+        "accuracy": 0.8800000000000002,
+        "repeatAccuracy": [
+          0.8800000000000002
+        ]
+      },
+      {
+        "language": "en",
+        "n": 25,
+        "accuracy": 1,
+        "repeatAccuracy": [
+          1
+        ]
+      },
+      {
+        "language": "kk",
+        "n": 25,
+        "accuracy": 0.8800000000000002,
+        "repeatAccuracy": [
+          0.8800000000000002
+        ]
+      },
+      {
+        "language": "ru",
+        "n": 25,
+        "accuracy": 0.9600000000000003,
+        "repeatAccuracy": [
+          0.9600000000000003
+        ]
+      }
+    ],
+    "comparisons": [],
+    "unparseable": 2,
+    "refusals": 0,
+    "costUsd": null
+  },
+  {
+    "transport": "openrouter",
+    "model": "openai/gpt-oss-120b",
+    "effort": "low",
+    "repeats": 1,
+    "scores": [
+      {
+        "language": "es",
+        "n": 25,
+        "accuracy": 0.9200000000000003,
+        "repeatAccuracy": [
+          0.9200000000000003
+        ]
+      },
+      {
+        "language": "zh",
+        "n": 25,
+        "accuracy": 0.8800000000000002,
+        "repeatAccuracy": [
+          0.8800000000000002
+        ]
+      },
+      {
+        "language": "en",
+        "n": 25,
+        "accuracy": 0.9200000000000003,
+        "repeatAccuracy": [
+          0.9200000000000003
+        ]
+      },
+      {
+        "language": "kk",
+        "n": 25,
+        "accuracy": 0.8000000000000002,
+        "repeatAccuracy": [
+          0.8000000000000002
+        ]
+      },
+      {
+        "language": "ru",
+        "n": 25,
+        "accuracy": 0.8800000000000002,
+        "repeatAccuracy": [
+          0.8800000000000002
+        ]
+      }
+    ],
+    "comparisons": [],
+    "unparseable": 3,
+    "refusals": 0,
+    "costUsd": null
+  },
+  {
+    "transport": "openrouter",
+    "model": "qwen/qwen3.7-flash",
+    "effort": "high",
+    "repeats": 1,
+    "scores": [
+      {
+        "language": "es",
+        "n": 25,
+        "accuracy": 0.9200000000000003,
+        "repeatAccuracy": [
+          0.9200000000000003
+        ]
+      },
+      {
+        "language": "zh",
+        "n": 25,
+        "accuracy": 1,
+        "repeatAccuracy": [
+          1
+        ]
+      },
+      {
+        "language": "en",
+        "n": 25,
+        "accuracy": 0.9600000000000003,
+        "repeatAccuracy": [
+          0.9600000000000003
+        ]
+      },
+      {
+        "language": "kk",
+        "n": 25,
+        "accuracy": 0.9200000000000003,
+        "repeatAccuracy": [
+          0.9200000000000003
+        ]
+      },
+      {
+        "language": "ru",
+        "n": 25,
+        "accuracy": 0.9600000000000003,
+        "repeatAccuracy": [
+          0.9600000000000003
+        ]
+      }
+    ],
+    "comparisons": [],
+    "unparseable": 0,
+    "refusals": 0,
+    "costUsd": null
+  },
+  {
+    "transport": "openrouter",
+    "model": "qwen/qwen3.7-flash",
+    "effort": "low",
+    "repeats": 1,
+    "scores": [
+      {
+        "language": "es",
+        "n": 25,
+        "accuracy": 0.9200000000000003,
+        "repeatAccuracy": [
+          0.9200000000000003
+        ]
+      },
+      {
+        "language": "zh",
+        "n": 25,
+        "accuracy": 1,
+        "repeatAccuracy": [
+          1
+        ]
+      },
+      {
+        "language": "en",
+        "n": 25,
+        "accuracy": 0.9600000000000003,
+        "repeatAccuracy": [
+          0.9600000000000003
+        ]
+      },
+      {
+        "language": "kk",
+        "n": 25,
+        "accuracy": 0.8400000000000002,
+        "repeatAccuracy": [
+          0.8400000000000002
+        ]
+      },
+      {
+        "language": "ru",
+        "n": 25,
+        "accuracy": 0.9600000000000003,
+        "repeatAccuracy": [
+          0.9600000000000003
+        ]
+      }
+    ],
+    "comparisons": [],
+    "unparseable": 3,
+    "refusals": 0,
+    "costUsd": null
+  },
+  {
+    "transport": "openrouter",
+    "model": "upstage/solar-pro4",
+    "effort": "high",
+    "repeats": 1,
+    "scores": [
+      {
+        "language": "es",
+        "n": 25,
+        "accuracy": 0.8800000000000002,
+        "repeatAccuracy": [
+          0.8800000000000002
+        ]
+      },
+      {
+        "language": "zh",
+        "n": 25,
+        "accuracy": 0.9200000000000003,
+        "repeatAccuracy": [
+          0.9200000000000003
+        ]
+      },
+      {
+        "language": "en",
+        "n": 25,
+        "accuracy": 0.9600000000000003,
+        "repeatAccuracy": [
+          0.9600000000000003
+        ]
+      },
+      {
+        "language": "kk",
+        "n": 25,
+        "accuracy": 0.9600000000000003,
+        "repeatAccuracy": [
+          0.9600000000000003
+        ]
+      },
+      {
+        "language": "ru",
+        "n": 25,
+        "accuracy": 0.9200000000000003,
+        "repeatAccuracy": [
+          0.9200000000000003
+        ]
+      }
+    ],
+    "comparisons": [],
+    "unparseable": 0,
+    "refusals": 0,
+    "costUsd": null
+  },
+  {
+    "transport": "openrouter",
+    "model": "upstage/solar-pro4",
+    "effort": "low",
+    "repeats": 1,
+    "scores": [
+      {
+        "language": "es",
+        "n": 25,
+        "accuracy": 0.8000000000000002,
+        "repeatAccuracy": [
+          0.8000000000000002
+        ]
+      },
+      {
+        "language": "zh",
+        "n": 25,
+        "accuracy": 1,
+        "repeatAccuracy": [
+          1
+        ]
+      },
+      {
+        "language": "en",
+        "n": 25,
+        "accuracy": 0.9600000000000003,
+        "repeatAccuracy": [
+          0.9600000000000003
+        ]
+      },
+      {
+        "language": "kk",
+        "n": 25,
+        "accuracy": 0.8800000000000002,
+        "repeatAccuracy": [
+          0.8800000000000002
+        ]
+      },
+      {
+        "language": "ru",
+        "n": 25,
+        "accuracy": 0.9200000000000003,
+        "repeatAccuracy": [
+          0.9200000000000003
+        ]
+      }
+    ],
+    "comparisons": [],
+    "unparseable": 2,
+    "refusals": 0,
+    "costUsd": null
+  }
+]

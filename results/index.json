@@ -1,7 +1,8 @@
 {
   "schemaVersion": 1,
-  "latest": "mmpisa-ling-3-flash-12lang-2026-09-08",
+  "latest": "mmpisa-four-models-es-zh-en-kk-ru-2026-09-08",
   "releases": [
+    "mmpisa-four-models-es-zh-en-kk-ru-2026-09-08",
     "mmpisa-ling-3-flash-12lang-2026-09-08",
     "mmpisa-ling-3-flash-ja-es-2026-09-08",
     "mmpisa-ling-3-flash-en-ru-2026-09-08"
