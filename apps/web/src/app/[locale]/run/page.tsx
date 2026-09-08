@@ -3,7 +3,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { RunBuilder } from "@/features/run-builder/run-builder";
 import { getRunDatasets } from "@/features/run-builder/data";
-import styles from "@/features/run-builder/run-builder.module.css";
 import { routing } from "@/i18n/routing";
 import { getMessagesForLocale } from "@/i18n/messages";
 import { pageMetadata } from "@/shared/metadata";
@@ -23,7 +22,7 @@ export default async function RunPage({ params }: Props) {
   const datasets = await getRunDatasets();
   return (
     <>
-      <div className={styles.intro}>
+      <div className="intro">
         <h1>{t("title")}</h1>
         <p>{t("intro")}</p>
       </div>
