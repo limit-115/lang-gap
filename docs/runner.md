@@ -4,16 +4,19 @@
 
 The website's **Build a run** page generates CLI-only commands for bash/zsh.
 Choose your dataset, protocol, languages and transport, then enter exact model IDs.
-Switch between **Workspace** (all settings with a live summary), **Guided**
-(four setup steps), and **Studio** (tabbed controls beside the command). Your
-inputs stay in memory when switching views; reloading starts a new setup.
-Each view has a direct link: `/run?design=workspace`, `/run?design=guided`, or
-`/run?design=studio`. Dataset changes clear the language selection; use language
-search for larger catalogs. **Local test** selects the fake transport and adds an
-editable synthetic model ID.
+The guided builder has four steps: dataset and languages, models and reasoning,
+run size and controls, then review. Summary rows return to the corresponding step
+without losing your settings. Reloading starts a new setup. Dataset changes clear
+the language selection; use language search for larger catalogs. **Select all**
+selects every language supported by the chosen protocol, including languages
+hidden by search; **Clear selection** deselects them. Question counts appear once
+in each dataset card, with a range when language splits differ.
 
-The command updates as you edit. In Workspace and Guided, open **View command**
-to inspect it or switch modes. **Check plan** produces a `plan` command with the
+**Local test** selects the fake transport and adds an editable synthetic model ID.
+Advanced settings are collapsed initially and open automatically only when you
+try to continue with an invalid advanced value. The command updates as you edit.
+In the review step, open **View command** to inspect it or switch modes.
+**Check plan** produces a `plan` command with the
 same experiment settings; it may download dataset files but never calls models.
 Copy the command and run it from your cloned repository root after installing the
 pinned tools and dependencies. Supply transport API keys locally through `.env`

@@ -1,24 +1,17 @@
 "use client";
 
-import { useRef, useState, type ReactNode } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import {
   ArrowDown,
   ArrowLeft,
   ArrowRight,
-  BookOpen,
-  Box,
   Check,
   ChevronDown,
-  CircleCheck,
   Copy,
   Database,
-  FlaskConical,
   Globe2,
   Layers,
-  LayoutGrid,
-  ListChecks,
   Monitor,
   Search,
   SlidersHorizontal,
@@ -45,6 +38,8 @@ import {
   type RunSettings,
   type Setting,
 } from "./config";
+import { getLanguageChoices, getQuestionRange } from "./language-selection";
+import { ProviderLogo } from "./provider-logo";
 import styles from "./run-builder.module.css";
 
 const transportNames = { openai: "OpenAI", anthropic: "Anthropic", openrouter: "OpenRouter" };
@@ -56,23 +51,16 @@ const environmentKeys = {
 const setupCommand =
   "git clone https://github.com/limit-115/llang-gap.git\ncd llang-gap\ncorepack enable\npnpm install --frozen-lockfile";
 const sections = ["datasetSection", "modelSection", "sizeSection"] as const;
-const sectionIcons = [Database, Box, SlidersHorizontal];
 const sectionFields: Setting[][] = [
   ["dataset", "protocol", "languages"],
   ["transport", "models", "efforts", "maxOutputTokens"],
   ["scope", "questionLimit", "repeats"],
 ];
 const basicFields = new Set(sectionFields.flat());
-const designs = ["workspace", "guided", "studio"] as const;
-const designIcons = [LayoutGrid, ListChecks, Terminal];
 
 export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
   const t = useTranslations("RunBuilder");
   const locale = useLocale();
-  const searchParams = useSearchParams();
-  const requestedDesign = searchParams.get("design");
-  const design =
-    requestedDesign === "guided" || requestedDesign === "studio" ? requestedDesign : "workspace";
   const [settings, setSettings] = useState(initialSettings);
   const [touched, setTouched] = useState<Partial<Record<Setting, boolean>>>({});
   const [mode, setMode] = useState<"run" | "plan">("run");
@@ -92,12 +80,17 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
       !fields.some((key) => result.errors[key]) &&
       (index !== 2 || !Object.keys(result.errors).some((key) => !basicFields.has(key as Setting))),
   );
-  const completedCount = completed.filter(Boolean).length;
   const modelCount = settings.models
     .trim()
     .split(/[\s,]+/)
     .filter(Boolean).length;
   const nextStep = completed.findIndex((done) => !done);
+  const languageChoices = getLanguageChoices(dataset, settings.protocol, settings.languages);
+  useEffect(() => {
+    if (!copied) return;
+    const timer = window.setTimeout(() => setCopied(""), 2000);
+    return () => window.clearTimeout(timer);
+  }, [copied]);
 
   function update<K extends Setting>(key: K, value: RunSettings[K]) {
     setSettings((previous) => ({ ...previous, [key]: value }));
@@ -263,10 +256,7 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
   function goToSection(index: number) {
     setStep(index);
     requestAnimationFrame(() => {
-      const target =
-        design === "workspace"
-          ? document.getElementById(`run-section-${index}`)
-          : contentRef.current;
+      const target = contentRef.current;
       target?.scrollIntoView({ behavior: "instant", block: "start" });
       target?.focus({ preventScroll: true });
     });
@@ -295,65 +285,46 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
     }
     goToSection(Math.min(step + 1, 3));
   }
-  function sectionHeading(index: number) {
-    const Icon = sectionIcons[index]!;
-    return (
-      <div className={styles.sectionHeading}>
-        <span className={styles.sectionIcon}>
-          <Icon aria-hidden="true" />
-        </span>
-        <div>
-          <h2>{t(sections[index]!)}</h2>
-          <p>{t(`${sections[index]!}Hint`)}</p>
-        </div>
-        {completed[index] && (
-          <CircleCheck className={styles.completeIcon} aria-label={t("complete")} />
-        )}
-      </div>
-    );
+  function datasetQuestionSummary(entry: RunDataset) {
+    const range = getQuestionRange(entry.languages);
+    if (!range) return "";
+    return range.min === range.max
+      ? t("datasetQuestions", { count: range.min })
+      : t("datasetQuestionRange", { min: range.min, max: range.max });
   }
   const datasetFields = (
     <>
-      {design === "guided" ? (
-        <fieldset className={styles.field}>
-          <legend>{t("dataset")}</legend>
-          <div className={styles.datasetCards}>
-            {datasets.map((entry) => (
-              <label
-                key={entry.id}
-                className={styles.datasetCard}
-                data-selected={settings.dataset === entry.id}
-              >
-                <input
-                  type="radio"
-                  name="run-dataset"
-                  checked={settings.dataset === entry.id}
-                  onChange={() => changeDataset(entry.id)}
-                />
-                <Database aria-hidden="true" />
-                <span>
-                  <strong>{entry.id}</strong>
-                  <small>
-                    {t("datasetDetails", {
-                      languages: entry.languages.length,
-                      protocols: entry.protocols.length,
-                    })}
-                  </small>
-                </span>
-                <span className={styles.radioMark} />
-              </label>
-            ))}
-          </div>
-          {error("dataset") && <output className={styles.error}>{t("required")}</output>}
-        </fieldset>
-      ) : (
-        select(
-          "dataset",
-          settings.dataset,
-          datasets.map((entry) => ({ value: entry.id, label: entry.id })),
-          changeDataset,
-        )
-      )}
+      <fieldset className={styles.field}>
+        <legend>{t("dataset")}</legend>
+        <div className={styles.datasetCards}>
+          {datasets.map((entry) => (
+            <label
+              key={entry.id}
+              className={styles.datasetCard}
+              data-selected={settings.dataset === entry.id}
+            >
+              <input
+                type="radio"
+                name="run-dataset"
+                checked={settings.dataset === entry.id}
+                onChange={() => changeDataset(entry.id)}
+              />
+              <Database aria-hidden="true" />
+              <span>
+                <strong>{entry.id}</strong>
+                <small>
+                  {t("datasetDetails", {
+                    languages: entry.languages.length,
+                    questions: datasetQuestionSummary(entry),
+                  })}
+                </small>
+              </span>
+              <span className={styles.radioMark} />
+            </label>
+          ))}
+        </div>
+        {error("dataset") && <output className={styles.error}>{t("required")}</output>}
+      </fieldset>
       {dataset &&
         select(
           "protocol",
@@ -392,6 +363,24 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
         </legend>
         {dataset ? (
           <>
+            <div className={styles.languageToolbar}>
+              <span>
+                {t("selectedLanguages", {
+                  count: settings.languages.length,
+                  total: languageChoices.tags.length,
+                })}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={!languageChoices.tags.length}
+                onClick={() =>
+                  update("languages", languageChoices.allSelected ? [] : languageChoices.tags)
+                }
+              >
+                {t(languageChoices.allSelected ? "clearLanguages" : "selectAllLanguages")}
+              </Button>
+            </div>
             {dataset.languages.length > 6 && (
               <div className={styles.search}>
                 <Search aria-hidden="true" />
@@ -410,14 +399,13 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
                     .toLocaleLowerCase(locale)
                     .includes(languageSearch.toLocaleLowerCase(locale)),
                 )
-                .map(({ tag, questions }) =>
+                .map(({ tag }) =>
                   choice(
                     "languages",
                     tag,
                     <span>
                       {languageNames.of(tag)}
                       <span className={styles.tag}>{tag}</span>
-                      <small>{t("languageQuestions", { count: questions })}</small>
                     </span>,
                     !protocol?.languages.includes(tag),
                   ),
@@ -466,15 +454,7 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
                 }}
               />
               <span className={styles.providerMark}>
-                {value === "fake" ? (
-                  <FlaskConical aria-hidden="true" />
-                ) : value === "openai" ? (
-                  <Zap aria-hidden="true" />
-                ) : value === "anthropic" ? (
-                  "A"
-                ) : (
-                  <Layers aria-hidden="true" />
-                )}
+                <ProviderLogo provider={value} />
               </span>
               <span>{value === "fake" ? t("testProvider") : transportNames[value]}</span>
               {value === "fake" && <small>{t("free")}</small>}
@@ -639,7 +619,9 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
     {
       label: t("languages"),
       value: settings.languages.length
-        ? settings.languages.map((tag) => languageNames.of(tag)).join(", ")
+        ? settings.languages.length > 3
+          ? t("languageSelectionSummary", { count: settings.languages.length })
+          : settings.languages.map((tag) => languageNames.of(tag)).join(", ")
         : t("notSelected"),
       index: 0,
     },
@@ -765,7 +747,6 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
             <span>{t("nextUp")}</span>
             <button
               onClick={() => {
-                if (nextStep === 2) setAdvancedOpen(true);
                 goToSection(nextStep < 0 ? 2 : nextStep);
               }}
             >
@@ -774,16 +755,14 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
             </button>
           </div>
         )}
-        {design === "studio" ? null : (
-          <details className={styles.commandDisclosure}>
-            <summary>
-              <Terminal aria-hidden="true" />
-              {t("viewCommand")}
-              <ChevronDown aria-hidden="true" />
-            </summary>
-            {commandPanel}
-          </details>
-        )}
+        <details className={styles.commandDisclosure}>
+          <summary>
+            <Terminal aria-hidden="true" />
+            {t("viewCommand")}
+            <ChevronDown aria-hidden="true" />
+          </summary>
+          {commandPanel}
+        </details>
         <Button
           disabled={!command}
           className={styles.primaryAction}
@@ -792,18 +771,17 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
           }}
         >
           {copied === command ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
-          {t(copied === command ? "copied" : "copy")}
+          <span aria-live="polite" aria-atomic="true">
+            {t(copied === command ? "copied" : "copy")}
+          </span>
           <ArrowDown aria-hidden="true" />
         </Button>
         <p className={styles.localCaption}>
           <Monitor aria-hidden="true" />
           {t("pasteLocally")}
         </p>
-        <output className={styles.feedback}>
-          {copyError ? t("copyError") : copied === command ? t("copied") : ""}
-        </output>
+        {copyError && <output className={styles.error}>{t("copyError")}</output>}
       </div>
-      {design === "studio" && commandPanel}
       <div className={styles.outputHelp}>
         <details className={styles.setup}>
           <summary>
@@ -819,221 +797,103 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
           )}
           <p>{t("setupRun")}</p>
         </details>
-        <a
-          href="https://github.com/limit-115/llang-gap/blob/main/docs/runner.md"
-          className="resource-link"
-        >
-          <BookOpen aria-hidden="true" />
-          <span>{t("docs")}</span>
-        </a>
       </div>
     </aside>
   );
   if (!datasets.length) return <p>{t("noDatasets")}</p>;
   return (
-    <div className={styles.page} data-design={design}>
-      <div className={styles.designBar}>
-        <span>{t("designPreview")}</span>
-        <nav aria-label={t("designNavigation")} className={styles.designSwitcher}>
-          {designs.map((value, index) => {
-            const Icon = designIcons[index]!;
-            return (
-              <a
-                key={value}
-                href={`?design=${value}`}
-                aria-current={design === value ? "page" : undefined}
-                onClick={(event) => {
-                  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-                  event.preventDefault();
-                  const url = new URL(window.location.href);
-                  url.searchParams.set("design", value);
-                  window.history.pushState(null, "", url);
-                  setStep(0);
-                }}
-              >
-                <Icon aria-hidden="true" />
-                <span>{t(value)}</span>
-              </a>
-            );
-          })}
-        </nav>
-        <span className={styles.previewHint}>{t("inputsPreserved")}</span>
-      </div>
+    <div className={styles.page}>
       <div className={styles.pageHeading}>
-        <div>
-          <h1>{t(`${design}Title`)}</h1>
-          <p>{t(`${design}Intro`)}</p>
-        </div>
-        <a
-          href="https://github.com/limit-115/llang-gap/blob/main/docs/runner.md"
-          className={styles.guideLink}
-        >
-          <BookOpen aria-hidden="true" />
-          {t("runnerGuide")}
-          <ArrowRight aria-hidden="true" />
-        </a>
+        <h1>{t("title")}</h1>
+        <p>{t("intro")}</p>
       </div>
-      {design === "workspace" && (
-        <div className={styles.workspaceLayout}>
-          <div className={styles.settings}>
-            {panels.map((panel, index) => (
-              <section
-                key={sections[index]}
-                id={`run-section-${index}`}
-                tabIndex={-1}
-                className={styles.section}
+      <div className={styles.guidedLayout}>
+        <aside className={styles.guideRail}>
+          <div className={styles.guideRailTop}>
+            <span className={styles.guideGlyph}>
+              <Layers aria-hidden="true" />
+            </span>
+            <h2>{t("guideRailTitle")}</h2>
+            <p>{t("guideRailHint")}</p>
+          </div>
+          <nav aria-label={t("steps")} className={styles.stepList}>
+            {steps.map((label, index) => (
+              <button
+                key={label}
+                aria-current={step === index ? "step" : undefined}
+                onClick={() => goToSection(index)}
               >
-                {sectionHeading(index)}
-                <div className={styles.sectionBody}>{panel}</div>
-              </section>
-            ))}
-            {advanced}
-          </div>
-          {output}
-        </div>
-      )}
-      {design === "guided" && (
-        <div className={styles.guidedLayout}>
-          <aside className={styles.guideRail}>
-            <div className={styles.guideRailTop}>
-              <span className={styles.guideGlyph}>
-                <Layers aria-hidden="true" />
-              </span>
-              <h2>{t("guideRailTitle")}</h2>
-              <p>{t("guideRailHint")}</p>
-            </div>
-            <nav aria-label={t("steps")} className={styles.stepList}>
-              {steps.map((label, index) => (
-                <button
-                  key={label}
-                  aria-current={step === index ? "step" : undefined}
-                  onClick={() => goToSection(index)}
+                <span
+                  className={styles.stepIndicator}
+                  data-done={index < 3 ? completed[index] : Boolean(command)}
                 >
-                  <span
-                    className={styles.stepIndicator}
-                    data-done={index < 3 ? completed[index] : Boolean(command)}
-                  >
-                    {(index < 3 ? completed[index] : Boolean(command)) ? (
-                      <Check aria-hidden="true" />
-                    ) : (
-                      index + 1
-                    )}
-                  </span>
-                  <span>
-                    {t(label)}
-                    <small>{t(`${label}Short`)}</small>
-                  </span>
-                  {step === index && <ArrowRight aria-hidden="true" />}
-                </button>
+                  {(index < 3 ? completed[index] : Boolean(command)) ? (
+                    <Check aria-hidden="true" />
+                  ) : (
+                    index + 1
+                  )}
+                </span>
+                <span>
+                  {t(label)}
+                  <small>{t(`${label}Short`)}</small>
+                </span>
+                {step === index && <ArrowRight aria-hidden="true" />}
+              </button>
+            ))}
+          </nav>
+          <div className={styles.guideAssurance}>
+            <Monitor aria-hidden="true" />
+            <div>
+              <strong>{t("yourMachine")}</strong>
+              <p>{t("localNote")}</p>
+            </div>
+          </div>
+        </aside>
+        <div ref={contentRef} tabIndex={-1} className={styles.guidedContent}>
+          <div className={styles.stepProgress}>
+            <span>{t("stepProgress", { current: step + 1, total: 4 })}</span>
+            <div>
+              {steps.map((label, index) => (
+                <span key={label} data-active={index <= step} />
               ))}
-            </nav>
-            <div className={styles.guideAssurance}>
-              <Monitor aria-hidden="true" />
-              <div>
-                <strong>{t("yourMachine")}</strong>
-                <p>{t("localNote")}</p>
-              </div>
             </div>
-          </aside>
-          <div ref={contentRef} tabIndex={-1} className={styles.guidedContent}>
-            <div className={styles.stepProgress}>
-              <span>{t("stepProgress", { current: step + 1, total: 4 })}</span>
-              <div>
-                {steps.map((label, index) => (
-                  <span key={label} data-active={index <= step} />
-                ))}
+          </div>
+          {step < 3 ? (
+            <>
+              <div className={styles.guidedTitle}>
+                <h2>{t(sections[step]!)}</h2>
+                <p>{t(`${sections[step]!}Hint`)}</p>
               </div>
-            </div>
+              <div className={styles.sectionBody}>
+                {panels[step]}
+                {step === 2 && advanced}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className={styles.guidedTitle}>
+                <h2>{t("reviewSection")}</h2>
+                <p>{t("reviewHint")}</p>
+              </div>
+              {output}
+            </>
+          )}
+          <div className={styles.stepFooter}>
+            <Button variant="ghost" disabled={step === 0} onClick={() => goToSection(step - 1)}>
+              <ArrowLeft aria-hidden="true" />
+              {t("back")}
+            </Button>
             {step < 3 ? (
-              <>
-                <div className={styles.guidedTitle}>
-                  <h2>{t(sections[step]!)}</h2>
-                  <p>{t(`${sections[step]!}Hint`)}</p>
-                </div>
-                <div className={styles.sectionBody}>
-                  {panels[step]}
-                  {step === 2 && advanced}
-                </div>
-              </>
-            ) : (
-              <>
-                <div className={styles.guidedTitle}>
-                  <h2>{t("reviewSection")}</h2>
-                  <p>{t("reviewHint")}</p>
-                </div>
-                {output}
-              </>
-            )}
-            <div className={styles.stepFooter}>
-              <Button variant="ghost" disabled={step === 0} onClick={() => goToSection(step - 1)}>
-                <ArrowLeft aria-hidden="true" />
-                {t("back")}
+              <Button className={styles.continueButton} onClick={continueStep}>
+                {t(step === 2 ? "reviewAction" : "continue")}
+                <ArrowRight aria-hidden="true" />
               </Button>
-              {step < 3 ? (
-                <Button className={styles.continueButton} onClick={continueStep}>
-                  {t(step === 2 ? "reviewAction" : "continue")}
-                  <ArrowRight aria-hidden="true" />
-                </Button>
-              ) : (
-                <span className={styles.hint}>{t("localOnly")}</span>
-              )}
-            </div>
+            ) : (
+              <span className={styles.hint}>{t("localOnly")}</span>
+            )}
           </div>
         </div>
-      )}
-      {design === "studio" && (
-        <div className={styles.studioShell}>
-          <div className={styles.studioToolbar}>
-            <span>
-              <span className={styles.liveDot} />
-              {t("configuration")}
-            </span>
-            <span>{t("sectionsReady", { count: completedCount, total: 3 })}</span>
-            <span className={styles.toolbarEnd}>
-              <Monitor aria-hidden="true" />
-              {t("localOnly")}
-            </span>
-          </div>
-          <div className={styles.studioLayout}>
-            <div className={styles.studioEditor}>
-              <nav className={styles.studioTabs} aria-label={t("configuration")}>
-                {sections.map((label, index) => {
-                  const Icon = sectionIcons[index]!;
-                  return (
-                    <Button
-                      key={label}
-                      variant="ghost"
-                      aria-pressed={Math.min(step, 2) === index}
-                      onClick={() => goToSection(index)}
-                    >
-                      <Icon aria-hidden="true" />
-                      {t(`${label}Tab`)}
-                      {completed[index] && <Check aria-hidden="true" />}
-                    </Button>
-                  );
-                })}
-              </nav>
-              <div className={styles.studioContent} ref={contentRef} tabIndex={-1}>
-                {sectionHeading(Math.min(step, 2))}
-                <div className={styles.sectionBody}>
-                  {panels[Math.min(step, 2)]}
-                  {Math.min(step, 2) === 2 && advanced}
-                </div>
-                <div className={styles.studioNext}>
-                  <Button
-                    variant="outline"
-                    onClick={() => goToSection((Math.min(step, 2) + 1) % 3)}
-                  >
-                    {t(`${sections[(Math.min(step, 2) + 1) % 3]!}Tab`)}
-                    <ArrowRight aria-hidden="true" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-            {output}
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

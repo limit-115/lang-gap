@@ -10,6 +10,13 @@ The upstream MIT license is retained in [LICENSE](LICENSE).
 pinned to commit `a9dec20fe715536d91e6d8a20603ab7789f09bbc` and copied without modification.
 That repository's MIT license is retained in [inclusionai-LICENSE](inclusionai-LICENSE).
 
+`openrouter.svg` and `openrouter-dark.svg` are the Ink and Cloud glyphs from
+[OpenRouter’s official brand assets](https://openrouter.ai/brand), downloaded on
+2026-09-08 from [Ink](https://openrouter.ai/brand/logos/transparent/glyph/svg/glyph-ink.svg)
+and [Cloud](https://openrouter.ai/brand/logos/transparent/glyph/svg/glyph-cloud.svg).
+These are served without modification or recoloring, with the matching asset
+selected for the current theme.
+
 Company names and logos remain trademarks of their respective owners. Serve these
 files locally. Black marks are inverted in dark mode; the white inclusionAI mark
 is inverted in light mode. Model owner names remain text, and images are decorative

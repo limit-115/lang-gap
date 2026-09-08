@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -21,12 +20,8 @@ export default async function RunPage({ params }: Props) {
   setRequestLocale(locale);
   const datasets = await getRunDatasets();
   return (
-    <>
-      <NextIntlClientProvider messages={{ RunBuilder: getMessagesForLocale(locale).RunBuilder }}>
-        <Suspense>
-          <RunBuilder datasets={datasets} />
-        </Suspense>
-      </NextIntlClientProvider>
-    </>
+    <NextIntlClientProvider messages={{ RunBuilder: getMessagesForLocale(locale).RunBuilder }}>
+      <RunBuilder datasets={datasets} />
+    </NextIntlClientProvider>
   );
 }
