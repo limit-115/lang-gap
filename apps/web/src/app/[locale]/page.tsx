@@ -1,4 +1,3 @@
-import { CtaPalettePreview } from "@/features/run-builder/cta-palette-preview";
 import { RunCta } from "@/features/run-builder/run-cta";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -12,10 +11,7 @@ import { LeaderboardTable } from "@/features/leaderboard/leaderboard-table";
 import { getModelGuide } from "@/features/leaderboard/guide-data";
 import { guideLanguages } from "@/features/leaderboard/table-state";
 
-type Props = {
-  params: Promise<{ locale: string }>;
-  searchParams: Promise<{ palette?: string | string[] }>;
-};
+type Props = { params: Promise<{ locale: string }> };
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
@@ -27,13 +23,12 @@ export async function generateMetadata({ params }: Props) {
     t((await getModelGuide()) ? "metadataDescription" : "metadataPlannedDescription"),
   );
 }
-export default async function LeaderboardPage({ params, searchParams }: Props) {
+export default async function LeaderboardPage({ params }: Props) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("Leaderboard");
   const guide = await getModelGuide();
-  const palette = process.env.NODE_ENV === "development" ? (await searchParams).palette : undefined;
   return (
     <>
       <JsonLd
@@ -71,7 +66,7 @@ export default async function LeaderboardPage({ params, searchParams }: Props) {
           />
         </NextIntlClientProvider>
       </section>
-      {palette ? <CtaPalettePreview selected={palette} /> : <RunCta />}
+      <RunCta />
     </>
   );
 }

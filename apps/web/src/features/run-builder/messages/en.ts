@@ -6,25 +6,6 @@ export default {
   ctaBody:
     "Go beyond the leaderboard. Choose a dataset and build a reproducible experiment around what matters to you.",
   ctaAction: "Build a run",
-  palettes: {
-    title: "Spotlight palettes",
-    navigation: "Spotlight color options",
-    all: "Compare all",
-    graphite: "Graphite",
-    porcelain: "Porcelain",
-    midnight: "Midnight",
-    aubergine: "Aubergine",
-    mineral: "Mineral",
-    graphiteNote:
-      "My first choice. Charcoal and silver: restrained, crisp, and focused on the content.",
-    porcelainNote:
-      "A clean, cool white panel. Strong separation from the dark page without saturated color.",
-    midnightNote: "Deep navy and pale blue. Precise and technical, with a little more character.",
-    aubergineNote: "Blackened plum and soft mauve. A warmer, more distinctive direction.",
-    mineralNote:
-      "Muted blue-gray and dark ink. Airy and softer, with enough weight to close the page.",
-    view: "View in place",
-  },
 
   title: "Make the benchmark yours.",
   intro: "Choose what to test. Copy the command. Run it on your machine.",

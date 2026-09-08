@@ -4,16 +4,11 @@ import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import styles from "./run-cta-spotlight.module.css";
 
-export type CtaPalette = "graphite" | "porcelain" | "midnight" | "aubergine" | "mineral";
-
-export async function RunCta({
-  palette = "graphite",
-  id = "own-run-title",
-}: { palette?: CtaPalette; id?: string } = {}) {
+export async function RunCta() {
   const t = await getTranslations("RunBuilder");
   return (
-    <section className={styles.cta} data-palette={palette} aria-labelledby={id}>
-      <h2 id={id}>
+    <section className={styles.cta} aria-labelledby="own-run-title">
+      <h2 id="own-run-title">
         <span>{t("ctaTitle")}</span>
         <span>{t("ctaTitleLanguages")}</span>
         <span className={styles.accent}>{t("ctaTitleBenchmark")}</span>
