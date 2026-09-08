@@ -4,6 +4,7 @@ export default {
   language: "Your language",
   allLanguages: "All languages",
   overview: "At a glance",
+  accuracySummary: "{model} has {score}% mean accuracy in {language}.",
   scoreSummary: "{model} scores {score} / 100 in {language}.",
   noScore:
     "A comparable score is not ready for this language. Published results are available below.",

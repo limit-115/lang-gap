@@ -155,11 +155,13 @@ them. For a fresh run, update the experiment schema and choose its scientific in
 
 ## Scope and uncertainty
 
-The [model guide](model-guide.md) is a separately versioned, normalized index over
-explicitly weighted dataset conditions. It does not pool question-level accuracy
-denominators or alter any release's scores. Its descriptive index differences are
+The [model guide](model-guide.md) is a separately versioned summary of published
+results. It selects the newest observation per dataset/model/API/effort/language
+and averages available dataset accuracies with equal weight. Caps, repeats and
+protocol versions remain source metadata rather than admission filters. It does not
+pool question denominators or alter release scores. Its descriptive differences are
 distinct from the per-dataset paired estimates above; no composite interval is
-inferred from aggregate release intervals.
+inferred. Historical normalized, fixed-suite snapshots remain unchanged.
 
 Implemented adapters currently score multiple-choice tasks; adding another task
 format requires a reviewed adapter and shared contracts. Language selection alone

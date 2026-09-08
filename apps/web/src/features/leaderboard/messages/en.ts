@@ -1,5 +1,7 @@
 export default {
   unspecifiedEffort: "Unspecified",
+  meanAccuracy: "Mean accuracy, %",
+  datasetCount: "{count, plural, one {# dataset} other {# datasets}}",
   guideScore: "Score / 100",
   incompleteScore:
     "More results are needed for a comparable score. Open the model to see available results.",

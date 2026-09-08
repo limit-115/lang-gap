@@ -111,30 +111,27 @@ The website follows the system's light or dark appearance by default. The theme
 button in the header switches between light and dark and remembers the choice in
 this browser across reloads and both languages.
 
-The homepage table is a model guide: one row per model, a normalized score out of
-100 for each selected language, and `—` for missing or incomplete evidence. The
-searchable **Languages** menu controls visible columns. **Compare languages**
-adds one explicitly selected index difference; hiding either participant clears
-it. Dataset, question-count, effort and release details belong to model pages.
+The homepage summarizes all published benchmark results. Each model/API/effort row
+shows mean accuracy for each selected language, with an equal weight per available
+dataset and a count of the contributing datasets. A dash means no published result
+for that row and language. The searchable **Languages** menu controls visible columns.
 
-Click a model, a language score, or **See the conclusion** to inspect the model's
-published results across datasets, configurations and releases. Original
-per-dataset paired gaps and 95% intervals remain available there and on permanent
-release pages. Index differences do not have an inferred confidence interval.
+For each dataset and language, the newest run supplies the result; extra runs,
+questions and repeats do not increase its weight. Token caps, repeat counts, protocol
+versions and dataset revisions remain in the source experiments, not admission
+filters. New datasets and languages enter automatically when releases are staged.
 
-The guide uses a fixed, versioned suite and one explicit configuration per model.
-It selects one compatible observation per task/language, normalizes within each
-dataset and applies fixed task/family weights. It never pools question counts or
-averages arbitrary available subsets. A later release can add languages or replace
-compatible evidence without deleting other language results. Publishing a new
-release does not automatically change the guide.
+Click a model or score to inspect the contributing results and full experiment
+history. English is an optional display reference; differences are shown only for
+matching dataset sets and aligned inputs. These descriptive differences have no
+inferred confidence interval. Original per-dataset paired gaps remain on release pages.
 
-See [model guide methodology and operator workflow](docs/model-guide.md) for
-selection rules, missing results, incremental runs, source hashes and suite changes.
+See [summary methodology and operator workflow](docs/model-guide.md) for selection,
+coverage and reproducibility. Historical normalized snapshots remain unchanged.
 
 ```sh
-# After staging benchmark releases and updating the guide plan:
-pnpm bench guide build results/guide-plan.json --id <new-guide-id>
+# release stage synchronizes automatically; this also repairs an interrupted sync:
+pnpm bench guide sync
 pnpm guide:check
 ```
 

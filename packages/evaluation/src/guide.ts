@@ -7,9 +7,13 @@ import {
   guideSnapshotSchema,
   releaseEvidenceSchema,
   type GuidePlan,
+  type PublishedGuidePlan,
+  type SummaryPlan,
   type GuideScore,
   type ReleaseEvidence,
 } from "@llang-gap/contracts/guide";
+
+import { buildPublishedSummary } from "./summary";
 
 export type GuideRelease = {
   manifest: ReleaseManifest;
@@ -64,8 +68,22 @@ const conditionKey = (
   ]);
 
 /** Resolve the publication inventory without inferring new tasks or scientific weights. */
-export function reconcileGuidePlan(planInput: GuidePlan, inputs: GuideRelease[]): GuidePlan {
+export function reconcileGuidePlan(planInput: GuidePlan, inputs: GuideRelease[]): GuidePlan;
+export function reconcileGuidePlan(planInput: SummaryPlan, inputs: GuideRelease[]): SummaryPlan;
+export function reconcileGuidePlan(
+  planInput: PublishedGuidePlan,
+  inputs: GuideRelease[],
+): PublishedGuidePlan;
+export function reconcileGuidePlan(
+  planInput: PublishedGuidePlan,
+  inputs: GuideRelease[],
+): PublishedGuidePlan {
   const plan = guidePlanSchema.parse(planInput);
+  if (plan.schemaVersion === 2) {
+    plan.releases = inputs.map(({ manifest }) => manifest.id).sort();
+    validateGuideReleases(plan, inputs);
+    return plan;
+  }
   if (!plan.configurationRows)
     throw new Error(
       "Automatic publication requires configurationRows: true; migrate the suite explicitly",
@@ -138,7 +156,7 @@ export function reconcileGuidePlan(planInput: GuidePlan, inputs: GuideRelease[])
   return guidePlanSchema.parse(plan);
 }
 
-function validateGuideReleases(plan: GuidePlan, inputs: GuideRelease[]) {
+function validateGuideReleases(plan: Pick<GuidePlan, "releases">, inputs: GuideRelease[]) {
   const releases = inputs.map((entry) => ({
     ...entry,
     manifest: releaseManifestSchema.parse(entry.manifest),
@@ -165,13 +183,14 @@ function validateGuideReleases(plan: GuidePlan, inputs: GuideRelease[]) {
 }
 
 export function buildGuide(
-  planInput: GuidePlan,
+  planInput: PublishedGuidePlan,
   inputs: GuideRelease[],
   id: string,
   createdAt: string,
 ) {
   const plan = guidePlanSchema.parse(planInput);
   const releases = validateGuideReleases(plan, inputs);
+  if (plan.schemaVersion === 2) return buildPublishedSummary(plan, releases, id, createdAt);
   // Selection is chronological, never dependent on accuracy, n, number of runs or index order.
   releases.sort(
     (a, b) =>

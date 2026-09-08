@@ -1,11 +1,11 @@
 export default {
   guideTitle: "How the model overview combines tests",
   guide:
-    "The overview uses a fixed, versioned suite and one declared configuration per model. For each test, we subtract its random-guess baseline from accuracy, divide by the distance from that baseline to perfect accuracy, and scale to 100. Scores at or below random guessing receive zero. Fixed task weights are averaged within families, then fixed family weights produce a language score. This is an index, not a percentage of correct answers or a measure of conversational fluency.",
+    "The overview averages published accuracy across available datasets with equal weight for each dataset. For example, 80% on one dataset and 90% on another gives 85%, regardless of their question counts. There is no correction for random guessing. Each API/model/effort configuration has a separate row.",
   guideCoverage:
-    "Each language column requires the same complete test basis for every model. Missing evidence is shown as a dash, never zero or an average of the remaining tests. One compatible observation per test and language is selected by run creation time, then release date and ID; more runs or more questions do not increase its weight. Different API providers or effort levels are never silently averaged.",
+    "For each dataset, model, API, effort and language, we select the newest run, then break ties by release date and ID. Repeated runs do not increase a dataset’s weight. All published datasets are discovered automatically. Token limits, repeat counts, dataset revisions and protocols remain source metadata, not eligibility filters. We average the available datasets and show their count; a dash means there are no results for that row and language. Cells can cover different datasets, so inspect their sources before comparing models.",
   guideDifference:
-    "The table uses English as an optional baseline: language score minus English score in percentage points, shown only when both scores have the same weighted, aligned test basis. It is a descriptive index difference. We do not infer its uncertainty by averaging individual test intervals. Original paired comparisons and all published experiments remain on model and release pages.",
+    "English is an optional display baseline. A language’s mean accuracy minus English mean accuracy is shown in percentage points only when both use the same dataset set, versions, protocols and aligned questions. Missing alignment hides the difference, not either accuracy. This descriptive difference has no inferred confidence interval. Original paired comparisons and all run settings remain in the published experiments.",
 
   title: "Understand how we compare languages and calculate scores.",
   intro:
@@ -21,7 +21,7 @@ export default {
   scoreTitle: "How to read accuracy and the gap",
   accuracy: "Accuracy",
   score:
-    "Accuracy is the share of correct answers within one dataset and language, averaged over all prespecified repeats. Every question has equal weight. A gap is computed only for an explicitly selected aligned comparison: baseline accuracy minus comparison-language accuracy, in percentage points. A and B below follow the column’s subtraction order. Scores from different datasets are never pooled.",
+    "Accuracy is the share of correct answers within one dataset and language, averaged over all prespecified repeats. Every question has equal weight. A gap is computed only for an explicitly selected aligned comparison: baseline accuracy minus comparison-language accuracy, in percentage points. A and B below follow the column’s subtraction order. Question counts from different datasets are never pooled; the overview averages dataset accuracies separately.",
   interval:
     "The 95% percentile interval shows how precisely this question set lets us estimate the gap. We calculate it from 10,000 paired bootstrap samples over unique question IDs with a fixed random seed, keeping each question’s language pair and all repeats together. Scores for individual repeats are also published. If the interval includes zero, the direction of the difference is uncertain. Matching effort labels do not mean equal computing budgets across API services.",
   errorsTitle: "How we handle errors before publication",

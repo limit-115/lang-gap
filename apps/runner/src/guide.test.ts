@@ -116,6 +116,32 @@ describe("published guide artifacts", () => {
     expect(await verifyGuide(result.id, root)).toMatchObject({ valid: true });
   });
 
+  it("migrates to the inventory summary without rewriting legacy snapshots and is idempotent", async () => {
+    await publishGuide(planPath, "legacy-summary", root);
+    const original = await readFile(join(root, "guide/legacy-summary/summary.json"));
+    await writeFile(
+      join(root, "guide-plan.json"),
+      json({
+        schemaVersion: 2,
+        aggregation: "mean-dataset-accuracy-v1",
+        releases: [],
+      }),
+    );
+    const result = await syncGuide(root);
+    const snapshot = JSON.parse(
+      await readFile(join(root, "guide", result.id, "summary.json"), "utf8"),
+    ) as {
+      plan: { releases: string[] };
+      models: { scores: { value: number }[] }[];
+    };
+    expect(snapshot.plan.releases).toEqual(["fixture"]);
+    expect(snapshot.models[0]!.scores[0]!.value).toBe(75);
+    expect(await syncGuide(root)).toEqual({ id: result.id, changed: false });
+    expect(await readFile(join(root, "guide/legacy-summary/summary.json"))).toEqual(original);
+    expect(await verifyGuide("legacy-summary", root)).toMatchObject({ valid: true });
+    expect(await verifyGuidePublication(root)).toMatchObject({ valid: true });
+  });
+
   it("withdraws active evidence without making archived snapshots unverifiable", async () => {
     plan.configurationRows = true;
     await writeFile(join(root, "guide-plan.json"), json(plan));

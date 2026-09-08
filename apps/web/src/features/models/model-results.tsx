@@ -30,6 +30,7 @@ export function ModelResults({
   suiteId,
   taskCount,
   initialLanguage,
+  isSummary = false,
 }: {
   model: GuideModel | null;
   releases: ReleaseManifest[];
@@ -37,6 +38,7 @@ export function ModelResults({
   suiteId: string | null;
   taskCount: number;
   initialLanguage: string | null;
+  isSummary?: boolean;
 }) {
   const t = useTranslations("Models");
   const l = useTranslations("Leaderboard");
@@ -102,7 +104,7 @@ export function ModelResults({
         <div className="rounded-xl border bg-background p-6 sm:p-8">
           <p className="text-xl font-medium leading-8">
             {score?.value !== null && score?.value !== undefined && language
-              ? t("scoreSummary", {
+              ? t(isSummary ? "accuracySummary" : "scoreSummary", {
                   model: name,
                   score: f.number(score.value, {
                     maximumFractionDigits: 1,
@@ -112,7 +114,14 @@ export function ModelResults({
                 })
               : t("noScore")}
           </p>
-          {taskCount === 1 && <p className="mt-3 text-muted-foreground">{t("limited")}</p>}
+          {isSummary && score?.value !== null && score?.value !== undefined && (
+            <p className="mt-3 text-muted-foreground">
+              {l("datasetCount", { count: score.contributions.length })}
+            </p>
+          )}
+          {(isSummary ? score?.contributions.length === 1 : taskCount === 1) && (
+            <p className="mt-3 text-muted-foreground">{t("limited")}</p>
+          )}
           <p className="mt-3 max-w-3xl text-muted-foreground">{t("scope")}</p>
           <Link href="/methodology#model-guide" className="resource-link mt-4">
             <BookOpen aria-hidden="true" />

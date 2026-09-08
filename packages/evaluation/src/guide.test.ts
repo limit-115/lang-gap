@@ -456,3 +456,119 @@ describe("publication inventory reconciliation", () => {
     ).toThrow("provenance mismatch");
   });
 });
+
+describe("published dataset accuracy summary", () => {
+  const summarize = (inputs: GuideRelease[]) =>
+    buildGuide(
+      {
+        schemaVersion: 2,
+        aggregation: "mean-dataset-accuracy-v1",
+        releases: inputs.map((x) => x.manifest.id),
+      },
+      inputs,
+      "summary",
+      "2026-09-08T00:00:00.000Z",
+    );
+  it("handles an empty inventory and exact perfect scores across many datasets", () => {
+    expect(summarize([])).toMatchObject({ languages: [], models: [], sources: [] });
+    const inputs = Array.from({ length: 7 }, (_, i) =>
+      release(`perfect-${i}`, `dataset-${i}`, ["ko"], 1),
+    );
+    expect(summarize(inputs).models[0]!.scores[0]!.value).toBe(100);
+  });
+  it("equally weights available datasets, not questions, repeats or random baselines", () => {
+    const small = release("small", "first", ["ko"], 0.8, 5);
+    const large = release("large", "second", ["ko"], 0.9, 500);
+    large.manifest.aggregate[0]!.repeats = 3;
+    large.manifest.aggregate[0]!.scores[0]!.repeatAccuracy = [0.9, 0.9, 0.9];
+    large.evidence!.languages[0]!.randomBaseline = 0.5;
+    const score = summarize([small, large]).models[0]!.scores[0]!;
+    expect(score.value).toBeCloseTo(85);
+    expect(score.contributions).toHaveLength(2);
+    expect(score.contributions.map((c) => c.n)).toEqual([5, 500]);
+  });
+  it("selects latest per dataset and language across caps, protocols, revisions and repeat counts", () => {
+    const old = release("old", "first", ["ko", "sv"], 1);
+    const recent = release("recent", "first", ["ko"], 0.5);
+    recent.evidence!.runCreatedAt = "2026-09-10T00:00:00.000Z";
+    recent.evidence!.configurations[0]!.maxOutputTokens = null;
+    recent.manifest.protocol = "another-protocol";
+    recent.manifest.datasetRevision = "new-revision";
+    recent.manifest.aggregate[0]!.repeats = 2;
+    recent.manifest.aggregate[0]!.scores[0]!.repeatAccuracy = [0.5, 0.5];
+    const republished = structuredClone(old);
+    republished.manifest.id = "republished";
+    republished.evidence!.releaseId = "republished";
+    republished.manifest.createdAt = "2026-10-01T00:00:00.000Z";
+    const result = summarize([old, recent, republished]);
+    expect(result.models[0]!.scores.map((s) => [s.language, s.value])).toEqual([
+      ["ko", 50],
+      ["sv", 100],
+    ]);
+    expect(result.models[0]!.scores[0]!.contributions).toHaveLength(1);
+    expect(result.models[0]!.scores[0]!.contributions[0]!.releaseId).toBe("recent");
+    expect(summarize([republished, recent, old]).models).toEqual(result.models);
+  });
+  it("keeps sparse languages, single-language runs and zero accuracy visible", () => {
+    const first = release("first", "first", ["kk"], 0);
+    const second = release("second", "second", ["ko"], 0.5);
+    second.manifest.aggregate[0]!.model = "another/model";
+    second.evidence!.configurations[0]!.model = "another/model";
+    const result = summarize([first, second]);
+    const zero = result.models.find((m) => m.reference.model === profile.model)!;
+    expect(zero.scores.find((s) => s.language === "kk")).toMatchObject({
+      value: 0,
+      status: "ready",
+    });
+    expect(zero.scores.find((s) => s.language === "ko")).toMatchObject({
+      value: null,
+      status: "unmeasured",
+    });
+    expect(summarize([first]).languages).toEqual(["kk"]);
+  });
+  it("includes published aggregates without optional evidence, but withholds unverified language differences", () => {
+    const input = release("no-evidence");
+    input.evidence = null;
+    input.evidenceHash = null;
+    const scores = summarize([input]).models[0]!.scores;
+    expect(scores.map((s) => s.value)).toEqual([75, 75]);
+    expect(scores[0]!.comparisonBasis).not.toBe(scores[1]!.comparisonBasis);
+  });
+  it("keeps effort and API rows separate and discovers new dataset IDs automatically", () => {
+    const low = release("low");
+    const high = release("high");
+    high.manifest.aggregate[0]!.effort = "high";
+    const api = release("api");
+    api.manifest.aggregate[0]!.transport = "openai";
+    api.evidence!.configurations[0]!.transport = "openai";
+    const next = release("new-dataset", "previously-unknown", ["cs"], 0.8);
+    const inputs = [low, high, api, next];
+    const result = summarize(inputs);
+    expect(result.models).toHaveLength(3);
+    expect(
+      result.models
+        .find((m) => m.profile?.transport === "openrouter" && m.profile.effort === "low")!
+        .scores.find((s) => s.language === "cs")!.value,
+    ).toBe(80);
+    expect(
+      reconcileGuidePlan(
+        { schemaVersion: 2, aggregation: "mean-dataset-accuracy-v1", releases: [] },
+        inputs,
+      ).releases,
+    ).toEqual(inputs.map((i) => i.manifest.id).sort());
+  });
+  it("shows both language scores but suppresses differences for different dataset coverage", () => {
+    const scores = summarize([release("both"), release("extra", "second", ["ja"])]).models[0]!
+      .scores;
+    expect(scores.every((s) => s.value === 75)).toBe(true);
+    expect(scores[0]!.comparisonBasis).not.toBe(scores[1]!.comparisonBasis);
+  });
+  it("retains synthetic and provenance publication checks", () => {
+    const fake = release("fake");
+    fake.manifest.aggregate[0]!.transport = "fake";
+    expect(() => summarize([fake])).toThrow("Only published benchmark");
+    const corrupt = release("corrupt");
+    corrupt.evidence!.configHash = h("f");
+    expect(() => summarize([corrupt])).toThrow("provenance");
+  });
+});
