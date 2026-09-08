@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -141,11 +142,13 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
           <SelectValue placeholder={t(`${key}Placeholder`)} />
         </SelectTrigger>
         <SelectContent align="start" alignItemWithTrigger={false}>
-          {choices.map((choice) => (
-            <SelectItem key={choice.value} value={choice.value}>
-              {choice.label}
-            </SelectItem>
-          ))}
+          <SelectGroup>
+            {choices.map((choice) => (
+              <SelectItem key={choice.value} value={choice.value}>
+                {choice.label}
+              </SelectItem>
+            ))}
+          </SelectGroup>
         </SelectContent>
       </Select>,
       hint,
