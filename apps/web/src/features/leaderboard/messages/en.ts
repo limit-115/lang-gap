@@ -30,7 +30,7 @@ export default {
   title: "See how LLM accuracy changes across languages. With open results you can check.",
   description:
     "Explore model accuracy on different datasets and languages, with reproducible scores and explicit comparisons on aligned questions.",
-  tableTitle: "Compare models in your language",
+  tableTitle: "Compare model accuracy across languages",
   tableDescription: "Each release records its dataset, languages and evaluation protocol.",
   model: "Model",
   effort: "Reasoning effort",
