@@ -31,6 +31,13 @@
   gap: 8px;
   margin-top: 12px;
 }
+.finder[data-compact="true"] {
+  padding-top: 0;
+  max-width: none;
+}
+.finder[data-compact="true"] .controls {
+  margin-top: 0;
+}
 .searchField {
   display: flex;
   align-items: center;
