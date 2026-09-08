@@ -21,7 +21,7 @@
   color: var(--foreground);
 }
 .heading {
-  font-size: 0.875rem;
+  font-size: 1.25rem;
   line-height: 1.5;
   font-weight: 500;
 }
