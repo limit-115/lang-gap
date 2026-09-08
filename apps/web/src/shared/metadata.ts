@@ -47,7 +47,7 @@ export function pageMetadata(
       locale: locale === "en" ? "en_US" : "ru_RU",
       alternateLocale: locale === "en" ? "ru_RU" : "en_US",
       url: `/${locale}${path}/`,
-      siteName: "Llang Gap",
+      siteName: "Lang Gap",
     },
     twitter: { card: "summary", title, description },
   };

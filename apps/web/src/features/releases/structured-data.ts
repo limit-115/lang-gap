@@ -15,7 +15,7 @@ export function releaseStructuredData(
     "@type": "Dataset",
     "@id": `${siteUrl}/en/releases/${release.id}/#dataset`,
     url: `${siteUrl}/${locale}/releases/${release.id}/`,
-    name: `Llang Gap: ${release.dataset} · ${release.id}`,
+    name: `Lang Gap: ${release.dataset} · ${release.id}`,
     description,
     identifier: release.id,
     version: release.id,

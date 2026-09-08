@@ -1,11 +1,11 @@
-# Llang Gap logo package
+# Lang Gap logo package
 
 The supplied black/white references, reconstructed as smooth vector outlines.
 The flowing gap and lettering are retained; stems, baselines and
 the repeated **a** are cleaned up. The lettering is outlined artwork, not a font
 you need to install. The website's interface font remains a separate choice.
 
-![Llang Gap logo package overview](preview.png)
+![Lang Gap logo package overview](preview.png)
 
 ## Pick a file
 
@@ -14,13 +14,13 @@ Use **SVG** for websites, Figma, slide editors and any size of artwork. Use
 tabs and home screens. Black and white logo exports have transparent backgrounds;
 avatars and icons have deliberately opaque backgrounds.
 
-| Composition             | Black SVG                                          | White SVG                                        | PNG size    |
-| ----------------------- | -------------------------------------------------- | ------------------------------------------------ | ----------- |
-| Primary horizontal logo | [Black](svg/llang-gap-logo-black.svg)              | [White](svg/llang-gap-logo-white.svg)            | 2048 × 491  |
-| Standalone symbol       | [Black](svg/llang-gap-mark-black.svg)              | [White](svg/llang-gap-mark-white.svg)            | 1024 × 1024 |
-| Wordmark                | [Black](svg/llang-gap-wordmark-black.svg)          | [White](svg/llang-gap-wordmark-white.svg)        | 2048 × 576  |
-| Stacked logo            | [Black](svg/llang-gap-stacked-black.svg)           | [White](svg/llang-gap-stacked-white.svg)         | 1024 × 576  |
-| Square avatar           | [Light background](svg/llang-gap-avatar-light.svg) | [Dark background](svg/llang-gap-avatar-dark.svg) | 1024 × 1024 |
+| Composition             | Black SVG                                         | White SVG                                       | PNG size    |
+| ----------------------- | ------------------------------------------------- | ----------------------------------------------- | ----------- |
+| Primary horizontal logo | [Black](svg/lang-gap-logo-black.svg)              | [White](svg/lang-gap-logo-white.svg)            | 2048 × 508  |
+| Standalone symbol       | [Black](svg/lang-gap-mark-black.svg)              | [White](svg/lang-gap-mark-white.svg)            | 1024 × 1024 |
+| Wordmark                | [Black](svg/lang-gap-wordmark-black.svg)          | [White](svg/lang-gap-wordmark-white.svg)        | 2048 × 601  |
+| Stacked logo            | [Black](svg/lang-gap-stacked-black.svg)           | [White](svg/lang-gap-stacked-white.svg)         | 1024 × 576  |
+| Square avatar           | [Light background](svg/lang-gap-avatar-light.svg) | [Dark background](svg/lang-gap-avatar-dark.svg) | 1024 × 1024 |
 
 Matching raster files are in [png/](png/). White artwork can look blank in an
 editor with a white canvas; place it over a dark background. The
@@ -89,14 +89,14 @@ root README references the black/white masters directly and uses a `<picture>`
 element for GitHub's light/dark appearance.
 
 For an external image, use the fixed black/white files and provide appropriate
-alternative text, for example `alt="Llang Gap"`. If visible adjacent text already
+alternative text, for example `alt="Lang Gap"`. If visible adjacent text already
 names the brand, use `alt=""` to avoid announcing it twice.
 
 The four `*-current.svg` files inherit CSS `color` **when inlined as SVG**:
-[horizontal](svg/llang-gap-logo-current.svg),
-[symbol](svg/llang-gap-mark-current.svg),
-[wordmark](svg/llang-gap-wordmark-current.svg),
-[stacked](svg/llang-gap-stacked-current.svg).
+[horizontal](svg/lang-gap-logo-current.svg),
+[symbol](svg/lang-gap-mark-current.svg),
+[wordmark](svg/lang-gap-wordmark-current.svg),
+[stacked](svg/lang-gap-stacked-current.svg).
 An SVG loaded through `<img>` does not inherit the parent page's color. Standalone
 current-color files default to black. Every logo SVG has a `viewBox`, a title and
 an accessible label; set `aria-hidden="true"` for decorative inline instances.
@@ -119,7 +119,7 @@ To make a shareable archive from the repository root (without duplicating an
 archive in Git):
 
 ```sh
-zip -r /tmp/llang-gap-logo-package.zip brand LICENSE -x '*/.DS_Store'
+zip -r /tmp/lang-gap-logo-package.zip brand LICENSE -x '*/.DS_Store'
 ```
 
 The reference screenshots are review evidence, not source assets. The package

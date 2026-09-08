@@ -1,4 +1,4 @@
-# Working on Llang Gap
+# Working on Lang Gap
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) for scope, verification, documentation, and
 PR expectations. More specific instructions apply within their directories;
@@ -37,7 +37,7 @@ website work also follows [apps/web/AGENTS.md](apps/web/AGENTS.md).
 
 ## Benchmark identity — architectural invariant
 
-Llang Gap is a **multilingual benchmark across datasets**, selected at run time.
+Lang Gap is a **multilingual benchmark across datasets**, selected at run time.
 A dataset ID and one or more benchmark language tags are experiment inputs, not
 application constants. The website's UI locales do not define benchmark languages.
 Never introduce fixed language tuples, language-specific score fields, a default

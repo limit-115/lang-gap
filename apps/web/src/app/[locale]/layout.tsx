@@ -16,7 +16,7 @@ import "@/app/globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: { default: "Llang Gap", template: "%s · Llang Gap" },
+  title: { default: "Lang Gap", template: "%s · Lang Gap" },
   robots: { index: !isPreviewDeployment, follow: true },
 };
 export function generateStaticParams() {

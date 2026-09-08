@@ -4,12 +4,12 @@ export function BrandLogo({ compactOnMobile = false }: { compactOnMobile?: boole
       {compactOnMobile && (
         <source
           media="(max-width: 480px)"
-          srcSet="/brand/llang-gap-mark-black.svg"
+          srcSet="/brand/lang-gap-mark-black.svg"
           width={512}
           height={512}
         />
       )}
-      <img src="/brand/llang-gap-logo-black.svg" width={1284} height={308} alt="" />
+      <img src="/brand/lang-gap-logo-black.svg" width={1242} height={308} alt="" />
     </picture>
   );
 }

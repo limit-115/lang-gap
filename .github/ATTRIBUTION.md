@@ -10,13 +10,13 @@ at commit `5fa35d211682ee02e34fba0711838ca431ed003b`:
 - [Issue chooser](https://github.com/pingdotgg/t3code/blob/5fa35d211682ee02e34fba0711838ca431ed003b/.github/ISSUE_TEMPLATE/config.yml)
 - [AGENTS.md](https://github.com/pingdotgg/t3code/blob/5fa35d211682ee02e34fba0711838ca431ed003b/AGENTS.md)
 
-The adaptations use Llang Gap's tools, package boundaries, EN/RU workflow, and
+The adaptations use Lang Gap's tools, package boundaries, EN/RU workflow, and
 benchmark integrity requirements. Feature proposals use an issue form because
 this repository does not use GitHub Discussions. T3 Code's contribution pause,
 contributor-vouching system, and project-specific automation are not adopted.
 
 The upstream [license](https://github.com/pingdotgg/t3code/blob/5fa35d211682ee02e34fba0711838ca431ed003b/LICENSE)
-is retained below for the adapted material. Llang Gap's [project license](../LICENSE)
+is retained below for the adapted material. Lang Gap's [project license](../LICENSE)
 continues to apply to its own contributions.
 
 ```text
