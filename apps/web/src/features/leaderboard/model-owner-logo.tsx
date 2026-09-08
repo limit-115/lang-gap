@@ -2,6 +2,9 @@ const ownerLogos = new Map([
   ["openai", "/model-owners/openai.svg"],
   ["anthropic", "/model-owners/anthropic.svg"],
   ["inclusionai", "/model-owners/inclusionai.png"],
+  ["qwen", "/model-owners/qwen.svg"],
+  ["upstage", "/model-owners/upstage.svg"],
+  ["inception", "/model-owners/inception.svg"],
 ]);
 
 export function ModelOwnerLogo({ ownerId, size = 24 }: { ownerId: string | null; size?: number }) {
