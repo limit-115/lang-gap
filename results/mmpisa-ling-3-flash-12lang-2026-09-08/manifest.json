@@ -1,0 +1,257 @@
+{
+  "schemaVersion": 3,
+  "id": "mmpisa-ling-3-flash-12lang-2026-09-08",
+  "runId": "cli-2026-09-08-60fa7581",
+  "createdAt": "2026-09-08T12:25:53.510Z",
+  "kind": "benchmark",
+  "dataset": "mmpisa",
+  "datasetRevision": "22b1caa65980ca1fa295acc31ee5e35200e0c8c0",
+  "languages": [
+    "sq",
+    "cs",
+    "zh",
+    "en",
+    "de",
+    "fr",
+    "ko",
+    "kk",
+    "ru",
+    "sr",
+    "sk",
+    "sv"
+  ],
+  "comparisons": [],
+  "protocol": "multiple-choice-v1",
+  "configHash": "b6dce6dbad551d661b340463b7ae15d86affb776fda70f344648c203cf0531ab",
+  "files": {
+    "resolved.json": "b6dce6dbad551d661b340463b7ae15d86affb776fda70f344648c203cf0531ab",
+    "identity.json": "7476cfe95c36396dd8d2fef3584d16af6c2ad8af2a886b49351006f0c7ddc0a8",
+    "dataset.jsonl": "29f03b5906cc233e4b35508a18b39acedeefc3f6da3a04a411a3ce2b5f3e81b3",
+    "dataset-manifest.json": "81c75ee0967e1ce708e83958d9f53d880de4735d0036144ac3b9463372a5e0ce",
+    "items.jsonl": "832b3050ab2a19e9b54fe9eaf23fee06f4b35b27639cbf36dc87866f2cc05a90",
+    "analysis.json": "752f38e6242843537041ad21fcd2f1a96d7fe919112212adae2bb8edd5a10a13",
+    "aggregate.json": "88af62800d8f2e1f1f9f474fc9b238eaef0d0b58010c7c41d68bf23500b88f00",
+    "aggregate.csv": "2129162183931b783caf526f3da4a0d8135ab467ab43d701c877bdc3671a5a10",
+    "attempts.jsonl": "e8fb319841b52a6332df76762995c5d9e2f136bde6d4db9548ceb9f86d5abb0f",
+    "execution.json": "d031b2dbbb3d300751211325e45305bb8993e098e11d06d61c5b2208b79b9c5e",
+    "ATTRIBUTION.md": "6993d7ef4b5780ffd7418287354c3796fc5ab02f15fb4a3e0a039fc43f9222a9"
+  },
+  "aggregate": [
+    {
+      "transport": "openrouter",
+      "model": "inclusionai/ling-3.0-flash",
+      "effort": "high",
+      "repeats": 1,
+      "scores": [
+        {
+          "language": "sq",
+          "n": 25,
+          "accuracy": 0.9200000000000003,
+          "repeatAccuracy": [
+            0.9200000000000003
+          ]
+        },
+        {
+          "language": "cs",
+          "n": 25,
+          "accuracy": 0.8800000000000002,
+          "repeatAccuracy": [
+            0.8800000000000002
+          ]
+        },
+        {
+          "language": "zh",
+          "n": 25,
+          "accuracy": 0.9200000000000003,
+          "repeatAccuracy": [
+            0.9200000000000003
+          ]
+        },
+        {
+          "language": "en",
+          "n": 25,
+          "accuracy": 0.9600000000000003,
+          "repeatAccuracy": [
+            0.9600000000000003
+          ]
+        },
+        {
+          "language": "de",
+          "n": 25,
+          "accuracy": 0.9200000000000003,
+          "repeatAccuracy": [
+            0.9200000000000003
+          ]
+        },
+        {
+          "language": "fr",
+          "n": 25,
+          "accuracy": 0.9200000000000003,
+          "repeatAccuracy": [
+            0.9200000000000003
+          ]
+        },
+        {
+          "language": "ko",
+          "n": 25,
+          "accuracy": 0.9200000000000003,
+          "repeatAccuracy": [
+            0.9200000000000003
+          ]
+        },
+        {
+          "language": "kk",
+          "n": 25,
+          "accuracy": 0.32,
+          "repeatAccuracy": [
+            0.32
+          ]
+        },
+        {
+          "language": "ru",
+          "n": 25,
+          "accuracy": 0.9200000000000003,
+          "repeatAccuracy": [
+            0.9200000000000003
+          ]
+        },
+        {
+          "language": "sr",
+          "n": 25,
+          "accuracy": 0.43999999999999995,
+          "repeatAccuracy": [
+            0.43999999999999995
+          ]
+        },
+        {
+          "language": "sk",
+          "n": 25,
+          "accuracy": 0.8800000000000002,
+          "repeatAccuracy": [
+            0.8800000000000002
+          ]
+        },
+        {
+          "language": "sv",
+          "n": 25,
+          "accuracy": 0.9600000000000003,
+          "repeatAccuracy": [
+            0.9600000000000003
+          ]
+        }
+      ],
+      "comparisons": [],
+      "unparseable": 35,
+      "refusals": 0,
+      "costUsd": null
+    },
+    {
+      "transport": "openrouter",
+      "model": "inclusionai/ling-3.0-flash",
+      "effort": "low",
+      "repeats": 1,
+      "scores": [
+        {
+          "language": "sq",
+          "n": 25,
+          "accuracy": 0.9600000000000003,
+          "repeatAccuracy": [
+            0.9600000000000003
+          ]
+        },
+        {
+          "language": "cs",
+          "n": 25,
+          "accuracy": 0.9200000000000003,
+          "repeatAccuracy": [
+            0.9200000000000003
+          ]
+        },
+        {
+          "language": "zh",
+          "n": 25,
+          "accuracy": 0.9200000000000003,
+          "repeatAccuracy": [
+            0.9200000000000003
+          ]
+        },
+        {
+          "language": "en",
+          "n": 25,
+          "accuracy": 0.9600000000000003,
+          "repeatAccuracy": [
+            0.9600000000000003
+          ]
+        },
+        {
+          "language": "de",
+          "n": 25,
+          "accuracy": 0.9200000000000003,
+          "repeatAccuracy": [
+            0.9200000000000003
+          ]
+        },
+        {
+          "language": "fr",
+          "n": 25,
+          "accuracy": 0.9600000000000003,
+          "repeatAccuracy": [
+            0.9600000000000003
+          ]
+        },
+        {
+          "language": "ko",
+          "n": 25,
+          "accuracy": 0.8800000000000002,
+          "repeatAccuracy": [
+            0.8800000000000002
+          ]
+        },
+        {
+          "language": "kk",
+          "n": 25,
+          "accuracy": 0.36,
+          "repeatAccuracy": [
+            0.36
+          ]
+        },
+        {
+          "language": "ru",
+          "n": 25,
+          "accuracy": 0.9200000000000003,
+          "repeatAccuracy": [
+            0.9200000000000003
+          ]
+        },
+        {
+          "language": "sr",
+          "n": 25,
+          "accuracy": 0.32,
+          "repeatAccuracy": [
+            0.32
+          ]
+        },
+        {
+          "language": "sk",
+          "n": 25,
+          "accuracy": 0.9200000000000003,
+          "repeatAccuracy": [
+            0.9200000000000003
+          ]
+        },
+        {
+          "language": "sv",
+          "n": 25,
+          "accuracy": 0.8400000000000002,
+          "repeatAccuracy": [
+            0.8400000000000002
+          ]
+        }
+      ],
+      "comparisons": [],
+      "unparseable": 34,
+      "refusals": 0,
+      "costUsd": null
+    }
+  ]
+}
