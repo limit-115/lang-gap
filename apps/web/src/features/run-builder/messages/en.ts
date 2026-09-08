@@ -11,10 +11,11 @@ export default {
   dataset: "Dataset",
   datasetPlaceholder: "Choose a dataset",
   datasetHint: "Languages and test sizes come from the selected dataset.",
+  recommendedProtocol: "{name} (recommended)",
   protocol: "Evaluation protocol",
   protocolPlaceholder: "Choose a protocol",
   protocolHint:
-    "The protocol defines prompts and scoring. Different protocols produce different experiments.",
+    "Start with the dataset’s recommended protocol, or choose another available method. The protocol defines prompts and scoring.",
   languages: "Benchmark languages",
   languagesHint: "Choose one or more. Each language is scored independently.",
   languageQuestions: "{count, number} questions",

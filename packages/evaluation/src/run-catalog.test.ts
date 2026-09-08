@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { expect, it } from "vitest";
 import { datasetManifestSchema } from "@llang-gap/contracts";
 import { runDatasetSchema } from "@llang-gap/contracts/run-catalog";
-import { describeRunDataset } from "./run-catalog";
+import { describeRunDataset, readDatasetProtocols } from "./run-catalog";
 
 it("derives public setup metadata from the pinned manifest and adapters", async () => {
   const manifest = datasetManifestSchema.parse(
@@ -14,7 +14,14 @@ it("derives public setup metadata from the pinned manifest and adapters", async 
     ),
   );
   if (manifest.schemaVersion === 3) throw new Error("Expected a historical manifest");
-  const result = runDatasetSchema.parse(describeRunDataset(manifest));
+  const result = runDatasetSchema.parse(
+    describeRunDataset(
+      manifest,
+      await readDatasetProtocols(
+        new URL("../../../datasets/mmlu-prox-lite", import.meta.url).pathname,
+      ),
+    ),
+  );
   for (const { tag, questions } of result.languages)
     expect(questions).toBe(
       manifest.files
@@ -72,7 +79,12 @@ it.each([
       },
     ],
   });
-  const result = runDatasetSchema.parse(describeRunDataset(manifest));
+  const result = runDatasetSchema.parse(
+    describeRunDataset(manifest, {
+      recommendedProtocol: "multiple-choice-v1",
+      protocols: ["multiple-choice-v1"],
+    }),
+  );
   expect(result.id).toBe(id);
   expect(result.languages).toEqual(
     tags.map((tag, i) => ({ tag, questions: i === 0 ? 10 : 3 + i })),
@@ -101,7 +113,10 @@ it("sums shards, ignores validation rows and exposes only languages with reviewe
       { ...file, path: "ja-validation.jsonl", language: "ja", split: "validation", rows: 20 },
     ],
   });
-  const result = describeRunDataset(manifest);
+  const result = describeRunDataset(manifest, {
+    recommendedProtocol: "multiple-choice-v1",
+    protocols: ["multiple-choice-v1"],
+  });
   expect(result.languages).toEqual([
     { tag: "ja", questions: 8 },
     { tag: "de", questions: 4 },
@@ -109,4 +124,36 @@ it("sums shards, ignores validation rows and exposes only languages with reviewe
   expect(result.protocols).toEqual([
     { id: "multiple-choice-v1", languages: ["ja"], tokenCap: null, requiresTokenCap: false },
   ]);
+});
+
+it("offers only the dataset's declared protocols, and rejects invalid registrations", async () => {
+  const manifest = datasetManifestSchema.parse(
+    JSON.parse(
+      await readFile(
+        new URL("../../../datasets/mmlu-prox-lite/manifest.json", import.meta.url),
+        "utf8",
+      ),
+    ),
+  );
+  const id = "mmluprox-lite-5shot-flexible-api-v1";
+  const selection = { recommendedProtocol: id, protocols: [id] } as const;
+  const result = describeRunDataset(manifest, {
+    ...selection,
+    protocols: [...selection.protocols],
+  });
+  expect(result.recommendedProtocol).toBe(id);
+  expect(result.protocols.map((p) => p.id)).toEqual([id]);
+  expect(() => describeRunDataset(manifest, { recommendedProtocol: id, protocols: [] })).toThrow();
+  expect(() =>
+    describeRunDataset(manifest, { recommendedProtocol: id, protocols: [id, id] }),
+  ).toThrow("Duplicate protocol");
+  expect(() =>
+    describeRunDataset(manifest, { recommendedProtocol: "multiple-choice-v1", protocols: [id] }),
+  ).toThrow("Recommended protocol must be available");
+  expect(() =>
+    describeRunDataset(manifest, {
+      recommendedProtocol: "multiple-choice-v1",
+      protocols: ["multiple-choice-v1"],
+    }),
+  ).toThrow("no supported test languages");
 });

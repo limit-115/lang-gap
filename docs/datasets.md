@@ -1,9 +1,39 @@
 # Dataset manifests and language inputs
 
-Register a dataset at `datasets/<id>/manifest.json`. `--dataset <id>` resolves that
+Register a dataset with `datasets/<id>/manifest.json` and `protocols.json`. `--dataset <id>` resolves that
 file; the manifest's `id` must match. IDs are safe path components, not directories
 or URLs. The selected experiment or CLI flags supply its language tags. There is
 no global dataset, language list, question count, or required comparison pair.
+
+## Available protocols
+
+Each dataset also has `datasets/<id>/protocols.json`:
+
+```json
+{
+  "recommendedProtocol": "multiple-choice-v1",
+  "protocols": ["multiple-choice-v1"]
+}
+```
+
+This explicitly lists the methods offered for that dataset. The recommendation
+must be listed, IDs must be unique, and every listed adapter must support at least
+one test language in the manifest. The adapter still checks its scientific
+requirements; listing a protocol cannot enable unsupported languages or inputs.
+Multiple datasets can reuse the same protocol implementation.
+
+The website selects the recommendation when choosing a dataset and offers only
+its declared protocols. `pnpm bench dataset list` shows the same catalog without
+fetching sources or calling models. CLI runs may omit `--protocol` to use the
+recommendation; an explicit protocol overrides it. Switching datasets with
+`--dataset` resets an inherited YAML protocol to the new dataset's recommendation
+unless `--protocol` is supplied too. Selected languages remain explicit.
+
+Recommendations are setup metadata, separate from the pinned data manifest.
+The resolved experiment records the exact protocol ID; snapshots retain the
+protocol object and hash. Changing a recommendation does not alter saved runs,
+resume behavior or releases. Existing prompt labels remain pinned in manifests;
+this registration does not change their ownership or prompt bytes.
 
 ## Normalized multiple-choice data
 
@@ -139,7 +169,7 @@ Compared with schema v2, v3 declares:
 `prompts` and `normalizerVersion` retain their existing meaning. New formats need
 a shared schema alternative, a decoder, synthetic regression coverage and
 documented methodology. A new dataset in an existing format needs a pinned
-manifest, not a runner change. Schema-v1/v2 manifests remain accepted without
+manifest and protocol registration, not a runner change. Schema-v1/v2 manifests remain accepted without
 rewriting or injecting defaults into their saved objects.
 
 Only files contributing to selected languages are fetched. A shared file is

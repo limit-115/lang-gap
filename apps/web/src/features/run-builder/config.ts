@@ -37,6 +37,18 @@ export const initialSettings = {
 };
 export type RunSettings = typeof initialSettings;
 export type Setting = keyof RunSettings;
+
+export function selectRunDataset(previous: RunSettings, dataset: RunDataset): RunSettings {
+  const protocol = dataset.protocols.find((entry) => entry.id === dataset.recommendedProtocol)!;
+  return {
+    ...previous,
+    dataset: dataset.id,
+    protocol: protocol.id,
+    languages: [],
+    comparisons: "",
+    maxOutputTokens: protocol.tokenCap?.toString() ?? "",
+  };
+}
 export type ErrorKey =
   | "required"
   | "invalid"

@@ -558,3 +558,21 @@ bootstrap clustering, every native effort through intercepted SDK HTTP calls,
 technical retries, budget reservations, cancellation, restart recovery, locks,
 run tampering, truncation and release checksum/scoring verification. It uses no
 API credentials and never makes paid calls.
+
+## Choose a dataset and its protocol
+
+Use `pnpm bench dataset list` to inspect available datasets, their recommended
+protocol, other available protocols and supported languages. This reads setup
+metadata only, without downloading data or sending model requests.
+
+For a CLI-only run, `--protocol` may be omitted: the dataset recommendation is
+resolved and saved as an explicit protocol ID. A recommended protocol's fixed
+output cap fills an absent cap; explicit caps are preserved and validated against
+the protocol. For example, MMLU-ProX's author recommendation requires 2048 tokens.
+An explicit YAML or CLI protocol is preserved. When `--dataset` changes the YAML
+dataset, its inherited protocol is replaced by the new recommendation unless
+`--protocol` is also supplied. Model settings and selected languages stay explicit;
+incompatible settings fail validation rather than being silently adjusted.
+
+The run builder follows the same dataset recommendations and emits an explicit
+`--protocol` in copied commands. See [dataset registration](datasets.md#available-protocols).

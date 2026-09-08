@@ -1,7 +1,6 @@
-import { readdir, readFile } from "node:fs/promises";
+import { readdir } from "node:fs/promises";
 import { resolve } from "node:path";
-import { datasetManifestSchema } from "@llang-gap/contracts";
-import { describeRunDataset } from "@llang-gap/evaluation/run-catalog";
+import { readRunDataset } from "@llang-gap/evaluation/run-catalog";
 
 export async function getRunDatasets() {
   const root = resolve(process.cwd(), "../../datasets");
@@ -10,12 +9,6 @@ export async function getRunDatasets() {
     entries
       .filter((entry) => entry.isDirectory())
       .sort((a, b) => a.name.localeCompare(b.name))
-      .map(async (entry) => {
-        const manifest = datasetManifestSchema.parse(
-          JSON.parse(await readFile(resolve(root, entry.name, "manifest.json"), "utf8")),
-        );
-        if (manifest.id !== entry.name) throw new Error(`Dataset identity mismatch: ${entry.name}`);
-        return describeRunDataset(manifest);
-      }),
+      .map((entry) => readRunDataset(resolve(root, entry.name))),
   );
 }

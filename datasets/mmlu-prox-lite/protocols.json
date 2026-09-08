@@ -1,0 +1,8 @@
+{
+  "recommendedProtocol": "mmluprox-lite-5shot-author-api-v3",
+  "protocols": [
+    "mmluprox-lite-5shot-author-api-v3",
+    "mmluprox-lite-5shot-flexible-api-v1",
+    "mmluprox-lite-5shot-native-reasoning-v1"
+  ]
+}

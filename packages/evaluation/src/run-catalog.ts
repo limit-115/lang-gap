@@ -1,8 +1,24 @@
-import { protocolIdSchema, type DatasetManifest } from "@llang-gap/contracts";
-import type { RunDataset } from "@llang-gap/contracts/run-catalog";
+import { readFile } from "node:fs/promises";
+import { basename, join } from "node:path";
+import { datasetManifestSchema, type DatasetManifest } from "@llang-gap/contracts";
+import {
+  datasetProtocolsSchema,
+  type DatasetProtocols,
+  type RunDataset,
+} from "@llang-gap/contracts/run-catalog";
 import { getMaxOutputTokens, validateProtocolDataset, protocolV1 } from "./prompts";
 
-export function describeRunDataset(manifest: DatasetManifest): RunDataset {
+export async function readDatasetProtocols(directory: string): Promise<DatasetProtocols> {
+  return datasetProtocolsSchema.parse(
+    JSON.parse(await readFile(join(directory, "protocols.json"), "utf8")),
+  );
+}
+
+export function describeRunDataset(
+  manifest: DatasetManifest,
+  selection: DatasetProtocols,
+): RunDataset {
+  const registration = datasetProtocolsSchema.parse(selection);
   const counts = new Map<string, number>();
   for (const file of manifest.files) {
     const partitions = "partitions" in file ? file.partitions : [file];
@@ -11,7 +27,7 @@ export function describeRunDataset(manifest: DatasetManifest): RunDataset {
     }
   }
   const languages = [...counts].map(([tag, questions]) => ({ tag, questions }));
-  const protocols = protocolIdSchema.options.flatMap((id) => {
+  const protocols = registration.protocols.map((id) => {
     const supported = languages
       .filter(({ tag }) => {
         try {
@@ -22,16 +38,29 @@ export function describeRunDataset(manifest: DatasetManifest): RunDataset {
         }
       })
       .map(({ tag }) => tag);
-    if (!supported.length) return [];
+    if (!supported.length)
+      throw new Error(`Protocol ${id} has no supported test languages for dataset ${manifest.id}`);
     const tokenCap = getMaxOutputTokens(id) ?? null;
-    return [
-      {
-        id,
-        languages: supported,
-        tokenCap,
-        requiresTokenCap: tokenCap !== null || id === protocolV1.id,
-      },
-    ];
+    return {
+      id,
+      languages: supported,
+      tokenCap,
+      requiresTokenCap: tokenCap !== null || id === protocolV1.id,
+    };
   });
-  return { id: manifest.id, languages, protocols };
+  return {
+    id: manifest.id,
+    recommendedProtocol: registration.recommendedProtocol,
+    languages,
+    protocols,
+  };
+}
+
+export async function readRunDataset(directory: string): Promise<RunDataset> {
+  const manifest = datasetManifestSchema.parse(
+    JSON.parse(await readFile(join(directory, "manifest.json"), "utf8")),
+  );
+  if (manifest.id !== basename(directory))
+    throw new Error(`Dataset identity mismatch: ${basename(directory)}`);
+  return describeRunDataset(manifest, await readDatasetProtocols(directory));
 }

@@ -29,7 +29,7 @@ export const experimentOptions = () =>
     .option("--dataset <id>", "Dataset manifest ID under datasets/<id>/manifest.json")
     .option("--language <tag>", "Select one benchmark language")
     .option("--languages <tags...>", "Benchmark languages, separated by commas or spaces")
-    .option("--protocol <id>", "Versioned evaluation protocol")
+    .option("--protocol <id>", "Dataset protocol (omitted: dataset recommendation)")
     .option(
       "--compare <pairs...>",
       "Optional baseline:language pairs, separated by commas or spaces",

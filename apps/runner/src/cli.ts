@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { join, resolve } from "node:path";
-import { stat } from "node:fs/promises";
+import { readdir, stat } from "node:fs/promises";
 import { Command, CommanderError } from "@commander-js/extra-typings";
 import type { CommandUnknownOpts } from "@commander-js/extra-typings";
 import {
@@ -15,6 +15,11 @@ import { compareRuns } from "./compare";
 import { prepareDataset, readManifest } from "@llang-gap/datasets";
 import { resolveExperiment, parseComparisons, splitList, type ExperimentSelection } from "./config";
 import { hash, json, workspace } from "./files";
+import {
+  describeRunDataset,
+  readDatasetProtocols,
+  readRunDataset,
+} from "@llang-gap/evaluation/run-catalog";
 import { createJobs, summarizePlan } from "./plan";
 import { readCalibration } from "./forecast";
 import { createRun, resumeRun, runPath } from "./run";
@@ -59,6 +64,20 @@ async function prepare(
     join(workspace, "datasets", experiment.dataset, "manifest.json"),
   );
   if (manifest.id !== experiment.dataset) throw new Error("Experiment / dataset manifest mismatch");
+  const catalog = describeRunDataset(
+    manifest,
+    await readDatasetProtocols(join(workspace, "datasets", experiment.dataset)),
+  );
+  const protocol = catalog.protocols.find((entry) => entry.id === experiment.protocol);
+  if (!protocol)
+    throw new Error(
+      `Protocol ${experiment.protocol} is not available for dataset ${experiment.dataset}`,
+    );
+  for (const language of experiment.languages)
+    if (!protocol.languages.includes(language))
+      throw new Error(
+        `Protocol ${protocol.id} does not support ${language} for dataset ${experiment.dataset}`,
+      );
   const started = performance.now();
   logger.info("Preparing verified dataset {dataset} · languages {languages} · {mode}", {
     event: "dataset.preparing",
@@ -105,7 +124,25 @@ async function withSignals<T>(work: (signal: AbortSignal) => Promise<T>): Promis
 
 program
   .command("dataset")
-  .description("Manage verified local dataset cache")
+  .description("Discover dataset protocols and manage verified local dataset cache")
+  .addCommand(
+    new Command("list")
+      .description(
+        "List datasets, recommended protocols and supported languages without downloading data",
+      )
+      .action(async () => {
+        const directory = join(workspace, "datasets");
+        const entries = await readdir(directory, { withFileTypes: true });
+        output(
+          await Promise.all(
+            entries
+              .filter((entry) => entry.isDirectory())
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((entry) => readRunDataset(join(directory, entry.name))),
+          ),
+        );
+      }),
+  )
   .addCommand(
     experimentOptions()
       .name("prepare")
