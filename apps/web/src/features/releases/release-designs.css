@@ -853,14 +853,16 @@
 }
 .dark .release-design-board .archive-art-dark {
   display: block;
+  mix-blend-mode: lighten;
 }
 .dark .release-design-board .archive-hero-art {
-  background: #000000;
-  border-color: var(--border);
-  box-shadow: 3px 4px 0 #242424;
+  isolation: isolate;
+  background: #292720;
+  border-color: #514b3d;
+  box-shadow: 3px 4px 0 #17150f;
 }
 .dark .release-design-board .archive-hero-art .art-note {
-  color: var(--muted-foreground);
+  color: #c7bdab;
 }
 .release-design-board .report-open {
   border-top: 1px dashed var(--border);
