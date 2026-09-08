@@ -21,14 +21,11 @@ export default {
     "Results are not published yet. Dataset and language conditions belong to each experiment.",
   status: "Status",
   finderTitle: "Looking for a specific model?",
-  finderSelect: "Find a model",
-  finderPlaceholder: "Search for a model…",
-  finderClear: "Clear selected model",
+  finderSearch: "Search models…",
+  finderNavigationHelp: "Select a model to open its results.",
   finderBrowse: "Browse models",
   finderNoResults: "We haven’t listed that model yet.",
   finderNoResultsHelp: "Try another model name or developer.",
-  finderAction: "See the conclusion",
-  finderListHelp: "Search by model name or developer",
 
   title: "See how LLM accuracy changes across languages. With open results you can check.",
   description:
