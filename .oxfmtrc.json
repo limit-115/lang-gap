@@ -4,6 +4,8 @@
   "ignorePatterns": [
     "pnpm-lock.yaml",
     ".llang-gap/**",
+    "results/*/manifest.json",
+    "results/*/aggregate.json",
     "**/.next/**",
     "**/out/**",
     "packages/evaluation/reference/**",
