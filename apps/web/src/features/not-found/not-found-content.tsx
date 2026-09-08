@@ -1,4 +1,5 @@
 import { cn } from "cn";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { getMessagesForLocale } from "@/i18n/messages";
@@ -23,7 +24,7 @@ export function NotFoundContent({ locale }: { locale: Locale }) {
         )}
       >
         {messages.compareModels}
-        <span aria-hidden="true">→</span>
+        <ArrowRight aria-hidden="true" className="size-4" />
       </Link>
     </section>
   );
