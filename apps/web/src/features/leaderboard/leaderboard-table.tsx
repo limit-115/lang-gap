@@ -13,7 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { effortSchema, type Comparison } from "@llang-gap/contracts";
+import { effortSchema } from "@llang-gap/contracts";
 import { guideRowKey, type GuideModel } from "@llang-gap/contracts/guide";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,23 +40,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useLeaderboardColumns } from "./columns";
-import { visibleComparison } from "./table-state";
+import { initialLanguages } from "./table-state";
 import { features } from "./data-table-features";
 
 export function LeaderboardTable({ rows, languages }: { rows: GuideModel[]; languages: string[] }) {
   const locale = useLocale();
   const t = useTranslations("Leaderboard");
   const pageSizeId = useId();
-  const [visible, setVisible] = useState(languages.slice(0, 3));
+  const [visible, setVisible] = useState(initialLanguages(languages));
   const [languageSearch, setLanguageSearch] = useState("");
-  const [comparing, setComparing] = useState(false);
-  const [baseline, setBaseline] = useState<string | null>(null);
-  const [candidate, setCandidate] = useState<string | null>(null);
-  const comparison: Comparison | null =
-    comparing && baseline && candidate
-      ? visibleComparison({ baseline, language: candidate }, visible)
-      : null;
-  const columns = useLeaderboardColumns(visible, comparison);
+  const columns = useLeaderboardColumns(visible);
   const table = useTable({
     features,
     data: rows,
@@ -92,16 +85,6 @@ export function LeaderboardTable({ rows, languages }: { rows: GuideModel[]; lang
       ? languages.filter((entry) => entry === language || visible.includes(entry))
       : visible.filter((entry) => entry !== language);
     setVisible(next);
-    if (language === baseline || language === candidate) {
-      setComparing(false);
-      setBaseline(null);
-      setCandidate(null);
-    }
-    table.setSorting([{ id: "model", desc: false }]);
-  };
-  const chooseLanguage = (kind: "baseline" | "candidate", value: string | null) => {
-    if (kind === "baseline") setBaseline(value);
-    else setCandidate(value);
     table.setSorting([{ id: "model", desc: false }]);
   };
 
@@ -145,20 +128,6 @@ export function LeaderboardTable({ rows, languages }: { rows: GuideModel[]; lang
             </SelectGroup>
           </SelectContent>
         </Select>
-        <Button
-          variant="outline"
-          className="rounded-lg"
-          disabled={visible.length < 2}
-          aria-pressed={comparing}
-          onClick={() => {
-            setComparing(!comparing);
-            setBaseline(null);
-            setCandidate(null);
-            table.setSorting([{ id: "model", desc: false }]);
-          }}
-        >
-          {t(comparing ? "closeComparison" : "compareLanguages")}
-        </Button>
         {hasFilters && (
           <Button
             variant="ghost"
@@ -223,41 +192,10 @@ export function LeaderboardTable({ rows, languages }: { rows: GuideModel[]; lang
           </DropdownMenu>
         )}
       </div>
-      {comparing && (
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          {(["baseline", "candidate"] as const).map((kind) => {
-            const other = kind === "baseline" ? candidate : baseline;
-            const items = languageColumns
-              .filter((entry) => visible.includes(entry.language) && entry.language !== other)
-              .map((entry) => ({ value: entry.language, label: entry.label }));
-            return (
-              <Select
-                key={kind}
-                items={items}
-                value={kind === "baseline" ? baseline : candidate}
-                onValueChange={(value) => chooseLanguage(kind, value)}
-              >
-                <SelectTrigger
-                  aria-label={t(kind)}
-                  className="min-w-44 rounded-lg border-input bg-background"
-                >
-                  <SelectValue placeholder={t(kind)} />
-                </SelectTrigger>
-                <SelectContent alignItemWithTrigger={false}>
-                  <SelectGroup>
-                    {items.map((item) => (
-                      <SelectItem key={item.value} value={item.value}>
-                        {item.label}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            );
-          })}
-        </div>
-      )}
       <p className="mb-3 text-sm text-muted-foreground">{t("effortHelp")}</p>
+      {rows.some((row) =>
+        row.scores.some((score) => score.language === "en" && score.value !== null),
+      ) && <p className="mb-3 text-sm text-muted-foreground">{t("baselineHelp")}</p>}
       <div className="overflow-hidden rounded-lg border bg-background/96">
         <Table className="[&_td]:h-16 [&_td]:px-4 [&_th]:h-16 [&_th]:px-4">
           <caption className="sr-only">

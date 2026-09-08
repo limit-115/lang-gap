@@ -5,7 +5,7 @@ export default {
   guideCoverage:
     "Each language column requires the same complete test basis for every model. Missing evidence is shown as a dash, never zero or an average of the remaining tests. One compatible observation per test and language is selected by run creation time, then release date and ID; more runs or more questions do not increase its weight. Different API providers or effort levels are never silently averaged.",
   guideDifference:
-    "A selected language difference is shown only when both scores have the same weighted, aligned test basis. It is a descriptive index difference. We do not infer its uncertainty by averaging individual test intervals. Original paired comparisons and all published experiments remain on model and release pages.",
+    "The table uses English as an optional baseline: language score minus English score in percentage points, shown only when both scores have the same weighted, aligned test basis. It is a descriptive index difference. We do not infer its uncertainty by averaging individual test intervals. Original paired comparisons and all published experiments remain on model and release pages.",
 
   title: "Understand how we compare languages and calculate scores.",
   intro:

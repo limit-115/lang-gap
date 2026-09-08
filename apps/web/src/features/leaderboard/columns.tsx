@@ -4,18 +4,13 @@ import { useMemo } from "react";
 import { createColumnHelper, type Column } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
-import { effortSchema, type Aggregate, type Comparison } from "@llang-gap/contracts";
+import { effortSchema, type Aggregate } from "@llang-gap/contracts";
 import type { GuideModel } from "@llang-gap/contracts/guide";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { getModelPresentation } from "./model-catalog";
 import { ModelOwnerLogo } from "./model-owner-logo";
-import {
-  accuracyColumnId,
-  comparisonColumnId,
-  guideConfigurationHref,
-  scoreDifference,
-} from "./table-state";
+import { accuracyColumnId, guideConfigurationHref, englishScoreDifference } from "./table-state";
 import type { LeaderboardFeatures } from "./data-table-features";
 
 export type LeaderboardRow = Pick<
@@ -57,7 +52,7 @@ function ColumnHeader<T>({
   );
 }
 
-export function useLeaderboardColumns(languages: readonly string[], comparison: Comparison | null) {
+export function useLeaderboardColumns(languages: readonly string[]) {
   const t = useTranslations("Leaderboard");
   const f = useFormatter();
   const locale = useLocale();
@@ -130,22 +125,45 @@ export function useLeaderboardColumns(languages: readonly string[], comparison: 
               ),
               cell: ({ row, getValue }) => {
                 const score = row.original.scores.find((entry) => entry.language === language);
+                const difference = englishScoreDifference(row.original, language);
                 return (
                   <Link
                     href={`${guideConfigurationHref(row.original)}&language=${encodeURIComponent(language)}`}
-                    className="block text-right font-mono tabular-nums hover:underline"
+                    className="group flex min-h-12 flex-col items-end justify-center gap-1 text-right tabular-nums"
                     title={
                       getValue() === undefined
                         ? t(score?.status === "incomplete" ? "incompleteScore" : "unmeasuredScore")
                         : t("scoreDetails")
                     }
                   >
-                    {getValue() === undefined
-                      ? "—"
-                      : f.number(getValue()!, {
-                          minimumFractionDigits: 1,
-                          maximumFractionDigits: 1,
+                    <span className="font-mono text-base font-medium group-hover:underline">
+                      {getValue() === undefined
+                        ? "—"
+                        : f.number(getValue()!, {
+                            minimumFractionDigits: 1,
+                            maximumFractionDigits: 1,
+                          })}
+                    </span>
+                    {language === "en" && getValue() !== undefined && (
+                      <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                        {t("baseline")}
+                      </span>
+                    )}
+                    {difference !== undefined && (
+                      <span
+                        className={`font-mono text-xs ${Math.round(difference * 10) === 0 ? "text-muted-foreground" : difference > 0 ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400"}`}
+                        title={t("differenceHelp")}
+                      >
+                        {t("differencePp", {
+                          value: f.number(Math.round(difference * 10) / 10 || 0, {
+                            minimumFractionDigits: 1,
+                            maximumFractionDigits: 1,
+                            signDisplay: "exceptZero",
+                          }),
                         })}
+                        <span className="sr-only"> {t("versusEnglish")}</span>
+                      </span>
+                    )}
                   </Link>
                 );
               },
@@ -155,39 +173,7 @@ export function useLeaderboardColumns(languages: readonly string[], comparison: 
             },
           ),
         ),
-        ...(comparison
-          ? [
-              helper.accessor((row) => scoreDifference(row, comparison), {
-                id: comparisonColumnId(comparison),
-                header: ({ column }) => (
-                  <ColumnHeader
-                    column={column}
-                    title={`${comparison.baseline.toUpperCase()} − ${comparison.language.toUpperCase()}`}
-                    description={t("indexDifference")}
-                    numeric
-                  />
-                ),
-                cell: ({ getValue }) => (
-                  <div
-                    className="text-right font-mono tabular-nums"
-                    title={t(getValue() === undefined ? "incomparableScores" : "differenceHelp")}
-                  >
-                    {getValue() === undefined
-                      ? "—"
-                      : f.number(getValue()!, {
-                          minimumFractionDigits: 1,
-                          maximumFractionDigits: 1,
-                          signDisplay: "exceptZero",
-                        })}
-                  </div>
-                ),
-                sortFn: "basic",
-                sortUndefined: "last",
-                sortDescFirst: true,
-              }),
-            ]
-          : []),
       ]),
-    [f, t, locale, languages, comparison],
+    [f, t, locale, languages],
   );
 }
