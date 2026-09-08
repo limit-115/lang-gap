@@ -106,8 +106,7 @@ unchanged.
 
 ## Effort and language controls
 
-The effort selector defaults to **All effort levels**. Each row displays its effort
-and API provider; selecting one level filters configurations before pagination and
+The effort selector defaults to **All effort levels**. Each row displays its effort; selecting one level filters configurations before pagination and
 sorting. Search and effort filters work together, and Reset filters clears both.
 Counts refer to configurations, not unique model names. Matching labels across
 providers do not imply equal computing budgets. Score links retain the exact

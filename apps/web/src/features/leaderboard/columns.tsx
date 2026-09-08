@@ -102,14 +102,9 @@ export function useLeaderboardColumns(languages: readonly string[], comparison: 
           id: "effort",
           header: ({ column }) => <ColumnHeader column={column} title={t("effort")} />,
           cell: ({ row }) => (
-            <div className="flex flex-col gap-1">
-              <span className="font-medium">
-                {row.original.profile ? t(row.original.profile.effort) : t("unspecifiedEffort")}
-              </span>
-              <span className="text-sm text-muted-foreground">
-                {row.original.profile?.transport ?? row.original.reference.transport}
-              </span>
-            </div>
+            <span className="font-medium">
+              {row.original.profile ? t(row.original.profile.effort) : t("unspecifiedEffort")}
+            </span>
           ),
           filterFn: "equalsString",
           sortFn: (a, b) =>

@@ -131,7 +131,7 @@ export function LeaderboardTable({ rows, languages }: { rows: GuideModel[]; lang
         >
           <SelectTrigger
             aria-label={t("filterEffort")}
-            className="min-w-44 rounded-lg bg-background"
+            className="min-w-44 rounded-lg border-input bg-background"
           >
             <SelectValue />
           </SelectTrigger>
@@ -237,7 +237,10 @@ export function LeaderboardTable({ rows, languages }: { rows: GuideModel[]; lang
                 value={kind === "baseline" ? baseline : candidate}
                 onValueChange={(value) => chooseLanguage(kind, value)}
               >
-                <SelectTrigger aria-label={t(kind)} className="min-w-44 rounded-lg bg-background">
+                <SelectTrigger
+                  aria-label={t(kind)}
+                  className="min-w-44 rounded-lg border-input bg-background"
+                >
                   <SelectValue placeholder={t(kind)} />
                 </SelectTrigger>
                 <SelectContent alignItemWithTrigger={false}>
