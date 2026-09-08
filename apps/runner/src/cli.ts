@@ -216,7 +216,7 @@ program
   )
   .option(
     "--retry-failed",
-    "Requeue technical failures below the attempt limit; completed answers are never repeated",
+    "Requeue technical failures below the total attempt limit; does not reset attempts or repeat completed answers",
   )
   .option(
     "--max-attempts <count>",

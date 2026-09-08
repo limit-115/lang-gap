@@ -196,6 +196,7 @@ export async function resumeRun(
     await options.onReady?.(snapshot.runId, directory);
     const beforeRecovery = state.summary();
     state.recover(options.retryUncertain ?? false, maxAttempts, options.retryFailed ?? false);
+    const afterRecovery = state.summary();
     const adapters =
       options.adapters ??
       new Map(
@@ -214,7 +215,7 @@ export async function resumeRun(
         event: "run.resumed",
         dataset: snapshot.experiment.dataset,
         languages: snapshot.experiment.languages.join(", "),
-        ...state.summary(),
+        ...afterRecovery,
         budgetUsd,
         concurrency,
         maxAttempts,
@@ -222,6 +223,22 @@ export async function resumeRun(
         retryUncertain: options.retryUncertain ?? false,
       },
     );
+    const blockedFailed = options.retryFailed ? afterRecovery.failed : 0;
+    const blockedUncertain = options.retryUncertain ? afterRecovery.uncertain : 0;
+    if (blockedFailed || blockedUncertain)
+      log.warning(
+        "Retry blocked by the total attempt limit ({maxAttempts}): {failed} failed · {uncertain} uncertain jobs. Retry flags do not reset recorded attempts.",
+        {
+          event: "run.retry_blocked",
+          failed: blockedFailed,
+          uncertain: blockedUncertain,
+          maxAttempts,
+          hint:
+            maxAttempts < 5
+              ? "Use a higher --max-attempts (up to 5); jobs already at 5 cannot be retried in this run."
+              : "The maximum supported limit is 5; these jobs cannot be retried in this run.",
+        },
+      );
     if (beforeRecovery.running || beforeRecovery.uncertain || options.retryUncertain)
       log.warning(
         "Crash recovery: {running} interrupted calls · {uncertain} previously uncertain · retry-uncertain={retryUncertain}; earlier calls may have been billed",
