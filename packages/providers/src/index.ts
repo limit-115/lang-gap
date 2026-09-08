@@ -11,6 +11,7 @@ import { createFakeAdapter } from "./fake";
 
 export { calculateCost, reserveCost } from "./cost";
 export { ProviderError, normalizeError } from "./errors";
+export { redactDiagnostic, diagnosticMessage, diagnosticError } from "./diagnostics";
 export { createFakeAdapter } from "./fake";
 
 export function validateModel(model: ModelConfig): void {

@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import { join, resolve } from "node:path";
 import { stat } from "node:fs/promises";
-import { Command } from "@commander-js/extra-typings";
+import { Command, CommanderError } from "@commander-js/extra-typings";
+import type { CommandUnknownOpts } from "@commander-js/extra-typings";
 import {
   experimentOptions,
   number,
@@ -21,6 +22,9 @@ import { readSnapshot } from "./snapshot";
 import { buildRelease, scoreRun, stageRelease, verifyRelease } from "./release";
 import { RunState, unlockRun } from "./state";
 import { loadEnvironment } from "./env";
+import { configureLogging, logger } from "./logging";
+import { diagnosticError, diagnosticMessage, redactDiagnostic } from "@llang-gap/providers";
+import { reportConditions } from "./progress";
 
 const program = new Command()
   .name("bench")
@@ -28,12 +32,17 @@ const program = new Command()
   .version("0.0.0")
   .option("--json", "Machine-readable output on stdout");
 const output = (value: unknown) => process.stdout.write(json(value));
-const log = (value: string) => process.stderr.write(`${value}\n`);
-const progress = (summary: ReturnType<RunState["summary"]>) => {
-  if (summary.completed % 20 === 0 || summary.completed === summary.total)
-    log(
-      `${summary.completed}/${summary.total} complete · $${summary.chargedOrReservedUsd?.toFixed(4) ?? "unknown"} charged/reserved`,
-    );
+let logging: Awaited<ReturnType<typeof configureLogging>> | undefined;
+const executionOutput = (result: Awaited<ReturnType<typeof createRun | typeof resumeRun>>) => {
+  output(result);
+  if (
+    result.failed > 0 ||
+    result.uncertain > 0 ||
+    ["execution-error", "provider-error", "failed", "uncertain", "attempt-limit"].includes(
+      result.stopReason,
+    )
+  )
+    process.exitCode ||= 1;
 };
 
 async function prepare(
@@ -41,6 +50,7 @@ async function prepare(
   offline = false,
   selection: ExperimentSelection = {},
 ) {
+  logger.info("Resolving experiment configuration", { event: "config.resolving" });
   const experiment = await resolveExperiment(
     path === undefined ? undefined : resolve(path),
     selection,
@@ -49,28 +59,47 @@ async function prepare(
     join(workspace, "datasets", experiment.dataset, "manifest.json"),
   );
   if (manifest.id !== experiment.dataset) throw new Error("Experiment / dataset manifest mismatch");
+  const started = performance.now();
+  logger.info("Preparing verified dataset {dataset} · languages {languages} · {mode}", {
+    event: "dataset.preparing",
+    dataset: experiment.dataset,
+    languages: experiment.languages.join(", "),
+    mode: offline ? "offline cache only" : "verified cache or pinned download",
+  });
   const dataset = await prepareDataset({
     manifest,
     cacheDir: join(workspace, ".llang-gap/datasets"),
     offline,
     languages: experiment.languages,
   });
+  logger.info("Dataset ready · {rows} rows · {elapsedMs}ms", {
+    event: "dataset.ready",
+    dataset: manifest.id,
+    rows: dataset.questions.length,
+    elapsedMs: Math.round(performance.now() - started),
+  });
   return { experiment, manifest, ...dataset };
 }
 async function withSignals<T>(work: (signal: AbortSignal) => Promise<T>): Promise<T> {
   const controller = new AbortController();
-  const stop = () => {
+  const stop = (signal: "SIGINT" | "SIGTERM") => {
     if (!controller.signal.aborted)
-      log("Stopping dispatch; waiting for active responses to be saved…");
+      logger.warning("{signal}: stopping dispatch; waiting for active responses to be saved", {
+        event: "run.signal",
+        signal,
+      });
+    process.exitCode = signal === "SIGINT" ? 130 : 143;
     controller.abort();
   };
-  process.on("SIGINT", stop);
-  process.on("SIGTERM", stop);
+  const interrupt = () => stop("SIGINT");
+  const terminate = () => stop("SIGTERM");
+  process.on("SIGINT", interrupt);
+  process.on("SIGTERM", terminate);
   try {
     return await work(controller.signal);
   } finally {
-    process.off("SIGINT", stop);
-    process.off("SIGTERM", stop);
+    process.off("SIGINT", interrupt);
+    process.off("SIGTERM", terminate);
   }
 }
 
@@ -124,14 +153,14 @@ program.addCommand(
     )
     .action(async (path, options) => {
       const { experiment, questions, manifest } = await prepare(path, options.offline, options);
-      output(
+      executionOutput(
         await withSignals((signal) =>
           createRun({
             experiment,
             questions,
             manifest,
             signal,
-            onProgress: progress,
+            onReady: (runId, directory) => logging!.openRun(runId, directory),
             ...(options.maxJobs === undefined ? {} : { maxJobs: options.maxJobs }),
           }),
         ),
@@ -147,7 +176,30 @@ program
     const { snapshot } = await readSnapshot(directory);
     const state = new RunState(join(directory, "state.sqlite"));
     try {
-      output({ runId: snapshot.runId, experiment: snapshot.experiment.id, ...state.summary() });
+      const log = logger.with({ runId: snapshot.runId, dataset: snapshot.experiment.dataset });
+      const summary = state.summary();
+      const recentFailures = state.recentFailures().map((failure) => ({
+        ...failure,
+        error: diagnosticMessage(new Error(failure.error)),
+        requestId: failure.requestId === null ? null : redactDiagnostic(failure.requestId),
+      }));
+      log.info(
+        "{runId} · {completed}/{total} saved · {running} running · {pending} pending · {failed} failed · {uncertain} uncertain",
+        { event: "run.status", runId: snapshot.runId, ...summary },
+      );
+      for (const failure of recentFailures)
+        log.warning(
+          "Recent attempt: {transport}/{model} · {effort} · {language} · attempt {attempt}: {error}",
+          { event: "run.recent_failure", ...failure },
+        );
+      reportConditions(state, log);
+      output({
+        runId: snapshot.runId,
+        experiment: snapshot.experiment.id,
+        ...summary,
+        conditions: state.conditionSummary(),
+        recentFailures,
+      });
     } finally {
       state.close();
     }
@@ -172,12 +224,12 @@ program
     attemptsValue,
   )
   .action(async (id, options) => {
-    output(
+    executionOutput(
       await withSignals((signal) =>
         resumeRun(runPath(id), {
           ...(options.budgetUsd === undefined ? {} : { budgetUsd: options.budgetUsd }),
           signal,
-          onProgress: progress,
+          onReady: (runId, directory) => logging!.openRun(runId, directory),
           ...(options.retryUncertain ? { retryUncertain: true } : {}),
           ...(options.concurrency === undefined ? {} : { concurrency: options.concurrency }),
           ...(options.retryFailed ? { retryFailed: true } : {}),
@@ -265,12 +317,48 @@ release
     output(await stageRelease(resolve(directory), options.assetsUrl));
   });
 
+function configureCommand(command: CommandUnknownOpts) {
+  command.exitOverride();
+  command.configureOutput({
+    writeErr: (message) =>
+      logger.error("{message}", {
+        event: "cli.usage_error",
+        message: diagnosticMessage(new Error(message.trim())),
+      }),
+  });
+  command.commands.forEach(configureCommand);
+}
+configureCommand(program);
+program.hook("preAction", (_command, action) => {
+  logger.info("{command}", { event: "command.started", command: action.name() });
+});
+program.hook("postAction", (_command, action) => {
+  logger.debug("Command finished: {command}", {
+    event: "command.finished",
+    command: action.name(),
+  });
+});
+
 try {
   loadEnvironment();
+  logging = await configureLogging();
   await program.parseAsync();
 } catch (error) {
-  const message = error instanceof Error ? error.message : "Unexpected failure";
-  if (program.opts().json) output({ error: message });
-  else log(`Error: ${message}`);
-  process.exitCode = 1;
+  if (error instanceof CommanderError) {
+    process.exitCode = error.exitCode;
+    if (error.exitCode !== 0 && program.opts().json) output({ error: diagnosticMessage(error) });
+  } else {
+    const message = diagnosticMessage(error);
+    if (program.opts().json) output({ error: message });
+    if (logging) {
+      logger.error("{message}", { event: "command.failed", message });
+      logger.debug("Failure details", {
+        event: "command.error_details",
+        ...diagnosticError(error),
+      });
+    } else process.stderr.write(`ERROR ${message}\n`);
+    process.exitCode = 1;
+  }
+} finally {
+  await logging?.close();
 }

@@ -16,6 +16,8 @@
     "@llang-gap/datasets": "workspace:*",
     "@llang-gap/evaluation": "workspace:*",
     "@llang-gap/providers": "workspace:*",
+    "@logtape/file": "2.3.3",
+    "@logtape/logtape": "2.3.3",
     "commander": "15.0.0",
     "yaml": "2.9.0",
     "zod": "4.5.4"

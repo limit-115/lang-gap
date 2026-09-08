@@ -248,6 +248,75 @@ export class RunState {
       )
       .all();
   }
+  conditionSummary() {
+    return z
+      .array(
+        z.object({
+          transport: z.string(),
+          model: z.string(),
+          effort: z.string(),
+          language: z.string(),
+          total: z.number(),
+          completed: z.number(),
+          correct: z.number(),
+          unparsed: z.number(),
+          refusals: z.number(),
+          truncated: z.number(),
+          usageMissing: z.number(),
+          inputTokens: z.number(),
+          outputTokens: z.number(),
+        }),
+      )
+      .parse(
+        this.db
+          .prepare(`
+      SELECT json_extract(j.payload,'$.model.transport') AS transport,
+        json_extract(j.payload,'$.model.model') AS model,
+        json_extract(j.payload,'$.request.effort') AS effort,
+        json_extract(j.payload,'$.request.language') AS language,
+        COUNT(*) AS total, COUNT(a.id) AS completed,
+        COALESCE(SUM(json_extract(a.result,'$.correct')),0) AS correct,
+        SUM(CASE WHEN a.id IS NOT NULL AND json_extract(a.result,'$.answer') IS NULL THEN 1 ELSE 0 END) AS unparsed,
+        SUM(CASE WHEN json_extract(a.result,'$.outcome')='refusal' THEN 1 ELSE 0 END) AS refusals,
+        SUM(CASE WHEN json_extract(a.result,'$.outcome')='truncated' THEN 1 ELSE 0 END) AS truncated,
+        SUM(CASE WHEN a.id IS NOT NULL AND json_extract(a.result,'$.usage') IS NULL THEN 1 ELSE 0 END) AS usageMissing,
+        COALESCE(SUM(json_extract(a.result,'$.usage.inputTokens')),0) AS inputTokens,
+        COALESCE(SUM(json_extract(a.result,'$.usage.outputTokens')),0) AS outputTokens
+      FROM jobs j LEFT JOIN attempts a ON a.job_id=j.id AND a.status='completed'
+      GROUP BY transport, model, effort, language ORDER BY transport, model, effort, language
+    `)
+          .all(),
+      );
+  }
+  recentFailures(limit = 5) {
+    return z
+      .array(
+        z.object({
+          jobId: z.string(),
+          transport: z.string(),
+          model: z.string(),
+          language: z.string(),
+          effort: z.string(),
+          attempt: z.number(),
+          status: z.string(),
+          error: z.string(),
+          requestId: z.string().nullable(),
+        }),
+      )
+      .parse(
+        this.db
+          .prepare(`
+      SELECT a.job_id AS jobId, json_extract(j.payload,'$.model.transport') AS transport,
+        json_extract(j.payload,'$.model.model') AS model,
+        json_extract(j.payload,'$.request.language') AS language,
+        json_extract(j.payload,'$.request.effort') AS effort,
+        a.number AS attempt, a.status, a.error, a.request_id AS requestId
+      FROM attempts a JOIN jobs j ON j.id=a.job_id
+      WHERE a.error IS NOT NULL ORDER BY a.id DESC LIMIT ?
+    `)
+          .all(limit),
+      );
+  }
   summary() {
     const rows = z
       .array(z.object({ status: z.string(), count: z.number() }))

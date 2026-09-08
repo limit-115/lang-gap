@@ -18,6 +18,7 @@ import { createJobs } from "./plan";
 import { execute, validateBudget } from "./scheduler";
 import { acquireLock, RunState } from "./state";
 import { readSnapshot, type Snapshot } from "./snapshot";
+import { logger } from "./logging";
 
 export const runsDirectory = join(workspace, ".llang-gap/runs");
 export function runPath(id: string) {
@@ -41,6 +42,7 @@ interface ExecutionControls {
   maxJobs?: number;
   signal?: AbortSignal;
   onProgress?: Parameters<typeof execute>[0]["onProgress"];
+  onReady?: (runId: string, directory: string) => Promise<void>;
 }
 
 export async function createRun(
@@ -102,11 +104,38 @@ export async function createRun(
     await atomicWrite(join(directory, "dataset.jsonl"), dataset);
     state = new RunState(join(directory, "state.sqlite"));
     state.initialize(jobs);
+    await options.onReady?.(runId, directory);
+    const log = logger.with({ runId, dataset: experiment.dataset });
+    log.info(
+      "Created experiment {experiment} · dataset {dataset} · languages {languages} · protocol {protocol}",
+      {
+        event: "run.created",
+        experiment: experiment.id,
+        dataset: experiment.dataset,
+        languages: experiment.languages.join(", "),
+        protocol: experiment.protocol,
+        repeats: experiment.repeats,
+        timeoutMs: experiment.execution.timeoutMs,
+      },
+    );
+    for (const model of experiment.models)
+      log.info(
+        "Condition {transport}/{model} · efforts {efforts} · output cap {cap} · timeout {timeoutMs}ms",
+        {
+          event: "run.model",
+          transport: model.transport,
+          model: model.model,
+          efforts: model.efforts.join(", "),
+          cap: model.maxOutputTokens ?? "provider default",
+          timeoutMs: experiment.execution.timeoutMs,
+        },
+      );
     state.event("created", { runId, configHash, budgetUsd });
     const summary = await execute({
       state,
       jobs,
       adapters,
+      logger: log,
       budgetUsd,
       concurrency: options.concurrency ?? experiment.execution.concurrency,
       maxAttempts: experiment.execution.maxAttempts,
@@ -114,6 +143,20 @@ export async function createRun(
       ...(options.signal ? { signal: options.signal } : {}),
       ...(options.onProgress ? { onProgress: options.onProgress } : {}),
     });
+    log.info("Inspect: pnpm bench status {runId} · analyze: pnpm bench score {runId}", {
+      event: "run.next_steps",
+      runId,
+    });
+    if (summary.completed < summary.total)
+      log.info("Continue: pnpm bench resume {runId}{retryFlags}", {
+        event: "run.resume_hint",
+        runId,
+        retryFlags: summary.failed
+          ? " --retry-failed (raise --max-attempts if exhausted)"
+          : summary.uncertain
+            ? " --retry-uncertain (may repeat billed calls)"
+            : "",
+      });
     return { runId, directory, ...summary };
   } finally {
     state?.close();
@@ -150,6 +193,8 @@ export async function resumeRun(
         : options.budgetUsd;
     validateBudget(budgetUsd, jobs, state.charged());
     const maxAttempts = options.maxAttempts ?? snapshot.experiment.execution.maxAttempts;
+    await options.onReady?.(snapshot.runId, directory);
+    const beforeRecovery = state.summary();
     state.recover(options.retryUncertain ?? false, maxAttempts, options.retryFailed ?? false);
     const adapters =
       options.adapters ??
@@ -162,13 +207,40 @@ export async function resumeRun(
         ),
       );
     const concurrency = options.concurrency ?? snapshot.experiment.execution.concurrency;
+    const log = logger.with({ runId: snapshot.runId, dataset: snapshot.experiment.dataset });
+    log.info(
+      "Resuming saved experiment · dataset {dataset} · languages {languages} · {completed} already saved",
+      {
+        event: "run.resumed",
+        dataset: snapshot.experiment.dataset,
+        languages: snapshot.experiment.languages.join(", "),
+        ...state.summary(),
+        budgetUsd,
+        concurrency,
+        maxAttempts,
+        retryFailed: options.retryFailed ?? false,
+        retryUncertain: options.retryUncertain ?? false,
+      },
+    );
+    if (beforeRecovery.running || beforeRecovery.uncertain || options.retryUncertain)
+      log.warning(
+        "Crash recovery: {running} interrupted calls · {uncertain} previously uncertain · retry-uncertain={retryUncertain}; earlier calls may have been billed",
+        {
+          event: "run.recovery",
+          running: beforeRecovery.running,
+          uncertain: beforeRecovery.uncertain,
+          retryUncertain: options.retryUncertain ?? false,
+        },
+      );
     state.event("resumed", { budgetUsd, concurrency, maxAttempts });
     return {
       runId: snapshot.runId,
+      directory,
       ...(await execute({
         state,
         jobs,
         adapters,
+        logger: log,
         budgetUsd,
         concurrency,
         maxAttempts,

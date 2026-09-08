@@ -72,7 +72,7 @@ export function createAnthropicAdapter(
           raw: response,
         };
       } catch (error) {
-        throw normalizeError(error);
+        throw normalizeError(error, [apiKey, request.prompt]);
       }
     },
   };
