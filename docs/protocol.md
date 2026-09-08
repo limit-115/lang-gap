@@ -23,7 +23,7 @@ benchmark language or selecting a scoring rule.
 
 `multiple-choice-v1` is a separate, zero-shot multiple-choice condition. Each
 selected language requires pinned `instruction`, `question` and `options` labels
-in a schema-v2 dataset manifest. The localized instruction must request exactly
+in a schema-v2/v3 dataset manifest. The localized instruction must request exactly
 one uppercase option letter. The prompt consists of instruction, a blank line,
 question label and target text, a blank line, options label and A–J-labelled
 options, followed by a newline. No demonstration, target answer or solution is
@@ -35,6 +35,12 @@ scores zero. Every visible response follows this rule, including refusal-tagged
 and cap-limited output; truncation still blocks publication. Effort and output
 cap are explicit experiment settings. This is a new protocol, not a relabelling
 of any existing author's results.
+
+The [mmPISA conditions](datasets/mmpisa.md) use this protocol with separately
+pinned human and machine translation datasets. Context precedes the question;
+composite answer choices remain ordered arrays within one option. Their localized
+labels are Llang Gap inputs, not upstream author prompts. No author-baseline
+equivalence is implied, and translation variants are never pooled.
 
 ## Versioned dataset-specific protocols
 

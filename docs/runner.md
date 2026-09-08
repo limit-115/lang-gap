@@ -183,7 +183,9 @@ sets ordered pairs; `comparisons` may be omitted in YAML for independent scores.
 `--protocol` chooses an implemented adapter; unsupported dataset/language inputs
 fail before calls. The plan includes the complete resolved experiment.
 
-Only selected source files are downloaded/decoded. The original full manifest and
+Only source files contributing to selected languages are downloaded/decoded.
+Shared files may contain other languages or translation variants; all declared
+partitions are checked before selecting normalized rows. The original full manifest and
 selected normalized rows enter the immutable snapshot. Cache output filenames are
 scoped by the selected language set. A full single-language run can be released
 if all other release gates pass. See [adding datasets](datasets.md) and
@@ -326,17 +328,29 @@ retry rules apply.
 
 ## Download and cache
 
-The Git manifest pins Hugging Face revision
+Each dataset manifest pins its hosting service, repository revision, source
+checksums, raw row counts and normalized language/split counts. Schema-v1/v2
+manifests use Hugging Face; v3 also supports GitHub and files shared by several
+languages. `dataset prepare`, `plan` and `run` reuse verified local files or
+download missing ones. Failed checksum checks stop processing; corrupt files are
+not silently replaced. Remove a known-corrupt cache file explicitly, then prepare
+again. Every preparation verifies raw bytes and regenerates selected-language
+normalized JSONL.
+
+For MMLU-ProX Lite, the manifest pins Hugging Face revision
 `e82aafb9460529687d3c7e51b401d8dd1dd309dd`, four Parquet SHA-256 values and expected
-row counts. `dataset prepare`, `plan` and `run` reuse verified local files or download
-missing ones. Both test and validation splits are needed. Failed checksum checks
-stop processing; corrupt files are not silently replaced. Remove a known-corrupt
-cache file explicitly, then prepare again.
+row counts. Both test and validation splits are needed.
 
 Parquet is read with the pure JavaScript `hyparquet` package. Each preparation
 verifies raw bytes and regenerates normalized JSONL. There are 588 test and 70
 validation rows per language. The normalizer verifies IDs, category, number/order
 of answer slots and gold labels; it does not establish translation fidelity.
+
+For mmPISA, select `--dataset mmpisa` or `--dataset mmpisa-machine` with
+`--protocol multiple-choice-v1`. Each condition has 25 test questions per language
+and no validation split. The one pinned CSV contains all languages and both
+translation variants; even a single-language preparation needs that file.
+See the [mmPISA guide](datasets/mmpisa.md) and `experiments/mmpisa-smoke.yaml`.
 
 ## Forecasting costs
 

@@ -67,7 +67,7 @@ export function getPromptLabels(
   manifest: DatasetManifest | undefined,
   language: string,
 ): PromptLabels | undefined {
-  return manifest?.schemaVersion === 2 ? manifest.prompts[language] : undefined;
+  return manifest && manifest.schemaVersion !== 1 ? manifest.prompts[language] : undefined;
 }
 export function getStopSequences(id: ProtocolId, language: string): readonly string[] | undefined {
   return usesAuthorExtraction(id)

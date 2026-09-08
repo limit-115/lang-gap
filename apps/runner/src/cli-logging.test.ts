@@ -25,6 +25,7 @@ afterEach(async () => {
 
 async function seed(transport: "fake" | "openrouter" = "fake") {
   const manifest = await readManifest(join(workspace, "datasets/mmlu-prox-lite/manifest.json"));
+  if (manifest.schemaVersion !== 1) throw new Error("Expected pinned schema-v1 fixture");
   const result = await createRun({
     experiment: {
       ...experiment,
