@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BookOpen, FileArchive } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import type { ReleaseManifest } from "@llang-gap/contracts";
 import type { GuideModel } from "@llang-gap/contracts/guide";
@@ -113,8 +114,9 @@ export function ModelResults({
           </p>
           {taskCount === 1 && <p className="mt-3 text-muted-foreground">{t("limited")}</p>}
           <p className="mt-3 max-w-3xl text-muted-foreground">{t("scope")}</p>
-          <Link href="/methodology#model-guide" className="text-link mt-4">
-            {t("methodology")} ↗
+          <Link href="/methodology#model-guide" className="resource-link mt-4">
+            <BookOpen aria-hidden="true" />
+            <span>{t("methodology")}</span>
           </Link>
         </div>
       </section>
@@ -165,8 +167,9 @@ export function ModelResults({
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Link href={`/releases/${release.id}`} className="text-link">
-                          {t("release")} ↗
+                        <Link href={`/releases/${release.id}`} className="resource-link">
+                          <FileArchive aria-hidden="true" />
+                          <span>{t("release")}</span>
                         </Link>
                         <div className="mt-1 text-sm text-muted-foreground">
                           {f.dateTime(new Date(release.createdAt), {
@@ -213,8 +216,9 @@ export function ModelResults({
                     {pair.gapCi95[0] <= 0 && pair.gapCi95[1] >= 0 && (
                       <p className="text-sm text-muted-foreground">{l("neutral")}</p>
                     )}
-                    <Link href={`/releases/${release.id}`} className="text-link">
-                      {t("release")} ↗
+                    <Link href={`/releases/${release.id}`} className="resource-link">
+                      <FileArchive aria-hidden="true" />
+                      <span>{t("release")}</span>
                     </Link>
                   </div>
                 )),

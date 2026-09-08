@@ -4,6 +4,7 @@ import { useTable } from "@tanstack/react-table";
 import { describe, expect, it, vi } from "vitest";
 import type { GuideModel } from "@llang-gap/contracts/guide";
 import { useLeaderboardColumns } from "./columns";
+import { LeaderboardTable } from "./leaderboard-table";
 import { features } from "./data-table-features";
 import { guideLanguages, scoreDifference, visibleComparison } from "./table-state";
 
@@ -30,6 +31,50 @@ const score = (language: string, value: number | null, basis = "a".repeat(64)) =
 });
 
 describe("model guide table", () => {
+  it("keeps a twenty-five-language table to three initial language columns and one row per model", () => {
+    const languages = [
+      "ar",
+      "az",
+      "bg",
+      "bs",
+      "ca",
+      "cs",
+      "da",
+      "de",
+      "el",
+      "es",
+      "et",
+      "eu",
+      "fi",
+      "fr",
+      "he",
+      "hi",
+      "hr",
+      "hu",
+      "id",
+      "it",
+      "ja",
+      "ka",
+      "kk",
+      "ko",
+      "lt",
+    ];
+    const rows = [
+      {
+        ...model,
+        id: "fixture/five",
+        scores: languages.slice(0, 5).map((language) => score(language, 80)),
+      },
+      {
+        ...model,
+        id: "fixture/twenty-five",
+        scores: languages.map((language) => score(language, 90)),
+      },
+    ];
+    const html = renderToStaticMarkup(createElement(LeaderboardTable, { rows, languages }));
+    expect(html.match(/<th[ >]/g)).toHaveLength(4);
+    expect(html.match(/<td[ >]/g)).toHaveLength(8);
+  });
   it("has one column per visible language and no implicit comparison, effort or interval", () => {
     function Harness() {
       const table = useTable({

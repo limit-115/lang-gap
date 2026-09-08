@@ -123,6 +123,37 @@ describe("versioned model guide", () => {
     expect(result.models[0]!.scores[1]!.value).toBe(0);
     expect(build([old, next], configuration)).toEqual(result);
   });
+  it("does not let a republication of an old run replace newer observations", () => {
+    const old = release("republished", "first", ["ja"], 1);
+    old.manifest.createdAt = "2026-10-01T00:00:00.000Z";
+    const recent = release("recent", "first", ["ja"], 0.25);
+    recent.evidence!.runCreatedAt = "2026-09-09T00:00:00.000Z";
+    recent.manifest.createdAt = "2026-09-09T00:00:00.000Z";
+    expect(build([old, recent]).models[0]!.scores[0]!.contributions[0]!.releaseId).toBe("recent");
+  });
+  it("retains published languages outside the suite without inventing scores", () => {
+    const input = release("one", "first", ["ja", "de"]);
+    const configuration = plan([input]);
+    configuration.suite.tasks[0]!.languages = configuration.suite.tasks[0]!.languages.filter(
+      (entry) => entry.language === "ja",
+    );
+    const output = build([input], configuration);
+    expect(output.languages).toEqual(["de", "ja"]);
+    expect(output.models[0]!.scores.map((score) => score.language)).toEqual(["ja"]);
+  });
+  it("keeps valid scores bounded for large or fractional fixed weights", () => {
+    const inputs = [release("a", "a", ["ja"], 1), release("b", "b", ["ja"], 1)];
+    const configuration = plan(inputs);
+    configuration.suite.tasks.forEach((task) => {
+      task.weight = 1e308;
+    });
+    expect(build(inputs, configuration).models[0]!.scores[0]!.value).toBe(100);
+  });
+  it("rejects duplicate observations inside a release instead of selecting by row order", () => {
+    const input = release("one");
+    input.manifest.aggregate.push(structuredClone(input.manifest.aggregate[0]!));
+    expect(() => build([input])).toThrow("Duplicate published model condition");
+  });
   it("does not average a more successful effort into the selected model profile", () => {
     const input = release("one");
     input.manifest.aggregate.push({

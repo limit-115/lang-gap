@@ -1,3 +1,4 @@
+import { ArrowLeft } from "lucide-react";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -75,8 +76,9 @@ export default async function ModelPage({ params, searchParams }: Props) {
   return (
     <article className="min-w-0 pb-16">
       <header className="intro">
-        <Link href="/" className="text-link mb-6">
-          ← {t("back")}
+        <Link href="/" className="resource-link mb-6">
+          <ArrowLeft aria-hidden="true" />
+          <span>{t("back")}</span>
         </Link>
         <div className="flex items-center gap-4">
           <ModelOwnerLogo ownerId={data.ownerId} size={40} />
