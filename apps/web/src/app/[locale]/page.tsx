@@ -1,6 +1,5 @@
 import { RunCta } from "@/features/run-builder/run-cta";
 import { ArrowUpRight } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -58,14 +57,6 @@ export default async function LeaderboardPage({ params }: Props) {
             <h2 id="benchmark-title">{t("tableTitle")}</h2>
             <p>{release ? `${release.dataset} · ${release.protocol}` : t("tableDescription")}</p>
           </div>
-          {release && (
-            <Badge
-              variant="outline"
-              className="h-auto px-3 py-1 text-sm font-normal text-muted-foreground"
-            >
-              {t("published")}
-            </Badge>
-          )}
         </div>
         <NextIntlClientProvider
           messages={{ Leaderboard: getMessagesForLocale(locale).Leaderboard }}
