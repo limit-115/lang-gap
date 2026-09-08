@@ -56,7 +56,8 @@ experiment or a claim that effort levels have equal compute across models.
 
 ## Selecting evidence
 
-The guide plan lists eligible release IDs. For each model, task and language, the
+The staged release index supplies the publication inventory. The resolved guide plan
+records its release IDs and every published API/model/effort profile. For each configuration, task and language, the
 builder selects **one** matching published observation. It requires the same:
 
 - dataset identity, revision and complete manifest hash;
@@ -79,17 +80,17 @@ still drift; timestamps and original returned model IDs remain in release artifa
 
 ## Missing and incremental results
 
-| Situation                                                              | Result                                                                                |
-| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| Configuration A has five languages, B has twenty-five                  | One row per configuration; absent scores are `—`, never zero.                         |
-| A later run adds languages                                             | New languages are eligible without deleting earlier language results.                 |
-| A new model or language is outside the current suite/profile selection | Its published evidence is available in history; no inferred overview score.           |
-| A required task is missing                                             | The whole language score is withheld. We never average just the available tasks.      |
-| One language has a different test basis                                | Models within its column remain comparable; a cross-language difference is withheld.  |
-| Multiple releases repeat the same run or questions                     | Select one matching observation; do not add denominators or average release averages. |
-| A newer result has another effort, cap, protocol or dataset revision   | Keep it in history; it does not silently alter the current score.                     |
-| A model genuinely scores zero                                          | Display `0.0`, distinct from missing data.                                            |
-| A bad release is withdrawn from consideration                          | Remove it from the next plan; preserve its files and old guide snapshots for audit.   |
+| Situation                                                            | Result                                                                                                                     |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Configuration A has five languages, B has twenty-five                | One row per configuration; absent scores are `—`, never zero.                                                              |
+| A later run adds languages                                           | New languages are eligible without deleting earlier language results.                                                      |
+| A new configuration or language is published                         | Publication discovers configurations and extends compatible language inputs; unsupported conditions retain missing scores. |
+| A required task is missing                                           | The whole language score is withheld. We never average just the available tasks.                                           |
+| One language has a different test basis                              | Models within its column remain comparable; a cross-language difference is withheld.                                       |
+| Multiple releases repeat the same run or questions                   | Select one matching observation; do not add denominators or average release averages.                                      |
+| A newer result has another effort, cap, protocol or dataset revision | Keep it in history; it does not silently alter the current score.                                                          |
+| A model genuinely scores zero                                        | Display `0.0`, distinct from missing data.                                                                                 |
+| A bad release is withdrawn from consideration                        | Remove it from the active release index and synchronize; preserve its files and old snapshots for audit.                   |
 
 Partial runs are not benchmark releases. For work performed in small batches,
 resume the **same run** until its fixed matrix is complete, then publish it.
@@ -115,8 +116,8 @@ API/model/effort selection on the model page.
 The `multilingual-effort-v2` suite preserves the first suite's task inputs and weights
 but lists every currently published effort as a separate profile. The original
 low-only snapshot remains immutable. New plans should set `configurationRows: true`
-and explicitly list each eligible API/model/effort profile. Unlisted configurations
-remain visible with withheld scores; their effort is never borrowed from another row.
+for automatic publication. Profiles are discovered from staged releases; their effort
+is never borrowed from another row. Legacy explicit plans remain reproducible.
 
 ## Language controls and uncertainty
 
@@ -156,25 +157,49 @@ hashes and derives metadata. It does not re-score historical answers. Existing
 sidecars cannot be overwritten. Old releases lacking a sidecar remain readable
 but cannot contribute a guide score.
 
-Edit `results/guide-plan.json`: add eligible release IDs and model profiles. For a
-new suite, use the relevant sidecars to pin task/language fingerprints; choose and
-review the task families and weights. Keep API configuration selection independent
-of observed accuracy. Then:
+`bench release stage` updates the release index and then synchronizes the homepage.
+`results/index.json` is the inventory: do not maintain separate release, model or
+effort lists by hand. The synchronized `results/guide-plan.json` records the resolved
+selection for review and reproduction. `configurationRows: true` is required;
+legacy one-profile-per-model suites need an explicit migration.
+
+The existing plan still declares scientific policy: task identities, pinned dataset
+and protocol versions, token caps, repeats, families and weights. Synchronization
+never invents a task, changes a weight or replaces an existing language's basis.
+It discovers new language inputs only from matching verified evidence. A new language
+is enabled for scoring only when every declared task has a matching input identity;
+otherwise it remains available as a column with missing scores. Once enabled, each
+configuration must still have all required task results. An intentionally different
+per-language task basis requires an explicit new suite, not automatic inference.
+Conflicting newly discovered input identities stop publication and require an
+explicitly pinned choice. Extending the language basis creates a new suite ID.
+
+To update already staged evidence or recover from an interrupted publication:
 
 ```sh
-pnpm bench guide build results/guide-plan.json --id <new-guide-id>
-pnpm bench guide verify <new-guide-id>
+pnpm bench guide sync
 pnpm guide:check
 ```
 
-The builder writes `results/guide/<id>/summary.json` and updates the separate
-`results/guide/index.json`. Snapshot IDs are exclusive and source manifest/evidence
-hashes are recorded. `guide:check` independently rebuilds every indexed snapshot
-from its saved plan and public sources; CI runs it. It needs neither API keys nor
-the private run database.
+Synchronization creates an immutable snapshot and updates `results/guide/index.json`.
+Repeating it with the same inputs does not create another snapshot. The runner locks
+publication while reading the inventory and writing the snapshot. If release staging
+succeeds but guide synchronization fails, the command reports failure and identifies
+the already staged release; fix the cause and run `guide sync`, rather than staging
+that release again. Commit both indexes, the resolved plan and the new snapshot in
+one PR. No model API calls are involved.
 
-Commit the plan, new sidecars, snapshot and guide index through a PR. An ordinary
-release stage only updates release history; publishing a guide snapshot is an
-explicit step. `LLANG_GUIDE_ID` can pin a published snapshot for the site. An
-unknown snapshot or changed source fails instead of substituting another score.
-`LLANG_RELEASE_ID` no longer selects the homepage table.
+`pnpm guide:check` independently rebuilds every indexed snapshot and also checks that
+the active homepage plan includes the staged inventory. CI fails when publication
+has left the homepage stale. Historical snapshots retain their exact saved plans
+and source hashes.
+
+For an intentional scientific-policy change, edit the task basis with a new suite
+ID, then run `guide sync`. The explicit `guide build <plan> --id <id>` command remains
+available for reproducing curated historical plans; it does not bypass the active
+publication freshness check.
+
+`LLANG_GUIDE_ID` can deliberately pin a historical snapshot for a site deployment;
+remove that override when the homepage should follow publication. Unknown snapshots
+or changed sources fail instead of substituting another score. `LLANG_RELEASE_ID`
+no longer selects the homepage table.

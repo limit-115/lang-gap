@@ -63,13 +63,82 @@ const conditionKey = (
     language.randomBaseline,
   ]);
 
-export function buildGuide(
-  planInput: GuidePlan,
-  inputs: GuideRelease[],
-  id: string,
-  createdAt: string,
-) {
+/** Resolve the publication inventory without inferring new tasks or scientific weights. */
+export function reconcileGuidePlan(planInput: GuidePlan, inputs: GuideRelease[]): GuidePlan {
   const plan = guidePlanSchema.parse(planInput);
+  if (!plan.configurationRows)
+    throw new Error(
+      "Automatic publication requires configurationRows: true; migrate the suite explicitly",
+    );
+  plan.releases = inputs.map(({ manifest }) => manifest.id).sort();
+  // Reuse the scoring boundary's provenance and source validation before discovering inputs.
+  const releases = validateGuideReleases(plan, inputs);
+  const pinnedLanguages = new Set(
+    plan.suite.tasks.flatMap((task) => task.languages.map((entry) => entry.language)),
+  );
+  const candidates = new Map<string, Map<string, ReleaseEvidence["languages"][number]>>();
+  const originalSuite = JSON.stringify(plan.suite);
+  const profiles = new Map(plan.profiles.map((profile) => [guideProfileKey(profile), profile]));
+  for (const { manifest, evidence } of releases.sort((a, b) =>
+    a.manifest.id.localeCompare(b.manifest.id),
+  )) {
+    for (const row of manifest.aggregate) {
+      const profile = { transport: row.transport, model: row.model, effort: row.effort };
+      profiles.set(guideProfileKey(profile), profile);
+      const configuration = evidence?.configurations.find(
+        (entry) => entry.transport === row.transport && entry.model === row.model,
+      );
+      if (!evidence || !configuration) continue;
+      for (const task of plan.suite.tasks) {
+        if (
+          task.dataset !== manifest.dataset ||
+          task.datasetRevision !== manifest.datasetRevision ||
+          task.datasetManifestHash !== evidence.datasetManifestHash ||
+          task.protocol !== manifest.protocol ||
+          task.protocolHash !== evidence.protocolHash ||
+          task.maxOutputTokens !== configuration.maxOutputTokens ||
+          task.repeats !== row.repeats
+        )
+          continue;
+        for (const language of evidence.languages) {
+          if (
+            !row.scores.some(
+              (score) => score.language === language.language && score.n === language.n,
+            )
+          )
+            continue;
+          if (pinnedLanguages.has(language.language)) continue;
+          const tasks = candidates.get(language.language) ?? new Map();
+          const existing = tasks.get(task.id);
+          if (existing && JSON.stringify(existing) !== JSON.stringify(language))
+            throw new Error(
+              `Conflicting new language inputs for ${task.id}/${language.language}; pin the intended basis explicitly`,
+            );
+          tasks.set(task.id, language);
+          candidates.set(language.language, tasks);
+        }
+      }
+    }
+  }
+  // A newly discovered column must have a complete declared task basis. Otherwise
+  // publishing only one dataset would silently average a subset of the suite.
+  for (const [language, tasks] of candidates) {
+    if (!plan.suite.tasks.every((task) => tasks.has(task.id))) continue;
+    for (const task of plan.suite.tasks) task.languages.push({ ...tasks.get(task.id)!, language });
+  }
+  plan.profiles = [...profiles.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([, profile]) => profile);
+  if (JSON.stringify(plan.suite) !== originalSuite) {
+    for (const task of plan.suite.tasks)
+      task.languages.sort((a, b) => a.language.localeCompare(b.language));
+    const { id: _id, ...basis } = plan.suite;
+    plan.suite.id = `published-${digest(basis).slice(0, 20)}`;
+  }
+  return guidePlanSchema.parse(plan);
+}
+
+function validateGuideReleases(plan: GuidePlan, inputs: GuideRelease[]) {
   const releases = inputs.map((entry) => ({
     ...entry,
     manifest: releaseManifestSchema.parse(entry.manifest),
@@ -92,6 +161,17 @@ export function buildGuide(
     )
       throw new Error(`Evidence provenance mismatch: ${manifest.id}`);
   }
+  return releases;
+}
+
+export function buildGuide(
+  planInput: GuidePlan,
+  inputs: GuideRelease[],
+  id: string,
+  createdAt: string,
+) {
+  const plan = guidePlanSchema.parse(planInput);
+  const releases = validateGuideReleases(plan, inputs);
   // Selection is chronological, never dependent on accuracy, n, number of runs or index order.
   releases.sort(
     (a, b) =>

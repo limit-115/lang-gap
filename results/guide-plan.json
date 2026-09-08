@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "suite": {
-    "id": "multilingual-effort-v2",
+    "id": "published-9df5b22f743c933d2523",
     "families": [
       {
         "id": "reasoning",
@@ -29,6 +29,20 @@
             "randomBaseline": 0.27
           },
           {
+            "language": "es",
+            "n": 25,
+            "inputHash": "e369480f9ea84d9be97f0133c947dfe9417a5720f3354a6db708f9fd63f80ebd",
+            "alignmentHash": "8d8c4b3ba7c1224de7e1bc6a5624e779a8fb9bf3d0cd92a665e1a344e70baba0",
+            "randomBaseline": 0.27
+          },
+          {
+            "language": "ja",
+            "n": 25,
+            "inputHash": "077856620962155fe7a19e3464b026edf08d6c6b3416418994fefce78d6a5c6e",
+            "alignmentHash": "8d8c4b3ba7c1224de7e1bc6a5624e779a8fb9bf3d0cd92a665e1a344e70baba0",
+            "randomBaseline": 0.27
+          },
+          {
             "language": "ru",
             "n": 25,
             "inputHash": "3b0693940772c2fc3886238d391c31e875b5a3139ed94e8372a9aa3e81e3f1a0",
@@ -39,7 +53,13 @@
       }
     ]
   },
+  "configurationRows": true,
   "profiles": [
+    {
+      "transport": "openrouter",
+      "model": "inclusionai/ling-3.0-flash",
+      "effort": "high"
+    },
     {
       "transport": "openrouter",
       "model": "inclusionai/ling-3.0-flash",
@@ -51,6 +71,5 @@
       "effort": "medium"
     }
   ],
-  "releases": ["mmpisa-ling-3-flash-en-ru-2026-09-08"],
-  "configurationRows": true
+  "releases": ["mmpisa-ling-3-flash-en-ru-2026-09-08", "mmpisa-ling-3-flash-ja-es-2026-09-08"]
 }

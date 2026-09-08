@@ -12,7 +12,7 @@ import {
 } from "@llang-gap/contracts";
 import { aggregateResults, scoreAnswer } from "@llang-gap/evaluation";
 import { validateManifestQuestions, validateAlignment } from "@llang-gap/datasets";
-import { calculateCost } from "@llang-gap/transports";
+import { calculateCost, diagnosticMessage } from "@llang-gap/transports";
 import {
   atomicWrite,
   hash,
@@ -28,6 +28,7 @@ import { readSnapshot } from "./snapshot";
 import { acquireLock, RunState } from "./state";
 import { verifyAttemptLedger } from "./release-audit";
 import { createReleaseEvidence } from "./release-evidence";
+import { syncGuide } from "./guide";
 
 export async function recompute(
   directory: string,
@@ -314,13 +315,16 @@ export async function verifyRelease(directory: string) {
   return manifest;
 }
 
-export async function stageRelease(directory: string, assetsUrl: string) {
+export async function stageRelease(
+  directory: string,
+  assetsUrl: string,
+  root = join(workspace, "results"),
+) {
   const baseUrl = z.url().parse(assetsUrl).replace(/\/$/, "");
   if (!baseUrl.startsWith("https://"))
     throw new Error("Public artifacts require an HTTPS base URL");
   const manifest = await verifyRelease(directory);
   if (manifest.kind !== "benchmark") throw new Error("Test releases cannot enter the public index");
-  const root = join(workspace, "results");
   const target = join(root, manifest.id);
   const releaseLock = await acquireLock(root);
   try {
@@ -352,5 +356,12 @@ export async function stageRelease(directory: string, assetsUrl: string) {
   } finally {
     await releaseLock();
   }
-  return { id: manifest.id, directory: target };
+  try {
+    return { id: manifest.id, directory: target, guide: await syncGuide(root) };
+  } catch (error) {
+    throw new Error(
+      `Release ${manifest.id} is staged, but homepage publication failed. Fix the error and run bench guide sync: ${diagnosticMessage(error)}`,
+      { cause: error },
+    );
+  }
 }

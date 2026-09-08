@@ -99,7 +99,13 @@ remain subject to normal repository formatting.
 The [model guide](model-guide.md) combines eligible observations through a separate
 versioned suite and snapshot. `release stage` also derives a small `evidence.json`
 sidecar for that workflow; it does not modify the immutable release manifest or
-aggregate and does not automatically publish a new guide snapshot.
+aggregate and synchronizes the homepage guide from the staged release index using the declared
+task basis. New compatible languages and published effort configurations enter a new
+immutable snapshot; task weights and existing language inputs remain pinned. Include
+the resulting guide plan, snapshot and guide index in the same PR. Run
+`pnpm guide:check` to verify both reproducibility and publication freshness. If the
+command reports that staging succeeded but guide publication failed, fix the cause
+and run `pnpm bench guide sync`; do not restage the existing release.
 
 The website should:
 

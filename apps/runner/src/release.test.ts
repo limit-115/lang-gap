@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -11,6 +11,9 @@ import { buildRelease, scoreRun, stageRelease, verifyRelease } from "./release";
 import { workspace, hash, json, readJson } from "./files";
 import { RunState } from "./state";
 import { snapshotSchema } from "./snapshot";
+import * as files from "./files";
+import { createReleaseEvidence } from "./release-evidence";
+import { verifyGuidePublication, syncGuide } from "./guide";
 import { protocol, protocolV1 } from "@llang-gap/evaluation";
 
 describe("run → resume → independent release verification", () => {
@@ -19,6 +22,7 @@ describe("run → resume → independent release verification", () => {
     root = await mkdtemp(join(tmpdir(), "llang-release-"));
   });
   afterEach(async () => {
+    vi.restoreAllMocks();
     await rm(root, { recursive: true, force: true });
   });
   const manifest = async () => {
@@ -33,6 +37,82 @@ describe("run → resume → independent release verification", () => {
       })),
     };
   };
+
+  it("stages a complete intercepted benchmark and refreshes the homepage in the same operation", async () => {
+    const identity = await files.implementationIdentity(workspace);
+    vi.spyOn(files, "implementationIdentity").mockResolvedValue({
+      ...identity,
+      clean: true,
+      commit: "a".repeat(40),
+    });
+    const config = {
+      ...experiment,
+      questionLimit: undefined,
+      models: experiment.models.map((model) => ({
+        ...model,
+        transport: "openrouter" as const,
+        model: "fixture/model",
+        efforts: ["high" as const],
+      })),
+    };
+    const directory = join(root, "run");
+    await createRun({
+      directory,
+      experiment: config,
+      questions,
+      manifest: await manifest(),
+      adapters: new Map([
+        ["openrouter", { ...createFakeAdapter(), transport: "openrouter" as const }],
+      ]),
+    });
+    const artifact = await buildRelease(directory, "publication-fixture", "benchmark", root);
+    const evidence = await createReleaseEvidence(artifact.directory);
+    const results = join(root, "results");
+    await mkdir(results);
+    await writeFile(
+      join(results, "index.json"),
+      json({ schemaVersion: 1, latest: null, releases: [] }),
+    );
+    await writeFile(
+      join(results, "guide-plan.json"),
+      json({
+        schemaVersion: 1,
+        configurationRows: true,
+        suite: {
+          id: "test-suite",
+          families: [{ id: "reasoning", weight: 1 }],
+          tasks: [
+            {
+              id: "test-task",
+              family: "reasoning",
+              weight: 1,
+              dataset: config.dataset,
+              datasetRevision: (await manifest()).revision,
+              datasetManifestHash: evidence.datasetManifestHash,
+              protocol: config.protocol,
+              protocolHash: evidence.protocolHash,
+              maxOutputTokens: 1024,
+              repeats: config.repeats,
+              languages: evidence.languages,
+            },
+          ],
+        },
+        profiles: [],
+        releases: [],
+      }),
+    );
+    const staged = await stageRelease(artifact.directory, "https://example.com/assets", results);
+    expect(staged.guide.changed).toBe(true);
+    expect(await verifyGuidePublication(results)).toMatchObject({
+      valid: true,
+      id: staged.guide.id,
+    });
+    const snapshot = (await readJson(join(results, "guide", staged.guide.id, "summary.json"))) as {
+      models: { profile: { effort: string } }[];
+    };
+    expect(snapshot.models.map((model) => model.profile.effort)).toEqual(["high"]);
+    expect(await syncGuide(results)).toEqual({ id: staged.guide.id, changed: false });
+  });
 
   it("completes a paused run without reissuing completed jobs and exports an auditable test release", async () => {
     const directory = join(root, "run");
