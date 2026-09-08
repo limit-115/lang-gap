@@ -513,6 +513,18 @@
   }
 }
 
+@media (max-width: 600px) {
+  .release-list a {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 6px 12px;
+  }
+  .release-list time {
+    grid-column: 2;
+    margin-left: 0;
+  }
+}
+
 @media (max-width: 760px) {
   .site-header[data-floating="true"] .header-inner {
     width: calc(100% - 8px);
