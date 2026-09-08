@@ -90,7 +90,7 @@ export const guideSuiteSchema = z
   );
 
 export const guideProfileSchema = referenceSchema.extend({ effort: effortSchema });
-export const guidePlanSchema = z
+export const legacyGuidePlanSchema = z
   .strictObject({
     schemaVersion: z.literal(1),
     suite: guideSuiteSchema,
@@ -105,7 +105,18 @@ export const guidePlanSchema = z
       ) && unique(plan.releases, (id) => id),
     "Duplicate model profile or release",
   );
-export type GuidePlan = z.infer<typeof guidePlanSchema>;
+export type GuidePlan = z.infer<typeof legacyGuidePlanSchema>;
+
+export const summaryPlanSchema = z
+  .strictObject({
+    schemaVersion: z.literal(2),
+    aggregation: z.literal("mean-dataset-accuracy-v1"),
+    releases: z.array(safeIdSchema),
+  })
+  .refine((plan) => unique(plan.releases, (id) => id), "Duplicate release");
+export type SummaryPlan = z.infer<typeof summaryPlanSchema>;
+export const guidePlanSchema = z.union([legacyGuidePlanSchema, summaryPlanSchema]);
+export type PublishedGuidePlan = z.infer<typeof guidePlanSchema>;
 
 export const guideContributionSchema = guideProfileSchema.extend({
   taskId: safeIdSchema,
@@ -157,7 +168,7 @@ export const guideSnapshotSchema = z
     id: safeIdSchema,
     createdAt: z.iso.datetime(),
     plan: guidePlanSchema,
-    languages: languagesSchema,
+    languages: z.union([languagesSchema, z.tuple([])]),
     models: z.array(guideModelSchema),
     sources: z.array(
       z.strictObject({
@@ -169,8 +180,12 @@ export const guideSnapshotSchema = z
   })
   .refine(
     (snapshot) =>
+      (snapshot.languages.length > 0 ||
+        (snapshot.plan.schemaVersion === 2 && snapshot.models.length === 0)) &&
       unique(snapshot.models, (model) =>
-        snapshot.plan.configurationRows ? guideRowKey(model) : model.id,
+        snapshot.plan.schemaVersion === 2 || snapshot.plan.configurationRows
+          ? guideRowKey(model)
+          : model.id,
       ) &&
       unique(snapshot.sources, (source) => source.releaseId) &&
       snapshot.sources.length === snapshot.plan.releases.length &&

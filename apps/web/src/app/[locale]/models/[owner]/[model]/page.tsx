@@ -107,8 +107,15 @@ export default async function ModelPage({ params, searchParams }: Props) {
           }
           releases={data.releases}
           name={data.label}
-          suiteId={guide?.plan.suite.id ?? null}
-          taskCount={guide?.plan.suite.tasks.length ?? 0}
+          suiteId={
+            guide
+              ? guide.plan.schemaVersion === 2
+                ? guide.plan.aggregation
+                : guide.plan.suite.id
+              : null
+          }
+          taskCount={guide?.plan.schemaVersion === 1 ? guide.plan.suite.tasks.length : 0}
+          isSummary={guide?.plan.schemaVersion === 2}
           initialLanguage={typeof language === "string" ? language : null}
         />
       </NextIntlClientProvider>

@@ -9,7 +9,7 @@ import {
   guidePlanSchema,
   guideSnapshotSchema,
   releaseEvidenceSchema,
-  type GuidePlan,
+  type PublishedGuidePlan,
 } from "@llang-gap/contracts/guide";
 import { buildGuide, reconcileGuidePlan } from "@llang-gap/evaluation/guide";
 import { atomicWrite, hash, json, readJson, workspace } from "./files";
@@ -43,7 +43,11 @@ export async function stageGuideEvidence(directory: string, root = join(workspac
   return { id: evidence.releaseId, path };
 }
 
-export async function readGuideInputs(plan: GuidePlan, root: string, requirePublished = true) {
+export async function readGuideInputs(
+  plan: PublishedGuidePlan,
+  root: string,
+  requirePublished = true,
+) {
   const index = requirePublished
     ? ((await readJson(join(root, "index.json"))) as { releases: string[] })
     : null;
@@ -83,7 +87,7 @@ export async function publishGuide(
   return publishGuidePlan(guidePlanSchema.parse(await readJson(planPath)), id, root);
 }
 
-async function publishGuidePlan(plan: GuidePlan, id: string, root: string) {
+async function publishGuidePlan(plan: PublishedGuidePlan, id: string, root: string) {
   safeIdSchema.parse(id);
   const snapshot = buildGuide(
     plan,
@@ -112,6 +116,7 @@ async function publishGuidePlan(plan: GuidePlan, id: string, root: string) {
       }),
     );
     for (const previous of earlier) {
+      if (previous.plan.schemaVersion !== 1 || plan.schemaVersion !== 1) continue;
       if (
         previous.plan.suite.id === plan.suite.id &&
         (json(previous.plan.suite) !== json(plan.suite) ||

@@ -1,0 +1,853 @@
+{
+  "schemaVersion": 1,
+  "id": "published-4b5047b3a2700f37af0f-5847eff9",
+  "createdAt": "2026-09-08T13:20:47.624Z",
+  "plan": {
+    "schemaVersion": 2,
+    "aggregation": "mean-dataset-accuracy-v1",
+    "releases": [
+      "mmpisa-ling-3-flash-12lang-2026-09-08",
+      "mmpisa-ling-3-flash-en-ru-2026-09-08",
+      "mmpisa-ling-3-flash-ja-es-2026-09-08"
+    ]
+  },
+  "languages": [
+    "cs",
+    "de",
+    "en",
+    "es",
+    "fr",
+    "ja",
+    "kk",
+    "ko",
+    "ru",
+    "sk",
+    "sq",
+    "sr",
+    "sv",
+    "zh"
+  ],
+  "models": [
+    {
+      "id": "inclusionai/ling-3.0-flash",
+      "reference": {
+        "transport": "openrouter",
+        "model": "inclusionai/ling-3.0-flash"
+      },
+      "profile": {
+        "transport": "openrouter",
+        "model": "inclusionai/ling-3.0-flash",
+        "effort": "high"
+      },
+      "scores": [
+        {
+          "language": "cs",
+          "value": 88.00000000000003,
+          "status": "ready",
+          "basis": "a7bc4ba55c731b41199a6ee57dd475a37350d7961640de17abfef3526c906d4d",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "high",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.8800000000000002,
+              "value": 88.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "de",
+          "value": 92.00000000000003,
+          "status": "ready",
+          "basis": "4c43724c510c37b56ec553bd1cf2db2de23d0b084d2d3aee87dbd0a18412ea46",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "high",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.9200000000000003,
+              "value": 92.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "en",
+          "value": 96.00000000000003,
+          "status": "ready",
+          "basis": "873160e23e99e076548bf835b17980f89bbc4b87fe5c6e145ca9248ce8a1d609",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "high",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.9600000000000003,
+              "value": 96.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "es",
+          "value": 96.00000000000003,
+          "status": "ready",
+          "basis": "2bfb4ee22803323ce575da74c9d01a1bce409946106f1b48ad19dfbe9c7109b1",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "high",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-ja-es-2026-09-08",
+              "accuracy": 0.9600000000000003,
+              "value": 96.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "fr",
+          "value": 92.00000000000003,
+          "status": "ready",
+          "basis": "88959e947fbd1623ee9f1b36c694359a73dcb72a3e89d0e07d4a79cae6a835fa",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "high",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.9200000000000003,
+              "value": 92.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "ja",
+          "value": 88.00000000000003,
+          "status": "ready",
+          "basis": "2fdf79a408012f8ba92fc8ee600d41f3a0d0f8d61794e6eda0caf7f5e5f9f3dc",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "high",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-ja-es-2026-09-08",
+              "accuracy": 0.8800000000000002,
+              "value": 88.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "kk",
+          "value": 32,
+          "status": "ready",
+          "basis": "128af489556e42befc299f2e6453eef4b945f2021880f964192b951b70568792",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "high",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.32,
+              "value": 32,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "ko",
+          "value": 92.00000000000003,
+          "status": "ready",
+          "basis": "dfffbf5fd0c269ebe81cbd68b8cb67bfa2848cfb2d76eb74a247f6ffb7b8d2d7",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "high",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.9200000000000003,
+              "value": 92.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "ru",
+          "value": 92.00000000000003,
+          "status": "ready",
+          "basis": "c24afb2d6fbe02c571bf9986eadec3b987526229ba3f12fcd5b5af44b4e1592a",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "high",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.9200000000000003,
+              "value": 92.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "sk",
+          "value": 88.00000000000003,
+          "status": "ready",
+          "basis": "9621081b53929ee7c42af55e77c38041623b766fb0debd16135c2f3699e46f20",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "high",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.8800000000000002,
+              "value": 88.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "sq",
+          "value": 92.00000000000003,
+          "status": "ready",
+          "basis": "7b6b6d44ff3822e3ab9d37300bdd34b000a8c3cb5c1b3417c531d823a708c03f",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "high",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.9200000000000003,
+              "value": 92.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "sr",
+          "value": 43.99999999999999,
+          "status": "ready",
+          "basis": "bd548b3011058f58b690262e4ec0dec876b6e96866ecda4d6156ecd57c2cb65b",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "high",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.43999999999999995,
+              "value": 43.99999999999999,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "sv",
+          "value": 96.00000000000003,
+          "status": "ready",
+          "basis": "853e2ed75e24e0c313e9974258149f4bcb880a2fb023e67c31528d14e0c16983",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "high",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.9600000000000003,
+              "value": 96.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "zh",
+          "value": 92.00000000000003,
+          "status": "ready",
+          "basis": "bab1983e7e3d649a37f362a3ae067dfded07ee0a6934a564d17a6550b5f4b39b",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "high",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.9200000000000003,
+              "value": 92.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        }
+      ]
+    },
+    {
+      "id": "inclusionai/ling-3.0-flash",
+      "reference": {
+        "transport": "openrouter",
+        "model": "inclusionai/ling-3.0-flash"
+      },
+      "profile": {
+        "transport": "openrouter",
+        "model": "inclusionai/ling-3.0-flash",
+        "effort": "low"
+      },
+      "scores": [
+        {
+          "language": "cs",
+          "value": 92.00000000000003,
+          "status": "ready",
+          "basis": "64e0321ecf779a34a2453f8f918c2974627d0b3bdc6bbe11d6ca345ba3619303",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "low",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.9200000000000003,
+              "value": 92.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "de",
+          "value": 92.00000000000003,
+          "status": "ready",
+          "basis": "e4904160aa069c75357ef828aecedb859116ec2751c074dbf99f78dd77d109e1",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "low",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.9200000000000003,
+              "value": 92.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "en",
+          "value": 96.00000000000003,
+          "status": "ready",
+          "basis": "1986eb922205e23c16a7aa7217c13c510a031a086c29c89833c12b8f8d9ef0d0",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "low",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.9600000000000003,
+              "value": 96.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "es",
+          "value": 88.00000000000003,
+          "status": "ready",
+          "basis": "8e74e08e9986be60fea428d456c4359df5a222ea96fd02d5f34f280297d67f59",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "low",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-ja-es-2026-09-08",
+              "accuracy": 0.8800000000000002,
+              "value": 88.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "fr",
+          "value": 96.00000000000003,
+          "status": "ready",
+          "basis": "cddd39bfd6833eafb2ff3e2876676d9c642a45969a6b32e47ce882f1b4d433d1",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "low",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.9600000000000003,
+              "value": 96.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "ja",
+          "value": 96.00000000000003,
+          "status": "ready",
+          "basis": "77508060f2c969a8359f9f3f2a1829e93e985d24fbda25eb7c795b21354144fd",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "low",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-ja-es-2026-09-08",
+              "accuracy": 0.9600000000000003,
+              "value": 96.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "kk",
+          "value": 36,
+          "status": "ready",
+          "basis": "62c41a3af76fd208d5fcdd52c082084c24fa4cc9f067a79590cf9f0c056ccc39",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "low",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.36,
+              "value": 36,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "ko",
+          "value": 88.00000000000003,
+          "status": "ready",
+          "basis": "242200074ab31456a59cb3084e32415bdceb5e86144686b25d1940aab9519d7a",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "low",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.8800000000000002,
+              "value": 88.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "ru",
+          "value": 92.00000000000003,
+          "status": "ready",
+          "basis": "5fee0c8e897a70ed6e649ff15b3faf39da9fef443a3ba540d4d8f654e2c531ad",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "low",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.9200000000000003,
+              "value": 92.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "sk",
+          "value": 92.00000000000003,
+          "status": "ready",
+          "basis": "af2bc5b52c05ac9106c1ae8fa3497c932c5406ed6771315b2486e524349e7605",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "low",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.9200000000000003,
+              "value": 92.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "sq",
+          "value": 96.00000000000003,
+          "status": "ready",
+          "basis": "c17c4193d21393034c59ef4c5af145e9fe327f6974e1367bc8aad0fa2b51fb2b",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "low",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.9600000000000003,
+              "value": 96.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "sr",
+          "value": 32,
+          "status": "ready",
+          "basis": "84c4ffcb5df82b7e758e59d47d21f1ae12b303360282c359325953dc9a471d4f",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "low",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.32,
+              "value": 32,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "sv",
+          "value": 84.00000000000001,
+          "status": "ready",
+          "basis": "2a26266742d0af43d2d919f0bdfadc8e719ffcdc6bb598bdc19dd0c9a256afa0",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "low",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.8400000000000002,
+              "value": 84.00000000000001,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "zh",
+          "value": 92.00000000000003,
+          "status": "ready",
+          "basis": "8f0a7e21ba1fe9c3fba13c81220550a408cfb78b0989aa36bbd22e0e8ffe3165",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "low",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+              "accuracy": 0.9200000000000003,
+              "value": 92.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        }
+      ]
+    },
+    {
+      "id": "inclusionai/ling-3.0-flash",
+      "reference": {
+        "transport": "openrouter",
+        "model": "inclusionai/ling-3.0-flash"
+      },
+      "profile": {
+        "transport": "openrouter",
+        "model": "inclusionai/ling-3.0-flash",
+        "effort": "medium"
+      },
+      "scores": [
+        {
+          "language": "cs",
+          "value": null,
+          "status": "unmeasured",
+          "basis": "c0f13f4d4e180735f7e18e6ac2e34897e84d2c26e9ee30acf8be42452fcc2b0d",
+          "comparisonBasis": "1c78e67abd8debb407955279e0c574f58cd2b77422815d2ad1b5db95b1959c22",
+          "contributions": [],
+          "required": 1
+        },
+        {
+          "language": "de",
+          "value": null,
+          "status": "unmeasured",
+          "basis": "c262ce333fa6ffc71ded94bad1078f9ac64fe2967ef8a30118f1755532517d2b",
+          "comparisonBasis": "1c78e67abd8debb407955279e0c574f58cd2b77422815d2ad1b5db95b1959c22",
+          "contributions": [],
+          "required": 1
+        },
+        {
+          "language": "en",
+          "value": 96.00000000000003,
+          "status": "ready",
+          "basis": "11b5f141db20a80c5f6bf189c0bd2cd69c2faf7026ab2ae2e01a8577284e1773",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "medium",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-en-ru-2026-09-08",
+              "accuracy": 0.9600000000000003,
+              "value": 96.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "es",
+          "value": 92.00000000000003,
+          "status": "ready",
+          "basis": "ded87d112d536fcb493b4ac2fd71540f68b0a4f6038ee65128c8a9708cece8bd",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "medium",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-ja-es-2026-09-08",
+              "accuracy": 0.9200000000000003,
+              "value": 92.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "fr",
+          "value": null,
+          "status": "unmeasured",
+          "basis": "a08c4d564e28412f94d5a3cb104b31ebc674a2533deb3362953bc9145190af90",
+          "comparisonBasis": "1c78e67abd8debb407955279e0c574f58cd2b77422815d2ad1b5db95b1959c22",
+          "contributions": [],
+          "required": 1
+        },
+        {
+          "language": "ja",
+          "value": 96.00000000000003,
+          "status": "ready",
+          "basis": "2f4fc3666c7f8f7fe50ecdcaaa804477dbff04ac71a5cd8d05f3fcbd02049160",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "medium",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-ja-es-2026-09-08",
+              "accuracy": 0.9600000000000003,
+              "value": 96.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "kk",
+          "value": null,
+          "status": "unmeasured",
+          "basis": "fd3867b84b25e6393d41a7224b35c4a8142d45fc27f303016494f3f2c0ab1a07",
+          "comparisonBasis": "1c78e67abd8debb407955279e0c574f58cd2b77422815d2ad1b5db95b1959c22",
+          "contributions": [],
+          "required": 1
+        },
+        {
+          "language": "ko",
+          "value": null,
+          "status": "unmeasured",
+          "basis": "569d5ec21ae3b0b83a19dbf5090f48da196f8a9c58780cdf4671b7ceb35b1af2",
+          "comparisonBasis": "1c78e67abd8debb407955279e0c574f58cd2b77422815d2ad1b5db95b1959c22",
+          "contributions": [],
+          "required": 1
+        },
+        {
+          "language": "ru",
+          "value": 88.00000000000003,
+          "status": "ready",
+          "basis": "7fc66f95769e4aec5c603312e7424d50bfa3e2f29ce01a683d85a0890fa5a185",
+          "comparisonBasis": "1b18b82478d514120cfe93fae98522197772a253a902e93f6a762fb5c6da7768",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "medium",
+              "taskId": "mmpisa",
+              "releaseId": "mmpisa-ling-3-flash-en-ru-2026-09-08",
+              "accuracy": 0.8800000000000002,
+              "value": 88.00000000000003,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "sk",
+          "value": null,
+          "status": "unmeasured",
+          "basis": "562bcaf29d9dabcc6d4f52453a2b2f1c60f95b0622c7d800d27deb022619cdf4",
+          "comparisonBasis": "1c78e67abd8debb407955279e0c574f58cd2b77422815d2ad1b5db95b1959c22",
+          "contributions": [],
+          "required": 1
+        },
+        {
+          "language": "sq",
+          "value": null,
+          "status": "unmeasured",
+          "basis": "6d759b0cdf6fa42f3149ccf66e1872c486bb6e3d50c46765c045da8b9bfb9b9b",
+          "comparisonBasis": "1c78e67abd8debb407955279e0c574f58cd2b77422815d2ad1b5db95b1959c22",
+          "contributions": [],
+          "required": 1
+        },
+        {
+          "language": "sr",
+          "value": null,
+          "status": "unmeasured",
+          "basis": "2ddeb401a69516e1fad38091de2495b2e1b8bb26670b0fc7e5126911d7ff46ac",
+          "comparisonBasis": "1c78e67abd8debb407955279e0c574f58cd2b77422815d2ad1b5db95b1959c22",
+          "contributions": [],
+          "required": 1
+        },
+        {
+          "language": "sv",
+          "value": null,
+          "status": "unmeasured",
+          "basis": "67596d6f6297052d7be9cf52e2b5a1941e880deea5674fa36163f3f0f36dc07b",
+          "comparisonBasis": "1c78e67abd8debb407955279e0c574f58cd2b77422815d2ad1b5db95b1959c22",
+          "contributions": [],
+          "required": 1
+        },
+        {
+          "language": "zh",
+          "value": null,
+          "status": "unmeasured",
+          "basis": "48ef19395126f89e61d0b909e4ba2e1c7e9c4aea9a2926c37cdf6c23765c0e53",
+          "comparisonBasis": "1c78e67abd8debb407955279e0c574f58cd2b77422815d2ad1b5db95b1959c22",
+          "contributions": [],
+          "required": 1
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "releaseId": "mmpisa-ling-3-flash-12lang-2026-09-08",
+      "manifestHash": "9c25b9da5fefa2ce42473d6e09a34fc9361c00030a7e955424a3d62a0a03c19c",
+      "evidenceHash": "0339ea7c5deee92d667bd0a9f1e8553b3e6f7a5309a0ad0c9e3f9c80ba4eb847"
+    },
+    {
+      "releaseId": "mmpisa-ling-3-flash-en-ru-2026-09-08",
+      "manifestHash": "14e43064fcca2ceea5c15e441c9732bf426e27450101cde4a8007d3670eee17c",
+      "evidenceHash": "aa0930e295a1829fb0936e8aae3c93fe032afb7ae97fbe6a9c19dc10b2a73809"
+    },
+    {
+      "releaseId": "mmpisa-ling-3-flash-ja-es-2026-09-08",
+      "manifestHash": "220a8c89524fddc3e0d98dd7686f10a9931ed9b22b01cac9440cdec97c102dc4",
+      "evidenceHash": "ba935d1dbb2066ebeeb2beaaf706534f0287a80656ef96982d41219cf7584c9c"
+    }
+  ]
+}

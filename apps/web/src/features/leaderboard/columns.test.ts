@@ -10,8 +10,12 @@ import { guideLanguages, englishScoreDifference, initialLanguages } from "./tabl
 
 vi.mock("next-intl", () => ({
   useLocale: () => "en",
-  useTranslations: () => (key: string, values?: { value?: string }) =>
-    key === "differencePp" ? `${values?.value} pp` : key,
+  useTranslations: () => (key: string, values?: { value?: string; count?: number }) =>
+    key === "differencePp"
+      ? `${values?.value} pp`
+      : key === "datasetCount"
+        ? `${values?.count} datasets`
+        : key,
   useFormatter: () => ({
     number: (value: number, options?: Intl.NumberFormatOptions) =>
       new Intl.NumberFormat("en", options).format(value),
@@ -109,6 +113,46 @@ describe("model guide table", () => {
     expect(html).not.toContain("compareLanguages");
     expect(html).not.toContain("closeComparison");
     expect(html.match(/<th[ >]/g)).toHaveLength(5);
+  });
+  it("labels summary accuracy without dataset counts in table cells", () => {
+    const value = {
+      ...score("ko", 85),
+      contributions: [
+        {
+          transport: "openrouter" as const,
+          model: "fixture/model",
+          effort: "low" as const,
+          taskId: "first",
+          releaseId: "a",
+          accuracy: 0.8,
+          value: 80,
+          n: 5,
+          repeats: 1,
+        },
+        {
+          transport: "openrouter" as const,
+          model: "fixture/model",
+          effort: "low" as const,
+          taskId: "second",
+          releaseId: "b",
+          accuracy: 0.9,
+          value: 90,
+          n: 500,
+          repeats: 3,
+        },
+      ],
+    };
+    const html = renderToStaticMarkup(
+      createElement(LeaderboardTable, {
+        rows: [{ ...model, scores: [value] }],
+        languages: ["ko"],
+        isSummary: true,
+      }),
+    );
+    expect(html).toContain("meanAccuracy");
+    expect(html).toContain("85.0");
+    expect(html).not.toContain("2 datasets");
+    expect(html).not.toContain("guideScore");
   });
   it("keeps the English reference when its column is hidden", () => {
     function Harness() {

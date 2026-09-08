@@ -1,213 +1,109 @@
-# Model guide and release history
+# Published result summary
 
-The homepage is a model guide. Each API/model/effort configuration has one row and each selected benchmark
-language has its own score. Model pages retain the underlying dataset, configuration,
-release and paired-comparison results. Homepage text, navigation and the run builder
-are independent of this presentation.
+The homepage summarizes all published benchmark releases. Each transport/model/effort
+configuration has one row; each benchmark language has a column. Dataset IDs and
+languages come from the publication inventory, independently of website locales.
+There is no fixed test suite, allowed-dataset list, output cap or repeat count for
+admission to the summary.
 
-## Three separate identities
+## Calculation: mean-dataset-accuracy-v1
 
-- A **run/release** records an experiment. Its original prompts, answers, scores and
-  hashes stay immutable. A release still covers one dataset and protocol.
-- A **suite** defines the meaning of an overview score: pinned test conditions,
-  language inputs, task and family weights, repeat count and output cap. These are
-  declared inputs, not global dataset or language defaults.
-- A **guide snapshot** selects published releases and one explicit API/model/effort
-  profile per row when `configurationRows: true`. Legacy plans without this flag retain
-  one profile per model. It contains the resulting scores and their source references.
-  New evidence creates a new snapshot; changing the suite or an existing model's
-  profile requires a new suite ID. Adding a new model profile is allowed.
+For each transport/model/effort/language and dataset ID, select one published
+observation. The newest run creation time wins; release creation time and release
+ID break ties. When a historical release has no evidence sidecar with its run time,
+use release creation time. Republished evidence with a known older run time cannot
+replace a newer run. Selection never depends on accuracy.
 
-`packages/contracts/guide` owns the shared schemas. `packages/evaluation/guide`
-calculates the index. The runner publishes and verifies snapshots. The website
-loads their checksummed public aggregates and never opens SQLite, executes a model,
-downloads raw responses or calculates scientific statistics.
-
-## What the score means
-
-For each dataset/language condition, let `a` be its published accuracy and `b` the
-mean random-guess accuracy of its test questions (`mean(1 / optionCount)`). The
-normalized task score is:
+Average the selected dataset accuracies with equal weight:
 
 ```text
-taskScore = 100 × max(0, (a − b) / (1 − b))
-familyScore = weighted mean of taskScore within that family
-languageScore = weighted mean of familyScore across that language's families
+mean accuracy (%) = 100 × sum(selected dataset accuracies) / selected dataset count
 ```
 
-This is a new, exploratory composite metric in **index points**, not a percentage
-of correct answers or a measure of conversational fluency. The zero floor is an
-explicit policy: performance at or below random guessing receives zero. Raw
-accuracies remain available on the model and release pages. Normalization adjusts
-the guessing baseline; it does not make dataset difficulty equal or estimate
-general intelligence.
+80% on a five-question dataset and 90% on a 500-question dataset produce 85%.
+Question denominators are never pooled across datasets. More questions, repeats,
+protocol variants, revisions or published runs do not increase a dataset's weight.
+The selected release's accuracy already averages its prespecified repeats.
+Different dataset IDs, including translation variants, remain distinct contributions.
+Different transports, models and efforts remain separate rows.
 
-No raw questions are pooled across datasets. A large dataset does not gain weight
-because it has more questions. Additional releases and repeated requests do not
-increase a dataset's weight. Related datasets, including translation variants,
-should belong to the same family so adding variants does not automatically make
-that family dominate. Family membership and weights are reviewed suite choices.
+Only available datasets contribute. Missing another dataset never hides an available
+score. A dash means no published observation for that configuration and language;
+a measured zero remains zero. Each cell links to the model's source results, where
+the contributing datasets can be inspected. Different cells can cover different datasets and difficulties;
+the number is a descriptive summary, not a controlled ranking or a fluency measure.
+There is no random-guess correction, normalization floor or family weighting.
 
-The first suite explicitly selects the currently published human-translation
-mmPISA condition. Its single dataset is identified as early evidence on model
-pages. The initial Ling profile uses the published low-effort condition as an
-explicit operational choice; this retrospective selection is not a preregistered
-experiment or a claim that effort levels have equal compute across models.
+Token caps (including omitted caps), repeat counts, dataset revisions, protocol
+versions and prompt identities are source metadata, not summary eligibility filters.
+Selecting the newest result can therefore change a cell's experimental conditions.
+Original releases retain every setting, score and checksum for inspection.
 
-## Selecting evidence
-
-The staged release index supplies the publication inventory. The resolved guide plan
-records its release IDs and every published API/model/effort profile. For each configuration, task and language, the
-builder selects **one** matching published observation. It requires the same:
-
-- dataset identity, revision and complete manifest hash;
-- protocol identity/hash and actual question/prompt input hash;
-- output token cap, repeat count and selected API/model/effort profile;
-- language, full test-question count, question-alignment hash and random baseline.
-
-Among matching observations, the newest run creation time wins. Release creation
-time and then release ID break ties. Republishing an old run cannot displace a
-newer run; correcting a release of the same run can. Accuracy is never a selection
-criterion. A newer incompatible run is preserved in history and does not replace
-compatible evidence. Selecting different evidence requires a new guide snapshot.
-
-An exact canonical owner/model ID groups the history of native and routed models
-where the repository knows their identity. Different versions and quantizations
-are not fuzzy-matched. Unknown native IDs get transport-qualified routes without
-inventing a developer name. Grouping history does **not** pool provider results:
-only the explicit selected profile contributes to the score. Provider aliases can
-still drift; timestamps and original returned model IDs remain in release artifacts.
-
-## Missing and incremental results
-
-| Situation                                                            | Result                                                                                                                     |
-| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Configuration A has five languages, B has twenty-five                | One row per configuration; absent scores are `—`, never zero.                                                              |
-| A later run adds languages                                           | New languages are eligible without deleting earlier language results.                                                      |
-| A new configuration or language is published                         | Publication discovers configurations and extends compatible language inputs; unsupported conditions retain missing scores. |
-| A required task is missing                                           | The whole language score is withheld. We never average just the available tasks.                                           |
-| One language has a different test basis                              | Models within its column remain comparable; a cross-language difference is withheld.                                       |
-| Multiple releases repeat the same run or questions                   | Select one matching observation; do not add denominators or average release averages.                                      |
-| A newer result has another effort, cap, protocol or dataset revision | Keep it in history; it does not silently alter the current score.                                                          |
-| A model genuinely scores zero                                        | Display `0.0`, distinct from missing data.                                                                                 |
-| A bad release is withdrawn from consideration                        | Remove it from the active release index and synchronize; preserve its files and old snapshots for audit.                   |
-
-Partial runs are not benchmark releases. For work performed in small batches,
-resume the **same run** until its fixed matrix is complete, then publish it.
-Independent overlapping subsets cannot be stitched together from aggregate
-percentages: question/attempt-level reconciliation would be a separate reviewed
-runner feature. This change does not relax the full-dataset publication gates or
-publish synthetic/subset artifacts on the website.
-
-Different languages may have different registered test bases. All models in a
-given language column must meet that column's complete basis. Adding languages
-does not average them into a global model score. Extending a suite requires a new
-suite ID; existing values remain identical when their inputs and weights are
-unchanged.
-
-## Effort and language controls
-
-The effort selector defaults to **All effort levels**. Each row displays its effort; selecting one level filters configurations before pagination and
-sorting. Search and effort filters work together, and Reset filters clears both.
-Counts refer to configurations, not unique model names. Matching labels across
-providers do not imply equal computing budgets. Score links retain the exact
-API/model/effort selection on the model page.
-
-The `multilingual-effort-v2` suite preserves the first suite's task inputs and weights
-but lists every currently published effort as a separate profile. The original
-low-only snapshot remains immutable. New plans should set `configurationRows: true`
-for automatic publication. Profiles are discovered from staged releases; their effort
-is never borrowed from another row. Legacy explicit plans remain reproducible.
-
-## Language controls and uncertainty
+## Language controls
 
 The table initially shows English, Russian, Kazakh, Spanish and Chinese when
 available. If none are available, it shows the first three available languages.
-These are display preferences only, independent of experiment inputs.
-The searchable Languages menu can show any subset, including none. Select all
-shows every available language, including languages hidden by the current search. Hiding a sorted
-column restores alphabetical model ordering; missing scores sort last in either
-direction. Choosing languages does not change the recorded scores.
+These are display preferences only, independent of experiment inputs. The searchable
+Languages menu can show any subset, including none. Select all shows every available
+language, including languages hidden by the current search. Hiding a sorted column
+restores alphabetical model ordering; missing scores sort last. Choosing languages
+does not change the recorded scores.
 
-English is an optional display baseline within each model/API/effort row. Its
-score carries a Baseline label; other scores show a signed difference underneath
-when that row has a complete English score on the same aligned test basis. Hiding
-the English column does not remove the reference. Without English, scores remain
-available with no difference. There is no comparison mode or pair selector.
+## Language differences
 
-A difference is displayed only for complete scores with identical task/family
-weights, normalized scales, protocol conditions and aligned question identities.
-It is language score minus English score, labeled in percentage points on the
-normalized 0–100 scale. Positive means higher than English; negative means lower.
-This is a presentation convention, not a default experiment language or a change
-to published scoring. It is descriptive, not a paired
-significance test. **No composite confidence interval is manufactured from the
-release intervals.** Model and release pages preserve the original per-dataset
-paired gaps and their intervals. An interval containing zero remains inconclusive.
+English remains an optional display reference, not an experiment default. Show
+language mean accuracy minus English mean accuracy in percentage points only when
+the two selected observations cover the same dataset IDs, revisions, manifest hashes,
+protocol identities and aligned question sets. This check controls the difference
+annotation only; it never suppresses an accuracy. Missing alignment evidence withholds
+the annotation. Caps and repeat counts do not restrict descriptive summary differences.
+No composite confidence interval is inferred. The runner's explicit paired analyses
+retain their own stricter compatibility checks and unchanged statistical method.
 
-## Operator workflow
+## Publication and audit
 
-Normal `release stage` now adds a compact `evidence.json` sidecar. It records
-fingerprints derived from the verified public prompts, question inputs and saved
-configuration, including the run creation time. It contains no responses or keys.
-The original manifest and aggregate bytes remain unchanged.
+The website reads checksummed public aggregates and summary snapshots. It never
+executes models, reads SQLite, or computes benchmark statistics. `results/index.json`
+is the inventory. `results/guide-plan.json` uses schema v2:
 
-For an already staged historical release, first verify its downloaded public files
-using its recorded checkout and dependencies. Then derive the sidecar in the new
-checkout:
-
-```sh
-pnpm bench guide evidence /path/to/verified-public-release
+```json
+{
+  "schemaVersion": 2,
+  "aggregation": "mean-dataset-accuracy-v1",
+  "releases": []
+}
 ```
 
-This requires an exact match to the already staged manifest, verifies its file
-hashes and derives metadata. It does not re-score historical answers. Existing
-sidecars cannot be overwritten. Old releases lacking a sidecar remain readable
-but cannot contribute a guide score.
+`releases` is resolved automatically from the published index, not maintained as a
+second whitelist. No task list, profile list, weights or runtime settings are needed.
+The aggregation identity pins the new methodology. Changing the formula or selection
+rule requires a new aggregation identity and a new immutable summary snapshot.
 
-`bench release stage` updates the release index and then synchronizes the homepage.
-`results/index.json` is the inventory: do not maintain separate release, model or
-effort lists by hand. The synchronized `results/guide-plan.json` records the resolved
-selection for review and reproduction. `configurationRows: true` is required;
-legacy one-profile-per-model suites need an explicit migration.
-
-The existing plan still declares scientific policy: task identities, pinned dataset
-and protocol versions, token caps, repeats, families and weights. Synchronization
-never invents a task, changes a weight or replaces an existing language's basis.
-It discovers new language inputs only from matching verified evidence. A new language
-is enabled for scoring only when every declared task has a matching input identity;
-otherwise it remains available as a column with missing scores. Once enabled, each
-configuration must still have all required task results. An intentionally different
-per-language task basis requires an explicit new suite, not automatic inference.
-Conflicting newly discovered input identities stop publication and require an
-explicitly pinned choice. Extending the language basis creates a new suite ID.
-
-To update already staged evidence or recover from an interrupted publication:
+`bench release stage` synchronizes the summary after staging a verified release.
+To recover from an interrupted synchronization or migrate an existing inventory:
 
 ```sh
 pnpm bench guide sync
 pnpm guide:check
 ```
 
-Synchronization creates an immutable snapshot and updates `results/guide/index.json`.
-Repeating it with the same inputs does not create another snapshot. The runner locks
-publication while reading the inventory and writing the snapshot. If release staging
-succeeds but guide synchronization fails, the command reports failure and identifies
-the already staged release; fix the cause and run `guide sync`, rather than staging
-that release again. Commit both indexes, the resolved plan and the new snapshot in
-one PR. No model API calls are involved.
+Commit the resolved plan, summary snapshot and guide index together. Synchronization
+is idempotent for the same inputs. `guide:check` reproduces indexed snapshots and
+checks publication freshness. No model API calls are involved.
 
-`pnpm guide:check` independently rebuilds every indexed snapshot and also checks that
-the active homepage plan includes the staged inventory. CI fails when publication
-has left the homepage stale. Historical snapshots retain their exact saved plans
-and source hashes.
+The benchmark publication gates are unchanged: complete non-synthetic runs,
+reproducible scores, valid provenance and checksums, no truncated responses. Missing
+prices are allowed. Optional `evidence.json` sidecars provide run dates and alignment
+fingerprints; their absence does not discard a published accuracy. Corrupt evidence
+or changed public artifacts still fail validation.
 
-For an intentional scientific-policy change, edit the task basis with a new suite
-ID, then run `guide sync`. The explicit `guide build <plan> --id <id>` command remains
-available for reproducing curated historical plans; it does not bypass the active
-publication freshness check.
+`LLANG_GUIDE_ID` may explicitly select an older indexed snapshot. Unknown snapshots
+and changed sources fail rather than silently substituting different data.
 
-`LLANG_GUIDE_ID` can deliberately pin a historical snapshot for a site deployment;
-remove that override when the homepage should follow publication. Unknown snapshots
-or changed sources fail instead of substituting another score. `LLANG_RELEASE_ID`
-no longer selects the homepage table.
+## Historical normalized guides
+
+Schema-v1 plans and their immutable snapshots retain the former fixed-suite method:
+`100 × max(0, (accuracy − randomBaseline) / (1 − randomBaseline))`, followed by
+explicit task/family weighting and complete-suite coverage checks. They continue to
+verify with their saved plans, including pinned caps and repeats. Their score values
+and source releases are not rewritten by the schema-v2 summary migration.

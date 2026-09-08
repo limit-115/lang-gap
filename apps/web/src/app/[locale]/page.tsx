@@ -62,6 +62,7 @@ export default async function LeaderboardPage({ params }: Props) {
           <LeaderboardTable
             key={guide?.id ?? "empty"}
             rows={guide?.models ?? []}
+            isSummary={guide?.plan.schemaVersion === 2}
             languages={guideLanguages(guide?.models ?? [], guide?.languages ?? [])}
           />
         </NextIntlClientProvider>

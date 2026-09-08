@@ -52,7 +52,7 @@ function ColumnHeader<T>({
   );
 }
 
-export function useLeaderboardColumns(languages: readonly string[]) {
+export function useLeaderboardColumns(languages: readonly string[], isSummary = false) {
   const t = useTranslations("Leaderboard");
   const f = useFormatter();
   const locale = useLocale();
@@ -119,7 +119,7 @@ export function useLeaderboardColumns(languages: readonly string[]) {
                   title={
                     new Intl.DisplayNames([locale], { type: "language" }).of(language) ?? language
                   }
-                  description={t("guideScore")}
+                  description={t(isSummary ? "meanAccuracy" : "guideScore")}
                   numeric
                 />
               ),
@@ -174,6 +174,6 @@ export function useLeaderboardColumns(languages: readonly string[]) {
           ),
         ),
       ]),
-    [f, t, locale, languages],
+    [f, t, locale, languages, isSummary],
   );
 }

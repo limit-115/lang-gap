@@ -2,6 +2,9 @@ import type { Dictionary } from "@/i18n/routing";
 import type en from "./en";
 export default {
   unspecifiedEffort: "Не указан",
+  meanAccuracy: "Средняя точность, %",
+  datasetCount:
+    "{count, plural, one {# датасет} few {# датасета} many {# датасетов} other {# датасета}}",
   guideScore: "Балл / 100",
   incompleteScore:
     "Для сопоставимой оценки нужны дополнительные результаты. Доступные результаты — на странице модели.",

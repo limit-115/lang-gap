@@ -45,13 +45,21 @@ import { useLeaderboardColumns } from "./columns";
 import { initialLanguages } from "./table-state";
 import { features } from "./data-table-features";
 
-export function LeaderboardTable({ rows, languages }: { rows: GuideModel[]; languages: string[] }) {
+export function LeaderboardTable({
+  rows,
+  languages,
+  isSummary = false,
+}: {
+  rows: GuideModel[];
+  languages: string[];
+  isSummary?: boolean;
+}) {
   const locale = useLocale();
   const t = useTranslations("Leaderboard");
   const pageSizeId = useId();
   const [visible, setVisible] = useState(initialLanguages(languages));
   const [languageSearch, setLanguageSearch] = useState("");
-  const columns = useLeaderboardColumns(visible);
+  const columns = useLeaderboardColumns(visible, isSummary);
   const table = useTable({
     features,
     data: rows,
@@ -209,7 +217,7 @@ export function LeaderboardTable({ rows, languages }: { rows: GuideModel[]; lang
       <div className="overflow-hidden rounded-lg border bg-background/96">
         <Table className="[&_td]:h-16 [&_td]:px-4 [&_th]:h-16 [&_th]:px-4">
           <caption className="sr-only">
-            {t("tableTitle")} — {t("guideScore")}
+            {t("tableTitle")} — {t(isSummary ? "meanAccuracy" : "guideScore")}
           </caption>
           <TableHeader className="bg-muted/50">
             {table.getHeaderGroups().map((group) => (
