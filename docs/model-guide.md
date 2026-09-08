@@ -16,6 +16,28 @@ header targets `/[locale]/languages/<tag>/`, the same reserved destination as th
 language finder; language detail pages are still planned. The adjacent language
 name and arrow sort the current table.
 
+Model pages show the selected published row as a language accuracy chart. Links
+from the homepage preserve the exact transport/model/effort selection; model-finder
+links use the first matching row in the published guide, never the highest-scoring
+row. The reasoning selector switches between published rows without combining
+their results. Missing requested rows remain unavailable instead of falling back
+to another setting.
+
+The model-page header reuses the homepage's searchable model finder. Switching
+models keeps the requested language highlighted when it is available and opens
+the destination model's default published row.
+
+Language rows always sort by highest score. A successful language search also
+keeps any published English rows visible for context; searches with no matches
+show the empty state. This is a display rule only and does not require English
+in a benchmark or add missing results.
+
+The highest and lowest scores include tied languages. Their difference appears
+only with at least two measured languages sharing the same comparison basis; it
+is a descriptive range, not a paired estimate. One-language and incompatible
+evidence selections show no range. Experiment history and configuration details
+remain on the linked release pages.
+
 `mean-dataset-accuracy-v1` selects the newest run per dataset/transport/model/effort/language, never the best.
 Release time then ID break ties; absent run-time evidence falls back to release time.
 Selected dataset accuracies have equal weight: 80% on 5 questions and 90% on 500 produce 85%.

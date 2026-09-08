@@ -1,18 +1,16 @@
-import { ArrowLeft } from "lucide-react";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { guideModelIdentity } from "@llang-gap/contracts/guide";
 import { routing } from "@/i18n/routing";
 import { getMessagesForLocale } from "@/i18n/messages";
-import { Link } from "@/i18n/navigation";
 import { pageMetadata } from "@/shared/metadata";
 import { getReleases } from "@/features/releases/data";
 import { getModelGuide } from "@/features/leaderboard/guide-data";
 import { getModelPresentation } from "@/features/leaderboard/model-catalog";
 import { modelGuideHref } from "@/features/leaderboard/table-state";
-import { ModelOwnerLogo } from "@/features/leaderboard/model-owner-logo";
 import { ModelResults } from "@/features/models/model-results";
+import { selectModelOverview } from "@/features/models/overview-data";
 
 type Props = {
   params: Promise<{ locale: string; owner: string; model: string }>;
@@ -70,55 +68,56 @@ export default async function ModelPage({ params, searchParams }: Props) {
   setRequestLocale(locale);
   const data = await getModel(owner, model);
   const guide = await getModelGuide();
-  const t = await getTranslations("Models");
   const messages = getMessagesForLocale(locale);
-  const selection = await searchParams;
-  const { language } = selection;
+  const query = await searchParams;
+  const selection = Object.fromEntries(
+    Object.entries(query).filter(([, value]) => typeof value === "string"),
+  );
+  const profiles = guide?.models.filter((entry) => entry.id === data.id) ?? [];
+  const selected = selectModelOverview(profiles, data.id, selection);
+  // Browser ICU support varies for native names. Keep SSR and hydration identical.
+  const names = new Intl.DisplayNames([locale], { type: "language" });
+  const languageNames = Object.fromEntries(
+    (selected?.scores ?? []).map(({ language }) => [
+      language,
+      {
+        local: names.of(language) ?? language,
+        native: new Intl.DisplayNames([language], { type: "language" }).of(language) ?? language,
+      },
+    ]),
+  );
+  const sourceIds = new Set(
+    selected?.scores.flatMap((score) => score.contributions.map((entry) => entry.releaseId)) ?? [],
+  );
+  const sources = sourceIds.size
+    ? data.releases.filter((release) => sourceIds.has(release.id))
+    : data.releases;
   return (
-    <article className="min-w-0 pb-16">
-      <header className="intro">
-        <Link href="/" className="resource-link mb-6">
-          <ArrowLeft aria-hidden="true" />
-          <span>{t("back")}</span>
-        </Link>
-        <div className="flex items-center gap-4">
-          <ModelOwnerLogo ownerId={data.ownerId} size={40} />
-          <h1>{data.label}</h1>
-        </div>
-        <p>{data.ownerName}</p>
-      </header>
-      <NextIntlClientProvider
-        messages={{
-          Models: messages.Models,
-          Leaderboard: messages.Leaderboard,
-          Releases: messages.Releases,
-        }}
-      >
-        <ModelResults
-          model={
-            guide?.models.find(
-              (entry) =>
-                entry.id === data.id &&
-                (!selection.effort ||
-                  (entry.profile?.effort === selection.effort &&
-                    entry.profile.transport === selection.transport &&
-                    entry.profile.model === selection.model)),
-            ) ?? null
-          }
-          releases={data.releases}
-          name={data.label}
-          suiteId={
-            guide
-              ? guide.plan.schemaVersion === 2
-                ? guide.plan.aggregation
-                : guide.plan.suite.id
-              : null
-          }
-          taskCount={guide?.plan.schemaVersion === 1 ? guide.plan.suite.tasks.length : 0}
-          isSummary={guide?.plan.schemaVersion === 2}
-          initialLanguage={typeof language === "string" ? language : null}
-        />
-      </NextIntlClientProvider>
-    </article>
+    <NextIntlClientProvider
+      messages={{
+        Models: messages.Models,
+        Leaderboard: messages.Leaderboard,
+      }}
+    >
+      <ModelResults
+        key={
+          selected
+            ? `${selected.id}/${selected.profile?.transport}/${selected.profile?.effort}`
+            : "unavailable"
+        }
+        model={selected}
+        profiles={profiles}
+        modelOptions={guide?.models.map((entry) => entry.reference) ?? []}
+        name={data.label}
+        languageNames={languageNames}
+        ownerId={data.ownerId}
+        ownerName={data.ownerName}
+        updatedAt={sources[0]?.createdAt ?? null}
+        isSummary={guide?.plan.schemaVersion === 2}
+        initialLanguage={selection.language ?? null}
+        sourceCount={sources.length}
+        sourceHref={sources.length === 1 ? `/releases/${sources[0]!.id}` : "/releases"}
+      />
+    </NextIntlClientProvider>
   );
 }
