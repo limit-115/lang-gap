@@ -1,3 +1,4 @@
+import { BookOpen, Database } from "lucide-react";
 import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -42,11 +43,19 @@ export default async function MethodologyPage({ params }: Props) {
       <section>
         <h2>{t("sources")}</h2>
         <div className="source-links">
-          <a href="https://github.com/limit-115/llang-gap/tree/main/datasets">
-            {t("datasetLink")} ↗
+          <a
+            className="resource-link"
+            href="https://github.com/limit-115/llang-gap/tree/main/datasets"
+          >
+            <Database aria-hidden="true" />
+            <span>{t("datasetLink")}</span>
           </a>
-          <a href="https://github.com/limit-115/llang-gap/blob/main/docs/protocol.md">
-            {t("harnessLink")} ↗
+          <a
+            className="resource-link"
+            href="https://github.com/limit-115/llang-gap/blob/main/docs/protocol.md"
+          >
+            <BookOpen aria-hidden="true" />
+            <span>{t("harnessLink")}</span>
           </a>
         </div>
       </section>
