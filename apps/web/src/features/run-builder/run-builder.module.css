@@ -343,7 +343,7 @@ input.input:read-only {
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 30px 32px;
-  margin-top: 64px;
+  margin-block: 64px 68px;
   background: color-mix(in oklch, var(--primary) 4%, var(--background));
 }
 .cta h2 {
