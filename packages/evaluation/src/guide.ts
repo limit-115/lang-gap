@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { releaseManifestSchema, type ReleaseManifest } from "@llang-gap/contracts";
 import {
   guideModelIdentity,
+  guideProfileKey,
   guidePlanSchema,
   guideSnapshotSchema,
   releaseEvidenceSchema,
@@ -118,7 +119,7 @@ export function buildGuide(
       const rowKey = JSON.stringify([row.transport, row.model, row.effort]);
       if (rowKeys.has(rowKey)) throw new Error("Duplicate published model condition");
       rowKeys.add(rowKey);
-      const modelKey = guideModelIdentity(row).id;
+      const modelKey = plan.configurationRows ? guideProfileKey(row) : guideModelIdentity(row).id;
       if (!models.has(modelKey)) models.set(modelKey, row);
       const configuration = evidence?.configurations.find(
         (entry) => entry.transport === row.transport && entry.model === row.model,
@@ -154,7 +155,12 @@ export function buildGuide(
   const output = [...models.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([key, reference]) => {
-      const profile = plan.profiles.find((entry) => guideModelIdentity(entry).id === key) ?? null;
+      const profile =
+        plan.profiles.find(
+          (entry) =>
+            (plan.configurationRows ? guideProfileKey(entry) : guideModelIdentity(entry).id) ===
+            key,
+        ) ?? null;
       const scores = languages.flatMap((language): GuideScore[] => {
         const tasks = plan.suite.tasks
           .filter((task) => task.languages.some((entry) => entry.language === language))
@@ -237,9 +243,13 @@ export function buildGuide(
         ];
       });
       return {
-        id: key,
+        id: guideModelIdentity(reference).id,
         reference: { transport: reference.transport, model: reference.model },
-        profile,
+        profile:
+          profile ??
+          (plan.configurationRows
+            ? { transport: reference.transport, model: reference.model, effort: reference.effort }
+            : null),
         scores,
       };
     });

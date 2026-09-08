@@ -16,7 +16,7 @@ import { ModelResults } from "@/features/models/model-results";
 
 type Props = {
   params: Promise<{ locale: string; owner: string; model: string }>;
-  searchParams: Promise<{ language?: string }>;
+  searchParams: Promise<{ language?: string; effort?: string; transport?: string; model?: string }>;
 };
 
 async function getModel(owner: string, name: string) {
@@ -72,7 +72,8 @@ export default async function ModelPage({ params, searchParams }: Props) {
   const guide = await getModelGuide();
   const t = await getTranslations("Models");
   const messages = getMessagesForLocale(locale);
-  const language = (await searchParams).language;
+  const selection = await searchParams;
+  const { language } = selection;
   return (
     <article className="min-w-0 pb-16">
       <header className="intro">
@@ -94,7 +95,16 @@ export default async function ModelPage({ params, searchParams }: Props) {
         }}
       >
         <ModelResults
-          model={guide?.models.find((entry) => entry.id === data.id) ?? null}
+          model={
+            guide?.models.find(
+              (entry) =>
+                entry.id === data.id &&
+                (!selection.effort ||
+                  (entry.profile?.effort === selection.effort &&
+                    entry.profile.transport === selection.transport &&
+                    entry.profile.model === selection.model)),
+            ) ?? null
+          }
           releases={data.releases}
           name={data.label}
           suiteId={guide?.plan.suite.id ?? null}

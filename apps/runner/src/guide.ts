@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { releaseManifestSchema, safeIdSchema } from "@llang-gap/contracts";
 import {
   guideModelIdentity,
+  guideProfileKey,
   guideIndexSchema,
   guidePlanSchema,
   guideSnapshotSchema,
@@ -107,14 +108,17 @@ export async function publishGuide(
     for (const previous of earlier) {
       if (
         previous.plan.suite.id === plan.suite.id &&
-        json(previous.plan.suite) !== json(plan.suite)
+        (json(previous.plan.suite) !== json(plan.suite) ||
+          previous.plan.configurationRows !== plan.configurationRows)
       )
         throw new Error("A changed suite requires a new suite ID");
       if (
         previous.plan.suite.id === plan.suite.id &&
         previous.plan.profiles.some((profile) => {
-          const replacement = plan.profiles.find(
-            (entry) => guideModelIdentity(entry).id === guideModelIdentity(profile).id,
+          const replacement = plan.profiles.find((entry) =>
+            plan.configurationRows
+              ? guideProfileKey(entry) === guideProfileKey(profile)
+              : guideModelIdentity(entry).id === guideModelIdentity(profile).id,
           );
           return !replacement || JSON.stringify(replacement) !== JSON.stringify(profile);
         })

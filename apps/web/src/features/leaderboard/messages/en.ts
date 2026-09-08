@@ -1,4 +1,7 @@
 export default {
+  unspecifiedEffort: "Unspecified",
+  effortHelp:
+    "Each row is a separate model, API and effort configuration. Matching effort labels do not imply equal computing budgets.",
   guideScore: "Score / 100",
   incompleteScore:
     "More results are needed for a comparable score. Open the model to see available results.",
@@ -55,8 +58,8 @@ export default {
   languageColumns: "Languages",
   visibleLanguages: "{count} of {total} shown",
   noResults: "No models match these filters",
-  noResultsDescription: "Try another model or developer name.",
-  rowRange: "{from}–{to} of {total, plural, one {# model} other {# models}}",
+  noResultsDescription: "Try another model, developer or effort level.",
+  rowRange: "{from}–{to} of {total, plural, one {# configuration} other {# configurations}}",
   rowsPerPage: "Rows per page",
   pageOf: "Page {page} of {total}",
   firstPage: "First page",

@@ -112,6 +112,17 @@ describe("published guide artifacts", () => {
     expect(await verifyGuide("guide-one", root)).toMatchObject({ valid: true });
     expect(await verifyGuide("guide-two", root)).toMatchObject({ valid: true });
   });
+  it("versions configuration rows while keeping the legacy guide reproducible", async () => {
+    await publishGuide(planPath, "legacy", root);
+    plan.configurationRows = true;
+    await writeFile(planPath, json(plan));
+    await expect(publishGuide(planPath, "same-suite", root)).rejects.toThrow("new suite ID");
+    plan.suite.id = "configurations-v2";
+    await writeFile(planPath, json(plan));
+    await publishGuide(planPath, "configurations", root);
+    expect(await verifyGuide("legacy", root)).toMatchObject({ valid: true });
+    expect(await verifyGuide("configurations", root)).toMatchObject({ valid: true });
+  });
   it("requires a new suite identity for changed weights or model settings", async () => {
     await publishGuide(planPath, "guide-one", root);
     plan.suite.tasks[0]!.weight = 2;

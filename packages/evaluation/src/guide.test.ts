@@ -301,3 +301,65 @@ describe("versioned model guide", () => {
     expect(() => build([input], configuration)).toThrow("release set");
   });
 });
+
+it("publishes separate effort rows across datasets and preserves legacy snapshots", () => {
+  const inputs = [
+    release("first", "first", ["ja"], 0.25),
+    release("second", "second", ["ja"], 0.75),
+  ];
+  for (const input of inputs)
+    input.manifest.aggregate.push({
+      ...input.manifest.aggregate[0]!,
+      effort: "max",
+      scores: [{ language: "ja", n: 4, accuracy: 1, repeatAccuracy: [1] }],
+    });
+  const configuration = plan(inputs);
+  expect(build(inputs, configuration).models).toHaveLength(1);
+  configuration.configurationRows = true;
+  configuration.profiles.push({ ...profile, effort: "max" });
+  const rows = build(inputs, configuration).models;
+  expect(rows).toHaveLength(2);
+  expect(rows.find((row) => row.profile?.effort === "low")!.scores[0]!.value).toBeCloseTo(100 / 3);
+  expect(rows.find((row) => row.profile?.effort === "max")!.scores[0]!.value).toBe(100);
+  inputs[1]!.manifest.aggregate.pop();
+  expect(
+    build(inputs, configuration).models.find((row) => row.profile?.effort === "max")!.scores[0]!
+      .value,
+  ).toBeNull();
+});
+
+it("keeps native and routed configurations separate even with the same model identity", () => {
+  const input = release("providers", "first", ["ja"]);
+  input.manifest.aggregate[0]!.model = "openai/gpt-6-astra";
+  input.evidence!.configurations[0]!.model = "openai/gpt-6-astra";
+  input.manifest.aggregate.push({
+    ...input.manifest.aggregate[0]!,
+    transport: "openai",
+    model: "gpt-6-astra",
+    scores: [{ language: "ja", n: 4, accuracy: 1, repeatAccuracy: [1] }],
+  });
+  input.evidence!.configurations.push({
+    transport: "openai",
+    model: "gpt-6-astra",
+    maxOutputTokens: 2048,
+  });
+  const configuration = plan([input]);
+  configuration.configurationRows = true;
+  configuration.profiles = input.manifest.aggregate.map(({ transport, model, effort }) => ({
+    transport,
+    model,
+    effort,
+  }));
+  const rows = build([input], configuration).models;
+  expect(rows.map((row) => row.id)).toEqual(["openai/gpt-6-astra", "openai/gpt-6-astra"]);
+  expect(rows.find((row) => row.profile?.transport === "openai")!.scores[0]!.value).toBe(100);
+  expect(rows.find((row) => row.profile?.transport === "openrouter")!.scores[0]!.value).toBeCloseTo(
+    200 / 3,
+  );
+  configuration.profiles = [];
+  const unlisted = build([input], configuration).models;
+  expect(unlisted).toHaveLength(2);
+  expect(
+    unlisted.every((row) => row.profile?.effort === "low" && row.scores[0]!.value === null),
+  ).toBe(true);
+});
