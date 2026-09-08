@@ -6,7 +6,8 @@ import {
   type DatasetProtocols,
   type RunDataset,
 } from "@llang-gap/contracts/run-catalog";
-import { getMaxOutputTokens, validateProtocolDataset, protocolV1 } from "./prompts";
+import { getProtocolAdapter } from "#src/protocols/index";
+import { getMaxOutputTokens, validateProtocolDataset } from "./prompts";
 
 export async function readDatasetProtocols(directory: string): Promise<DatasetProtocols> {
   return datasetProtocolsSchema.parse(
@@ -45,7 +46,7 @@ export function describeRunDataset(
       id,
       languages: supported,
       tokenCap,
-      requiresTokenCap: tokenCap !== null || id === protocolV1.id,
+      requiresTokenCap: getProtocolAdapter(id).tokenPolicy.required,
     };
   });
   return {
