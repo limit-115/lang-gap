@@ -14,98 +14,85 @@
 .intro p {
   max-width: 620px;
 }
-.card {
-  --finder-border: color-mix(in srgb, var(--foreground) 17%, var(--background));
-  --finder-input: var(--background);
-  --finder-cta: var(--foreground);
-  --finder-cta-text: var(--background);
+.finder {
+  --finder-border: color-mix(in srgb, var(--foreground) 18%, var(--background));
   min-width: 0;
+  padding-top: 4px;
   color: var(--foreground);
 }
-.cardHeading {
-  font-size: 1.125rem;
+.heading {
+  font-size: 0.875rem;
   line-height: 1.5;
   font-weight: 500;
 }
 .controls {
-  margin-top: 20px;
-}
-.selection {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.trigger {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-top: 12px;
+}
+.searchField {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   width: 100%;
   min-width: 0;
-  min-height: 44px;
-  padding: 10px 12px;
+  height: 48px;
+  padding-inline: 14px;
   border: 1px solid var(--finder-border);
   border-radius: 8px;
-  background: var(--finder-input);
+  background: var(--background);
   font-size: 0.875rem;
   text-align: left;
+  transition:
+    border-color 150ms,
+    background-color 150ms;
 }
-.trigger:hover,
-.trigger[data-popup-open],
-.clearButton:hover {
-  background: var(--accent);
+.searchField:hover {
+  border-color: var(--muted-foreground);
 }
-.trigger:focus-visible,
-.clearButton:focus-visible {
-  outline: 2px solid var(--muted-foreground);
-  outline-offset: 3px;
+.searchField:focus-within {
+  border-color: var(--foreground);
+  outline: 3px solid color-mix(in srgb, var(--foreground) 8%, transparent);
+  outline-offset: 2px;
 }
-.selectedName,
-.placeholder {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.searchField {
+  padding-right: 4px;
 }
-.placeholder {
+.searchToggle {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 5px;
   color: var(--muted-foreground);
 }
-.chevron {
+.searchToggle:hover {
+  color: var(--foreground);
+  background: var(--accent);
+}
+.searchToggle svg {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
   color: var(--muted-foreground);
 }
-.clearButton {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 32px;
-  height: 44px;
-  border-radius: 6px;
-  color: var(--muted-foreground);
-}
-.clearButton svg {
-  width: 16px;
-  height: 16px;
-}
-.inputGroup {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-inline: 12px;
-  border-bottom: 1px solid var(--border);
+.searchToggle:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 4px;
 }
 .searchIcon {
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
   flex-shrink: 0;
+  stroke-width: 1.75;
   color: var(--muted-foreground);
 }
 .input {
   width: 100%;
   min-width: 0;
-  height: 44px;
+  height: 46px;
   background: transparent;
   outline: none;
   font-size: 0.875rem;
@@ -115,43 +102,9 @@
   color: var(--muted-foreground);
   opacity: 1;
 }
-.inputGroup:focus-within {
-  border-bottom-color: var(--muted-foreground);
-}
-.action {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  height: 44px;
-  margin-top: 10px;
-  padding-inline: 12px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  background: var(--finder-cta);
-  color: var(--finder-cta-text);
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-.action:hover {
-  background: color-mix(in srgb, var(--finder-cta) 88%, var(--finder-cta-text));
-}
-.action:disabled {
-  opacity: 1;
-  background: color-mix(in srgb, var(--foreground) 9%, var(--background));
-  color: var(--muted-foreground);
-  border-color: var(--finder-border);
-}
-.action:focus-visible {
-  outline: 2px solid var(--muted-foreground);
-  outline-offset: 3px;
-}
-.action svg {
-  width: 18px;
-  height: 18px;
-}
 .positioner {
   z-index: 50;
-  width: var(--anchor-width);
+  width: max(280px, var(--anchor-width));
   max-width: calc(100vw - 32px);
 }
 .popup {
@@ -160,13 +113,13 @@
   border-radius: 10px;
   background: var(--popover);
   color: var(--popover-foreground);
-  box-shadow: 0 8px 24px -8px #00000030;
+  box-shadow: 0 12px 32px -12px #00000030;
 }
 .list {
-  max-height: min(300px, calc(var(--available-height) - 46px));
+  max-height: min(300px, calc(var(--available-height) - 52px));
   overflow-y: auto;
-  scroll-padding: 6px;
-  padding: 6px;
+  scroll-padding: 5px;
+  padding: 5px;
 }
 .list[data-empty] {
   padding: 0;
@@ -176,8 +129,8 @@
   align-items: center;
   gap: 10px;
   min-height: 44px;
-  padding: 8px;
-  border-radius: 6px;
+  padding: 9px;
+  border-radius: 5px;
   cursor: pointer;
   outline: none;
 }
@@ -188,8 +141,8 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 }
 .group + .group {
   margin-top: 4px;
@@ -197,7 +150,7 @@
   border-top: 1px solid var(--border);
 }
 .groupLabel {
-  padding: 6px 8px;
+  padding: 6px 9px;
   color: var(--muted-foreground);
   font-size: 0.75rem;
   font-weight: 500;
@@ -208,12 +161,15 @@
   font-size: 0.875rem;
   overflow-wrap: anywhere;
 }
-.check {
+.optionArrow {
+  width: 15px;
+  height: 15px;
   flex-shrink: 0;
+  color: var(--muted-foreground);
+  opacity: 0;
 }
-.check svg {
-  width: 16px;
-  height: 16px;
+.option[data-highlighted] .optionArrow {
+  opacity: 1;
 }
 .empty:not(:empty) {
   padding: 24px 18px;
@@ -234,7 +190,7 @@
 @media (max-width: 1020px) {
   .hero {
     gap: 32px;
-    grid-template-columns: minmax(0, 1fr) 336px;
+    grid-template-columns: minmax(0, 1fr) 320px;
   }
 }
 @media (max-width: 800px) {
@@ -243,8 +199,19 @@
     gap: 28px;
     padding-block: 32px 72px;
   }
-  .card {
+  .finder {
     width: 100%;
     max-width: 440px;
+    padding-top: 0;
+  }
+}
+@media (max-width: 480px) {
+  .input {
+    font-size: 1rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .searchField {
+    transition: none;
   }
 }

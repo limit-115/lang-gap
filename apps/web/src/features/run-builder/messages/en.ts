@@ -58,9 +58,14 @@ export default {
   reviewAction: "Review run",
   localOnly: "Runs locally",
 
-  ctaTitle: "Want to run your own?",
-  ctaBody: "Your models. Your languages. A reproducible experiment you can run locally.",
+  ctaTitle: "Your models.",
+  ctaTitleLanguages: "Your languages.",
+  ctaTitleBenchmark: "Your benchmark.",
+  ctaNote: "Configure here. Run on your machine.",
+  ctaBody:
+    "Go beyond the leaderboard. Choose a dataset and build a reproducible experiment around what matters to you.",
   ctaAction: "Build a run",
+
   metadataTitle: "Build your own benchmark run",
   experimentTitle: "What do you want to test?",
   executionTitle: "How should it run?",

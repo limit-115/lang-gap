@@ -2,11 +2,10 @@
 
 import { useId, useMemo, useState } from "react";
 import { Combobox } from "@base-ui/react/combobox";
-import { ArrowRight, Check, ChevronDown, Search, X } from "lucide-react";
+import { ArrowRight, ChevronDown, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Aggregate } from "@llang-gap/contracts";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Link } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import {
   getModelOptions,
   getModelHref,
@@ -19,11 +18,17 @@ import styles from "./model-finder.module.css";
 
 export function ModelFinderHero({ rows }: { rows: Pick<Aggregate, "model" | "transport">[] }) {
   const t = useTranslations("Leaderboard");
+  const router = useRouter();
   const id = useId();
   const options = useMemo(() => getModelOptions(rows), [rows]);
+  const groups = useMemo(() => getModelGroups(options), [options]);
   const [selected, setSelected] = useState<ModelOption | null>(null);
   const [input, setInput] = useState("");
-  const groups = useMemo(() => getModelGroups(options), [options]);
+
+  function selectModel(model: ModelOption | null) {
+    setSelected(model);
+    if (model) router.push(getModelHref(model));
+  }
 
   return (
     <div className={styles.hero}>
@@ -31,46 +36,40 @@ export function ModelFinderHero({ rows }: { rows: Pick<Aggregate, "model" | "tra
         <h1>{t("title")}</h1>
         <p>{t("description")}</p>
       </section>
-      <aside className={styles.card} aria-labelledby={`${id}-title`}>
-        <h2 id={`${id}-title`} className={styles.cardHeading}>
+      <aside className={styles.finder} aria-labelledby={`${id}-title`}>
+        <h2 id={`${id}-title`} className={styles.heading}>
           {t("finderTitle")}
         </h2>
+        <p id={`${id}-help`} className="sr-only">
+          {t("finderNavigationHelp")}
+        </p>
         <div className={styles.controls}>
           <Combobox.Root
             items={groups}
             value={selected}
-            onValueChange={setSelected}
+            onValueChange={selectModel}
             inputValue={input}
             onInputValueChange={setInput}
-            onOpenChange={() => setInput("")}
             filter={matchesModel}
             autoHighlight
           >
-            <div className={styles.selection}>
-              <Combobox.Trigger className={styles.trigger} aria-label={t("finderSelect")}>
-                {selected ? (
-                  <>
-                    <span className={styles.ownerIcon} aria-hidden="true">
-                      <ModelOwnerLogo ownerId={selected.ownerId} size={20} />
-                    </span>
-                    <span className={styles.selectedName}>{selected.label}</span>
-                  </>
-                ) : (
-                  <span className={styles.placeholder}>{t("finderSelect")}</span>
-                )}
-                <ChevronDown aria-hidden="true" className={styles.chevron} />
+            <Combobox.InputGroup className={styles.searchField}>
+              <Search aria-hidden="true" className={styles.searchIcon} />
+              <Combobox.Input
+                id={`${id}-input`}
+                aria-labelledby={`${id}-title`}
+                aria-describedby={`${id}-help`}
+                placeholder={t("finderSearch")}
+                className={styles.input}
+              />
+              <Combobox.Trigger
+                id={`${id}-toggle`}
+                className={styles.searchToggle}
+                aria-label={t("finderBrowse")}
+              >
+                <ChevronDown aria-hidden="true" />
               </Combobox.Trigger>
-              {selected && (
-                <button
-                  type="button"
-                  className={styles.clearButton}
-                  aria-label={t("finderClear")}
-                  onClick={() => setSelected(null)}
-                >
-                  <X aria-hidden="true" />
-                </button>
-              )}
-            </div>
+            </Combobox.InputGroup>
             <Combobox.Portal>
               <Combobox.Positioner
                 side="bottom"
@@ -79,14 +78,6 @@ export function ModelFinderHero({ rows }: { rows: Pick<Aggregate, "model" | "tra
                 className={styles.positioner}
               >
                 <Combobox.Popup className={styles.popup}>
-                  <Combobox.InputGroup className={styles.inputGroup}>
-                    <Search aria-hidden="true" className={styles.searchIcon} />
-                    <Combobox.Input
-                      aria-label={t("finderPlaceholder")}
-                      placeholder={t("finderPlaceholder")}
-                      className={styles.input}
-                    />
-                  </Combobox.InputGroup>
                   <Combobox.Empty className={styles.empty}>
                     <strong>{t("finderNoResults")}</strong>
                     <span>{t("finderNoResultsHelp")}</span>
@@ -105,12 +96,10 @@ export function ModelFinderHero({ rows }: { rows: Pick<Aggregate, "model" | "tra
                           {(item: ModelOption) => (
                             <Combobox.Item key={item.value} value={item} className={styles.option}>
                               <span className={styles.ownerIcon} aria-hidden="true">
-                                <ModelOwnerLogo ownerId={item.ownerId} size={20} />
+                                <ModelOwnerLogo ownerId={item.ownerId} size={18} />
                               </span>
                               <span className={styles.optionText}>{item.label}</span>
-                              <Combobox.ItemIndicator className={styles.check}>
-                                <Check aria-hidden="true" />
-                              </Combobox.ItemIndicator>
+                              <ArrowRight aria-hidden="true" className={styles.optionArrow} />
                             </Combobox.Item>
                           )}
                         </Combobox.Collection>
@@ -121,19 +110,6 @@ export function ModelFinderHero({ rows }: { rows: Pick<Aggregate, "model" | "tra
               </Combobox.Positioner>
             </Combobox.Portal>
           </Combobox.Root>
-          {selected ? (
-            <Link
-              href={getModelHref(selected)}
-              prefetch={false}
-              className={`${buttonVariants()} ${styles.action}`}
-            >
-              {t("finderAction")} <ArrowRight aria-hidden="true" />
-            </Link>
-          ) : (
-            <Button disabled className={styles.action}>
-              {t("finderAction")} <ArrowRight aria-hidden="true" />
-            </Button>
-          )}
         </div>
       </aside>
     </div>
