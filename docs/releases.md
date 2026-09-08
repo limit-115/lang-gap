@@ -91,6 +91,11 @@ This adds the small `manifest.json`, `aggregate.json` and `assets.json` files un
 Staging checks the local artifact; it does not assert remote availability. Confirm
 uploaded asset hashes before merging/deploying the index change.
 
+Staged `manifest.json` and `aggregate.json` are exact copies of the verified
+release files and are excluded from formatting. Preserve their bytes: formatting
+the aggregate would invalidate its manifest hash. The index and asset URL files
+remain subject to normal repository formatting.
+
 The website should:
 
 1. Resolve a fixed release ID from `LLANG_RELEASE_ID` or `results/index.json.latest`

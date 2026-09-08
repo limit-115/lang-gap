@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 3,
+  "id": "mmpisa-ling-3-flash-en-ru-2026-09-08",
+  "runId": "mmpisa-ling-3-flash-low-medium-en-ru-2026-09-08-98071858",
+  "createdAt": "2026-09-08T09:06:44.657Z",
+  "kind": "benchmark",
+  "dataset": "mmpisa",
+  "datasetRevision": "22b1caa65980ca1fa295acc31ee5e35200e0c8c0",
+  "languages": [
+    "en",
+    "ru"
+  ],
+  "comparisons": [
+    {
+      "baseline": "en",
+      "language": "ru"
+    }
+  ],
+  "protocol": "multiple-choice-v1",
+  "configHash": "b1638d8d65048acd7216865be9468991da2b51d3ed54a03d255de6c1f824b76b",
+  "files": {
+    "resolved.json": "b1638d8d65048acd7216865be9468991da2b51d3ed54a03d255de6c1f824b76b",
+    "identity.json": "b2e0ce185ee180e44099b8363d0098505f1f2ed8354c1672e251b0d96e1165e3",
+    "dataset.jsonl": "ad877126c97b17a526d14478f6e0bb4bfc87308fac3f33b65551a0c957c69f20",
+    "dataset-manifest.json": "81c75ee0967e1ce708e83958d9f53d880de4735d0036144ac3b9463372a5e0ce",
+    "items.jsonl": "d3b5717ce8b00a1875126d3f753084e70ceb634f74e2ad72609e3a1790a39f08",
+    "analysis.json": "886e655c463998b13c5ed3bb916fe023b7b04dd62bea8de61a5f6bf90efc1211",
+    "aggregate.json": "d598541a19caa6bc9dd57e8fe1b3d7f57da0d75b9d26e21bedcc74371b28e38e",
+    "aggregate.csv": "d47536473ff78c88e0f4898e7d53fd17e0a4861801cb848803c77d1d2d3abfb1",
+    "attempts.jsonl": "45e717254eaafb97a67d008aac571707ddf4422a21a5beca2e70da9e33b22652",
+    "execution.json": "dfd228383db1606efa85f75d6f02eb98e0498c6ee7b9e152567ff6ea5a88241e",
+    "ATTRIBUTION.md": "6993d7ef4b5780ffd7418287354c3796fc5ab02f15fb4a3e0a039fc43f9222a9"
+  },
+  "aggregate": [
+    {
+      "transport": "openrouter",
+      "model": "inclusionai/ling-3.0-flash",
+      "effort": "low",
+      "repeats": 1,
+      "scores": [
+        {
+          "language": "en",
+          "n": 25,
+          "accuracy": 0.9600000000000003,
+          "repeatAccuracy": [
+            0.9600000000000003
+          ]
+        },
+        {
+          "language": "ru",
+          "n": 25,
+          "accuracy": 0.9200000000000003,
+          "repeatAccuracy": [
+            0.9200000000000003
+          ]
+        }
+      ],
+      "comparisons": [
+        {
+          "baseline": "en",
+          "language": "ru",
+          "n": 25,
+          "gapPp": 4,
+          "gapCi95": [
+            -8,
+            16
+          ]
+        }
+      ],
+      "unparseable": 0,
+      "refusals": 0,
+      "costUsd": null
+    },
+    {
+      "transport": "openrouter",
+      "model": "inclusionai/ling-3.0-flash",
+      "effort": "medium",
+      "repeats": 1,
+      "scores": [
+        {
+          "language": "en",
+          "n": 25,
+          "accuracy": 0.9600000000000003,
+          "repeatAccuracy": [
+            0.9600000000000003
+          ]
+        },
+        {
+          "language": "ru",
+          "n": 25,
+          "accuracy": 0.8800000000000002,
+          "repeatAccuracy": [
+            0.8800000000000002
+          ]
+        }
+      ],
+      "comparisons": [
+        {
+          "baseline": "en",
+          "language": "ru",
+          "n": 25,
+          "gapPp": 8,
+          "gapCi95": [
+            0,
+            20
+          ]
+        }
+      ],
+      "unparseable": 0,
+      "refusals": 0,
+      "costUsd": null
+    }
+  ]
+}
