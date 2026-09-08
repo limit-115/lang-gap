@@ -126,6 +126,27 @@
     scrollbar-width: thin;
     scrollbar-color: var(--muted-foreground) transparent;
   }
+  /* Exact sizing is available in WebKit/Blink; Firefox keeps native thin sizing. */
+  @media (forced-colors: none) {
+    @supports selector(::-webkit-scrollbar) {
+      [data-slot="table-container"] {
+        scrollbar-width: auto;
+        scrollbar-color: auto;
+      }
+      [data-slot="table-container"]::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+      }
+      [data-slot="table-container"]::-webkit-scrollbar-track,
+      [data-slot="table-container"]::-webkit-scrollbar-corner {
+        background: transparent;
+      }
+      [data-slot="table-container"]::-webkit-scrollbar-thumb {
+        background: var(--muted-foreground);
+        border-radius: 999px;
+      }
+    }
+  }
   /* Preserve system colors and a full-size drag target in high-contrast mode. */
   @media (forced-colors: active) {
     * {
