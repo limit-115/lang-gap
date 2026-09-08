@@ -116,6 +116,25 @@ describe("published guide artifacts", () => {
     expect(await verifyGuide(result.id, root)).toMatchObject({ valid: true });
   });
 
+  it("withdraws active evidence without making archived snapshots unverifiable", async () => {
+    plan.configurationRows = true;
+    await writeFile(join(root, "guide-plan.json"), json(plan));
+    const before = await syncGuide(root);
+    await writeFile(
+      join(root, "index.json"),
+      json({ schemaVersion: 1, latest: null, releases: [] }),
+    );
+    await expect(verifyGuidePublication(root)).rejects.toThrow("stale");
+    const after = await syncGuide(root);
+    expect(after.id).not.toBe(before.id);
+    expect(await verifyGuide(before.id, root)).toMatchObject({ valid: true });
+    expect(await verifyGuidePublication(root)).toMatchObject({ valid: true });
+    const snapshot = JSON.parse(
+      await readFile(join(root, "guide", after.id, "summary.json"), "utf8"),
+    ) as { models: unknown[] };
+    expect(snapshot.models).toEqual([]);
+  });
+
   it("can initialize publication and leaves the current snapshot intact if evidence is corrupt", async () => {
     plan.configurationRows = true;
     await writeFile(join(root, "guide-plan.json"), json(plan));

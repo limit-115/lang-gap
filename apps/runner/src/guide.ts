@@ -43,11 +43,13 @@ export async function stageGuideEvidence(directory: string, root = join(workspac
   return { id: evidence.releaseId, path };
 }
 
-export async function readGuideInputs(plan: GuidePlan, root: string) {
-  const index = (await readJson(join(root, "index.json"))) as { releases: string[] };
+export async function readGuideInputs(plan: GuidePlan, root: string, requirePublished = true) {
+  const index = requirePublished
+    ? ((await readJson(join(root, "index.json"))) as { releases: string[] })
+    : null;
   return Promise.all(
     plan.releases.map(async (id) => {
-      if (!index.releases.includes(id)) throw new Error(`Unpublished release: ${id}`);
+      if (index && !index.releases.includes(id)) throw new Error(`Unpublished release: ${id}`);
       const directory = join(root, id);
       const raw = await readFile(join(directory, "manifest.json"));
       const manifest = releaseManifestSchema.parse(JSON.parse(raw.toString("utf8")));
@@ -167,7 +169,7 @@ export async function verifyGuide(id: string, root = join(workspace, "results"))
   if (snapshot.id !== id) throw new Error("Guide ID mismatch");
   const rebuilt = buildGuide(
     snapshot.plan,
-    await readGuideInputs(snapshot.plan, root),
+    await readGuideInputs(snapshot.plan, root, false),
     id,
     snapshot.createdAt,
   );
