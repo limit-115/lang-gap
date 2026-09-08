@@ -29,7 +29,6 @@ export default {
   high: "High",
   xhigh: "Extra high",
   max: "Maximum",
-  published: "Published results",
   viewRelease: "View results and supporting data",
   questions: "{count, plural, one {# unique question} other {# unique questions}}",
   repeats: "{count, plural, one {# repeat} other {# repeats}}",

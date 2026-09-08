@@ -5,7 +5,6 @@ import { createColumnHelper, type Column } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import type { Aggregate, Comparison } from "@llang-gap/contracts";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { efforts, getModelPresentation } from "./model-catalog";
 import { ModelOwnerLogo } from "./model-owner-logo";
@@ -112,11 +111,7 @@ export function useLeaderboardColumns(
       ),
       columnHelper.accessor("effort", {
         header: ({ column }) => <ColumnHeader column={column} title={t("effort")} />,
-        cell: ({ getValue }) => (
-          <Badge variant="secondary" className="rounded-md font-normal">
-            {t(getValue())}
-          </Badge>
-        ),
+        cell: ({ getValue }) => t(getValue()),
         filterFn: "equalsString",
         sortFn: (a, b) => efforts.indexOf(a.original.effort) - efforts.indexOf(b.original.effort),
         sortDescFirst: false,
@@ -209,11 +204,7 @@ export function useLeaderboardColumns(
             columnHelper.display({
               id: "status",
               header: () => t("status"),
-              cell: () => (
-                <Badge variant="outline" className="font-normal text-muted-foreground">
-                  {t("planned")}
-                </Badge>
-              ),
+              cell: () => <span className="text-muted-foreground">{t("planned")}</span>,
               enableSorting: false,
               enableHiding: false,
             }),
