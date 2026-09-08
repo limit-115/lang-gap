@@ -10,12 +10,15 @@ import { guideLanguages, englishScoreDifference, initialLanguages } from "./tabl
 
 vi.mock("next-intl", () => ({
   useLocale: () => "en",
-  useTranslations: () => (key: string, values?: { value?: string; count?: number }) =>
-    key === "differencePp"
-      ? `${values?.value} pp`
-      : key === "datasetCount"
-        ? `${values?.count} datasets`
-        : key,
+  useTranslations:
+    () => (key: string, values?: { value?: string; count?: number; language?: string }) =>
+      key === "differencePp"
+        ? `${values?.value}pp`
+        : key === "datasetCount"
+          ? `${values?.count} datasets`
+          : key === "compareModelsInLanguage"
+            ? `Compare models in ${values?.language}`
+            : key,
   useFormatter: () => ({
     number: (value: number, options?: Intl.NumberFormatOptions) =>
       new Intl.NumberFormat("en", options).format(value),
@@ -39,7 +42,61 @@ const score = (language: string, value: number | null, basis = "a".repeat(64)) =
 });
 
 describe("model guide table", () => {
-  it("shows only available preferred languages initially and one row per model", () => {
+  it.each([["ja"], ["de", "ja", "ko"]])(
+    "renders every configuration without pagination (languages: %j)",
+    (...languages) => {
+      const rows = Array.from({ length: 73 }, (_, index) => {
+        const id = `fixture/model-${String(index).padStart(2, "0")}`;
+        return {
+          ...model,
+          id,
+          reference: { ...model.reference, model: id },
+          scores: languages.map((language) => score(language, index)),
+        };
+      });
+      const html = renderToStaticMarkup(createElement(LeaderboardTable, { rows, languages }));
+      expect(html.match(/<tr[ >]/g)).toHaveLength(74);
+      expect(html.match(/<td[ >]/g)).toHaveLength(73 * (languages.length + 3));
+      expect(html).toContain("model-72");
+      expect(html).not.toContain("rowsPerPage");
+      expect(html).not.toContain("nextPage");
+      expect(html).not.toContain("pageOf");
+    },
+  );
+  it.each([false, true])("filters and sorts the full result set (descending: %s)", (desc) => {
+    const rows = Array.from({ length: 80 }, (_, index) => {
+      const id = `fixture/${index % 2 === 0 ? "match" : "other"}-${index}`;
+      const reference = { ...model.reference, model: id };
+      return {
+        ...model,
+        id,
+        reference,
+        profile: { ...reference, effort: index % 4 === 0 ? ("high" as const) : ("low" as const) },
+        scores: [score("ja", index)],
+      };
+    });
+    function Harness() {
+      const table = useTable({
+        features,
+        data: rows,
+        columns: useLeaderboardColumns(["ja"]),
+        initialState: {
+          columnFilters: [
+            { id: "model", value: "match" },
+            { id: "effort", value: "high" },
+          ],
+          sorting: [{ id: "score:ja", desc }],
+        },
+      });
+      const expected = Array.from({ length: 20 }, (_, index) => index * 4);
+      expect(table.getRowModel().rows.map((row) => row.original.scores[0]!.value)).toEqual(
+        desc ? expected.toReversed() : expected,
+      );
+      return null;
+    }
+    renderToStaticMarkup(createElement(Harness));
+  });
+  it("shows the English reference and available preferred languages with one row per model", () => {
     const languages = [
       "ar",
       "az",
@@ -80,9 +137,28 @@ describe("model guide table", () => {
       },
     ];
     const html = renderToStaticMarkup(createElement(LeaderboardTable, { rows, languages }));
-    expect(html.match(/<th[ >]/g)).toHaveLength(4);
-    expect(html.match(/<td[ >]/g)).toHaveLength(8);
+    expect(html.match(/<th[ >]/g)).toHaveLength(5);
+    expect(html.match(/<td[ >]/g)).toHaveLength(10);
   });
+  it.each([{ languages: ["de", "en", "ja"] }, { languages: ["ja"] }, { languages: [] }])(
+    "always displays English immediately after effort, even without English evidence ($languages)",
+    ({ languages }) => {
+      const html = renderToStaticMarkup(
+        createElement(LeaderboardTable, {
+          rows: [{ ...model, scores: [score("ja", 85)] }],
+          languages,
+        }),
+      );
+      const headers = html.match(/<th\b[^>]*>.*?<\/th>/g)!;
+      const cells = html.match(/<td\b[^>]*>.*?<\/td>/g)!;
+      expect(headers[0]).toContain("model");
+      expect(headers[1]).toContain("effort");
+      expect(headers[2]).toContain("English");
+      expect(headers.filter((header) => header.includes("English"))).toHaveLength(1);
+      expect(cells[2]).toContain("—");
+      expect(cells[2]).not.toContain("85.0");
+    },
+  );
   it("has one column per visible language and an explicit effort column and no implicit comparison or interval", () => {
     function Harness() {
       const table = useTable({
@@ -100,6 +176,35 @@ describe("model guide table", () => {
     }
     renderToStaticMarkup(createElement(Harness));
   });
+  it("links each language header to its comparison page while retaining separate sorting controls", () => {
+    function Harness() {
+      const table = useTable({
+        features,
+        data: [model],
+        columns: useLeaderboardColumns(["zh", "ja", "pt-BR"]),
+      });
+      return createElement(
+        "div",
+        null,
+        table
+          .getHeaderGroups()
+          .flatMap((group) =>
+            group.headers.map((header) =>
+              createElement(table.FlexRender, { key: header.id, header }),
+            ),
+          ),
+      );
+    }
+    const html = renderToStaticMarkup(createElement(Harness));
+    for (const language of ["zh", "ja", "pt-BR"]) {
+      expect(html).toContain(`href="/languages/${language}"`);
+      expect(html).toContain(
+        `aria-label="Compare models in ${new Intl.DisplayNames(["en"], { type: "language" }).of(language)}"`,
+      );
+    }
+    expect(html.match(/<a[ >]/g)).toHaveLength(3);
+    expect(html.match(/<button[ >]/g)).toHaveLength(5);
+  });
   it("renders inline differences and an English baseline without comparison controls or columns", () => {
     const html = renderToStaticMarkup(
       createElement(LeaderboardTable, {
@@ -108,8 +213,8 @@ describe("model guide table", () => {
       }),
     );
     expect(html).toContain("baseline");
-    expect(html).toContain("-4.2 pp");
-    expect(html).toContain("+5.0 pp");
+    expect(html).toContain("-4.2pp");
+    expect(html).toContain("+5.0pp");
     expect(html).not.toContain("compareLanguages");
     expect(html).not.toContain("closeComparison");
     expect(html.match(/<th[ >]/g)).toHaveLength(5);
@@ -170,7 +275,7 @@ describe("model guide table", () => {
           .map((cell) => createElement(table.FlexRender, { key: cell.id, cell })),
       );
     }
-    expect(renderToStaticMarkup(createElement(Harness))).toContain("-5.0 pp");
+    expect(renderToStaticMarkup(createElement(Harness))).toContain("-5.0pp");
   });
   it.each([false, true])("sorts unmeasured scores last (descending: %s)", (desc) => {
     function Harness() {

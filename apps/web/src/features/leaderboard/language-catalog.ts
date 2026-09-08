@@ -21,6 +21,6 @@ export function matchesLanguage(item: LanguageOption, query: string) {
     .every((word) => haystack.includes(word));
 }
 
-export function getLanguageHref(option: LanguageOption) {
+export function getLanguageHref(option: Pick<LanguageOption, "value">) {
   return `/languages/${encodeURIComponent(option.value)}`;
 }

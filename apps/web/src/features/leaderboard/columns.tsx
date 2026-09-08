@@ -2,14 +2,16 @@
 
 import { useMemo } from "react";
 import { createColumnHelper, type Column } from "@tanstack/react-table";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Link2 } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { effortSchema, type Aggregate } from "@llang-gap/contracts";
 import type { GuideModel } from "@llang-gap/contracts/guide";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link } from "@/i18n/navigation";
 import { getModelPresentation } from "./model-catalog";
 import { ModelOwnerLogo } from "./model-owner-logo";
+import { getLanguageHref } from "./language-catalog";
 import { accuracyColumnId, guideConfigurationHref, englishScoreDifference } from "./table-state";
 import type { LeaderboardFeatures } from "./data-table-features";
 
@@ -22,37 +24,50 @@ const helper = createColumnHelper<LeaderboardFeatures, GuideModel>();
 function ColumnHeader<T>({
   column,
   title,
-  description,
   numeric = false,
+  language,
 }: {
   column: Column<LeaderboardFeatures, GuideModel, T>;
   title: string;
-  description?: string;
   numeric?: boolean;
+  language?: string;
 }) {
   const t = useTranslations("Leaderboard");
   const sort = column.getIsSorted();
   const Icon = sort === "asc" ? ArrowUp : sort === "desc" ? ArrowDown : ArrowUpDown;
   return (
-    <div className={`flex flex-col gap-0.5 ${numeric ? "items-end" : "items-start"}`}>
+    <div className={`flex items-center ${numeric ? "justify-end" : "justify-start"}`}>
+      {language && (
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Link
+                href={getLanguageHref({ value: language })}
+                aria-label={t("compareModelsInLanguage", { language: title })}
+                className="mr-auto inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground/70 transition-colors hover:bg-muted/50 hover:text-foreground focus-visible:text-foreground"
+              />
+            }
+          >
+            <Link2 aria-hidden="true" className="size-3.5" />
+          </TooltipTrigger>
+          <TooltipContent>{t("compareModelsInLanguage", { language: title })}</TooltipContent>
+        </Tooltip>
+      )}
       <Button
         variant="ghost"
         size="sm"
-        className={`h-7 gap-1.5 rounded-md px-2 ${numeric ? "-mr-2" : "-ml-2"}`}
+        className={`h-8 gap-1.5 rounded-md font-normal ${sort ? "text-foreground" : "text-muted-foreground"} ${numeric ? "px-1" : "-ml-2 px-2"}`}
         onClick={() => column.toggleSorting()}
         aria-label={t("sort", { column: title })}
       >
         {title}
         <Icon aria-hidden="true" className={sort ? "size-3.5" : "size-3.5 text-muted-foreground"} />
       </Button>
-      {description && (
-        <span className="text-sm font-normal text-muted-foreground">{description}</span>
-      )}
     </div>
   );
 }
 
-export function useLeaderboardColumns(languages: readonly string[], isSummary = false) {
+export function useLeaderboardColumns(languages: readonly string[]) {
   const t = useTranslations("Leaderboard");
   const f = useFormatter();
   const locale = useLocale();
@@ -72,17 +87,17 @@ export function useLeaderboardColumns(languages: readonly string[], isSummary = 
               return (
                 <Link
                   href={guideConfigurationHref(row.original)}
-                  className="group flex min-w-44 items-center gap-3"
+                  className="group flex min-h-8 items-center gap-2"
                 >
                   <span
-                    className="flex size-8 shrink-0 items-center justify-center"
+                    className="flex size-5 shrink-0 items-center justify-center"
                     aria-hidden="true"
                   >
-                    <ModelOwnerLogo ownerId={ownerId} />
+                    <ModelOwnerLogo ownerId={ownerId} size={20} />
                   </span>
-                  <span className="flex flex-col gap-1">
-                    <span className="font-medium group-hover:underline">{label}</span>
-                    <span className="text-sm text-muted-foreground">{ownerName}</span>
+                  <span className="group-hover:underline">
+                    <span className="text-muted-foreground">{ownerName}: </span>
+                    {label}
                   </span>
                 </Link>
               );
@@ -97,7 +112,7 @@ export function useLeaderboardColumns(languages: readonly string[], isSummary = 
           id: "effort",
           header: ({ column }) => <ColumnHeader column={column} title={t("effort")} />,
           cell: ({ row }) => (
-            <span className="font-medium">
+            <span className="text-muted-foreground">
               {row.original.profile ? t(row.original.profile.effort) : t("unspecifiedEffort")}
             </span>
           ),
@@ -119,8 +134,8 @@ export function useLeaderboardColumns(languages: readonly string[], isSummary = 
                   title={
                     new Intl.DisplayNames([locale], { type: "language" }).of(language) ?? language
                   }
-                  description={t(isSummary ? "meanAccuracy" : "guideScore")}
                   numeric
+                  language={language}
                 />
               ),
               cell: ({ row, getValue }) => {
@@ -129,14 +144,14 @@ export function useLeaderboardColumns(languages: readonly string[], isSummary = 
                 return (
                   <Link
                     href={`${guideConfigurationHref(row.original)}&language=${encodeURIComponent(language)}`}
-                    className="group flex min-h-12 flex-col items-end justify-center gap-1 text-right tabular-nums"
+                    className="group flex min-h-8 items-center justify-end gap-1 text-right tabular-nums"
                     title={
                       getValue() === undefined
                         ? t(score?.status === "incomplete" ? "incompleteScore" : "unmeasuredScore")
                         : t("scoreDetails")
                     }
                   >
-                    <span className="font-mono text-base font-medium group-hover:underline">
+                    <span className="font-mono text-sm group-hover:underline">
                       {getValue() === undefined
                         ? "—"
                         : f.number(getValue()!, {
@@ -145,24 +160,27 @@ export function useLeaderboardColumns(languages: readonly string[], isSummary = 
                           })}
                     </span>
                     {language === "en" && getValue() !== undefined && (
-                      <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
-                        {t("baseline")}
-                      </span>
+                      <span className="sr-only"> {t("baseline")}</span>
                     )}
                     {difference !== undefined && (
-                      <span
-                        className={`font-mono text-xs ${Math.round(difference * 10) === 0 ? "text-muted-foreground" : difference > 0 ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400"}`}
-                        title={t("differenceHelp")}
-                      >
-                        {t("differencePp", {
-                          value: f.number(Math.round(difference * 10) / 10 || 0, {
-                            minimumFractionDigits: 1,
-                            maximumFractionDigits: 1,
-                            signDisplay: "exceptZero",
-                          }),
-                        })}
-                        <span className="sr-only"> {t("versusEnglish")}</span>
-                      </span>
+                      <>
+                        <span aria-hidden="true" className="text-xs text-muted-foreground/60">
+                          /
+                        </span>
+                        <span
+                          className={`font-mono text-xs ${Math.round(difference * 10) === 0 ? "text-muted-foreground" : difference > 0 ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400"}`}
+                          title={t("differenceHelp")}
+                        >
+                          {t("differencePp", {
+                            value: f.number(Math.round(difference * 10) / 10 || 0, {
+                              minimumFractionDigits: 1,
+                              maximumFractionDigits: 1,
+                              signDisplay: "exceptZero",
+                            }),
+                          })}
+                          <span className="sr-only"> {t("versusEnglish")}</span>
+                        </span>
+                      </>
                     )}
                   </Link>
                 );
@@ -174,6 +192,6 @@ export function useLeaderboardColumns(languages: readonly string[], isSummary = 
           ),
         ),
       ]),
-    [f, t, locale, languages, isSummary],
+    [f, t, locale, languages],
   );
 }

@@ -15,6 +15,12 @@ export function initialLanguages(languages: readonly string[]) {
   return preferred.length ? preferred : [...languages].slice(0, 3);
 }
 
+// Keep the requested English reference in the UI; missing evidence still renders as a dash.
+// This does not add a language condition to any benchmark run.
+export function withEnglishFirst(languages: readonly string[]) {
+  return ["en", ...languages.filter((language) => language !== "en")];
+}
+
 export function englishScoreDifference(model: GuideModel, language: string) {
   if (language === "en") return undefined;
   const baseline = model.scores.find((score) => score.language === "en");
