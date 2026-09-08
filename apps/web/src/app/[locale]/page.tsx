@@ -92,23 +92,6 @@ export default async function LeaderboardPage({ params }: Props) {
         </div>
       )}
       <RunCta />
-      <section className="reading-guide">
-        <div>
-          <h3>{t("guideTitle")}</h3>
-          <p>{t("guideBody")}</p>
-        </div>
-        <div>
-          <h3>{t("uncertaintyTitle")}</h3>
-          <p>{t("uncertaintyBody")}</p>
-        </div>
-        <div>
-          <h3>{t("scopeTitle")}</h3>
-          <p>{t("scopeBody")}</p>
-          <Link href="/methodology" className="text-link">
-            {t("scopeLink")} <ArrowUpRight aria-hidden="true" className="size-4" />
-          </Link>
-        </div>
-      </section>
     </>
   );
 }

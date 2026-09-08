@@ -33,16 +33,6 @@ export default {
   questions: "{count, plural, one {# unique question} other {# unique questions}}",
   repeats: "{count, plural, one {# repeat} other {# repeats}}",
   languages: "{count, plural, one {# benchmark language} other {# benchmark languages}}",
-  guideTitle: "What does the gap tell you?",
-  guideBody:
-    "The gap is the difference in accuracy between two languages, in percentage points. The column label shows the subtraction order. Read both scores too: a small gap can mean equally low accuracy.",
-  uncertaintyTitle: "How certain is the difference?",
-  uncertaintyBody:
-    "The 95% interval shows how precisely this question set lets us estimate the gap. If it includes zero, the results do not establish which language has higher accuracy. Translation quality and model changes add uncertainty beyond this interval.",
-  scopeTitle: "What can you use these results for?",
-  scopeBody:
-    "Use this comparison to identify models to test on your own tasks. It measures academic multiple-choice accuracy. Writing, conversation and professional work need their own evaluations.",
-  scopeLink: "See how we test and what the results cover",
   sort: "Sort by {column}",
   searchModels: "Search models or developers…",
   filterEffort: "Filter by reasoning effort",

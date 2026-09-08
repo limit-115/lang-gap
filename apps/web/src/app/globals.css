@@ -321,25 +321,6 @@
   .text-link:hover {
     text-decoration: underline;
   }
-  .reading-guide {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 32px;
-    padding-block: 112px 56px;
-  }
-  .reading-guide h3 {
-    font-size: 1rem;
-    font-weight: 500;
-    margin-bottom: 10px;
-  }
-  .reading-guide p {
-    font-size: 0.875rem;
-    line-height: 1.75;
-    color: var(--muted-foreground);
-  }
-  .reading-guide .text-link {
-    margin-top: 14px;
-  }
   .site-footer {
     width: min(calc(100% - 32px), 1200px);
     margin: 16px auto 24px;
@@ -525,15 +506,6 @@
   }
   .meta-last {
     margin-left: 0;
-  }
-  .reading-guide {
-    grid-template-columns: 1fr;
-    gap: 24px;
-    padding-block: 72px 40px;
-  }
-  .reading-guide > div + div {
-    border-top: 1px solid var(--border);
-    padding-top: 24px;
   }
   .site-footer {
     padding: 28px 24px;
