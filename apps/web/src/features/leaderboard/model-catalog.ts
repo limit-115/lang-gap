@@ -53,15 +53,18 @@ export const plannedRows: LeaderboardRow[] = plannedModels.flatMap(({ transport,
 export function getModelOptions(rows: Pick<Aggregate, "model" | "transport">[]) {
   const unique = new Map<
     string,
-    ModelReference & ReturnType<typeof getModelPresentation> & { value: string }
+    ReturnType<typeof getModelPresentation> & { ownerId: string; model: string; value: string }
   >();
   for (const row of rows) {
-    const value = `${row.transport}/${row.model}`;
+    const { owner, name } = getModelIdentity(row);
+    // Unregistered, unnamespaced IDs cannot supply a provider URL.
+    if (owner === null) continue;
+    const value = `${owner}/${name}`;
     unique.set(value, {
       value,
-      model: row.model,
-      transport: row.transport,
+      model: name,
       ...getModelPresentation(row),
+      ownerId: owner,
     });
   }
   return [...unique.values()].sort(
@@ -71,7 +74,7 @@ export function getModelOptions(rows: Pick<Aggregate, "model" | "transport">[]) 
 export type ModelOption = ReturnType<typeof getModelOptions>[number];
 
 export function matchesModel(item: ModelOption, query: string) {
-  const haystack = `${item.label} ${item.model} ${item.ownerName}`.toLowerCase();
+  const haystack = `${item.label} ${item.value} ${item.ownerName}`.toLowerCase();
   return query
     .trim()
     .toLowerCase()
@@ -80,7 +83,7 @@ export function matchesModel(item: ModelOption, query: string) {
 }
 
 export function getModelHref(option: ModelOption) {
-  return `/models/${encodeURIComponent(option.transport)}/${encodeURIComponent(option.model)}`;
+  return `/models/${encodeURIComponent(option.ownerId)}/${encodeURIComponent(option.model)}`;
 }
 
 export function getModelGroups(options: readonly ModelOption[]) {

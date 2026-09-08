@@ -113,8 +113,12 @@ this browser across reloads and both languages.
 
 The model shortcut beside the homepage introduction searches by model name or developer.
 Selecting a model enables **See the conclusion**, a link to
-`/[locale]/models/[transport]/[model]`. Those detail pages are reserved for future
-implementation.
+`/[locale]/models/[provider]/[model]`, such as
+`/en/models/inclusionai/ling-3.0-flash`. The provider comes from the model namespace
+or registered native model identity, never the API transport. Models share one
+shortcut across transports; their benchmark rows remain separate. IDs without a
+known provider are omitted from the finder. Those detail pages are reserved for
+future implementation.
 
 The leaderboard’s **Languages** menu shows or hides individual language accuracy
 columns. Model, effort, gap and the 95% interval always remain visible; hiding a
