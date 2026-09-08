@@ -1,4 +1,3 @@
-import { ArrowLeft } from "lucide-react";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -7,7 +6,6 @@ import { getRunDatasets } from "@/features/run-builder/data";
 import styles from "@/features/run-builder/run-builder.module.css";
 import { routing } from "@/i18n/routing";
 import { getMessagesForLocale } from "@/i18n/messages";
-import { Link } from "@/i18n/navigation";
 import { pageMetadata } from "@/shared/metadata";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -26,10 +24,6 @@ export default async function RunPage({ params }: Props) {
   return (
     <>
       <div className={styles.intro}>
-        <Link href="/" className={styles.back}>
-          <ArrowLeft aria-hidden="true" className="size-4" />
-          {t("back")}
-        </Link>
         <h1>{t("title")}</h1>
         <p>{t("intro")}</p>
       </div>
