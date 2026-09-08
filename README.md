@@ -60,7 +60,7 @@ All experiment settings can be supplied as CLI flags; YAML is optional and flags
 take precedence. Lists accept commas or spaces. Token rates for recorded usage are optional;
 unknown costs remain `null`. See the [runner setup guide](docs/runner.md#cli-and-yaml-configuration).
 
-Use **Build a run** in the website navigation, or **Want to run your own?** on the
+Use **Build a run** in the website navigation, or **Missing a model?** on the
 homepage, to configure a local experiment. Select a dataset, compatible protocol,
 one or more benchmark languages, transport and model IDs. The builder generates
 copyable bash/zsh commands for `run` and the API-free `plan`, with request counts,
@@ -116,7 +116,7 @@ shows mean accuracy for each selected language, with an equal weight per availab
 dataset. A dash means no published result
 for that row and language. The searchable **Languages** menu controls visible columns.
 
-The **Looking for a specific language?** shortcut below the model finder searches
+The **Which language matters to you?** shortcut below the model finder searches
 published benchmark languages by name or tag. It navigates to
 `/{locale}/languages/{tag}/`; language detail pages are not implemented yet, so
 these reserved destinations currently return 404.
