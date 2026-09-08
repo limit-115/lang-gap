@@ -146,6 +146,8 @@ export function LeaderboardTable({
       <div ref={containerRef} className="overflow-hidden rounded-lg border bg-background/96">
         <Table
           className={cn(
+            // Collapsed borders scroll independently of sticky cells and expose scores at the seam.
+            "border-separate border-spacing-0 [&_th]:border-b [&_tbody_tr:not(:last-child)>td]:border-b",
             "[&_[data-pinned=true]]:sticky [&_[data-pinned=true]]:z-10 [&_[data-pinned=true]]:bg-background! [&_[data-pinned=true]]:before:pointer-events-none [&_[data-pinned=true]]:before:absolute [&_[data-pinned=true]]:before:inset-0",
             "[&_th[data-pinned=true]]:before:bg-muted/20 [&_td[data-pinned=true]:nth-child(even)]:before:bg-black/[0.02] dark:[&_td[data-pinned=true]:nth-child(even)]:before:bg-white/[0.025]",
             "[&_[data-pinned=true]:first-child]:start-0 [&_[data-pinned=true]:first-child>*]:max-w-[40vw] [&_[data-pinned=true]:first-child>*]:whitespace-normal sm:[&_[data-pinned=true]:first-child>*]:whitespace-nowrap [&_[data-pinned=true]:nth-child(2)]:start-[var(--model-column-width)]",
