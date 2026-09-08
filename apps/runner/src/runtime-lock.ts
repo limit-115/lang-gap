@@ -25,7 +25,7 @@ export const runtimePackages = [
   "packages/contracts",
   "packages/datasets",
   "packages/evaluation",
-  "packages/providers",
+  "packages/transports",
 ];
 
 /** Fingerprint only the benchmark runtime closure, so a web redesign cannot block resume. */

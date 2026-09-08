@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { configure, getLogger, reset, type LogRecord } from "@logtape/logtape";
-import { createFakeAdapter, normalizeError, ProviderError } from "@llang-gap/providers";
+import { createFakeAdapter, normalizeError, TransportError } from "@llang-gap/transports";
 import { experiment, questions } from "@tests/fixtures";
 import { createJobs } from "./plan";
 import { execute } from "./scheduler";
@@ -119,7 +119,7 @@ it("reports retries while waiting and cancels backoff immediately on interruptio
       status: 429,
       requestId: "req-limit",
       retryDelayMs: 300_000,
-      errorMessage: "Provider HTTP 429: Rate limit exceeded",
+      errorMessage: "Transport HTTP 429: Rate limit exceeded",
     },
   });
   expect(event("run.progress").at(-1)?.properties).toMatchObject({
@@ -136,7 +136,7 @@ it("reports retries while waiting and cancels backoff immediately on interruptio
 it("reports the final failed attempt as error and retains the diagnostic in status", async () => {
   const input = options();
   const generate = vi.fn(() =>
-    Promise.reject(new ProviderError("upstream overloaded", true, true, "req-failure")),
+    Promise.reject(new TransportError("upstream overloaded", true, true, "req-failure")),
   );
   const result = await execute({
     ...input,

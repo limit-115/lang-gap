@@ -49,10 +49,10 @@ with non-default languages, multiple dataset identities, and single-language run
 ## Project constraints
 
 - Keep shared schemas and types in `packages/contracts`. The website reads
-  published aggregates; runner state and provider execution stay outside it.
+  published aggregates; runner state and model execution stay outside it.
 - Preserve pinned dataset/prompt inputs and explain methodology changes against
   [docs/protocol.md](docs/protocol.md). Never place target answers in prompts.
-- Use synthetic fixtures and fake/intercepted providers for verification. Do not
+- Use synthetic fixtures and fake/intercepted transports for verification. Do not
   launch paid evaluations as a routine check. `--offline` does not block model APIs;
   explicit paid work follows [docs/runner.md](docs/runner.md) with an agreed budget.
 - Preserve local run state and immutable releases. Follow

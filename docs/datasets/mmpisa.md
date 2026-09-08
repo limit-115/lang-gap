@@ -29,7 +29,7 @@ pnpm bench run experiments/mmpisa-smoke.yaml --language kk --all-questions --off
 pnpm bench plan experiments/mmpisa-smoke.yaml --dataset mmpisa-machine --languages de fr --all-questions --compare fr:de
 ```
 
-The example uses only the fake provider. Its scores are synthetic and cannot be
+The example uses only the fake transport. Its scores are synthetic and cannot be
 published as benchmark results. To evaluate a live model, explicitly select its
 transport, model, efforts, token policy and any dated prices/budget following the
 [runner guide](../runner.md). `--offline` controls dataset downloads only.

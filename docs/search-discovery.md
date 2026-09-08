@@ -60,7 +60,7 @@ Before making the indexed release public:
 2. Inspect each locale's raw HTML, Dataset markup, canonical and alternate links.
    Check unknown releases return 404 and no synthetic IDs enter the index.
 3. Review interpretation against the protocol. Intervals containing zero do not
-   establish a direction. Do not equate provider effort labels or treat repeats
+   establish a direction. Do not equate native effort labels or treat repeats
    as independent questions.
 4. Prepare a dated analysis with a real byline, release permalink, sample, exact
    model/protocol scope, findings and limitations. Write conclusions only after

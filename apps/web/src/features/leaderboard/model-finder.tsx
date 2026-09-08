@@ -15,7 +15,7 @@ import {
   getModelGroups,
   type ModelOption,
 } from "./model-catalog";
-import { ProviderLogo } from "./provider-logo";
+import { ModelOwnerLogo } from "./model-owner-logo";
 import styles from "./model-finder.module.css";
 
 export function ModelFinderHero({ rows }: { rows: Aggregate[] }) {
@@ -51,8 +51,8 @@ export function ModelFinderHero({ rows }: { rows: Aggregate[] }) {
               <Combobox.Trigger className={styles.trigger} aria-label={t("finderSelect")}>
                 {selected ? (
                   <>
-                    <span className={styles.providerIcon} aria-hidden="true">
-                      <ProviderLogo ownerId={selected.ownerId} size={20} />
+                    <span className={styles.ownerIcon} aria-hidden="true">
+                      <ModelOwnerLogo ownerId={selected.ownerId} size={20} />
                     </span>
                     <span className={styles.selectedName}>{selected.label}</span>
                   </>
@@ -105,8 +105,8 @@ export function ModelFinderHero({ rows }: { rows: Aggregate[] }) {
                         <Combobox.Collection>
                           {(item: ModelOption) => (
                             <Combobox.Item key={item.value} value={item} className={styles.option}>
-                              <span className={styles.providerIcon} aria-hidden="true">
-                                <ProviderLogo ownerId={item.ownerId} size={20} />
+                              <span className={styles.ownerIcon} aria-hidden="true">
+                                <ModelOwnerLogo ownerId={item.ownerId} size={20} />
                               </span>
                               <span className={styles.optionText}>{item.label}</span>
                               <Combobox.ItemIndicator className={styles.check}>

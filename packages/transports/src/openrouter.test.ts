@@ -105,7 +105,7 @@ describe("OpenRouter intercepted transport", () => {
     await expect(
       createOpenRouterAdapter("synthetic", 1000, transport).generate(request),
     ).rejects.toMatchObject({
-      message: `Provider HTTP ${status}: Model access denied for Bearer [REDACTED]`,
+      message: `Transport HTTP ${status}: Model access denied for Bearer [REDACTED]`,
       status,
       retryable: status === 429 || status >= 500,
       uncertain: status >= 500,

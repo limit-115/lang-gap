@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { usageSchema, type GenerationRequest, type TransportAdapter } from "@llang-gap/contracts";
-import { normalizeError, ProviderError } from "./errors";
+import { normalizeError, TransportError } from "./errors";
 import sdk from "#package.json";
 
 export function createAnthropicAdapter(
@@ -20,7 +20,11 @@ export function createAnthropicAdapter(
     endpoint: "https://api.anthropic.com/v1/messages",
     async generate(request: GenerationRequest) {
       if (request.maxOutputTokens === null)
-        throw new ProviderError("Anthropic requires an explicit maxOutputTokens cap", false, false);
+        throw new TransportError(
+          "Anthropic requires an explicit maxOutputTokens cap",
+          false,
+          false,
+        );
       try {
         const { data: response, request_id } = await client.messages
           .create({
@@ -43,7 +47,7 @@ export function createAnthropicAdapter(
           !requestedStop &&
           !["end_turn", "refusal", "max_tokens"].includes(response.stop_reason ?? "")
         )
-          throw new ProviderError(
+          throw new TransportError(
             `Generation stop: ${response.stop_reason ?? "missing"}`,
             true,
             true,

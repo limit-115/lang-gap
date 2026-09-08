@@ -18,7 +18,7 @@ maintained specifications for current implementation decisions:
 
 Shared schemas and types live in `packages/contracts`; dataset adapters normalize
 inputs; protocol adapters construct prompts and score outputs; transports call
-providers; the runner orchestrates the selected experiment. The website reads only
+transports; the runner orchestrates the selected experiment. The website reads only
 published aggregate contracts. It never imports runner state or scientific execution.
 
 Keep languages as values in records, never language-named fields or a fixed tuple.

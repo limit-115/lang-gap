@@ -1,7 +1,7 @@
 import type { Logger } from "@logtape/logtape";
 import type { TransportAdapter, ItemResult } from "@llang-gap/contracts";
 import { scoreAnswer } from "@llang-gap/evaluation";
-import { calculateCost, normalizeError, diagnosticError } from "@llang-gap/providers";
+import { calculateCost, normalizeError, diagnosticError } from "@llang-gap/transports";
 import { setTimeout as delay } from "node:timers/promises";
 import type { Job } from "./plan";
 import { RunState } from "./state";
@@ -58,7 +58,7 @@ export async function execute(options: ExecuteOptions) {
   let budgetExhausted = false;
   let charged = state.charged() ?? 0;
   const errors: unknown[] = [];
-  let providerStopped = false;
+  let transportStopped = false;
   const progress = new RunProgress(state, log);
   const stopDispatch = () => {
     stopped = true;
@@ -124,7 +124,7 @@ export async function execute(options: ExecuteOptions) {
         state.fail(job, attempt, error, retry);
         if (!error.uncertain) charged -= job.reservationUsd ?? 0;
         if (!error.retryable) {
-          providerStopped = true;
+          transportStopped = true;
           stopDispatch();
         }
         const willRetry = retry && !stopped && !signal?.aborted;
@@ -138,7 +138,7 @@ export async function execute(options: ExecuteOptions) {
               : "Attempt limit reached";
         const hint =
           error.status === 402
-            ? "Check the provider account balance or credits, then resume with --retry-failed."
+            ? "Check the API service account balance or credits, then resume with --retry-failed."
             : error.status === 401 || error.status === 403
               ? "Check this transport's API key and model access, then resume with --retry-failed."
               : error.status === 400 || error.status === 404 || error.status === 422
@@ -206,7 +206,7 @@ export async function execute(options: ExecuteOptions) {
       progress.active.delete(job.id);
       const anomalies = [
         response.outcome === "truncated" ? "truncated response" : null,
-        response.outcome === "refusal" ? "provider refusal" : null,
+        response.outcome === "refusal" ? "API refusal" : null,
         result.answer === null ? "unparseable answer" : null,
         response.usage === null ? "usage unknown" : null,
       ].filter(Boolean);
@@ -303,8 +303,8 @@ export async function execute(options: ExecuteOptions) {
     const summary = state.summary();
     const stopReason = errors.length
       ? "execution-error"
-      : providerStopped
-        ? "provider-error"
+      : transportStopped
+        ? "transport-error"
         : signal?.aborted
           ? "interrupted"
           : budgetExhausted
@@ -321,7 +321,7 @@ export async function execute(options: ExecuteOptions) {
     progress.report(true);
     const failed =
       errors.length > 0 ||
-      providerStopped ||
+      transportStopped ||
       summary.failed > 0 ||
       summary.uncertain > 0 ||
       stopReason === "attempt-limit";

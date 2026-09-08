@@ -1,5 +1,5 @@
 {
-  "name": "@llang-gap/providers",
+  "name": "@llang-gap/transports",
   "version": "0.0.0",
   "private": true,
   "type": "module",

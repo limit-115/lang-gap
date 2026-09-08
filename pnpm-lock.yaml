@@ -151,9 +151,9 @@ importers:
       '@llang-gap/evaluation':
         specifier: workspace:*
         version: link:../../packages/evaluation
-      '@llang-gap/providers':
+      '@llang-gap/transports':
         specifier: workspace:*
-        version: link:../../packages/providers
+        version: link:../../packages/transports
       '@logtape/file':
         specifier: 2.3.3
         version: 2.3.3(@logtape/logtape@2.3.3)
@@ -272,7 +272,7 @@ importers:
         specifier: 2.9.0
         version: 2.9.0
 
-  packages/providers:
+  packages/transports:
     dependencies:
       '@anthropic-ai/sdk':
         specifier: 0.124.0

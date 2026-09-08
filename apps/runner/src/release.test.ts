@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readManifest } from "@llang-gap/datasets";
-import { createFakeAdapter } from "@llang-gap/providers";
+import { createFakeAdapter } from "@llang-gap/transports";
 import { releaseManifestSchema, type TransportAdapter } from "@llang-gap/contracts";
 import { experiment, questions } from "@tests/fixtures";
 import { createRun, resumeRun } from "./run";

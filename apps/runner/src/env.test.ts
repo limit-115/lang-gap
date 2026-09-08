@@ -2,7 +2,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { createAdapter } from "@llang-gap/providers";
+import { createAdapter } from "@llang-gap/transports";
 import { loadEnvironment } from "./env";
 
 let directory: string;
@@ -20,7 +20,7 @@ afterEach(async () => {
   await rm(directory, { recursive: true, force: true });
 });
 
-it("loads provider keys from a dotenv file before adapter creation", async () => {
+it("loads transport keys from a dotenv file before adapter creation", async () => {
   await writeFile(
     path,
     "# Synthetic credentials only\nOPENAI_API_KEY=\"fixture-openai\"\nANTHROPIC_API_KEY=fixture-anthropic\nexport OPENROUTER_API_KEY='fixture-router' # inline comment\n",

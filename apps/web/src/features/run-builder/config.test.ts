@@ -103,7 +103,7 @@ it("keeps planning free of dispatch-only options and reports the entire experime
   expect(result.requests).toBe(64);
 });
 
-it("enforces provider and protocol cap requirements", () => {
+it("enforces transport and protocol cap requirements", () => {
   expect(buildRun({ ...settings, transport: "anthropic" }, datasets).errors.maxOutputTokens).toBe(
     "capRequired",
   );
@@ -167,7 +167,7 @@ it("requires complete rates and bounded paid output for a budget, preserving zer
 });
 
 describe("POSIX shell output", () => {
-  // Execute only a fixed argument-printing program; no benchmark or provider runs here.
+  // Execute only a fixed argument-printing program; no benchmark or transport runs here.
   const argv = (value: string) =>
     JSON.parse(
       execFileSync(

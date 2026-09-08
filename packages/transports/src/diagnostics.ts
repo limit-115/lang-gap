@@ -21,7 +21,7 @@ export function redactDiagnostic(text: string, sensitive: readonly string[] = []
         "$1[REDACTED]",
       )
       .replace(/(https?:\/\/)[^\s/@]+:[^\s/@]+@/gi, "$1[REDACTED]@")
-      // Strip terminal control characters from untrusted provider messages.
+      // Strip terminal control characters from untrusted API messages.
       // eslint-disable-next-line no-control-regex
       .replace(/[\u0000-\u001f\u007f-\u009f]/g, " ")
   );
@@ -38,7 +38,7 @@ export function diagnosticError(error: unknown) {
   return {
     name: redactDiagnostic(error.name),
     message: diagnosticMessage(error),
-    // Stack frames only: the first line can duplicate an unbounded provider body.
+    // Stack frames only: the first line can duplicate an unbounded API response body.
     stack: error.stack
       ?.split("\n")
       .filter((line) => /^\s+at /.test(line))

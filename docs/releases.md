@@ -63,7 +63,7 @@ snapshot identity and must not overwrite or silently pool historical artifacts.
 | `ATTRIBUTION.md`        | Selected dataset attribution and applicable protocol license notices                               |
 
 Raw SDK response bodies remain in the private SQLite journal. Public results
-include visible final text, not provider thinking blocks/signatures, keys or HTTP
+include visible final text, not API thinking blocks/signatures, keys or HTTP
 headers. Hashes detect corruption; they are not cryptographic proof that a hosted
 model produced the response. Git history and open artifacts supply the audit trail.
 
@@ -98,7 +98,7 @@ The website should:
    an unrelated result. An empty index renders a truthful unpublished state.
 2. Validate public manifests with `releaseManifestSchema` from
    `@llang-gap/contracts`; accept only `kind: "benchmark"`. Check the aggregate file
-   against its manifest hash before rendering. Do not import the runner, provider
+   against its manifest hash before rendering. Do not import the runner, transport
    SDKs, dataset loader or scientific scoring code.
 3. Render the same numerical aggregates at `/en/` and `/ru/`, localizing only labels,
    number/date formatting and explanatory text. Default ordering should not imply

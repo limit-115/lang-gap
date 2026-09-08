@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { parseDocument } from "yaml";
 import { z } from "zod";
 import { comparisonsSchema, experimentSchema, type Experiment } from "@llang-gap/contracts";
-import { validateModel } from "@llang-gap/providers";
+import { validateModel } from "@llang-gap/transports";
 
 function readYaml(text: string): unknown {
   const document = parseDocument(text, { uniqueKeys: true, strict: true });
@@ -19,7 +19,7 @@ function validateExperiment(input: unknown): Experiment {
     experiment.models.some((m) => m.transport === "fake") &&
     experiment.models.some((m) => m.transport !== "fake")
   )
-    throw new Error("Synthetic and live providers cannot be mixed");
+    throw new Error("Synthetic and live transports cannot be mixed");
   return experiment;
 }
 export function parseExperiment(text: string): Experiment {

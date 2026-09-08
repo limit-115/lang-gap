@@ -53,7 +53,7 @@ version; accepting an arbitrary language tag never implies those sources exist.
 ## Explicitly omitted token caps
 
 An experiment can record a numeric `maxOutputTokens` or explicit `null`, meaning
-that no cap is sent to the provider. This is distinct from infinite output: serving
+that no cap is sent to the API. This is distinct from infinite output: serving
 endpoints retain their own defaults and limits. Token policy remains part of run
 and comparison identity. The general multiple-choice adapter supports this mode.
 
@@ -133,5 +133,5 @@ Implemented adapters currently score multiple-choice tasks; adding another task
 format requires a reviewed adapter and shared contracts. Language selection alone
 does not establish semantic translation quality, model access or dataset licensing.
 Question-set intervals do not capture training contamination, translation errors,
-provider drift or all API sampling uncertainty. Routine verification uses only
-synthetic fixtures and intercepted providers, without paid evaluations.
+API service drift or all API sampling uncertainty. Routine verification uses only
+synthetic fixtures and intercepted transports, without paid evaluations.

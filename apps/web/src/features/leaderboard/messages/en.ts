@@ -8,9 +8,9 @@ export default {
   finderClear: "Clear selected model",
   finderBrowse: "Browse models",
   finderNoResults: "We haven’t listed that model yet.",
-  finderNoResultsHelp: "Try another model name or provider.",
+  finderNoResultsHelp: "Try another model name or developer.",
   finderAction: "See the conclusion",
-  finderListHelp: "Search by model name or provider",
+  finderListHelp: "Search by model name or developer",
 
   title: "See how LLM accuracy changes across languages. With open results you can check.",
   description:
@@ -45,7 +45,7 @@ export default {
     "Use this comparison to identify models to test on your own tasks. It measures academic multiple-choice accuracy. Writing, conversation and professional work need their own evaluations.",
   scopeLink: "See how we test and what the results cover",
   sort: "Sort by {column}",
-  searchModels: "Search models or providers…",
+  searchModels: "Search models or developers…",
   filterEffort: "Filter by reasoning effort",
   allEfforts: "All effort levels",
   resetFilters: "Reset filters",
@@ -53,7 +53,7 @@ export default {
   visibleLanguages: "{count} of {total} shown",
   noResults: "No models match these filters",
   noResultsDescription:
-    "Try another model or provider name, or choose a different reasoning effort.",
+    "Try another model or developer name, or choose a different reasoning effort.",
   rowRange: "{from}–{to} of {total} configurations",
   rowsPerPage: "Rows per page",
   pageOf: "Page {page} of {total}",

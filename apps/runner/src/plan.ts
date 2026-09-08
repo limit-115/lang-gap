@@ -18,7 +18,7 @@ import {
   shuffled,
   toPromptQuestion,
 } from "@llang-gap/evaluation";
-import { reserveCost, validateModel } from "@llang-gap/providers";
+import { reserveCost, validateModel } from "@llang-gap/transports";
 import { hash } from "./files";
 
 export interface Job {

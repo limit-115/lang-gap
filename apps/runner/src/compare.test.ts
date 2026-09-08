@@ -8,7 +8,7 @@ import {
   releaseManifestSchema,
   type Question,
 } from "@llang-gap/contracts";
-import { createFakeAdapter } from "@llang-gap/providers";
+import { createFakeAdapter } from "@llang-gap/transports";
 import { pairedDifference } from "@llang-gap/evaluation";
 import { createRun } from "./run";
 import { compareRuns } from "./compare";

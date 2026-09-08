@@ -129,7 +129,7 @@ def upstream_row(q):
 
 questions = json.loads((ROOT / "tests/fixtures/questions.json").read_text())
 reference = json.loads((ROOT / "packages/evaluation/src/reference.json").read_text())
-# LANG_LIBS is an upstream literal; no provider imports are involved.
+# LANG_LIBS is an upstream literal; no model API imports are involved.
 lang_ns = {}
 exec((UPSTREAM / "lm_eval/tasks/mmlu_prox/lang_libs.py").read_text(), lang_ns)
 result = {"referenceCommit": COMMIT, "prompts": {}, "extraction": {}}

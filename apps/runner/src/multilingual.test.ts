@@ -16,7 +16,7 @@ import {
   parseAnswer,
   toPromptQuestion,
 } from "@llang-gap/evaluation";
-import { createFakeAdapter } from "@llang-gap/providers";
+import { createFakeAdapter } from "@llang-gap/transports";
 import { experiment, item } from "@tests/fixtures";
 import { selectExperiment } from "./config";
 import { createJobs } from "./plan";

@@ -23,7 +23,7 @@ import { buildRelease, scoreRun, stageRelease, verifyRelease } from "./release";
 import { RunState, unlockRun } from "./state";
 import { loadEnvironment } from "./env";
 import { configureLogging, logger } from "./logging";
-import { diagnosticError, diagnosticMessage, redactDiagnostic } from "@llang-gap/providers";
+import { diagnosticError, diagnosticMessage, redactDiagnostic } from "@llang-gap/transports";
 import { reportConditions } from "./progress";
 
 const program = new Command()
@@ -38,7 +38,7 @@ const executionOutput = (result: Awaited<ReturnType<typeof createRun | typeof re
   if (
     result.failed > 0 ||
     result.uncertain > 0 ||
-    ["execution-error", "provider-error", "failed", "uncertain", "attempt-limit"].includes(
+    ["execution-error", "transport-error", "failed", "uncertain", "attempt-limit"].includes(
       result.stopReason,
     )
   )

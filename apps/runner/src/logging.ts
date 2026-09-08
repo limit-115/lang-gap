@@ -12,7 +12,7 @@ import {
   type Sink,
 } from "@logtape/logtape";
 import { getFileSink } from "@logtape/file";
-import { diagnosticMessage, redactDiagnostic } from "@llang-gap/providers";
+import { diagnosticMessage, redactDiagnostic } from "@llang-gap/transports";
 
 export const logger = getLogger(["llang-gap", "runner"]);
 const levels = ["debug", "info", "warning", "error"] as const;
@@ -122,7 +122,7 @@ export async function configureLogging(env: NodeJS.ProcessEnv = process.env) {
     fileSink = getFileSink(path, { formatter: formatJson, bufferSize: 0, flushInterval: 0 });
     return path;
   }
-  // An explicitly configured destination must be usable before any provider call.
+  // An explicitly configured destination must be usable before any transport call.
   const explicitPath = file !== "auto" && file !== "off" ? await openLog(resolve(file)) : null;
   try {
     await configure({

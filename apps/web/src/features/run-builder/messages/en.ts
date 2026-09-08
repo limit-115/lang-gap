@@ -18,8 +18,8 @@ export default {
   languages: "Benchmark languages",
   languagesHint: "Choose one or more. Each language is scored independently.",
   languageQuestions: "{count, number} questions",
-  transport: "Provider",
-  transportPlaceholder: "Choose a provider",
+  transport: "Transport",
+  transportPlaceholder: "Choose a transport",
   fake: "Fake · free local test",
   models: "Model IDs",
   modelsPlaceholder: "Enter model IDs, separated by commas",
@@ -40,8 +40,8 @@ export default {
   repeats: "Repeats",
   repeatsHint: "1–10 per question and condition.",
   maxOutputTokens: "Output token cap",
-  capPlaceholder: "Provider default",
-  capHint: "Includes reasoning tokens. Leave empty to use provider defaults, where supported.",
+  capPlaceholder: "API default",
+  capHint: "Includes reasoning tokens. Leave empty to use API defaults, where supported.",
   capPinned: "This protocol fixes the cap at {count, number} tokens.",
   advanced: "Advanced settings",
   advancedHint: "Comparisons, concurrency, retries and cost accounting",
@@ -57,14 +57,14 @@ export default {
   comparisonsHint:
     "Optional. Use selected language tags, separated by a colon. The gap is baseline minus language; question alignment is checked by the CLI.",
   offline: "Use cached dataset files only",
-  offlineHint: "Disables dataset downloads. Live providers still call model APIs.",
+  offlineHint: "Disables dataset downloads. Model API calls remain enabled.",
   maxJobsHint:
     "Pauses dispatch without reducing the experiment. Continue later with pnpm bench resume <run-id>.",
   budgetNeedsRates:
     "A budget needs complete token rates and a finite output cap when output tokens have a nonzero price.",
   budgetUsd: "Budget limit (USD)",
   budgetHint:
-    "Optional. Requires token rates and finite cost bounds. Set provider spending limits too.",
+    "Optional. Requires token rates and finite cost bounds. Set spending limits in your API account too.",
   pricing: "Supply token rates",
   pricingHint:
     "Optional. Rates apply to every selected model. Leave off when rates differ; use YAML for per-model settings.",
@@ -82,7 +82,7 @@ export default {
   copy: "Copy command",
   copied: "Copied!",
   copyError: "Clipboard unavailable. Select the command and copy it manually.",
-  emptyCommand: "Choose a dataset, protocol, languages and provider. Then add your model IDs.",
+  emptyCommand: "Choose a dataset, protocol, languages and transport. Then add your model IDs.",
   fixErrors:
     "Complete the required fields and fix the highlighted settings to generate your command.",
   advancedErrors: "Some advanced settings need attention. Open Advanced settings to review them.",
@@ -94,7 +94,7 @@ export default {
   fakeNote:
     "Synthetic responses. No model API calls or API key needed. Dataset files may be downloaded.",
   liveNote:
-    "Run uses your provider account and may incur charges. Model availability and effort support are checked by the provider.",
+    "Run uses your API account and may incur charges. The API service checks model availability and effort support.",
   planNote:
     "Checks inputs and planned requests without calling model APIs. May download dataset files.",
   setupTitle: "First time running Llang Gap?",
@@ -109,7 +109,7 @@ export default {
   invalid: "Enter a valid value within the shown limits.",
   languagesInvalid: "Choose languages supported by this protocol.",
   protocolInvalid: "Choose a compatible evaluation protocol.",
-  capRequired: "This provider or protocol requires an explicit token cap (256–128,000).",
+  capRequired: "This transport or protocol requires an explicit token cap (256–128,000).",
   capFixed: "Use the token cap fixed by the selected protocol.",
   modelsInvalid:
     "Enter unique API model IDs. OpenRouter IDs must include an owner, such as owner/model.",

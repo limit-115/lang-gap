@@ -1,6 +1,6 @@
 import { redactDiagnostic } from "./diagnostics";
 
-export class ProviderError extends Error {
+export class TransportError extends Error {
   constructor(
     message: string,
     readonly retryable: boolean,
@@ -11,11 +11,11 @@ export class ProviderError extends Error {
     readonly code: string | null = null,
   ) {
     super(redactDiagnostic(message).slice(0, 1200));
-    this.name = "ProviderError";
+    this.name = "TransportError";
   }
 }
-export function normalizeError(error: unknown, sensitive: readonly string[] = []): ProviderError {
-  if (error instanceof ProviderError) {
+export function normalizeError(error: unknown, sensitive: readonly string[] = []): TransportError {
+  if (error instanceof TransportError) {
     error.message = redactDiagnostic(error.message, sensitive);
     return error;
   }
@@ -36,7 +36,7 @@ export function normalizeError(error: unknown, sensitive: readonly string[] = []
         ? body.message
         : payload === undefined || payload === null
           ? error.message
-          : "Provider returned no diagnostic message";
+          : "API returned no diagnostic message";
     const code =
       "code" in error && typeof error.code === "string"
         ? error.code
@@ -49,8 +49,8 @@ export function normalizeError(error: unknown, sensitive: readonly string[] = []
       retryAfterMs = /^\d+(\.\d+)?$/.test(retry)
         ? Number(retry) * 1000
         : Math.max(0, Date.parse(retry) - Date.now());
-    return new ProviderError(
-      redactDiagnostic(`Provider HTTP ${error.status}: ${message}`, sensitive),
+    return new TransportError(
+      redactDiagnostic(`Transport HTTP ${error.status}: ${message}`, sensitive),
       error.status === 429 || error.status >= 500 || error.status === 408,
       error.status >= 500 || error.status === 408,
       requestId === null ? null : redactDiagnostic(requestId, sensitive),
@@ -61,9 +61,9 @@ export function normalizeError(error: unknown, sensitive: readonly string[] = []
   }
   const cause =
     error instanceof Error && error.cause instanceof Error ? `; ${error.cause.message}` : "";
-  return new ProviderError(
+  return new TransportError(
     redactDiagnostic(
-      `Provider transport failure: ${error instanceof Error ? error.message : "Unexpected non-Error failure"}${cause}; billing outcome may be unknown`,
+      `Transport failure: ${error instanceof Error ? error.message : "Unexpected non-Error failure"}${cause}; billing outcome may be unknown`,
       sensitive,
     ),
     true,

@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { afterEach, beforeEach, expect, it } from "vitest";
 import { readManifest } from "@llang-gap/datasets";
-import { createFakeAdapter } from "@llang-gap/providers";
+import { createFakeAdapter } from "@llang-gap/transports";
 import { experiment, questions } from "@tests/fixtures";
 import { createRun } from "./run";
 import { workspace, hash, json } from "./files";
@@ -114,7 +114,7 @@ it("keeps stdout JSON clean, appends resume sessions, and reports durable condit
   expect(status.stderr).toContain("Observed answers by condition");
 });
 
-it("exits nonzero on a provider failure and exposes the saved reason through status", async () => {
+it("exits nonzero on a transport failure and exposes the saved reason through status", async () => {
   const run = await seed("openrouter");
   const preload = join(temp, "intercept.mjs");
   await writeFile(
@@ -128,19 +128,19 @@ it("exits nonzero on a provider failure and exposes the saved reason through sta
   );
   expect(failed.code).toBe(1);
   expect(JSON.parse(failed.stdout)).toMatchObject({
-    stopReason: "provider-error",
+    stopReason: "transport-error",
     failed: 1,
     completed: 1,
   });
-  expect(failed.stderr).toContain("Provider HTTP 401: Access denied");
+  expect(failed.stderr).toContain("Transport HTTP 401: Access denied");
   expect(failed.stderr).toContain("req-auth-fixture");
   expect(failed.stderr).not.toMatch(/fixture-api-key|PRIVATE_BODY/);
   const status = await cli(["status", run.runId]);
   expect(JSON.parse(status.stdout).recentFailures[0]).toMatchObject({
     requestId: "req-auth-fixture",
-    error: "Provider HTTP 401: Access denied for Bearer [REDACTED]",
+    error: "Transport HTTP 401: Access denied for Bearer [REDACTED]",
   });
-  expect(status.stderr).toContain("Provider HTTP 401: Access denied");
+  expect(status.stderr).toContain("Transport HTTP 401: Access denied");
 });
 
 it.each([
