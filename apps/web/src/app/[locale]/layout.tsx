@@ -7,6 +7,7 @@ import { getMessagesForLocale } from "@/i18n/messages";
 import { SiteHeader } from "@/shared/navigation/site-header";
 import { SiteFooter } from "@/shared/navigation/site-footer";
 import { ThemeProvider } from "@/shared/theme-provider";
+import { PageTransition } from "@/shared/page-transition";
 import { SiteBackground } from "@/shared/site-background";
 import { isPreviewDeployment, siteUrl } from "@/shared/metadata";
 import "@/app/globals.css";
@@ -45,7 +46,7 @@ export default async function LocaleLayout({
             </a>
             <SiteHeader />
             <main id="main" className="page-shell">
-              {children}
+              <PageTransition>{children}</PageTransition>
             </main>
             <SiteFooter />
           </NextIntlClientProvider>
