@@ -21,7 +21,7 @@ unadjusted for multiple comparisons; they are not preregistered confirmatory evi
 ## Multiple-choice v1
 
 `multiple-choice-v1` is zero-shot with pinned localized labels; only one uppercase in-range letter parses.
-These are Llang Gap conditions, not a claim to reproduce a dataset author's scores or prompt translations.
+These are Lang Gap conditions, not a claim to reproduce a dataset author's scores or prompt translations.
 See [mmPISA](datasets/mmpisa.md) and [MMLU-ProX](protocols/mmluprox.md) for source-specific limitations.
 
 ## Identity and publication

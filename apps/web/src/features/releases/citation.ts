@@ -22,7 +22,7 @@ export function releaseBibtex(
 ) {
   return `@misc{llang-gap-${release.id},
   author = {{Limit 115}},
-  title = {{${escapeBibtex(`Llang Gap: ${release.dataset}`)}}},
+  title = {{${escapeBibtex(`Lang Gap: ${release.dataset}`)}}},
   year = {${new Date(release.createdAt).getUTCFullYear()}},
   howpublished = {Benchmark release},
   note = {${escapeBibtex(`Release ${release.id}. Created ${new Date(release.createdAt).toISOString().slice(0, 10)}. Protocol: ${release.protocol}.`)}},

@@ -21,7 +21,7 @@ export default {
   copyError: "Copy failed",
   copyFailed: "Could not copy. Select the text above and copy it manually.",
   citationText:
-    "Limit 115. Llang Gap: {dataset}. Release {id}, created {date}. Protocol: {protocol}.",
+    "Limit 115. Lang Gap: {dataset}. Release {id}, created {date}. Protocol: {protocol}.",
   fileCreated: "Release created {date}",
   scope:
     "These scores cover academic multiple-choice questions. They can’t tell you how well a model handles every task in a language. If the gap’s interval includes zero, we can’t call the direction of the difference. The same effort label can also mean different computing budgets across APIs.",

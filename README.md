@@ -1,13 +1,13 @@
 <h1>
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="brand/svg/llang-gap-logo-white.svg">
-    <img src="brand/svg/llang-gap-logo-black.svg" alt="Llang Gap" width="320">
+    <source media="(prefers-color-scheme: dark)" srcset="brand/svg/lang-gap-logo-white.svg">
+    <img src="brand/svg/lang-gap-logo-black.svg" alt="Lang Gap" width="320">
   </picture>
 </h1>
 
 **See how LLM accuracy changes across languages. With open results you can check.**
 
-Llang Gap is an open multilingual benchmark across datasets and prompt languages.
+Lang Gap is an open multilingual benchmark across datasets and prompt languages.
 Choose a dataset and one or more languages at launch. Evaluate each language
 independently, then compare compatible saved models and languages on aligned
 questions with a paired uncertainty interval. Inspect prompts and responses or independently recompute a release.
@@ -244,3 +244,10 @@ do not reach into another workspace package's private source files.
 
 CLI runs omit the API token cap unless `--max-output-tokens` is supplied (or YAML
 sets a cap). Select a compatible protocol. See [output token policy](docs/runner.md#omitting-the-output-token-cap).
+
+## Brand name and compatibility
+
+The public brand is **Lang Gap**. The repository URL, `@llang-gap/*` workspace
+packages, `LLANG_*` environment variables, `.llang-gap/` local state, and existing
+citation keys retain their identifiers for compatibility. Versioned protocol
+provenance and immutable published releases retain their original wording.

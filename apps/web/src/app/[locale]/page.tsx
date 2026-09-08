@@ -37,7 +37,7 @@ export default async function LeaderboardPage({ params }: Props) {
           "@type": "WebSite",
           "@id": `${siteUrl}/#website`,
           url: `${siteUrl}/`,
-          name: "Llang Gap",
+          name: "Lang Gap",
           description: t(guide ? "metadataDescription" : "metadataPlannedDescription"),
           inLanguage: [...routing.locales],
           publisher: {

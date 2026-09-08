@@ -1,6 +1,6 @@
-# Contributing to Llang Gap
+# Contributing to Lang Gap
 
-Llang Gap is a multilingual benchmark across datasets and prompt languages.
+Lang Gap is a multilingual benchmark across datasets and prompt languages.
 Dataset IDs and benchmark language tags are run inputs; website locales are independent. Contributions should make
 the benchmark easier to reproduce, audit, or use. Bug reports, focused fixes,
 documentation improvements, and UI translation corrections are welcome.

@@ -8,7 +8,7 @@ Bokmål (`nb`) and Nynorsk (`nn`) remain distinct; tags do not imply extra regio
 
 Context is retained before the question. Composite choices remain one ordered option, not new questions.
 Gold answers and rationale remain scoring data, never target prompt content.
-The zero-shot [multiple-choice protocol](../protocol.md#multiple-choice-v1) uses Llang Gap-authored labels,
+The zero-shot [multiple-choice protocol](../protocol.md#multiple-choice-v1) uses Lang Gap-authored labels,
 not independently certified translations or the paper's prompting setup. Paper-score reproduction is not claimed.
 
 Cite Sapenov and Savelka, [mmPISA-bench (2026)](https://arxiv.org/abs/2606.07069).

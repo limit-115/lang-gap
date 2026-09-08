@@ -14,7 +14,7 @@ describe("releaseBibtex", () => {
         },
         "https://example.org/en/releases/test-release/",
       );
-      expect(bibtex).toContain(`title = {{Llang Gap: ${dataset}}}`);
+      expect(bibtex).toContain(`title = {{Lang Gap: ${dataset}}}`);
       expect(bibtex).toContain("author = {{Limit 115}}");
       expect(bibtex).toContain("year = {2025}");
       expect(bibtex).toContain("Release test-release. Created 2025-12-31. Protocol: test-v2.");

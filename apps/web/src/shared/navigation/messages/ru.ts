@@ -18,5 +18,5 @@ export default {
   footer:
     "Мы тестируем LLM на разных языках и открыто публикуем результаты. Нам ещё многое предстоит проверить. Вам уже есть что перепроверить.",
   attribution: "Сделано в <author>Limit 115</author>.",
-  home: "Llang Gap — главная",
+  home: "Lang Gap — главная",
 } as const satisfies Dictionary<typeof en>;
