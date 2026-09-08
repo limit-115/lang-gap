@@ -18,6 +18,12 @@ export default {
   noPublishedResults:
     "Results are not published yet. Dataset and language conditions belong to each experiment.",
   status: "Status",
+  languageFinderTitle: "Looking for a specific language?",
+  languageFinderSearch: "Search languages…",
+  languageFinderNavigationHelp: "Select a language to open its results.",
+  languageFinderBrowse: "Browse languages",
+  languageFinderNoResults: "We haven’t listed that language yet.",
+  languageFinderNoResultsHelp: "Try another language name or tag.",
   finderTitle: "Looking for a specific model?",
   finderSearch: "Search models…",
   finderNavigationHelp: "Select a model to open its results.",
