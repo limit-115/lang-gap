@@ -10,6 +10,7 @@ export const efforts = effortSchema.options;
 const ownerNames: Record<string, string> = {
   openai: "OpenAI",
   anthropic: "Anthropic",
+  inclusionai: "inclusionAI",
   google: "Google",
   "meta-llama": "Meta",
   "x-ai": "xAI",
@@ -22,12 +23,13 @@ const plannedModels = [
   { transport: "openai", model: "gpt-6-astra", label: "GPT-6 Astra" },
   { transport: "anthropic", model: "claude-fable-5-1", label: "Claude Fable 5.1" },
 ] as const satisfies readonly (ModelReference & { label: string })[];
-const modelNames = new Map(
-  plannedModels.map((model) => {
+const modelNames = new Map([
+  ...plannedModels.map((model): [string, string] => {
     const { owner, name } = getModelIdentity(model);
     return [`${owner}/${name}`, model.label];
   }),
-);
+  ["inclusionai/ling-3.0-flash", "Ling 3.0 Flash"],
+]);
 
 export function getModelPresentation(reference: ModelReference) {
   const { owner, name } = getModelIdentity(reference);
