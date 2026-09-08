@@ -15,7 +15,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { buildRun, initialSettings, pricingFields, type RunSettings, type Setting } from "./config";
+import {
+  buildRun,
+  initialSettings,
+  selectRunDataset,
+  pricingFields,
+  type RunSettings,
+  type Setting,
+} from "./config";
 import styles from "./run-builder.module.css";
 
 const transportNames = { openai: "OpenAI", anthropic: "Anthropic", openrouter: "OpenRouter" };
@@ -211,14 +218,12 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
             settings.dataset,
             datasets.map((entry) => ({ value: entry.id, label: entry.id })),
             (value) => {
-              setSettings((previous) => ({
-                ...previous,
-                dataset: value,
-                protocol: "",
-                languages: [],
-                comparisons: "",
-                maxOutputTokens: "",
-              }));
+              setSettings((previous) =>
+                selectRunDataset(
+                  previous,
+                  datasets.find((entry) => entry.id === value)!,
+                ),
+              );
               setTouched((previous) => ({
                 ...previous,
                 dataset: true,
@@ -235,7 +240,10 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
             settings.protocol,
             (dataset?.protocols ?? []).map((entry) => ({
               value: entry.id,
-              label: t(`protocols.${entry.id}`),
+              label:
+                entry.id === dataset?.recommendedProtocol
+                  ? t("recommendedProtocol", { name: t(`protocols.${entry.id}`) })
+                  : t(`protocols.${entry.id}`),
             })),
             (value) => {
               const next = dataset!.protocols.find((entry) => entry.id === value)!;

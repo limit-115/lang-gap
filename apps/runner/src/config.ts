@@ -1,7 +1,16 @@
+import { join } from "node:path";
+import { getMaxOutputTokens } from "@llang-gap/evaluation";
+import { readDatasetProtocols } from "@llang-gap/evaluation/run-catalog";
+import { workspace } from "./files";
 import { readFile } from "node:fs/promises";
 import { parseDocument } from "yaml";
 import { z } from "zod";
-import { comparisonsSchema, experimentSchema, type Experiment } from "@llang-gap/contracts";
+import {
+  comparisonsSchema,
+  experimentSchema,
+  safeIdSchema,
+  type Experiment,
+} from "@llang-gap/contracts";
 import { validateModel } from "@llang-gap/transports";
 
 function readYaml(text: string): unknown {
@@ -82,7 +91,11 @@ const objectSchema = z.record(z.string(), z.unknown());
 const defined = (value: Record<string, unknown>) =>
   Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined));
 
-function resolveInput(input: unknown, options: ExperimentSelection): Experiment {
+function resolveInput(
+  input: unknown,
+  options: ExperimentSelection,
+  defaultMaxOutputTokens: number | null = null,
+): Experiment {
   const base = objectSchema.parse(input);
   if (options.language !== undefined && options.languages !== undefined)
     throw new Error("Use --language or --languages, not both");
@@ -169,7 +182,7 @@ function resolveInput(input: unknown, options: ExperimentSelection): Experiment 
         options.transport && options.transport !== model.transport ? undefined : model.pricing;
       return {
         efforts: ["medium"],
-        maxOutputTokens: null,
+        maxOutputTokens: defaultMaxOutputTokens,
         ...model,
         ...defined({
           transport: options.transport,
@@ -205,5 +218,17 @@ export async function resolveExperiment(
   path: string | undefined,
   options: ExperimentSelection = {},
 ): Promise<Experiment> {
-  return resolveInput(path === undefined ? {} : readYaml(await readFile(path, "utf8")), options);
+  const input = objectSchema.parse(
+    path === undefined ? {} : readYaml(await readFile(path, "utf8")),
+  );
+  const datasetChanged = options.dataset !== undefined && options.dataset !== input.dataset;
+  const protocol = options.protocol ?? (datasetChanged ? undefined : input.protocol);
+  if (protocol !== undefined) return resolveInput(input, options);
+  const dataset = safeIdSchema.parse(options.dataset ?? input.dataset);
+  const registration = await readDatasetProtocols(join(workspace, "datasets", dataset));
+  return resolveInput(
+    input,
+    { ...options, protocol: registration.recommendedProtocol },
+    getMaxOutputTokens(registration.recommendedProtocol) ?? null,
+  );
 }

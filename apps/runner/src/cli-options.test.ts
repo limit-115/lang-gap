@@ -308,3 +308,93 @@ it("omits absent caps, preserves explicit YAML caps, and accepts numeric CLI ove
     ]),
   ).rejects.toThrow("requires an explicit");
 });
+
+it.each(["mmpisa", "mmpisa-machine"])(
+  "resolves the recommendation for %s with one non-default language",
+  async (dataset) => {
+    const result = await configure([
+      "--dataset",
+      dataset,
+      "--transport",
+      "fake",
+      "--models",
+      "one",
+      "--language",
+      "ja",
+    ]);
+    expect(result).toMatchObject({
+      dataset,
+      protocol: "multiple-choice-v1",
+      languages: ["ja"],
+      comparisons: [],
+    });
+  },
+);
+
+it("resolves the author recommendation and its fixed cap without overriding an explicit cap", async () => {
+  const args = [
+    "--dataset",
+    "mmlu-prox-lite",
+    "--transport",
+    "fake",
+    "--models",
+    "one",
+    "--language",
+    "ru",
+  ];
+  const result = await configure(args);
+  expect(result.protocol).toBe("mmluprox-lite-5shot-author-api-v3");
+  expect(result.models[0]!.maxOutputTokens).toBe(2048);
+  expect(() => createJobs(result, questions, "recommended")).not.toThrow();
+  const explicit = await configure([...args, "--max-output-tokens", "4096"]);
+  expect(explicit.models[0]!.maxOutputTokens).toBe(4096);
+  expect(() => createJobs(explicit, questions, "explicit")).toThrow("2048-token");
+});
+
+it("preserves an explicit saved protocol but resets an inherited protocol when the dataset changes", async () => {
+  const root = await mkdtemp(join(tmpdir(), "llang-recommendation-"));
+  try {
+    const path = join(root, "experiment.yaml");
+    await writeFile(path, stringify(experiment));
+    expect((await configure([path])).protocol).toBe(experiment.protocol);
+    const changed = await configure([path, "--dataset", "mmpisa", "--language", "ja"]);
+    expect(changed.protocol).toBe("multiple-choice-v1");
+    const explicit = await configure([
+      path,
+      "--dataset",
+      "mmlu-prox-lite",
+      "--protocol",
+      "mmluprox-lite-5shot-flexible-api-v1",
+    ]);
+    expect(explicit.protocol).toBe("mmluprox-lite-5shot-flexible-api-v1");
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+it("rejects an unlisted protocol before fetching dataset sources", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const result = spawnSync(
+    "pnpm",
+    [
+      "bench",
+      "plan",
+      "--dataset",
+      "mmpisa",
+      "--protocol",
+      "mmluprox-lite-5shot-flexible-api-v1",
+      "--transport",
+      "fake",
+      "--models",
+      "one",
+      "--language",
+      "ja",
+      "--offline",
+    ],
+    { encoding: "utf8" },
+  );
+  expect(result.status).toBe(1);
+  expect(result.stderr).toContain("is not available for dataset mmpisa");
+  expect(result.stderr).not.toContain("dataset.preparing");
+  expect(result.stderr).not.toContain("Preparing verified dataset");
+});

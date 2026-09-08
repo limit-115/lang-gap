@@ -2,7 +2,13 @@ import { execFileSync } from "node:child_process";
 import { describe, expect, it } from "vitest";
 import { datasetManifestSchema } from "@llang-gap/contracts";
 import { describeRunDataset } from "@llang-gap/evaluation/run-catalog";
-import { buildRun, initialSettings, shellQuote, type RunSettings } from "./config";
+import {
+  buildRun,
+  initialSettings,
+  selectRunDataset,
+  shellQuote,
+  type RunSettings,
+} from "./config";
 
 function dataset(id: string, tags = ["de", "ja"]) {
   return describeRunDataset(
@@ -29,6 +35,7 @@ function dataset(id: string, tags = ["de", "ja"]) {
         sha256: "b".repeat(64),
       })),
     }),
+    { recommendedProtocol: "multiple-choice-v1", protocols: ["multiple-choice-v1"] },
   );
 }
 const datasets = [dataset("science"), dataset("history", ["fr", "zh-Hant"])];
@@ -192,4 +199,21 @@ describe("POSIX shell output", () => {
     expect(args).toContain("--languages=de,ja");
     expect(args).toContain("--models=one,two");
   });
+});
+
+it("selects the dataset recommendation and clears incompatible previous selections", () => {
+  const next = selectRunDataset(
+    { ...settings, comparisons: "de:ja", maxOutputTokens: "4096" },
+    datasets[1]!,
+  );
+  expect(next).toMatchObject({
+    dataset: "history",
+    protocol: "multiple-choice-v1",
+    languages: [],
+    comparisons: "",
+    maxOutputTokens: "",
+  });
+  expect(buildRun({ ...next, languages: ["zh-Hant"] }, datasets).experiment?.protocol).toBe(
+    "multiple-choice-v1",
+  );
 });

@@ -12,6 +12,11 @@ only selected languages. It rejects missing languages, corrupt files, duplicate
 question identities and mismatched source metadata before execution. See
 [dataset manifests](datasets.md) for the supported input formats.
 
+Each dataset explicitly registers its available protocols and recommendation in
+`protocols.json`; see [dataset registration](datasets.md#available-protocols).
+Registration controls setup choices, while adapter validation controls scientific
+compatibility.
+
 Protocol adapters own prompt construction, supported dataset/language conditions,
 answer extraction, stops and any fixed token cap. Unsupported combinations fail
 before a model request; there is no language fallback or automatic translation.
