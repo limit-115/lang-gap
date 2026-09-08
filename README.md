@@ -61,7 +61,9 @@ take precedence. Lists accept commas or spaces. Token rates for recorded usage a
 unknown costs remain `null`. See the [runner setup guide](docs/runner.md#cli-and-yaml-configuration).
 
 Use **Build a run** in the website navigation, or **Missing a model?** on the
-homepage, to configure a local experiment. Select a dataset, compatible protocol,
+homepage, to configure a local experiment. On screens narrower than 768px, this
+page explains the workflow and offers a link to copy and open on a computer;
+the builder is available on wider screens. Select a dataset, compatible protocol,
 one or more benchmark languages, transport and model IDs. The builder generates
 copyable bash/zsh commands for `run` and the API-free `plan`, with request counts,
 advanced execution settings and first-time setup instructions. It never starts a

@@ -2,6 +2,7 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { RunBuilder } from "@/features/run-builder/run-builder";
+import { RunBuilderMobileNotice } from "@/features/run-builder/mobile-notice";
 import { getRunDatasets } from "@/features/run-builder/data";
 import { routing } from "@/i18n/routing";
 import { getMessagesForLocale } from "@/i18n/messages";
@@ -21,7 +22,10 @@ export default async function RunPage({ params }: Props) {
   const datasets = await getRunDatasets();
   return (
     <NextIntlClientProvider messages={{ RunBuilder: getMessagesForLocale(locale).RunBuilder }}>
-      <RunBuilder datasets={datasets} />
+      <RunBuilderMobileNotice />
+      <div className="hidden md:block">
+        <RunBuilder datasets={datasets} />
+      </div>
     </NextIntlClientProvider>
   );
 }

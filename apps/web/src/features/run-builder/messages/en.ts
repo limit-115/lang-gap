@@ -1,4 +1,13 @@
 export default {
+  mobileTitle: "This one’s for your laptop.",
+  mobileDescription:
+    "Build a run lets you choose a dataset, languages and models, then turns your settings into a command for your computer’s terminal.",
+  mobileAdvice:
+    "Open this page on a laptop or desktop to set up your test. You’ll have room for the settings and a terminal to run it in.",
+  mobileCopyLink: "Copy link",
+  mobileLinkCopied: "Link copied. Open it on your computer when you’re ready.",
+  mobileCopyError: "Couldn’t copy the link. You can copy it from your browser’s address bar.",
+  mobileBrowse: "Compare models for now",
   title: "Let’s put it to the test.",
   intro:
     "Pick a dataset, languages and models. We’ll write the command. You decide when to run it.",
