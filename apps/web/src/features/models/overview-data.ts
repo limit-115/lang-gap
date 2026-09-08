@@ -1,3 +1,4 @@
+import type { Effort } from "@llang-gap/contracts";
 import type { GuideModel } from "@llang-gap/contracts/guide";
 
 export function filterModelLanguages<T extends { language: string; label: string; native: string }>(
@@ -16,18 +17,26 @@ export function filterModelLanguages<T extends { language: string; label: string
   return rows.filter((row) => matches.has(row) || new Intl.Locale(row.language).language === "en");
 }
 
+export function getModelOverviewProfiles(models: readonly GuideModel[], id: string) {
+  const efforts = new Set<Effort | undefined>();
+  // Runner profiles can share a public model/effort. Keep the first published row,
+  // matching the default selection without combining or ranking its scores.
+  return models.filter((entry) => {
+    if (entry.id !== id || efforts.has(entry.profile?.effort)) return false;
+    efforts.add(entry.profile?.effort);
+    return true;
+  });
+}
+
 export function selectModelOverview(
   models: readonly GuideModel[],
   id: string,
-  selection: { effort?: string; transport?: string; model?: string },
+  selection: { effort?: string | undefined },
 ) {
   return (
     models.find(
       (entry) =>
-        entry.id === id &&
-        (!selection.effort || entry.profile?.effort === selection.effort) &&
-        (!selection.transport || entry.profile?.transport === selection.transport) &&
-        (!selection.model || entry.profile?.model === selection.model),
+        entry.id === id && (!selection.effort || entry.profile?.effort === selection.effort),
     ) ?? null
   );
 }

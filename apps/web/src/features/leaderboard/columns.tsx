@@ -143,7 +143,7 @@ export function useLeaderboardColumns(languages: readonly string[]) {
                 const difference = englishScoreDifference(row.original, language);
                 return (
                   <Link
-                    href={`${guideConfigurationHref(row.original)}&language=${encodeURIComponent(language)}`}
+                    href={guideConfigurationHref(row.original, language)}
                     className="group flex min-h-8 items-center justify-end gap-1 text-right tabular-nums"
                     title={
                       getValue() === undefined

@@ -22,14 +22,17 @@ configurations. Benchmark filters appear when more than one dataset is available
 The header reuses the homepage’s searchable language finder. The table shows
 gaps to the highest score, with negative differences in red. Model names, scores,
 and card links open the model’s results page with the language and tested
-configuration selected. `?view=compare` opens a comparison of up to three results. Historical normalized guides are not displayed as accuracy percentages.
+reasoning effort selected. `?view=compare` opens a comparison of up to three results. Historical normalized guides are not displayed as accuracy percentages.
 
 Model pages show the selected published row as a language accuracy chart. Links
-from the homepage preserve the exact transport/model/effort selection; model-finder
-links use the first matching row in the published guide, never the highest-scoring
-row. The reasoning selector switches between published rows without combining
-their results. Missing requested rows remain unavailable instead of falling back
-to another setting.
+from the homepage and language pages identify the model in the path and preserve
+reasoning effort in `?effort=…`, with optional `&language=…` highlighting. Transport
+and raw model IDs are runner provenance, not website navigation state; legacy
+`transport` and `model` query parameters are ignored. Model-finder links use the
+first matching row in the published guide, never the highest-scoring row. Each
+effort appears once in the reasoning selector; if runner profiles share a model
+and effort, the first published row supplies its unchanged scores. Missing
+requested efforts remain unavailable instead of falling back to another setting.
 
 The model-page header reuses the homepage's searchable model finder. Switching
 models keeps the requested language highlighted when it is available and opens
