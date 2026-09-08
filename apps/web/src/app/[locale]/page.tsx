@@ -1,11 +1,9 @@
 import { RunCta } from "@/features/run-builder/run-cta";
-import { FileArchive } from "lucide-react";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { getMessagesForLocale } from "@/i18n/messages";
-import { Link } from "@/i18n/navigation";
 import { pageMetadata, siteUrl } from "@/shared/metadata";
 import { JsonLd } from "@/shared/json-ld";
 import { ModelFinderHero } from "@/features/leaderboard/model-finder";
@@ -68,14 +66,6 @@ export default async function LeaderboardPage({ params }: Props) {
           />
         </NextIntlClientProvider>
       </section>
-      {guide && (
-        <div className="release-link">
-          <Link className="resource-link" href="/releases">
-            <FileArchive aria-hidden="true" />
-            <span>{t("viewRelease")}</span>
-          </Link>
-        </div>
-      )}
       <RunCta />
     </>
   );
