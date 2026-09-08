@@ -151,7 +151,7 @@ export default async function ReleasePage({ params }: Props) {
           </Table>
         </div>
       </section>
-      <div className="document mt-12">
+      <div className="document mt-12 max-w-none">
         <section>
           <h2>{t("repeatScores")}</h2>
           {release.aggregate.map((row) => (
