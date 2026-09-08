@@ -121,18 +121,24 @@ is never borrowed from another row. Legacy explicit plans remain reproducible.
 
 ## Language controls and uncertainty
 
-The table initially shows up to three available languages, in canonical tag order.
+The table initially shows up to three available languages, with English first when
+present, then other languages in canonical tag order.
 The searchable Languages menu can show any subset, including none. Hiding a sorted
 column restores alphabetical model ordering; missing scores sort last in either
 direction. Choosing languages does not change the recorded scores.
 
-There is no default comparison pair. **Compare languages** reveals two selectors;
-only an explicit pair adds one difference column. Hiding either participant clears
-the comparison. Re-enabling the language does not restore it implicitly.
+English is an optional display baseline within each model/API/effort row. Its
+score carries a Baseline label; other scores show a signed difference underneath
+when that row has a complete English score on the same aligned test basis. Hiding
+the English column does not remove the reference. Without English, scores remain
+available with no difference. There is no comparison mode or pair selector.
 
 A difference is displayed only for complete scores with identical task/family
 weights, normalized scales, protocol conditions and aligned question identities.
-It is baseline minus candidate, in index points. It is descriptive, not a paired
+It is language score minus English score, labeled in percentage points on the
+normalized 0–100 scale. Positive means higher than English; negative means lower.
+This is a presentation convention, not a default experiment language or a change
+to published scoring. It is descriptive, not a paired
 significance test. **No composite confidence interval is manufactured from the
 release intervals.** Model and release pages preserve the original per-dataset
 paired gaps and their intervals. An interval containing zero remains inconclusive.

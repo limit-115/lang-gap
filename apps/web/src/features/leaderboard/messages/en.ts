@@ -7,15 +7,14 @@ export default {
     "More results are needed for a comparable score. Open the model to see available results.",
   unmeasuredScore: "No comparable score yet. Open the model for available evidence.",
   scoreDetails: "See how this model performed",
-  indexDifference: "Difference · points",
-  incomparableScores: "These language scores do not have a comparable test basis.",
+  baseline: "Baseline",
+  baselineHelp:
+    "English is the baseline where available. Differences show language score − English score in pp on matching tests.",
+  differencePp: "{value} pp",
+  versusEnglish: "vs English",
   differenceHelp:
-    "Difference between index scores, not a significance test. See the model page for paired results on individual tests.",
-  compareLanguages: "Compare languages",
-  closeComparison: "Close comparison",
+    "Language score minus English score in percentage points. A descriptive score difference, not a significance test.",
   searchLanguages: "Find a language…",
-  baseline: "Compare from",
-  candidate: "Compare to",
 
   noPublishedResults:
     "Results are not published yet. Dataset and language conditions belong to each experiment.",
