@@ -1,8 +1,30 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
+import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { BookOpen, Check, ChevronDown, Copy, Terminal, SlidersHorizontal } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  BookOpen,
+  Box,
+  Check,
+  ChevronDown,
+  CircleCheck,
+  Copy,
+  Database,
+  FlaskConical,
+  Globe2,
+  Layers,
+  LayoutGrid,
+  ListChecks,
+  Monitor,
+  Search,
+  SlidersHorizontal,
+  Terminal,
+  Zap,
+} from "lucide-react";
 import { effortSchema, transportSchema } from "@llang-gap/contracts";
 import type { RunDataset } from "@llang-gap/contracts/run-catalog";
 import { Button } from "@/components/ui/button";
@@ -33,32 +55,49 @@ const environmentKeys = {
 };
 const setupCommand =
   "git clone https://github.com/limit-115/llang-gap.git\ncd llang-gap\ncorepack enable\npnpm install --frozen-lockfile";
-const basicFields = new Set<Setting>([
-  "dataset",
-  "protocol",
-  "languages",
-  "transport",
-  "models",
-  "efforts",
-  "scope",
-  "questionLimit",
-  "repeats",
-  "maxOutputTokens",
-]);
+const sections = ["datasetSection", "modelSection", "sizeSection"] as const;
+const sectionIcons = [Database, Box, SlidersHorizontal];
+const sectionFields: Setting[][] = [
+  ["dataset", "protocol", "languages"],
+  ["transport", "models", "efforts", "maxOutputTokens"],
+  ["scope", "questionLimit", "repeats"],
+];
+const basicFields = new Set(sectionFields.flat());
+const designs = ["workspace", "guided", "studio"] as const;
+const designIcons = [LayoutGrid, ListChecks, Terminal];
 
 export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
   const t = useTranslations("RunBuilder");
   const locale = useLocale();
+  const searchParams = useSearchParams();
+  const requestedDesign = searchParams.get("design");
+  const design =
+    requestedDesign === "guided" || requestedDesign === "studio" ? requestedDesign : "workspace";
   const [settings, setSettings] = useState(initialSettings);
   const [touched, setTouched] = useState<Partial<Record<Setting, boolean>>>({});
   const [mode, setMode] = useState<"run" | "plan">("run");
   const [copied, setCopied] = useState("");
   const [copyError, setCopyError] = useState(false);
+  const [step, setStep] = useState(0);
+  const [languageSearch, setLanguageSearch] = useState("");
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
   const result = buildRun(settings, datasets);
   const dataset = datasets.find((entry) => entry.id === settings.dataset);
   const protocol = dataset?.protocols.find((entry) => entry.id === settings.protocol);
   const command = mode === "run" ? result.command : result.plan;
   const languageNames = new Intl.DisplayNames([locale], { type: "language" });
+  const completed = sectionFields.map(
+    (fields, index) =>
+      !fields.some((key) => result.errors[key]) &&
+      (index !== 2 || !Object.keys(result.errors).some((key) => !basicFields.has(key as Setting))),
+  );
+  const completedCount = completed.filter(Boolean).length;
+  const modelCount = settings.models
+    .trim()
+    .split(/[\s,]+/)
+    .filter(Boolean).length;
+  const nextStep = completed.findIndex((done) => !done);
 
   function update<K extends Setting>(key: K, value: RunSettings[K]) {
     setSettings((previous) => ({ ...previous, [key]: value }));
@@ -69,7 +108,7 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
   function field(key: Setting, control: ReactNode, hint?: ReactNode) {
     const issue = error(key);
     return (
-      <div className={styles.field}>
+      <div className={styles.field} data-field={key}>
         <label htmlFor={`run-${key}`}>{t(key)}</label>
         {control}
         {hint && (
@@ -207,320 +246,565 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
     }
   }
 
-  if (!datasets.length) return <p>{t("noDatasets")}</p>;
-  return (
-    <div className={styles.layout}>
-      <div className={styles.settings}>
-        <section className={styles.section} aria-labelledby="run-experiment-title">
-          <h2 id="run-experiment-title">{t("experimentTitle")}</h2>
-          {select(
-            "dataset",
-            settings.dataset,
-            datasets.map((entry) => ({ value: entry.id, label: entry.id })),
-            (value) => {
-              setSettings((previous) =>
-                selectRunDataset(
-                  previous,
-                  datasets.find((entry) => entry.id === value)!,
-                ),
-              );
-              setTouched((previous) => ({
-                ...previous,
-                dataset: true,
-                protocol: false,
-                languages: false,
-                comparisons: false,
-                maxOutputTokens: false,
-              }));
-            },
-            t("datasetHint"),
+  function changeDataset(value: string) {
+    const next = datasets.find((entry) => entry.id === value);
+    if (!next) return;
+    setSettings((previous) => selectRunDataset(previous, next));
+    setLanguageSearch("");
+    setTouched((previous) => ({
+      ...previous,
+      dataset: true,
+      protocol: false,
+      languages: false,
+      comparisons: false,
+      maxOutputTokens: false,
+    }));
+  }
+  function goToSection(index: number) {
+    setStep(index);
+    requestAnimationFrame(() => {
+      const target =
+        design === "workspace"
+          ? document.getElementById(`run-section-${index}`)
+          : contentRef.current;
+      target?.scrollIntoView({ behavior: "instant", block: "start" });
+      target?.focus({ preventScroll: true });
+    });
+  }
+  function continueStep() {
+    const fields =
+      step === 2
+        ? (Object.keys(result.errors).filter(
+            (key) =>
+              !sectionFields[0]!.includes(key as Setting) &&
+              !sectionFields[1]!.includes(key as Setting),
+          ) as Setting[])
+        : (sectionFields[step] ?? []);
+    setTouched((previous) => ({
+      ...previous,
+      ...Object.fromEntries(fields.map((key) => [key, true])),
+    }));
+    if (fields.some((key) => result.errors[key])) {
+      if (fields.some((key) => !basicFields.has(key))) setAdvancedOpen(true);
+      requestAnimationFrame(() =>
+        contentRef.current
+          ?.querySelector<HTMLElement>('[aria-invalid="true"], input:invalid')
+          ?.focus(),
+      );
+      return;
+    }
+    goToSection(Math.min(step + 1, 3));
+  }
+  function sectionHeading(index: number) {
+    const Icon = sectionIcons[index]!;
+    return (
+      <div className={styles.sectionHeading}>
+        <span className={styles.sectionIcon}>
+          <Icon aria-hidden="true" />
+        </span>
+        <div>
+          <h2>{t(sections[index]!)}</h2>
+          <p>{t(`${sections[index]!}Hint`)}</p>
+        </div>
+        {completed[index] && (
+          <CircleCheck className={styles.completeIcon} aria-label={t("complete")} />
+        )}
+      </div>
+    );
+  }
+  const datasetFields = (
+    <>
+      {design === "guided" ? (
+        <fieldset className={styles.field}>
+          <legend>{t("dataset")}</legend>
+          <div className={styles.datasetCards}>
+            {datasets.map((entry) => (
+              <label
+                key={entry.id}
+                className={styles.datasetCard}
+                data-selected={settings.dataset === entry.id}
+              >
+                <input
+                  type="radio"
+                  name="run-dataset"
+                  checked={settings.dataset === entry.id}
+                  onChange={() => changeDataset(entry.id)}
+                />
+                <Database aria-hidden="true" />
+                <span>
+                  <strong>{entry.id}</strong>
+                  <small>
+                    {t("datasetDetails", {
+                      languages: entry.languages.length,
+                      protocols: entry.protocols.length,
+                    })}
+                  </small>
+                </span>
+                <span className={styles.radioMark} />
+              </label>
+            ))}
+          </div>
+          {error("dataset") && <output className={styles.error}>{t("required")}</output>}
+        </fieldset>
+      ) : (
+        select(
+          "dataset",
+          settings.dataset,
+          datasets.map((entry) => ({ value: entry.id, label: entry.id })),
+          changeDataset,
+        )
+      )}
+      {dataset &&
+        select(
+          "protocol",
+          settings.protocol,
+          dataset.protocols.map((entry) => ({
+            value: entry.id,
+            label:
+              entry.id === dataset.recommendedProtocol
+                ? t("recommendedProtocol", { name: t(`protocols.${entry.id}`) })
+                : t(`protocols.${entry.id}`),
+          })),
+          (value) => {
+            const next = dataset.protocols.find((entry) => entry.id === value)!;
+            setSettings((previous) => ({
+              ...previous,
+              protocol: value,
+              maxOutputTokens: next.tokenCap?.toString() ?? previous.maxOutputTokens,
+              languages: previous.languages.filter((language) => next.languages.includes(language)),
+              comparisons: "",
+            }));
+            setTouched((previous) => ({
+              ...previous,
+              protocol: true,
+              maxOutputTokens: next.requiresTokenCap,
+              comparisons: false,
+            }));
+          },
+          t("protocolShortHint"),
+        )}
+      <fieldset className={styles.field} aria-describedby="run-languages-hint">
+        <legend>
+          {t("languages")}
+          {settings.languages.length > 0 && (
+            <span className={styles.countBadge}>{settings.languages.length}</span>
           )}
-          {select(
-            "protocol",
-            settings.protocol,
-            (dataset?.protocols ?? []).map((entry) => ({
-              value: entry.id,
-              label:
-                entry.id === dataset?.recommendedProtocol
-                  ? t("recommendedProtocol", { name: t(`protocols.${entry.id}`) })
-                  : t(`protocols.${entry.id}`),
-            })),
-            (value) => {
-              const next = dataset!.protocols.find((entry) => entry.id === value)!;
-              setSettings((previous) => ({
-                ...previous,
-                protocol: value,
-                maxOutputTokens: next.tokenCap?.toString() ?? previous.maxOutputTokens,
-                languages: previous.languages.filter((language) =>
-                  next.languages.includes(language),
-                ),
-                comparisons: "",
-              }));
-              setTouched((previous) => ({
-                ...previous,
-                protocol: true,
-                maxOutputTokens: next.requiresTokenCap,
-                comparisons: false,
-              }));
-            },
-            t("protocolHint"),
-          )}
-          <fieldset className={styles.field} aria-describedby="run-languages-hint">
-            <legend>{t("languages")}</legend>
-            <div className={styles.choices}>
-              {(dataset?.languages ?? []).map(({ tag, questions }) =>
-                choice(
-                  "languages",
-                  tag,
-                  <span>
-                    {languageNames.of(tag)} <span className={styles.tag}>{tag}</span>
-                    <small>{t("languageQuestions", { count: questions })}</small>
-                  </span>,
-                  !protocol?.languages.includes(tag),
-                ),
-              )}
-            </div>
-            <p id="run-languages-hint" className={styles.hint}>
-              {t("languagesHint")}
-            </p>
-            {error("languages") && (
-              <output className={styles.error}>{t(result.errors.languages!)}</output>
+        </legend>
+        {dataset ? (
+          <>
+            {dataset.languages.length > 6 && (
+              <div className={styles.search}>
+                <Search aria-hidden="true" />
+                <Input
+                  aria-label={t("searchLanguages")}
+                  placeholder={t("searchLanguages")}
+                  value={languageSearch}
+                  onChange={(event) => setLanguageSearch(event.target.value)}
+                />
+              </div>
             )}
-          </fieldset>
-          {select(
-            "transport",
-            settings.transport,
-            transportSchema.options.map((value) => ({
-              value,
-              label: value === "fake" ? t("fake") : transportNames[value],
-            })),
-            (value) => {
-              update("transport", transportSchema.parse(value));
-              update("models", "");
-              setTouched((previous) => ({ ...previous, models: false }));
-            },
-          )}
-          {textInput("models", {
-            placeholder:
-              settings.transport === "openrouter"
-                ? "owner/model, owner/another-model"
-                : settings.transport === "fake"
-                  ? "fake-one, fake-two"
-                  : t("modelsPlaceholder"),
-            hint: t("modelsHint"),
-          })}
-          <fieldset className={styles.field} aria-describedby="run-efforts-hint">
-            <legend>{t("efforts")}</legend>
-            <div className={styles.choices}>
-              {effortSchema.options.map((effort) => choice("efforts", effort, t(effort)))}
+            <div className={styles.languageChoices}>
+              {dataset.languages
+                .filter(({ tag }) =>
+                  `${languageNames.of(tag)} ${tag}`
+                    .toLocaleLowerCase(locale)
+                    .includes(languageSearch.toLocaleLowerCase(locale)),
+                )
+                .map(({ tag, questions }) =>
+                  choice(
+                    "languages",
+                    tag,
+                    <span>
+                      {languageNames.of(tag)}
+                      <span className={styles.tag}>{tag}</span>
+                      <small>{t("languageQuestions", { count: questions })}</small>
+                    </span>,
+                    !protocol?.languages.includes(tag),
+                  ),
+                )}
             </div>
-            <p id="run-efforts-hint" className={styles.hint}>
-              {t("effortsHint")}
-            </p>
-            {error("efforts") && <output className={styles.error}>{t("required")}</output>}
-          </fieldset>
-        </section>
-        <section className={styles.section} aria-labelledby="run-execution-title">
-          <h2 id="run-execution-title">{t("executionTitle")}</h2>
-          <fieldset className={styles.field} aria-describedby="run-scope-hint">
-            <legend>{t("scope")}</legend>
-            <div className={styles.choices}>
-              {(["sample", "all"] as const).map((scope) => (
-                <label
-                  key={scope}
-                  className={styles.choice}
-                  data-selected={settings.scope === scope}
-                >
-                  <input
-                    type="radio"
-                    name="run-scope"
-                    value={scope}
-                    checked={settings.scope === scope}
-                    onChange={() => update("scope", scope)}
-                  />
-                  {t(scope)}
-                </label>
+            {!dataset.languages.some(({ tag }) =>
+              `${languageNames.of(tag)} ${tag}`
+                .toLocaleLowerCase(locale)
+                .includes(languageSearch.toLocaleLowerCase(locale)),
+            ) && <p className={styles.hint}>{t("noLanguagesFound")}</p>}
+          </>
+        ) : (
+          <div className={styles.languageEmpty}>
+            <Globe2 aria-hidden="true" />
+            <span>{t("chooseDatasetFirst")}</span>
+          </div>
+        )}
+        <p id="run-languages-hint" className={styles.hint}>
+          {t("languagesHint")}
+        </p>
+        {error("languages") && (
+          <output className={styles.error}>{t(result.errors.languages!)}</output>
+        )}
+      </fieldset>
+    </>
+  );
+  const modelFields = (
+    <>
+      <fieldset className={styles.field}>
+        <legend>{t("provider")}</legend>
+        <div className={styles.providers}>
+          {transportSchema.options.map((value) => (
+            <label
+              key={value}
+              className={styles.provider}
+              data-selected={settings.transport === value}
+            >
+              <input
+                type="radio"
+                name="run-transport"
+                checked={settings.transport === value}
+                onChange={() => {
+                  update("transport", value);
+                  update("models", value === "fake" ? "fake-one" : "");
+                  setTouched((previous) => ({ ...previous, models: false }));
+                }}
+              />
+              <span className={styles.providerMark}>
+                {value === "fake" ? (
+                  <FlaskConical aria-hidden="true" />
+                ) : value === "openai" ? (
+                  <Zap aria-hidden="true" />
+                ) : value === "anthropic" ? (
+                  "A"
+                ) : (
+                  <Layers aria-hidden="true" />
+                )}
+              </span>
+              <span>{value === "fake" ? t("testProvider") : transportNames[value]}</span>
+              {value === "fake" && <small>{t("free")}</small>}
+            </label>
+          ))}
+        </div>
+        {error("transport") && <output className={styles.error}>{t("required")}</output>}
+      </fieldset>
+      {textInput("models", {
+        placeholder:
+          settings.transport === "openrouter"
+            ? "owner/model, owner/another-model"
+            : settings.transport === "fake"
+              ? "fake-one, fake-two"
+              : t("modelsPlaceholder"),
+        hint: t("modelsHint"),
+      })}
+      <fieldset className={styles.field} aria-describedby="run-efforts-hint">
+        <legend>{t("efforts")}</legend>
+        <div className={styles.effortChoices}>
+          {effortSchema.options.map((effort) => choice("efforts", effort, t(effort)))}
+        </div>
+        <p id="run-efforts-hint" className={styles.hint}>
+          {t("effortsHint")}
+        </p>
+        {error("efforts") && <output className={styles.error}>{t("required")}</output>}
+      </fieldset>
+      {textInput("maxOutputTokens", {
+        type: "number",
+        min: 256,
+        max: 128000,
+        placeholder: t("capPlaceholder"),
+        readOnly: protocol?.tokenCap != null,
+        hint:
+          protocol?.tokenCap != null ? t("capPinned", { count: protocol.tokenCap }) : t("capHint"),
+      })}
+      {settings.transport === "anthropic" && !settings.maxOutputTokens && (
+        <p className={styles.error}>{t("capRequired")}</p>
+      )}
+    </>
+  );
+  const executionFields = (
+    <>
+      <fieldset className={styles.field} aria-describedby="run-scope-hint">
+        <legend>{t("scope")}</legend>
+        <div className={styles.scopeChoices}>
+          {(["sample", "all"] as const).map((scope) => (
+            <label
+              key={scope}
+              className={styles.scopeChoice}
+              data-selected={settings.scope === scope}
+            >
+              <input
+                type="radio"
+                name="run-scope"
+                checked={settings.scope === scope}
+                onChange={() => update("scope", scope)}
+              />
+              {scope === "sample" ? <Zap aria-hidden="true" /> : <Database aria-hidden="true" />}
+              <span>
+                <strong>{t(scope)}</strong>
+                <small>{t(scope === "sample" ? "sampleDescription" : "allDescription")}</small>
+              </span>
+              <span className={styles.radioMark} />
+            </label>
+          ))}
+        </div>
+        <p id="run-scope-hint" className={styles.hint}>
+          {t("scopeHint")}
+        </p>
+      </fieldset>
+      <div className={styles.grid}>
+        {settings.scope === "sample" && textInput("questionLimit", { type: "number", min: 1 })}
+        {textInput("repeats", { type: "number", min: 1, max: 10, hint: t("repeatsHint") })}
+      </div>
+    </>
+  );
+  const advanced = (
+    <details
+      className={styles.advanced}
+      open={advancedOpen}
+      onToggle={(event) => setAdvancedOpen(event.currentTarget.open)}
+    >
+      <summary>
+        <SlidersHorizontal aria-hidden="true" className="size-4" />
+        <span>
+          {t("advanced")}
+          <small>{t("advancedHint")}</small>
+        </span>
+        <ChevronDown aria-hidden="true" className={styles.chevron} />
+      </summary>
+      <div className={styles.advancedBody}>
+        {textInput("comparisons", {
+          placeholder: t("comparisonsPlaceholder"),
+          hint: t("comparisonsHint"),
+        })}
+        <div className={styles.grid}>
+          {textInput("id")}
+          {textInput("seed", {
+            type: "number",
+            min: 1,
+            max: 2147483647,
+            hint: "1–2,147,483,647",
+          })}
+          {textInput("concurrency", { type: "number", min: 1, max: 32, hint: "1–32" })}
+          {textInput("maxAttempts", { type: "number", min: 1, max: 5, hint: "1–5" })}
+          {textInput("timeoutMs", {
+            type: "number",
+            min: 1000,
+            max: 3600000,
+            hint: "1,000–3,600,000",
+          })}
+          {textInput("maxJobs", { type: "number", min: 1, placeholder: t("optional") })}
+        </div>
+        <p className={styles.hint}>{t("maxJobsHint")}</p>
+        <label className={styles.checkRow}>
+          <input
+            type="checkbox"
+            checked={settings.offline}
+            onChange={(event) => update("offline", event.target.checked)}
+          />
+          {t("offline")}
+        </label>
+        <p className={styles.hint}>{t("offlineHint")}</p>
+        {textInput("budgetUsd", {
+          type: "number",
+          min: 0,
+          step: "any",
+          placeholder: t("optional"),
+          hint: t("budgetHint"),
+        })}
+        <label className={styles.checkRow}>
+          <input
+            type="checkbox"
+            checked={settings.pricing}
+            onChange={(event) => update("pricing", event.target.checked)}
+          />
+          {t("pricing")}
+        </label>
+        <p className={styles.hint}>{t("pricingHint")}</p>
+        {settings.pricing && (
+          <>
+            <div className={styles.grid}>
+              {textInput("pricingAsOf", { type: "date" })}
+              {textInput("pricingSource", { type: "url", placeholder: "https://…" })}
+              {pricingFields.map((key) => (
+                <div key={key}>{textInput(key, { type: "number", min: 0, step: "any" })}</div>
               ))}
             </div>
-            <p id="run-scope-hint" className={styles.hint}>
-              {t("scopeHint")}
-            </p>
-          </fieldset>
-          <div className={styles.grid}>
-            {settings.scope === "sample" && textInput("questionLimit", { type: "number", min: 1 })}
-            {textInput("repeats", { type: "number", min: 1, max: 10, hint: t("repeatsHint") })}
-          </div>
-          {textInput("maxOutputTokens", {
-            type: "number",
-            min: 256,
-            max: 128000,
-            placeholder: t("capPlaceholder"),
-            readOnly: protocol?.tokenCap != null,
-            hint:
-              protocol?.tokenCap != null
-                ? t("capPinned", { count: protocol.tokenCap })
-                : t("capHint"),
-          })}
-          {settings.transport === "anthropic" && !settings.maxOutputTokens && (
-            <p className={styles.error}>{t("capRequired")}</p>
-          )}
-        </section>
-        <details className={styles.advanced}>
-          <summary>
-            <SlidersHorizontal aria-hidden="true" className="size-4" />
-            <span>
-              {t("advanced")}
-              <small>{t("advancedHint")}</small>
-            </span>
-            <ChevronDown aria-hidden="true" className={styles.chevron} />
-          </summary>
-          <div className={styles.advancedBody}>
-            {textInput("comparisons", {
-              placeholder: t("comparisonsPlaceholder"),
-              hint: t("comparisonsHint"),
-            })}
-            <div className={styles.grid}>
-              {textInput("id")}
-              {textInput("seed", {
-                type: "number",
-                min: 1,
-                max: 2147483647,
-                hint: "1–2,147,483,647",
-              })}
-              {textInput("concurrency", { type: "number", min: 1, max: 32, hint: "1–32" })}
-              {textInput("maxAttempts", { type: "number", min: 1, max: 5, hint: "1–5" })}
-              {textInput("timeoutMs", {
-                type: "number",
-                min: 1000,
-                max: 3600000,
-                hint: "1,000–3,600,000",
-              })}
-              {textInput("maxJobs", { type: "number", min: 1, placeholder: t("optional") })}
-            </div>
-            <p className={styles.hint}>{t("maxJobsHint")}</p>
-            <label className={styles.checkRow}>
-              <input
-                type="checkbox"
-                checked={settings.offline}
-                onChange={(event) => update("offline", event.target.checked)}
-              />
-              {t("offline")}
-            </label>
-            <p className={styles.hint}>{t("offlineHint")}</p>
-            {textInput("budgetUsd", {
-              type: "number",
-              min: 0,
-              step: "any",
-              placeholder: t("optional"),
-              hint: t("budgetHint"),
-            })}
-            <label className={styles.checkRow}>
-              <input
-                type="checkbox"
-                checked={settings.pricing}
-                onChange={(event) => update("pricing", event.target.checked)}
-              />
-              {t("pricing")}
-            </label>
-            <p className={styles.hint}>{t("pricingHint")}</p>
-            {settings.pricing && (
-              <>
-                <div className={styles.grid}>
-                  {textInput("pricingAsOf", { type: "date" })}
-                  {textInput("pricingSource", { type: "url", placeholder: "https://…" })}
-                  {pricingFields.map((key) => (
-                    <div key={key}>{textInput(key, { type: "number", min: 0, step: "any" })}</div>
-                  ))}
-                </div>
-                {result.errors.pricing && (
-                  <output className={styles.error}>{t(result.errors.pricing)}</output>
-                )}
-              </>
+            {result.errors.pricing && (
+              <output className={styles.error}>{t(result.errors.pricing)}</output>
             )}
-          </div>
-        </details>
+          </>
+        )}
       </div>
-      <aside className={styles.output} aria-labelledby="run-command-title">
-        <div className={styles.terminal}>
-          <div className={styles.terminalHeader}>
-            <Terminal aria-hidden="true" className="size-5" />
-            <h2 id="run-command-title">{t("commandTitle")}</h2>
+    </details>
+  );
+  const panels = [datasetFields, modelFields, executionFields];
+  const steps = [...sections, "reviewSection"] as const;
+  const summaryRows = [
+    { label: t("dataset"), value: settings.dataset || t("notSelected"), index: 0 },
+    {
+      label: t("languages"),
+      value: settings.languages.length
+        ? settings.languages.map((tag) => languageNames.of(tag)).join(", ")
+        : t("notSelected"),
+      index: 0,
+    },
+    {
+      label: t("models"),
+      value: modelCount
+        ? t("modelConditions", { models: modelCount, efforts: settings.efforts.length })
+        : t("notSelected"),
+      index: 1,
+    },
+    {
+      label: t("scope"),
+      value:
+        settings.scope === "all"
+          ? t("all")
+          : t("sampleSummary", { count: Number(settings.questionLimit) || 0 }),
+      index: 2,
+    },
+  ];
+  const commandPanel = (
+    <div className={styles.terminal}>
+      <div className={styles.terminalHeader}>
+        <Terminal aria-hidden="true" />
+        <span>{t("commandTitle")}</span>
+        <span className={styles.shellBadge}>bash / zsh</span>
+      </div>
+      <fieldset className={styles.mode} aria-label={t("commandMode")}>
+        {(["run", "plan"] as const).map((value) => (
+          <Button
+            key={value}
+            variant="ghost"
+            aria-pressed={mode === value}
+            onClick={() => {
+              setMode(value);
+              setCopyError(false);
+            }}
+          >
+            {t(value)}
+          </Button>
+        ))}
+      </fieldset>
+      <div className={styles.commandArea}>
+        {command ? (
+          <textarea
+            readOnly
+            aria-label={t("commandTitle")}
+            value={command}
+            rows={Math.min(18, Math.max(10, command.split("\n").length + 1))}
+            spellCheck={false}
+          />
+        ) : (
+          <div className={styles.commandPlaceholder}>
+            <span className={styles.terminalPrompt} aria-hidden="true">
+              &gt;_
+            </span>
+            <strong>{t("commandWaiting")}</strong>
+            <p>{t("commandWaitingHint")}</p>
+            <div className={styles.terminalChecklist}>
+              {sections.map((label, index) => (
+                <button key={label} onClick={() => goToSection(index)}>
+                  <span data-done={completed[index]}>
+                    {completed[index] ? (
+                      <Check aria-hidden="true" />
+                    ) : (
+                      <span className={styles.dot} />
+                    )}
+                  </span>
+                  {t(label)}
+                  <ArrowRight aria-hidden="true" />
+                </button>
+              ))}
+            </div>
           </div>
-          <fieldset className={styles.mode} aria-label={t("commandTitle")}>
-            <Button
-              variant="ghost"
-              aria-pressed={mode === "run"}
-              onClick={() => {
-                setMode("run");
-                setCopyError(false);
-              }}
-            >
-              {t("run")}
-            </Button>
-            <Button
-              variant="ghost"
-              aria-pressed={mode === "plan"}
-              onClick={() => {
-                setMode("plan");
-                setCopyError(false);
-              }}
-            >
-              {t("plan")}
-            </Button>
-          </fieldset>
-          <div className={styles.commandArea}>
-            {command ? (
-              <textarea
-                readOnly
-                aria-label={t("commandTitle")}
-                value={command}
-                rows={Math.min(18, Math.max(12, command.split("\n").length + 1))}
-                spellCheck={false}
-              />
-            ) : (
-              <p className={styles.commandPlaceholder}>
-                {Object.values(touched).some(Boolean) ? t("fixErrors") : t("emptyCommand")}
-              </p>
-            )}
-          </div>
-          <div className={styles.copyRow}>
-            <span>{t("shell")}</span>
-            <Button
-              onClick={() => {
-                void copyCommand();
-              }}
-              disabled={!command}
-              className={styles.copyButton}
-            >
-              {copied === command ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
-              {copied === command ? t("copied") : t("copy")}
-            </Button>
-          </div>
+        )}
+      </div>
+      <p className={styles.commandNote}>
+        {t(
+          mode === "plan"
+            ? "planNote"
+            : settings.transport === "fake"
+              ? "fakeNote"
+              : settings.transport
+                ? "liveNote"
+                : "localNote",
+        )}
+      </p>
+    </div>
+  );
+  const output = (
+    <aside className={styles.output} aria-label={t("summaryTitle")}>
+      <div className={styles.summaryCard}>
+        <div className={styles.summaryHeading}>
+          <h2>{t("summaryTitle")}</h2>
+          <span className={styles.statusBadge} data-ready={Boolean(command)}>
+            <span />
+            {t(command ? "ready" : "draft")}
+          </span>
         </div>
-        <div aria-live="polite" className={styles.feedback}>
+        <div className={styles.requestTotal}>
+          <span>
+            {result.requests === null ? "—" : new Intl.NumberFormat(locale).format(result.requests)}
+          </span>
+          <div>
+            <strong>{t("plannedRequests")}</strong>
+            <small>{t("beforeRetries")}</small>
+          </div>
+          <Layers aria-hidden="true" />
+        </div>
+        <div className={styles.summaryRows}>
+          {summaryRows.map((row) => (
+            <button key={row.label} onClick={() => goToSection(row.index)}>
+              <span>{row.label}</span>
+              <strong>{row.value}</strong>
+              <ChevronDown aria-hidden="true" />
+            </button>
+          ))}
+        </div>
+        {settings.transport && settings.transport !== "fake" && (
+          <p className={styles.cost}>{t(settings.pricing ? "costConfigured" : "costUnknown")}</p>
+        )}
+        {!command && (
+          <div className={styles.nextAction}>
+            <span>{t("nextUp")}</span>
+            <button
+              onClick={() => {
+                if (nextStep === 2) setAdvancedOpen(true);
+                goToSection(nextStep < 0 ? 2 : nextStep);
+              }}
+            >
+              {t(sections[nextStep < 0 ? 2 : nextStep]!)}
+              <ArrowRight aria-hidden="true" />
+            </button>
+          </div>
+        )}
+        {design === "studio" ? null : (
+          <details className={styles.commandDisclosure}>
+            <summary>
+              <Terminal aria-hidden="true" />
+              {t("viewCommand")}
+              <ChevronDown aria-hidden="true" />
+            </summary>
+            {commandPanel}
+          </details>
+        )}
+        <Button
+          disabled={!command}
+          className={styles.primaryAction}
+          onClick={() => {
+            void copyCommand();
+          }}
+        >
+          {copied === command ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
+          {t(copied === command ? "copied" : "copy")}
+          <ArrowDown aria-hidden="true" />
+        </Button>
+        <p className={styles.localCaption}>
+          <Monitor aria-hidden="true" />
+          {t("pasteLocally")}
+        </p>
+        <output className={styles.feedback}>
           {copyError ? t("copyError") : copied === command ? t("copied") : ""}
-        </div>
-        <div className={styles.summary}>
-          {result.requests !== null && (
-            <>
-              <strong>{t("requests", { count: result.requests })}</strong>
-              <p>{t("requestsHint")}</p>
-            </>
-          )}
-          <p>
-            {mode === "plan"
-              ? t("planNote")
-              : settings.transport === "fake"
-                ? t("fakeNote")
-                : t("liveNote")}
-          </p>
-          {settings.transport && settings.transport !== "fake" && (
-            <p className={styles.cost}>{t(settings.pricing ? "costConfigured" : "costUnknown")}</p>
-          )}
-          {Object.keys(result.errors).some((key) => !basicFields.has(key as Setting)) && (
-            <p className={styles.error}>{t("advancedErrors")}</p>
-          )}
-        </div>
+        </output>
+      </div>
+      {design === "studio" && commandPanel}
+      <div className={styles.outputHelp}>
         <details className={styles.setup}>
           <summary>
             {t("setupTitle")}
@@ -542,7 +826,214 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
           <BookOpen aria-hidden="true" />
           <span>{t("docs")}</span>
         </a>
-      </aside>
+      </div>
+    </aside>
+  );
+  if (!datasets.length) return <p>{t("noDatasets")}</p>;
+  return (
+    <div className={styles.page} data-design={design}>
+      <div className={styles.designBar}>
+        <span>{t("designPreview")}</span>
+        <nav aria-label={t("designNavigation")} className={styles.designSwitcher}>
+          {designs.map((value, index) => {
+            const Icon = designIcons[index]!;
+            return (
+              <a
+                key={value}
+                href={`?design=${value}`}
+                aria-current={design === value ? "page" : undefined}
+                onClick={(event) => {
+                  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                  event.preventDefault();
+                  const url = new URL(window.location.href);
+                  url.searchParams.set("design", value);
+                  window.history.pushState(null, "", url);
+                  setStep(0);
+                }}
+              >
+                <Icon aria-hidden="true" />
+                <span>{t(value)}</span>
+              </a>
+            );
+          })}
+        </nav>
+        <span className={styles.previewHint}>{t("inputsPreserved")}</span>
+      </div>
+      <div className={styles.pageHeading}>
+        <div>
+          <h1>{t(`${design}Title`)}</h1>
+          <p>{t(`${design}Intro`)}</p>
+        </div>
+        <a
+          href="https://github.com/limit-115/llang-gap/blob/main/docs/runner.md"
+          className={styles.guideLink}
+        >
+          <BookOpen aria-hidden="true" />
+          {t("runnerGuide")}
+          <ArrowRight aria-hidden="true" />
+        </a>
+      </div>
+      {design === "workspace" && (
+        <div className={styles.workspaceLayout}>
+          <div className={styles.settings}>
+            {panels.map((panel, index) => (
+              <section
+                key={sections[index]}
+                id={`run-section-${index}`}
+                tabIndex={-1}
+                className={styles.section}
+              >
+                {sectionHeading(index)}
+                <div className={styles.sectionBody}>{panel}</div>
+              </section>
+            ))}
+            {advanced}
+          </div>
+          {output}
+        </div>
+      )}
+      {design === "guided" && (
+        <div className={styles.guidedLayout}>
+          <aside className={styles.guideRail}>
+            <div className={styles.guideRailTop}>
+              <span className={styles.guideGlyph}>
+                <Layers aria-hidden="true" />
+              </span>
+              <h2>{t("guideRailTitle")}</h2>
+              <p>{t("guideRailHint")}</p>
+            </div>
+            <nav aria-label={t("steps")} className={styles.stepList}>
+              {steps.map((label, index) => (
+                <button
+                  key={label}
+                  aria-current={step === index ? "step" : undefined}
+                  onClick={() => goToSection(index)}
+                >
+                  <span
+                    className={styles.stepIndicator}
+                    data-done={index < 3 ? completed[index] : Boolean(command)}
+                  >
+                    {(index < 3 ? completed[index] : Boolean(command)) ? (
+                      <Check aria-hidden="true" />
+                    ) : (
+                      index + 1
+                    )}
+                  </span>
+                  <span>
+                    {t(label)}
+                    <small>{t(`${label}Short`)}</small>
+                  </span>
+                  {step === index && <ArrowRight aria-hidden="true" />}
+                </button>
+              ))}
+            </nav>
+            <div className={styles.guideAssurance}>
+              <Monitor aria-hidden="true" />
+              <div>
+                <strong>{t("yourMachine")}</strong>
+                <p>{t("localNote")}</p>
+              </div>
+            </div>
+          </aside>
+          <div ref={contentRef} tabIndex={-1} className={styles.guidedContent}>
+            <div className={styles.stepProgress}>
+              <span>{t("stepProgress", { current: step + 1, total: 4 })}</span>
+              <div>
+                {steps.map((label, index) => (
+                  <span key={label} data-active={index <= step} />
+                ))}
+              </div>
+            </div>
+            {step < 3 ? (
+              <>
+                <div className={styles.guidedTitle}>
+                  <h2>{t(sections[step]!)}</h2>
+                  <p>{t(`${sections[step]!}Hint`)}</p>
+                </div>
+                <div className={styles.sectionBody}>
+                  {panels[step]}
+                  {step === 2 && advanced}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className={styles.guidedTitle}>
+                  <h2>{t("reviewSection")}</h2>
+                  <p>{t("reviewHint")}</p>
+                </div>
+                {output}
+              </>
+            )}
+            <div className={styles.stepFooter}>
+              <Button variant="ghost" disabled={step === 0} onClick={() => goToSection(step - 1)}>
+                <ArrowLeft aria-hidden="true" />
+                {t("back")}
+              </Button>
+              {step < 3 ? (
+                <Button className={styles.continueButton} onClick={continueStep}>
+                  {t(step === 2 ? "reviewAction" : "continue")}
+                  <ArrowRight aria-hidden="true" />
+                </Button>
+              ) : (
+                <span className={styles.hint}>{t("localOnly")}</span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      {design === "studio" && (
+        <div className={styles.studioShell}>
+          <div className={styles.studioToolbar}>
+            <span>
+              <span className={styles.liveDot} />
+              {t("configuration")}
+            </span>
+            <span>{t("sectionsReady", { count: completedCount, total: 3 })}</span>
+            <span className={styles.toolbarEnd}>
+              <Monitor aria-hidden="true" />
+              {t("localOnly")}
+            </span>
+          </div>
+          <div className={styles.studioLayout}>
+            <div className={styles.studioEditor}>
+              <nav className={styles.studioTabs} aria-label={t("configuration")}>
+                {sections.map((label, index) => {
+                  const Icon = sectionIcons[index]!;
+                  return (
+                    <Button
+                      key={label}
+                      variant="ghost"
+                      aria-pressed={Math.min(step, 2) === index}
+                      onClick={() => goToSection(index)}
+                    >
+                      <Icon aria-hidden="true" />
+                      {t(`${label}Tab`)}
+                      {completed[index] && <Check aria-hidden="true" />}
+                    </Button>
+                  );
+                })}
+              </nav>
+              <div className={styles.studioContent} ref={contentRef} tabIndex={-1}>
+                {sectionHeading(Math.min(step, 2))}
+                <div className={styles.sectionBody}>
+                  {panels[Math.min(step, 2)]}
+                  {Math.min(step, 2) === 2 && advanced}
+                </div>
+                <div className={styles.studioNext}>
+                  <Button
+                    variant="outline"
+                    onClick={() => goToSection((Math.min(step, 2) + 1) % 3)}
+                  >
+                    {t(`${sections[(Math.min(step, 2) + 1) % 3]!}Tab`)}
+                    <ArrowRight aria-hidden="true" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+            {output}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

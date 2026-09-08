@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import styles from "./run-builder.module.css";
+import styles from "./run-cta.module.css";
 
 export async function RunCta() {
   const t = await getTranslations("RunBuilder");

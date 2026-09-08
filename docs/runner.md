@@ -4,7 +4,16 @@
 
 The website's **Build a run** page generates CLI-only commands for bash/zsh.
 Choose your dataset, protocol, languages and transport, then enter exact model IDs.
-The command updates as you edit. **Check plan** produces a `plan` command with the
+Switch between **Workspace** (all settings with a live summary), **Guided**
+(four setup steps), and **Studio** (tabbed controls beside the command). Your
+inputs stay in memory when switching views; reloading starts a new setup.
+Each view has a direct link: `/run?design=workspace`, `/run?design=guided`, or
+`/run?design=studio`. Dataset changes clear the language selection; use language
+search for larger catalogs. **Local test** selects the fake transport and adds an
+editable synthetic model ID.
+
+The command updates as you edit. In Workspace and Guided, open **View command**
+to inspect it or switch modes. **Check plan** produces a `plan` command with the
 same experiment settings; it may download dataset files but never calls models.
 Copy the command and run it from your cloned repository root after installing the
 pinned tools and dependencies. Supply transport API keys locally through `.env`
