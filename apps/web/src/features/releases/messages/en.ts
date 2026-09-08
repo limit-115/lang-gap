@@ -17,9 +17,8 @@ export default {
   copyLink: "Copy link",
   copyBibtex: "Copy BibTeX",
   downloadBibtex: "Download .bib",
-  citationCopied: "Citation copied.",
-  linkCopied: "Release link copied.",
-  bibtexCopied: "BibTeX copied.",
+  copied: "Copied",
+  copyError: "Copy failed",
   copyFailed: "Could not copy. Select the text above and copy it manually.",
   citationText:
     "Limit 115. Llang Gap: {dataset}. Release {id}, created {date}. Protocol: {protocol}.",
