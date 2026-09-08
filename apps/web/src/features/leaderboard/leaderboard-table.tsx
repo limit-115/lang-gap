@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { cn } from "cn";
 import { useTable } from "@tanstack/react-table";
 import { Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -39,6 +40,26 @@ export function LeaderboardTable({
   isSummary?: boolean;
 }) {
   const t = useTranslations("Leaderboard");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const modelHeaderRef = useRef<HTMLTableCellElement>(null);
+
+  useEffect(() => {
+    const header = modelHeaderRef.current;
+    const container = containerRef.current;
+    if (!header || !container) return;
+
+    // Native table widths change with content, filters, fonts, and the viewport.
+    const updateWidth = () => {
+      container.style.setProperty(
+        "--model-column-width",
+        `${header.getBoundingClientRect().width}px`,
+      );
+    };
+    updateWidth();
+    const observer = new ResizeObserver(updateWidth);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
   const [visible, setVisible] = useState(() => withEnglishFirst(initialLanguages(languages)));
   const columns = useLeaderboardColumns(visible);
   const table = useTable({
@@ -48,6 +69,7 @@ export function LeaderboardTable({
     getRowId: guideRowKey,
     initialState: {
       sorting: [{ id: "model", desc: false }],
+      columnPinning: { start: ["model", "effort"], end: [] },
     },
     enableSortingRemoval: false,
   });
@@ -121,8 +143,18 @@ export function LeaderboardTable({
           }}
         />
       </div>
-      <div className="overflow-hidden rounded-lg border bg-background/96">
-        <Table className="[&_td]:h-11 [&_td]:px-3 [&_td]:py-1.5 [&_th]:h-11 [&_th]:px-3 [&_tr>*:not(:last-child)]:border-r [&_tr>*:nth-child(even)]:bg-black/[0.02] dark:[&_tr>*:nth-child(even)]:bg-white/[0.025]">
+      <div ref={containerRef} className="overflow-hidden rounded-lg border bg-background/96">
+        <Table
+          className={cn(
+            // Collapsed borders scroll independently of sticky cells and expose scores at the seam.
+            "border-separate border-spacing-0 [&_th]:border-b [&_tbody_tr:not(:last-child)>td]:border-b",
+            "[&_[data-pinned=true]]:sticky [&_[data-pinned=true]]:z-10 [&_[data-pinned=true]]:bg-background! [&_[data-pinned=true]]:before:pointer-events-none [&_[data-pinned=true]]:before:absolute [&_[data-pinned=true]]:before:inset-0",
+            "[&_th[data-pinned=true]]:before:bg-muted/20 [&_td[data-pinned=true]:nth-child(even)]:before:bg-black/[0.02] dark:[&_td[data-pinned=true]:nth-child(even)]:before:bg-white/[0.025]",
+            "[&_[data-pinned=true]:first-child]:start-0 [&_[data-pinned=true]:first-child>*]:max-w-[40vw] [&_[data-pinned=true]:first-child>*]:whitespace-normal sm:[&_[data-pinned=true]:first-child>*]:whitespace-nowrap [&_[data-pinned=true]:nth-child(2)]:start-[var(--model-column-width)]",
+            "[&_tr:hover_td[data-pinned=true]]:before:bg-black/[0.03] dark:[&_tr:hover_td[data-pinned=true]]:before:bg-white/[0.04] [&_td]:h-11",
+            "[&_td]:px-3 [&_td]:py-1.5 [&_th]:h-11 [&_th]:px-3 [&_tr>*:not(:last-child)]:border-r [&_tr>*:nth-child(even)]:bg-black/[0.02] dark:[&_tr>*:nth-child(even)]:bg-white/[0.025]",
+          )}
+        >
           <caption className="sr-only">
             {t("tableTitle")} — {t(isSummary ? "meanAccuracy" : "guideScore")}
           </caption>
@@ -134,6 +166,8 @@ export function LeaderboardTable({
                   return (
                     <TableHead
                       key={header.id}
+                      ref={header.column.id === "model" ? modelHeaderRef : undefined}
+                      data-pinned={!!header.column.getIsPinned()}
                       scope="col"
                       aria-sort={
                         header.column.getCanSort()
@@ -156,7 +190,7 @@ export function LeaderboardTable({
             {visibleRows.map((row) => (
               <TableRow key={row.id} className="hover:bg-black/[0.03] dark:hover:bg-white/[0.04]">
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell key={cell.id} data-pinned={!!cell.column.getIsPinned()}>
                     <table.FlexRender cell={cell} />
                   </TableCell>
                 ))}

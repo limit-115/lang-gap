@@ -1,5 +1,6 @@
 import {
   columnFilteringFeature,
+  columnPinningFeature,
   columnVisibilityFeature,
   createFilteredRowModel,
   createSortedRowModel,
@@ -13,6 +14,7 @@ import {
 
 export const features = tableFeatures({
   columnFilteringFeature,
+  columnPinningFeature,
   columnVisibilityFeature,
   rowSortingFeature,
   filteredRowModel: createFilteredRowModel(),
