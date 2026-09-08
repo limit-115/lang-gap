@@ -68,9 +68,9 @@ Before making the indexed release public:
 5. Inspect the deployed sitemap and submit changed URLs through webmaster tools.
    Consider IndexNow for Bing if publication becomes frequent.
 
-Model-detail URLs in the current homepage finder are reserved and not implemented.
-Keep them out of the sitemap; implement substantive model pages or replace that
-navigation before promoting the finder as a working result workflow. Share images
+Language-detail URLs (`/{locale}/languages/{tag}/`) in the homepage finder are
+reserved and not implemented. Keep them out of the sitemap until substantive
+language pages exist; the selector currently navigates to these 404 destinations. Share images
 and real maintainer/editorial profiles are useful follow-up work.
 
 ## AI crawler policy

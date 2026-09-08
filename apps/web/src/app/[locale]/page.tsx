@@ -48,7 +48,10 @@ export default async function LeaderboardPage({ params }: Props) {
         }}
       />
       <NextIntlClientProvider messages={{ Leaderboard: getMessagesForLocale(locale).Leaderboard }}>
-        <ModelFinderHero rows={guide?.models.map((model) => model.reference) ?? []} />
+        <ModelFinderHero
+          rows={guide?.models.map((model) => model.reference) ?? []}
+          languages={guideLanguages(guide?.models ?? [], guide?.languages ?? [])}
+        />
       </NextIntlClientProvider>
       <section aria-labelledby="benchmark-title">
         <div className="panel-heading">

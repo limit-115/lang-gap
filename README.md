@@ -116,6 +116,11 @@ shows mean accuracy for each selected language, with an equal weight per availab
 dataset. A dash means no published result
 for that row and language. The searchable **Languages** menu controls visible columns.
 
+The **Looking for a specific language?** shortcut below the model finder searches
+published benchmark languages by name or tag. It navigates to
+`/{locale}/languages/{tag}/`; language detail pages are not implemented yet, so
+these reserved destinations currently return 404.
+
 For each dataset and language, the newest run supplies the result; extra runs,
 questions and repeats do not increase its weight. Token caps, repeat counts, protocol
 versions and dataset revisions remain in the source experiments, not admission

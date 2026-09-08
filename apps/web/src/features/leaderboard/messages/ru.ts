@@ -21,6 +21,12 @@ export default {
   noPublishedResults:
     "Результаты ещё не опубликованы. Датасет и языки задаются в каждом эксперименте.",
   status: "Статус",
+  languageFinderTitle: "Ищете конкретный язык?",
+  languageFinderSearch: "Поиск языков…",
+  languageFinderNavigationHelp: "Выберите язык, чтобы открыть его результаты.",
+  languageFinderBrowse: "Открыть список языков",
+  languageFinderNoResults: "Этого языка пока нет в списке.",
+  languageFinderNoResultsHelp: "Попробуйте другое название или код языка.",
   finderTitle: "Ищете конкретную модель?",
   finderSearch: "Поиск моделей…",
   finderNavigationHelp: "Выберите модель, чтобы открыть её результаты.",
