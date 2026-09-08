@@ -184,6 +184,9 @@ importers:
       '@llang-gap/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@llang-gap/evaluation':
+        specifier: workspace:*
+        version: link:../../packages/evaluation
       '@tanstack/react-table':
         specifier: ^9.2.4
         version: 9.2.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8)

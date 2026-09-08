@@ -1,3 +1,4 @@
+import { RunCta } from "@/features/run-builder/run-cta";
 import { ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
@@ -99,6 +100,7 @@ export default async function LeaderboardPage({ params }: Props) {
           </Link>
         </div>
       )}
+      <RunCta />
       <section className="reading-guide">
         <div>
           <h3>{t("guideTitle")}</h3>

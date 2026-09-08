@@ -1,6 +1,7 @@
 import type { Dictionary } from "@/i18n/routing";
 import type en from "./en";
 export default {
+  run: "Настроить запуск",
   navigation: "Навигация",
   becomeSponsor: "Стать спонсором",
   resources: "Ресурсы",

@@ -20,6 +20,7 @@ const pages = [
   { href: "/", label: "leaderboard" },
   { href: "/methodology", label: "methodology" },
   { href: "/releases", label: "releases" },
+  { href: "/run", label: "run" },
 ] as const;
 
 export function SiteHeader() {
