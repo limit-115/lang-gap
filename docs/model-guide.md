@@ -12,9 +12,17 @@ Scores and any aligned differences appear side by side, using English as the
 baseline only when comparable English evidence exists.
 
 Model names and scores open model-specific results. The link icon in each language
-header targets `/[locale]/languages/<tag>/`, the same reserved destination as the
-language finder; language detail pages are still planned. The adjacent language
-name and arrow sort the current table.
+header opens `/[locale]/languages/<tag>/`, also available from the language finder.
+The adjacent language name and arrow sort the current table.
+
+Language pages read the same verified published summary as the homepage. They show
+leading results, shared ranks for ties, and the range of available scores. Each
+reasoning level remains a separate result; scores are never averaged across model
+configurations. Benchmark filters appear when more than one dataset is available.
+The header reuses the homepage’s searchable language finder. The table shows
+gaps to the highest score, with negative differences in red. Model names, scores,
+and card links open the model’s results page with the language and tested
+configuration selected. `?view=compare` opens a comparison of up to three results. Historical normalized guides are not displayed as accuracy percentages.
 
 Model pages show the selected published row as a language accuracy chart. Links
 from the homepage preserve the exact transport/model/effort selection; model-finder
