@@ -21,6 +21,7 @@ jobs:
       - run: pnpm lint:core
       - run: pnpm typecheck:core
       - run: pnpm schema:check
+      - run: pnpm guide:check
       - run: pnpm test:core
       - run: pnpm format:check
   web:
@@ -32,5 +33,6 @@ jobs:
           node-version-file: .node-version
       - uses: pnpm/action-setup@v6.1.0
       - run: pnpm install --frozen-lockfile
+      - run: pnpm exec vitest run apps/web
       - run: pnpm --filter @llang-gap/web typecheck
       - run: pnpm --filter @llang-gap/web build

@@ -10,7 +10,8 @@ import { pageMetadata, siteUrl } from "@/shared/metadata";
 import { JsonLd } from "@/shared/json-ld";
 import { ModelFinderHero } from "@/features/leaderboard/model-finder";
 import { LeaderboardTable } from "@/features/leaderboard/leaderboard-table";
-import { getLatestRelease } from "@/features/releases/data";
+import { getModelGuide } from "@/features/leaderboard/guide-data";
+import { guideLanguages } from "@/features/leaderboard/table-state";
 
 type Props = { params: Promise<{ locale: string }> };
 export async function generateMetadata({ params }: Props) {
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: Props) {
     locale,
     "",
     t("metadataTitle"),
-    t((await getLatestRelease()) ? "metadataDescription" : "metadataPlannedDescription"),
+    t((await getModelGuide()) ? "metadataDescription" : "metadataPlannedDescription"),
   );
 }
 export default async function LeaderboardPage({ params }: Props) {
@@ -29,7 +30,7 @@ export default async function LeaderboardPage({ params }: Props) {
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("Leaderboard");
-  const release = await getLatestRelease();
+  const guide = await getModelGuide();
   return (
     <>
       <JsonLd
@@ -39,7 +40,7 @@ export default async function LeaderboardPage({ params }: Props) {
           "@id": `${siteUrl}/#website`,
           url: `${siteUrl}/`,
           name: "Llang Gap",
-          description: t(release ? "metadataDescription" : "metadataPlannedDescription"),
+          description: t(guide ? "metadataDescription" : "metadataPlannedDescription"),
           inLanguage: [...routing.locales],
           publisher: {
             "@type": "Organization",
@@ -49,44 +50,27 @@ export default async function LeaderboardPage({ params }: Props) {
         }}
       />
       <NextIntlClientProvider messages={{ Leaderboard: getMessagesForLocale(locale).Leaderboard }}>
-        <ModelFinderHero rows={release?.aggregate ?? []} />
+        <ModelFinderHero rows={guide?.models.map((model) => model.reference) ?? []} />
       </NextIntlClientProvider>
       <section aria-labelledby="benchmark-title">
         <div className="panel-heading">
           <div>
             <h2 id="benchmark-title">{t("tableTitle")}</h2>
-            <p>{release ? `${release.dataset} · ${release.protocol}` : t("tableDescription")}</p>
           </div>
         </div>
         <NextIntlClientProvider
           messages={{ Leaderboard: getMessagesForLocale(locale).Leaderboard }}
         >
           <LeaderboardTable
-            rows={release?.aggregate ?? []}
-            languages={release?.languages ?? []}
-            comparisons={release?.comparisons ?? []}
+            key={guide?.id ?? "empty"}
+            rows={guide?.models ?? []}
+            languages={guideLanguages(guide?.models ?? [], guide?.languages ?? [])}
           />
         </NextIntlClientProvider>
-        <div className="panel-meta">
-          {release ? (
-            <>
-              {release.aggregate[0]!.scores.map((score) => (
-                <span key={score.language}>
-                  {score.language.toUpperCase()} · {t("questions", { count: score.n })}
-                </span>
-              ))}
-              <span>{t("repeats", { count: release.aggregate[0]!.repeats })}</span>
-              <span>{t("languages", { count: release.languages.length })}</span>
-              <span className="meta-last">{t("release", { id: release.id })}</span>
-            </>
-          ) : (
-            <span>{t("noPublishedResults")}</span>
-          )}
-        </div>
       </section>
-      {release && (
+      {guide && (
         <div className="release-link">
-          <Link className="resource-link" href={`/releases/${release.id}`}>
+          <Link className="resource-link" href="/releases">
             <FileArchive aria-hidden="true" />
             <span>{t("viewRelease")}</span>
           </Link>

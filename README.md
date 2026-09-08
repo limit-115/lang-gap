@@ -111,20 +111,32 @@ The website follows the system's light or dark appearance by default. The theme
 button in the header switches between light and dark and remembers the choice in
 this browser across reloads and both languages.
 
-The model shortcut beside the homepage introduction searches by model name or developer.
-Selecting a model enables **See the conclusion**, a link to
-`/[locale]/models/[provider]/[model]`, such as
-`/en/models/inclusionai/ling-3.0-flash`. The provider comes from the model namespace
-or registered native model identity, never the API transport. Models share one
-shortcut across transports; their benchmark rows remain separate. IDs without a
-known provider are omitted from the finder. Those detail pages are reserved for
-future implementation.
+The homepage table is a model guide: one row per model, a normalized score out of
+100 for each selected language, and `—` for missing or incomplete evidence. The
+searchable **Languages** menu controls visible columns. **Compare languages**
+adds one explicitly selected index difference; hiding either participant clears
+it. Dataset, question-count, effort and release details belong to model pages.
 
-The leaderboard’s **Languages** menu shows or hides individual language accuracy
-columns. Model, effort, gap and the 95% interval always remain visible; hiding a
-language does not change the gap calculation. All languages declared by the selected
-release are shown by default. Gaps appear only for its explicit comparisons.
-A release covers one dataset and protocol; unrelated datasets are never pooled.
+Click a model, a language score, or **See the conclusion** to inspect the model's
+published results across datasets, configurations and releases. Original
+per-dataset paired gaps and 95% intervals remain available there and on permanent
+release pages. Index differences do not have an inferred confidence interval.
+
+The guide uses a fixed, versioned suite and one explicit configuration per model.
+It selects one compatible observation per task/language, normalizes within each
+dataset and applies fixed task/family weights. It never pools question counts or
+averages arbitrary available subsets. A later release can add languages or replace
+compatible evidence without deleting other language results. Publishing a new
+release does not automatically change the guide.
+
+See [model guide methodology and operator workflow](docs/model-guide.md) for
+selection rules, missing results, incremental runs, source hashes and suite changes.
+
+```sh
+# After staging benchmark releases and updating the guide plan:
+pnpm bench guide build results/guide-plan.json --id <new-guide-id>
+pnpm guide:check
+```
 
 ## Checks
 

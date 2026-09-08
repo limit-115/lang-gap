@@ -2,50 +2,156 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { useTable } from "@tanstack/react-table";
 import { describe, expect, it, vi } from "vitest";
+import type { GuideModel } from "@llang-gap/contracts/guide";
 import { useLeaderboardColumns } from "./columns";
+import { LeaderboardTable } from "./leaderboard-table";
 import { features } from "./data-table-features";
-import { plannedRows } from "./model-catalog";
+import { guideLanguages, scoreDifference, visibleComparison } from "./table-state";
 
 vi.mock("next-intl", () => ({
   useLocale: () => "en",
   useTranslations: () => (key: string) => key,
   useFormatter: () => ({ number: (value: number) => String(value) }),
 }));
+vi.mock("@/i18n/navigation", () => ({ Link: "a" }));
+const model: GuideModel = {
+  id: "fixture/model",
+  reference: { transport: "openrouter", model: "fixture/model" },
+  profile: null,
+  scores: [],
+};
+const score = (language: string, value: number | null, basis = "a".repeat(64)) => ({
+  language,
+  value,
+  basis,
+  comparisonBasis: basis,
+  status: value === null ? ("unmeasured" as const) : ("ready" as const),
+  required: 1,
+  contributions: [],
+});
 
-describe("leaderboard language visibility", () => {
-  it.each([false, true])("keeps core columns visible (hasResults: %s)", (hasResults) => {
+describe("model guide table", () => {
+  it("keeps a twenty-five-language table to three initial language columns and one row per model", () => {
+    const languages = [
+      "ar",
+      "az",
+      "bg",
+      "bs",
+      "ca",
+      "cs",
+      "da",
+      "de",
+      "el",
+      "es",
+      "et",
+      "eu",
+      "fi",
+      "fr",
+      "he",
+      "hi",
+      "hr",
+      "hu",
+      "id",
+      "it",
+      "ja",
+      "ka",
+      "kk",
+      "ko",
+      "lt",
+    ];
+    const rows = [
+      {
+        ...model,
+        id: "fixture/five",
+        scores: languages.slice(0, 5).map((language) => score(language, 80)),
+      },
+      {
+        ...model,
+        id: "fixture/twenty-five",
+        scores: languages.map((language) => score(language, 90)),
+      },
+    ];
+    const html = renderToStaticMarkup(createElement(LeaderboardTable, { rows, languages }));
+    expect(html.match(/<th[ >]/g)).toHaveLength(4);
+    expect(html.match(/<td[ >]/g)).toHaveLength(8);
+  });
+  it("has one column per visible language and no implicit comparison, effort or interval", () => {
     function Harness() {
       const table = useTable({
         features,
-        data: plannedRows,
-        columns: useLeaderboardColumns(
-          hasResults,
-          ["de", "fr", "ja"],
-          [{ baseline: "de", language: "ja" }],
-        ),
+        data: [model],
+        columns: useLeaderboardColumns(["de", "ja"], null),
       });
-      const visibleIds = () => table.getVisibleLeafColumns().map((column) => column.id);
-
-      const core = [
+      expect(table.getVisibleLeafColumns().map((column) => column.id)).toEqual([
         "model",
-        "effort",
-        "gap:de:ja",
-        "interval:de:ja",
-        ...(!hasResults ? ["status"] : []),
-      ];
-      for (const id of core) {
-        table.getColumn(id)!.toggleVisibility(false);
-        expect(visibleIds()).toContain(id);
-      }
-      for (const language of ["de", "fr", "ja"])
-        table.getColumn(`accuracy:${language}`)!.toggleVisibility(false);
-      expect(visibleIds()).toEqual(core);
-      table.getColumn("accuracy:fr")!.toggleVisibility(true);
-      expect(visibleIds()).toContain("accuracy:fr");
-      expect(visibleIds()).not.toContain("accuracy:de");
-      expect(visibleIds()).not.toContain("accuracy:ja");
+        "score:de",
+        "score:ja",
+      ]);
       return null;
     }
     renderToStaticMarkup(createElement(Harness));
+  });
+  it("shows only an explicitly chosen comparison", () => {
+    function Harness() {
+      const table = useTable({
+        features,
+        data: [model],
+        columns: useLeaderboardColumns(["de", "fr", "ja"], { baseline: "ja", language: "de" }),
+      });
+      expect(table.getVisibleLeafColumns().map((column) => column.id)).toEqual([
+        "model",
+        "score:de",
+        "score:fr",
+        "score:ja",
+        "difference:ja:de",
+      ]);
+      return null;
+    }
+    renderToStaticMarkup(createElement(Harness));
+  });
+  it.each([false, true])("sorts unmeasured scores last (descending: %s)", (desc) => {
+    function Harness() {
+      const table = useTable({
+        features,
+        data: [
+          { ...model, id: "missing", scores: [] },
+          { ...model, id: "zero", scores: [score("ja", 0)] },
+          { ...model, id: "high", scores: [score("ja", 80)] },
+        ],
+        columns: useLeaderboardColumns(["ja"], null),
+        initialState: { sorting: [{ id: "score:ja", desc }] },
+      });
+      expect(table.getSortedRowModel().rows.map((row) => row.original.id)).toEqual(
+        desc ? ["high", "zero", "missing"] : ["zero", "high", "missing"],
+      );
+      return null;
+    }
+    renderToStaticMarkup(createElement(Harness));
+  });
+  it("removes a comparison when either participant is hidden", () => {
+    const pair = { baseline: "de", language: "ja" };
+    expect(visibleComparison(pair, ["de", "ja", "fr"])).toEqual(pair);
+    expect(visibleComparison(pair, ["de", "fr"])).toBeNull();
+    expect(visibleComparison(pair, ["ja"])).toBeNull();
+    expect(visibleComparison(null, ["de", "ja"])).toBeNull();
+  });
+  it("requires complete scores on the same aligned basis and preserves direction", () => {
+    const row = { ...model, scores: [score("de", 80), score("ja", 60)] };
+    expect(scoreDifference(row, { baseline: "de", language: "ja" })).toBe(20);
+    expect(scoreDifference(row, { baseline: "ja", language: "de" })).toBe(-20);
+    expect(scoreDifference(row, { baseline: "de", language: "fr" })).toBeUndefined();
+    row.scores[1]!.comparisonBasis = "b".repeat(64);
+    expect(scoreDifference(row, { baseline: "de", language: "ja" })).toBeUndefined();
+  });
+  it("takes a union of benchmark languages independent of the UI locale", () => {
+    expect(
+      guideLanguages(
+        [
+          { ...model, scores: [score("ja", 80)] },
+          { ...model, scores: [score("de", null)] },
+        ],
+        ["fr"],
+      ),
+    ).toEqual(["de", "fr", "ja"]);
   });
 });

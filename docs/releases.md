@@ -96,11 +96,16 @@ release files and are excluded from formatting. Preserve their bytes: formatting
 the aggregate would invalidate its manifest hash. The index and asset URL files
 remain subject to normal repository formatting.
 
+The [model guide](model-guide.md) combines eligible observations through a separate
+versioned suite and snapshot. `release stage` also derives a small `evidence.json`
+sidecar for that workflow; it does not modify the immutable release manifest or
+aggregate and does not automatically publish a new guide snapshot.
+
 The website should:
 
-1. Resolve a fixed release ID from `LLANG_RELEASE_ID` or `results/index.json.latest`
-   at build time. Fail for missing or invalid releases, rather than silently using
-   an unrelated result. An empty index renders a truthful unpublished state.
+1. Resolve the homepage guide from `LLANG_GUIDE_ID` or `results/guide/index.json`.
+   Release history reads every ID in `results/index.json`; adding a release never
+   replaces the whole model guide. Fail for missing or invalid selected artifacts.
 2. Validate public manifests with `releaseManifestSchema` from
    `@llang-gap/contracts`; accept only `kind: "benchmark"`. Check the aggregate file
    against its manifest hash before rendering. Do not import the runner, transport
@@ -109,7 +114,8 @@ The website should:
    number/date formatting and explanatory text. Default ordering should not imply
    a winner. Derive columns, language names,
    question counts and named gaps from the release. Display its dataset, protocol,
-   date and repeats; never substitute a global dataset or question count.
+   date and repeats on release/model detail pages; keep those fields out of the
+   homepage overview. Never substitute a global dataset or question count.
 4. Generate history and permanent release detail pages from the index. Download
    URLs are `${baseUrl}/${filename}`, including `manifest.json`. The manifest
    provides the checksums; avoid embedding the full response archive in bundles.

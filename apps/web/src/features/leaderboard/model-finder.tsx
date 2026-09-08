@@ -11,17 +11,16 @@ import {
   getModelOptions,
   getModelHref,
   matchesModel,
-  plannedRows,
   getModelGroups,
   type ModelOption,
 } from "./model-catalog";
 import { ModelOwnerLogo } from "./model-owner-logo";
 import styles from "./model-finder.module.css";
 
-export function ModelFinderHero({ rows }: { rows: Aggregate[] }) {
+export function ModelFinderHero({ rows }: { rows: Pick<Aggregate, "model" | "transport">[] }) {
   const t = useTranslations("Leaderboard");
   const id = useId();
-  const options = useMemo(() => getModelOptions(rows.length ? rows : plannedRows), [rows]);
+  const options = useMemo(() => getModelOptions(rows), [rows]);
   const [selected, setSelected] = useState<ModelOption | null>(null);
   const [input, setInput] = useState("");
   const groups = useMemo(() => getModelGroups(options), [options]);

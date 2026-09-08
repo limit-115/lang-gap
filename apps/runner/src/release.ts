@@ -27,6 +27,7 @@ import { readRunQuestions } from "./run";
 import { readSnapshot } from "./snapshot";
 import { acquireLock, RunState } from "./state";
 import { verifyAttemptLedger } from "./release-audit";
+import { createReleaseEvidence } from "./release-evidence";
 
 export async function recompute(
   directory: string,
@@ -327,6 +328,10 @@ export async function stageRelease(directory: string, assetsUrl: string) {
     try {
       await copyFile(join(directory, "manifest.json"), join(target, "manifest.json"));
       await copyFile(join(directory, "aggregate.json"), join(target, "aggregate.json"));
+      await atomicWrite(
+        join(target, "evidence.json"),
+        json(await createReleaseEvidence(directory)),
+      );
       await atomicWrite(join(target, "assets.json"), json({ baseUrl }));
       const index = z
         .strictObject({

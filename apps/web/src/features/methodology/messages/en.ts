@@ -1,4 +1,12 @@
 export default {
+  guideTitle: "How the model overview combines tests",
+  guide:
+    "The overview uses a fixed, versioned suite and one declared configuration per model. For each test, we subtract its random-guess baseline from accuracy, divide by the distance from that baseline to perfect accuracy, and scale to 100. Scores at or below random guessing receive zero. Fixed task weights are averaged within families, then fixed family weights produce a language score. This is an index, not a percentage of correct answers or a measure of conversational fluency.",
+  guideCoverage:
+    "Each language column requires the same complete test basis for every model. Missing evidence is shown as a dash, never zero or an average of the remaining tests. One compatible observation per test and language is selected by run creation time, then release date and ID; more runs or more questions do not increase its weight. Different API providers or effort levels are never silently averaged.",
+  guideDifference:
+    "A selected language difference is shown only when both scores have the same weighted, aligned test basis. It is a descriptive index difference. We do not infer its uncertainty by averaging individual test intervals. Original paired comparisons and all published experiments remain on model and release pages.",
+
   title: "Understand how we compare languages and calculate scores.",
   intro:
     "Llang Gap is a multilingual benchmark across datasets. Each experiment selects its dataset, languages and protocol independently of the website display language.",

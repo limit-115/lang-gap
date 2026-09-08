@@ -17,7 +17,8 @@
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
     "bench": "tsx apps/runner/src/cli.ts",
     "schema": "tsx scripts/generate-schema.ts",
-    "schema:check": "tsx scripts/generate-schema.ts --check"
+    "schema:check": "tsx scripts/generate-schema.ts --check",
+    "guide:check": "pnpm bench guide verify"
   },
   "devDependencies": {
     "@llang-gap/contracts": "workspace:*",

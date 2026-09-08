@@ -6,6 +6,8 @@
     ".llang-gap/**",
     "results/*/manifest.json",
     "results/*/aggregate.json",
+    "results/*/evidence.json",
+    "results/guide/*/summary.json",
     "**/.next/**",
     "**/out/**",
     "packages/evaluation/reference/**",
