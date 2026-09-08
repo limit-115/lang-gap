@@ -21,6 +21,8 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -169,6 +171,18 @@ export function LeaderboardTable({ rows, languages }: { rows: GuideModel[]; lang
                 onKeyDown={(event) => event.stopPropagation()}
                 className="mb-2"
               />
+              <DropdownMenuItem
+                className="cursor-pointer rounded-md"
+                disabled={visibleLanguageCount === languages.length}
+                closeOnClick={false}
+                onClick={() => {
+                  setVisible([...languages]);
+                  table.setSorting([{ id: "model", desc: false }]);
+                }}
+              >
+                {t("selectAllLanguages")}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               {languageColumns
                 .filter(({ label, language }) =>
                   `${label} ${language}`.toLowerCase().includes(languageSearch.toLowerCase()),

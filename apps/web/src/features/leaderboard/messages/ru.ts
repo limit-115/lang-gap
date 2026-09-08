@@ -12,6 +12,7 @@ export default {
   versusEnglish: "к английскому",
   differenceHelp:
     "Оценка языка минус оценка английского в процентных пунктах. Описательная разница оценок, а не проверка значимости.",
+  selectAllLanguages: "Выбрать все",
   searchLanguages: "Найти язык…",
 
   noPublishedResults:
