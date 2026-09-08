@@ -13,7 +13,13 @@ import {
 } from "./language-catalog";
 import styles from "./model-finder.module.css";
 
-export function LanguageFinder({ languages }: { languages: readonly string[] }) {
+export function LanguageFinder({
+  languages,
+  compact = false,
+}: {
+  languages: readonly string[];
+  compact?: boolean;
+}) {
   const t = useTranslations("Leaderboard");
   const locale = useLocale();
   const router = useRouter();
@@ -28,8 +34,8 @@ export function LanguageFinder({ languages }: { languages: readonly string[] }) 
   }
 
   return (
-    <aside className={styles.finder} aria-labelledby={`${id}-title`}>
-      <h2 id={`${id}-title`} className={styles.heading}>
+    <aside className={styles.finder} data-compact={compact} aria-labelledby={`${id}-title`}>
+      <h2 id={`${id}-title`} className={compact ? "sr-only" : styles.heading}>
         {t("languageFinderTitle")}
       </h2>
       <p id={`${id}-help`} className="sr-only">

@@ -1,4 +1,6 @@
 import modelsEn from "@/features/models/messages/en";
+import languagesEn from "@/features/languages/messages/en";
+import languagesRu from "@/features/languages/messages/ru";
 import modelsRu from "@/features/models/messages/ru";
 import runBuilderEn from "@/features/run-builder/messages/en";
 import runBuilderRu from "@/features/run-builder/messages/ru";
@@ -15,6 +17,7 @@ import notFoundRu from "@/features/not-found/messages/ru";
 import type { Locale } from "./routing";
 
 export const englishMessages = {
+  Languages: languagesEn,
   Models: modelsEn,
   RunBuilder: runBuilderEn,
   Navigation: navigationEn,
@@ -24,6 +27,7 @@ export const englishMessages = {
   NotFound: notFoundEn,
 };
 const russianMessages = {
+  Languages: languagesRu,
   Models: modelsRu,
   RunBuilder: runBuilderRu,
   Navigation: navigationRu,
