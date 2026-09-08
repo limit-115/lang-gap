@@ -1,3 +1,4 @@
+import { BookOpen } from "lucide-react";
 import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -92,8 +93,9 @@ export default async function ReleasePage({ params }: Props) {
           {t("aggregate")}
         </h2>
         <p className="max-w-3xl leading-7 text-muted-foreground">{t("scope")}</p>
-        <Link href="/methodology" className="text-link">
-          {t("methodology")} ↗
+        <Link href="/methodology" className="resource-link">
+          <BookOpen aria-hidden="true" />
+          <span>{t("methodology")}</span>
         </Link>
         <div className="rounded-lg border bg-background">
           <Table>
@@ -200,8 +202,8 @@ export default async function ReleasePage({ params }: Props) {
           <ul className="mt-5 space-y-3">
             {["manifest.json", ...Object.keys(release.files)].map((filename) => (
               <li key={filename}>
-                <a className="text-link break-all" href={releaseAssetUrl(baseUrl, filename)}>
-                  {filename} ↗
+                <a className="artifact-link" href={releaseAssetUrl(baseUrl, filename)}>
+                  {filename}
                 </a>
               </li>
             ))}
