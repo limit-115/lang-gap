@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "releaseId": "mmpisa-ling-3-flash-ja-es-2026-09-08",
+  "runCreatedAt": "2026-09-08T10:22:13.904Z",
+  "configHash": "95744556328f52f5ef573ed7e2658f7609a22e0657fe885ce88cdb552f62fb33",
+  "datasetManifestHash": "81c75ee0967e1ce708e83958d9f53d880de4735d0036144ac3b9463372a5e0ce",
+  "protocolHash": "72c89059d1feae7445c3c3ddfab53f6b13f41f0e3d4156735f27fb361d330cfe",
+  "languages": [
+    {
+      "language": "ja",
+      "n": 25,
+      "inputHash": "077856620962155fe7a19e3464b026edf08d6c6b3416418994fefce78d6a5c6e",
+      "alignmentHash": "8d8c4b3ba7c1224de7e1bc6a5624e779a8fb9bf3d0cd92a665e1a344e70baba0",
+      "randomBaseline": 0.27
+    },
+    {
+      "language": "es",
+      "n": 25,
+      "inputHash": "e369480f9ea84d9be97f0133c947dfe9417a5720f3354a6db708f9fd63f80ebd",
+      "alignmentHash": "8d8c4b3ba7c1224de7e1bc6a5624e779a8fb9bf3d0cd92a665e1a344e70baba0",
+      "randomBaseline": 0.27
+    }
+  ],
+  "configurations": [
+    {
+      "transport": "openrouter",
+      "model": "inclusionai/ling-3.0-flash",
+      "maxOutputTokens": 32768
+    }
+  ]
+}

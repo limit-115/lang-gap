@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 3,
+  "id": "mmpisa-ling-3-flash-ja-es-2026-09-08",
+  "runId": "ling-3-flash-mmpisa-ja-es-2026-09-08-dc3ad9bd",
+  "createdAt": "2026-09-08T10:24:35.825Z",
+  "kind": "benchmark",
+  "dataset": "mmpisa",
+  "datasetRevision": "22b1caa65980ca1fa295acc31ee5e35200e0c8c0",
+  "languages": [
+    "ja",
+    "es"
+  ],
+  "comparisons": [
+    {
+      "baseline": "ja",
+      "language": "es"
+    }
+  ],
+  "protocol": "multiple-choice-v1",
+  "configHash": "95744556328f52f5ef573ed7e2658f7609a22e0657fe885ce88cdb552f62fb33",
+  "files": {
+    "resolved.json": "95744556328f52f5ef573ed7e2658f7609a22e0657fe885ce88cdb552f62fb33",
+    "identity.json": "4bfcc794d0f3cd66e960887d7d84c7f35fc2f30ff8b81a80ab78529c8ce5e893",
+    "dataset.jsonl": "1f73a4f3c0f8ea04521d1590de49de9c04a1deab34e48defeafbd1a0cfa91df5",
+    "dataset-manifest.json": "81c75ee0967e1ce708e83958d9f53d880de4735d0036144ac3b9463372a5e0ce",
+    "items.jsonl": "96f2dc2edf537378fdb82a078a10d15a77ca66e5fdddfc1ae44716e61943abb3",
+    "analysis.json": "59e4b3a49da7b81d5e25876ffaf0092407fccda38df6745298cdf97993461722",
+    "aggregate.json": "878e9eae154b7586b3932d6f14f029079df142cd40eef5ed1f66091b912f58d7",
+    "aggregate.csv": "a9de96f5b0c765978e14100d63eab2eb2f8464973c5a12d4f5024ca59999d20d",
+    "attempts.jsonl": "07161e536d004ddb778f23608dc6562ff183dd2d80edc3707d4b8464648b7dab",
+    "execution.json": "be1edb0bd8b6515d09f5ec3ed50bdd35882f29ded8f560cce9c0a2f90dd11472",
+    "ATTRIBUTION.md": "6993d7ef4b5780ffd7418287354c3796fc5ab02f15fb4a3e0a039fc43f9222a9"
+  },
+  "aggregate": [
+    {
+      "transport": "openrouter",
+      "model": "inclusionai/ling-3.0-flash",
+      "effort": "high",
+      "repeats": 1,
+      "scores": [
+        {
+          "language": "ja",
+          "n": 25,
+          "accuracy": 0.8800000000000002,
+          "repeatAccuracy": [
+            0.8800000000000002
+          ]
+        },
+        {
+          "language": "es",
+          "n": 25,
+          "accuracy": 0.9600000000000003,
+          "repeatAccuracy": [
+            0.9600000000000003
+          ]
+        }
+      ],
+      "comparisons": [
+        {
+          "baseline": "ja",
+          "language": "es",
+          "n": 25,
+          "gapPp": -8,
+          "gapCi95": [
+            -24,
+            8
+          ]
+        }
+      ],
+      "unparseable": 0,
+      "refusals": 0,
+      "costUsd": null
+    },
+    {
+      "transport": "openrouter",
+      "model": "inclusionai/ling-3.0-flash",
+      "effort": "low",
+      "repeats": 1,
+      "scores": [
+        {
+          "language": "ja",
+          "n": 25,
+          "accuracy": 0.9600000000000003,
+          "repeatAccuracy": [
+            0.9600000000000003
+          ]
+        },
+        {
+          "language": "es",
+          "n": 25,
+          "accuracy": 0.8800000000000002,
+          "repeatAccuracy": [
+            0.8800000000000002
+          ]
+        }
+      ],
+      "comparisons": [
+        {
+          "baseline": "ja",
+          "language": "es",
+          "n": 25,
+          "gapPp": 8,
+          "gapCi95": [
+            0,
+            20
+          ]
+        }
+      ],
+      "unparseable": 1,
+      "refusals": 0,
+      "costUsd": null
+    },
+    {
+      "transport": "openrouter",
+      "model": "inclusionai/ling-3.0-flash",
+      "effort": "medium",
+      "repeats": 1,
+      "scores": [
+        {
+          "language": "ja",
+          "n": 25,
+          "accuracy": 0.9600000000000003,
+          "repeatAccuracy": [
+            0.9600000000000003
+          ]
+        },
+        {
+          "language": "es",
+          "n": 25,
+          "accuracy": 0.9200000000000003,
+          "repeatAccuracy": [
+            0.9200000000000003
+          ]
+        }
+      ],
+      "comparisons": [
+        {
+          "baseline": "ja",
+          "language": "es",
+          "n": 25,
+          "gapPp": 4,
+          "gapCi95": [
+            -8,
+            16
+          ]
+        }
+      ],
+      "unparseable": 0,
+      "refusals": 0,
+      "costUsd": null
+    }
+  ]
+}
