@@ -70,7 +70,7 @@ export function ModelResults({
   const languageList = (tags: string[]) => {
     const names = tags.slice(0, 2).map(label);
     const list = new Intl.ListFormat(locale, { style: "short", type: "conjunction" }).format(names);
-    return tags.length > 2 ? `${list} · ${t("moreLanguages", { count: tags.length - 2 })}` : list;
+    return tags.length > 2 ? `${list} ${t("moreLanguages", { count: tags.length - 2 })}` : list;
   };
   const rows = filterModelLanguages(
     overview.scores
