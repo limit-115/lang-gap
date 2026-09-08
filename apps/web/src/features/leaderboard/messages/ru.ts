@@ -46,7 +46,6 @@ export default {
   high: "Высокий",
   xhigh: "Очень высокий",
   max: "Максимальный",
-  viewRelease: "Посмотреть результаты и данные для проверки",
   questions:
     "{count, plural, one {# уникальное задание} few {# уникальных задания} many {# уникальных заданий} other {# уникального задания}}",
   repeats: "{count, plural, one {# повтор} few {# повтора} many {# повторов} other {# повтора}}",

@@ -489,9 +489,6 @@
     color: var(--muted-foreground);
     font-size: 0.875rem;
   }
-  .release-link {
-    padding-block: 20px;
-  }
   .skip-link {
     position: absolute;
     top: -80px;
