@@ -154,6 +154,11 @@ pnpm dev
 Vitest uses synthetic fixtures and intercepted SDK transports. It never contacts
 model APIs. Format and lint use **oxfmt + type-aware oxlint**.
 
+For the Spotlight CTA color study, run `pnpm dev` and open
+`/en/?palette=all#palettes`. Select Graphite, Porcelain, Midnight, Aubergine, or
+Mineral to view a single palette. The comparison controls are development-only;
+the homepage uses Graphite by default. All actions open the existing run builder.
+
 ## Contributing
 
 Logo files, light/dark variants, avatars and favicons are available in the
