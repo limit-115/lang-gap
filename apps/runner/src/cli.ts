@@ -30,7 +30,14 @@ import { loadEnvironment } from "./env";
 import { configureLogging, logger } from "./logging";
 import { diagnosticError, diagnosticMessage, redactDiagnostic } from "@llang-gap/transports";
 import { reportConditions } from "./progress";
-import { publishGuide, stageGuideEvidence, verifyAllGuides, verifyGuide } from "./guide";
+import {
+  publishGuide,
+  stageGuideEvidence,
+  verifyAllGuides,
+  verifyGuide,
+  syncGuide,
+  verifyGuidePublication,
+} from "./guide";
 
 const program = new Command()
   .name("bench")
@@ -349,7 +356,7 @@ release
   });
 release
   .command("stage <directory>")
-  .description("Add a verified benchmark to the local website index; no remote upload")
+  .description("Stage a verified benchmark and refresh the homepage guide; no remote upload")
   .requiredOption("--assets-url <url>", "HTTPS directory containing uploaded release files")
   .action(async (directory, options) => {
     output(await stageRelease(resolve(directory), options.assetsUrl));
@@ -369,6 +376,20 @@ guide
   .requiredOption("--id <id>", "New immutable guide snapshot ID")
   .action(async (plan, options) => {
     output(await publishGuide(resolve(plan), options.id));
+  });
+guide
+  .command("sync")
+  .description(
+    "Publish all staged configurations and compatible languages using the declared task basis",
+  )
+  .action(async () => {
+    output(await syncGuide());
+  });
+guide
+  .command("check-publication")
+  .description("Fail if the homepage guide omits staged evidence")
+  .action(async () => {
+    output(await verifyGuidePublication());
   });
 guide.command("verify [id]").action(async (id) => {
   output(id ? await verifyGuide(id) : await verifyAllGuides());
