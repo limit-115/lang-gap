@@ -14,6 +14,16 @@ export default {
   costs: "Выбранные завершённые ответы: {cost}. Полные расходы запуска записаны в execution.json.",
   unknownCost: "стоимость неизвестна",
   citation: "Как сослаться на выпуск",
+  citationHelp:
+    "Скопируйте ссылку на выпуск для статьи или отчёта либо экспортируйте запись BibTeX.",
+  copyCitation: "Скопировать цитату",
+  copyLink: "Скопировать ссылку",
+  copyBibtex: "Скопировать BibTeX",
+  downloadBibtex: "Скачать .bib",
+  citationCopied: "Цитата скопирована.",
+  linkCopied: "Ссылка на выпуск скопирована.",
+  bibtexCopied: "BibTeX скопирован.",
+  copyFailed: "Не удалось скопировать. Выделите текст выше и скопируйте его вручную.",
   citationText:
     "Limit 115. Llang Gap: {dataset}. Выпуск {id}, создан {date}. Протокол: {protocol}.",
   fileCreated: "Выпуск создан {date}",

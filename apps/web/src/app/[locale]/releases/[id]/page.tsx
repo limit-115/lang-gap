@@ -1,7 +1,8 @@
-import { ArrowLeft, BookOpen, Link as LinkIcon } from "lucide-react";
-import { hasLocale } from "next-intl";
+import { ArrowLeft, BookOpen } from "lucide-react";
+import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { getMessagesForLocale } from "@/i18n/messages";
 import { routing } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import { pageMetadata, siteUrl } from "@/shared/metadata";
@@ -12,6 +13,8 @@ import {
   getReleaseAssetsUrl,
   releaseAssetUrl,
 } from "@/features/releases/data";
+import { ReleaseCitation } from "@/features/releases/release-citation";
+import { releaseBibtex } from "@/features/releases/citation";
 import { releaseStructuredData } from "@/features/releases/structured-data";
 import { getModelPresentation } from "@/features/leaderboard/model-catalog";
 import {
@@ -221,16 +224,14 @@ export default async function ReleasePage({ params }: Props) {
             ))}
           </dl>
         </section>
-        <section>
-          <h2>{t("citation")}</h2>
-          <p>
-            {t("citationText", { dataset: release.dataset, id, date, protocol: release.protocol })}
-          </p>
-          <a className="resource-link mt-3" href={url}>
-            <LinkIcon aria-hidden="true" />
-            <span>{url}</span>
-          </a>
-        </section>
+        <NextIntlClientProvider messages={{ Releases: getMessagesForLocale(locale).Releases }}>
+          <ReleaseCitation
+            citation={`${t("citationText", { dataset: release.dataset, id, date, protocol: release.protocol })} ${url}`}
+            bibtex={releaseBibtex(release, url)}
+            url={url}
+            releaseId={id}
+          />
+        </NextIntlClientProvider>
       </div>
     </article>
   );
