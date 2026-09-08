@@ -9,6 +9,10 @@ you need to install. The website's interface font remains a separate choice.
 
 ## Pick a file
 
+For the Fable 5.1 + GPT-6 Astra announcement, see the
+[five release post options](release-posts/fable-5.1-gpt-6-astra/README.md), with
+ready-to-post PNGs and outlined SVG masters covering the six announcement languages.
+
 Use **SVG** for websites, Figma, slide editors and any size of artwork. Use
 **PNG** when the destination cannot import SVG. Use the icon files for browser
 tabs and home screens. Black and white logo exports have transparent backgrounds;
