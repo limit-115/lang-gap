@@ -261,10 +261,7 @@ export function ReleaseDesigns({
               <h2 id={`heading-${day}`}>
                 <time dateTime={day}>{date(day)}</time>
               </h2>
-              <span>
-                {t("reportCount", { count: reports.length })}
-                <span className="day-timezone"> · UTC</span>
-              </span>
+              <span>{t("reportCount", { count: reports.length })}</span>
             </div>
             {day === allGroups[0]?.day && <span className="latest-day">{t("latestDay")}</span>}
           </div>

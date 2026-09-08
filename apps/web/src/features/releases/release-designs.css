@@ -49,19 +49,19 @@
 .dark .release-design-board {
   --primary: #34d399;
   --primary-foreground: #062c20;
-  --foreground: #f4f4f5;
-  --muted-foreground: #b4b4bd;
-  --card: #17191c;
-  --border: #34373d;
-  --muted: #22252a;
+  --foreground: #f5f5f5;
+  --muted-foreground: #a3a3a3;
+  --card: #111111;
+  --border: #333333;
+  --muted: #202020;
   --ring: #34d399;
   --archive-accent: #6ee7b7;
-  --archive-line: #51545b;
+  --archive-line: #404040;
   --archive-hero-bg: #000000;
-  --archive-tint-0: #4b3d28;
-  --archive-tint-1: #293e53;
-  --archive-tint-2: #253f35;
-  --archive-tint-3: #4a352e;
+  --archive-tint-0: #e9bf73;
+  --archive-tint-1: #86b7ef;
+  --archive-tint-2: #b3a0e5;
+  --archive-tint-3: #e6a391;
 }
 .release-design {
   min-width: 0;
@@ -1096,9 +1096,6 @@
   .archive-result-meta svg {
     display: none;
   }
-  .release-day-heading .day-timezone {
-    display: none;
-  }
   .release-design-journal .release-day-heading h2 {
     font-size: 1rem;
   }
@@ -1514,6 +1511,14 @@
 }
 .release-design-board .report-icon {
   color: var(--foreground);
+}
+.dark .release-design-board .report-dataset,
+.dark .release-design-board .report-icon,
+.dark .release-design-board .latest-day {
+  color: #171717;
+}
+.dark .release-design-board .report-languages li {
+  color: #d4d4d4;
 }
 .release-design-board .report-open {
   color: var(--archive-accent);
