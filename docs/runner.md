@@ -15,7 +15,9 @@ in each dataset card, with a range when language splits differ.
 **Local test** selects the fake transport and adds an editable synthetic model ID.
 Advanced settings are collapsed initially and open automatically only when you
 try to continue with an invalid advanced value. The command updates as you edit.
-In the review step, open **View command** to inspect it or switch modes.
+In the review step, **View command** and **Copy command** become available only
+when the configuration is valid. Open **View command** to inspect it or switch modes.
+Step checkmarks appear after continuing through a valid step, not from default values.
 **Check plan** produces a `plan` command with the
 same experiment settings; it may download dataset files but never calls models.
 Copy the command and run it from your cloned repository root after installing the

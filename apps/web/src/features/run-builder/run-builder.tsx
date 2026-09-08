@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import {
-  ArrowDown,
   ArrowLeft,
   ArrowRight,
   Check,
@@ -43,13 +42,6 @@ import { ProviderLogo } from "./provider-logo";
 import styles from "./run-builder.module.css";
 
 const transportNames = { openai: "OpenAI", anthropic: "Anthropic", openrouter: "OpenRouter" };
-const environmentKeys = {
-  openai: "OPENAI_API_KEY",
-  anthropic: "ANTHROPIC_API_KEY",
-  openrouter: "OPENROUTER_API_KEY",
-};
-const setupCommand =
-  "git clone https://github.com/limit-115/llang-gap.git\ncd llang-gap\ncorepack enable\npnpm install --frozen-lockfile";
 const sections = ["datasetSection", "modelSection", "sizeSection"] as const;
 const sectionFields: Setting[][] = [
   ["dataset", "protocol", "languages"],
@@ -67,24 +59,27 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
   const [copied, setCopied] = useState("");
   const [copyError, setCopyError] = useState(false);
   const [step, setStep] = useState(0);
+  const [confirmedSteps, setConfirmedSteps] = useState<number[]>([]);
   const [languageSearch, setLanguageSearch] = useState("");
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [commandOpen, setCommandOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const result = buildRun(settings, datasets);
   const dataset = datasets.find((entry) => entry.id === settings.dataset);
   const protocol = dataset?.protocols.find((entry) => entry.id === settings.protocol);
   const command = mode === "run" ? result.command : result.plan;
   const languageNames = new Intl.DisplayNames([locale], { type: "language" });
-  const completed = sectionFields.map(
+  const validSections = sectionFields.map(
     (fields, index) =>
       !fields.some((key) => result.errors[key]) &&
       (index !== 2 || !Object.keys(result.errors).some((key) => !basicFields.has(key as Setting))),
   );
+  const completed = validSections.map((valid, index) => valid && confirmedSteps.includes(index));
   const modelCount = settings.models
     .trim()
     .split(/[\s,]+/)
     .filter(Boolean).length;
-  const nextStep = completed.findIndex((done) => !done);
+  const nextStep = validSections.findIndex((done) => !done);
   const languageChoices = getLanguageChoices(dataset, settings.protocol, settings.languages);
   useEffect(() => {
     if (!copied) return;
@@ -257,7 +252,7 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
     setStep(index);
     requestAnimationFrame(() => {
       const target = contentRef.current;
-      target?.scrollIntoView({ behavior: "instant", block: "start" });
+      target?.scrollTo({ top: 0, behavior: "instant" });
       target?.focus({ preventScroll: true });
     });
   }
@@ -283,6 +278,7 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
       );
       return;
     }
+    setConfirmedSteps((previous) => (previous.includes(step) ? previous : [...previous, step]));
     goToSection(Math.min(step + 1, 3));
   }
   function datasetQuestionSummary(entry: RunDataset) {
@@ -457,7 +453,6 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
                 <ProviderLogo provider={value} />
               </span>
               <span>{value === "fake" ? t("testProvider") : transportNames[value]}</span>
-              {value === "fake" && <small>{t("free")}</small>}
             </label>
           ))}
         </div>
@@ -664,65 +659,24 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
         ))}
       </fieldset>
       <div className={styles.commandArea}>
-        {command ? (
-          <textarea
-            readOnly
-            aria-label={t("commandTitle")}
-            value={command}
-            rows={Math.min(18, Math.max(10, command.split("\n").length + 1))}
-            spellCheck={false}
-          />
-        ) : (
-          <div className={styles.commandPlaceholder}>
-            <span className={styles.terminalPrompt} aria-hidden="true">
-              &gt;_
-            </span>
-            <strong>{t("commandWaiting")}</strong>
-            <p>{t("commandWaitingHint")}</p>
-            <div className={styles.terminalChecklist}>
-              {sections.map((label, index) => (
-                <button key={label} onClick={() => goToSection(index)}>
-                  <span data-done={completed[index]}>
-                    {completed[index] ? (
-                      <Check aria-hidden="true" />
-                    ) : (
-                      <span className={styles.dot} />
-                    )}
-                  </span>
-                  {t(label)}
-                  <ArrowRight aria-hidden="true" />
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        <textarea
+          readOnly
+          aria-label={t("commandTitle")}
+          value={command ?? ""}
+          rows={Math.min(14, Math.max(6, (command ?? "").split("\n").length + 1))}
+          spellCheck={false}
+        />
       </div>
-      <p className={styles.commandNote}>
-        {t(
-          mode === "plan"
-            ? "planNote"
-            : settings.transport === "fake"
-              ? "fakeNote"
-              : settings.transport
-                ? "liveNote"
-                : "localNote",
-        )}
-      </p>
     </div>
   );
   const output = (
     <aside className={styles.output} aria-label={t("summaryTitle")}>
       <div className={styles.summaryCard}>
-        <div className={styles.summaryHeading}>
-          <h2>{t("summaryTitle")}</h2>
-          <span className={styles.statusBadge} data-ready={Boolean(command)}>
-            <span />
-            {t(command ? "ready" : "draft")}
-          </span>
-        </div>
         <div className={styles.requestTotal}>
           <span>
-            {result.requests === null ? "—" : new Intl.NumberFormat(locale).format(result.requests)}
+            {result.requests === null
+              ? t("requestsTbd")
+              : new Intl.NumberFormat(locale).format(result.requests)}
           </span>
           <div>
             <strong>{t("plannedRequests")}</strong>
@@ -755,14 +709,21 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
             </button>
           </div>
         )}
-        <details className={styles.commandDisclosure}>
-          <summary>
+        <div className={styles.commandDisclosure}>
+          <Button
+            variant="outline"
+            className={styles.commandTrigger}
+            disabled={!command}
+            aria-expanded={Boolean(command) && commandOpen}
+            aria-controls="run-command-preview"
+            onClick={() => setCommandOpen((open) => !open)}
+          >
             <Terminal aria-hidden="true" />
             {t("viewCommand")}
             <ChevronDown aria-hidden="true" />
-          </summary>
-          {commandPanel}
-        </details>
+          </Button>
+          {command && commandOpen && <div id="run-command-preview">{commandPanel}</div>}
+        </div>
         <Button
           disabled={!command}
           className={styles.primaryAction}
@@ -774,39 +735,14 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
           <span aria-live="polite" aria-atomic="true">
             {t(copied === command ? "copied" : "copy")}
           </span>
-          <ArrowDown aria-hidden="true" />
         </Button>
-        <p className={styles.localCaption}>
-          <Monitor aria-hidden="true" />
-          {t("pasteLocally")}
-        </p>
         {copyError && <output className={styles.error}>{t("copyError")}</output>}
-      </div>
-      <div className={styles.outputHelp}>
-        <details className={styles.setup}>
-          <summary>
-            {t("setupTitle")}
-            <ChevronDown aria-hidden="true" className={styles.chevron} />
-          </summary>
-          <p>{t("setupIntro")}</p>
-          <pre>
-            <code>{setupCommand}</code>
-          </pre>
-          {settings.transport && settings.transport !== "fake" && (
-            <p>{t("setupKey", { key: environmentKeys[settings.transport] })}</p>
-          )}
-          <p>{t("setupRun")}</p>
-        </details>
       </div>
     </aside>
   );
   if (!datasets.length) return <p>{t("noDatasets")}</p>;
   return (
     <div className={styles.page}>
-      <div className={styles.pageHeading}>
-        <h1>{t("title")}</h1>
-        <p>{t("intro")}</p>
-      </div>
       <div className={styles.guidedLayout}>
         <aside className={styles.guideRail}>
           <div className={styles.guideRailTop}>
@@ -823,15 +759,8 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
                 aria-current={step === index ? "step" : undefined}
                 onClick={() => goToSection(index)}
               >
-                <span
-                  className={styles.stepIndicator}
-                  data-done={index < 3 ? completed[index] : Boolean(command)}
-                >
-                  {(index < 3 ? completed[index] : Boolean(command)) ? (
-                    <Check aria-hidden="true" />
-                  ) : (
-                    index + 1
-                  )}
+                <span className={styles.stepIndicator} data-done={index < 3 && completed[index]}>
+                  {index < 3 && completed[index] ? <Check aria-hidden="true" /> : index + 1}
                 </span>
                 <span>
                   {t(label)}
@@ -849,35 +778,37 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
             </div>
           </div>
         </aside>
-        <div ref={contentRef} tabIndex={-1} className={styles.guidedContent}>
-          <div className={styles.stepProgress}>
-            <span>{t("stepProgress", { current: step + 1, total: 4 })}</span>
-            <div>
-              {steps.map((label, index) => (
-                <span key={label} data-active={index <= step} />
-              ))}
+        <div className={styles.guidedContent}>
+          <div ref={contentRef} tabIndex={-1} className={styles.stepContent}>
+            <div className={styles.stepProgress}>
+              <span>{t("stepProgress", { current: step + 1, total: 4 })}</span>
+              <div>
+                {steps.map((label, index) => (
+                  <span key={label} data-active={index <= step} />
+                ))}
+              </div>
             </div>
+            {step < 3 ? (
+              <>
+                <div className={styles.guidedTitle}>
+                  <h2>{t(sections[step]!)}</h2>
+                  <p>{t(`${sections[step]!}Hint`)}</p>
+                </div>
+                <div className={styles.sectionBody}>
+                  {panels[step]}
+                  {step === 2 && advanced}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className={styles.guidedTitle}>
+                  <h2>{t("reviewSection")}</h2>
+                  <p>{t("reviewHint")}</p>
+                </div>
+                {output}
+              </>
+            )}
           </div>
-          {step < 3 ? (
-            <>
-              <div className={styles.guidedTitle}>
-                <h2>{t(sections[step]!)}</h2>
-                <p>{t(`${sections[step]!}Hint`)}</p>
-              </div>
-              <div className={styles.sectionBody}>
-                {panels[step]}
-                {step === 2 && advanced}
-              </div>
-            </>
-          ) : (
-            <>
-              <div className={styles.guidedTitle}>
-                <h2>{t("reviewSection")}</h2>
-                <p>{t("reviewHint")}</p>
-              </div>
-              {output}
-            </>
-          )}
           <div className={styles.stepFooter}>
             <Button variant="ghost" disabled={step === 0} onClick={() => goToSection(step - 1)}>
               <ArrowLeft aria-hidden="true" />

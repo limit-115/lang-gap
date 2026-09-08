@@ -1,16 +1,22 @@
+/* Keep dark run surfaces black, including portalled controls. */
+:global(html.dark):has(.page) {
+  --background: #000;
+  --card: #080808;
+  --popover: #0c0c0c;
+  --muted: #171717;
+  --secondary: #171717;
+  --accent: #171717;
+  --muted-foreground: #a3a3a3;
+  --border: #262626;
+  --input: #333;
+}
 .page {
   color: var(--foreground);
-  padding: 20px 0 60px;
-}
-:global(body):has(.page) > :global([data-site-background="contour"]) {
-  display: none;
-}
-:global(body):has(.page) :global(.page-shell) {
-  width: min(100%, 1328px);
-  padding-inline: 40px;
-}
-:global(body):has(.page) :global(.site-header) {
-  width: min(calc(100% - 48px), 1280px);
+  height: calc(100dvh - 80px);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding-block: 24px 16px;
 }
 .page button,
 .page input,
@@ -25,27 +31,13 @@
   outline: 2px solid var(--primary);
   outline-offset: 3px;
 }
-.page :is(h1, h2, h3, p) {
+.guidedLayout :is(h1, h2, h3, p) {
   margin: 0;
 }
 .page :is(svg) {
   flex-shrink: 0;
   width: 18px;
   height: 18px;
-}
-.pageHeading {
-  padding: 22px 0 32px;
-}
-.pageHeading h1 {
-  font-size: clamp(28px, 3vw, 36px);
-  font-weight: 550;
-  line-height: 1.25;
-}
-.pageHeading p {
-  color: var(--muted-foreground);
-  margin-top: 10px;
-  font-size: 14px;
-  line-height: 1.6;
 }
 .sectionBody {
   display: grid;
@@ -64,7 +56,7 @@
 .field legend {
   padding: 0;
   font-size: 13px;
-  font-weight: 550;
+  font-weight: 500;
 }
 .field legend {
   margin-bottom: 9px;
@@ -310,7 +302,7 @@ input.input:read-only {
 .scopeChoice strong {
   display: block;
   font-size: 12px;
-  font-weight: 550;
+  font-weight: 500;
 }
 .scopeChoice small {
   display: block;
@@ -552,11 +544,6 @@ input.input:read-only {
   background: var(--muted);
   color: var(--muted-foreground);
 }
-.primaryAction > svg:last-child {
-  margin-left: auto;
-  width: 14px;
-  height: 14px;
-}
 .localCaption {
   display: flex;
   justify-content: center;
@@ -597,9 +584,9 @@ input.input:read-only {
   margin-bottom: 15px;
 }
 .terminal {
-  color: #edf3ef;
-  background: #111a16;
-  border: 1px solid #28372f;
+  color: var(--foreground);
+  background: var(--background);
+  border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
   min-width: 0;
@@ -609,17 +596,17 @@ input.input:read-only {
   align-items: center;
   gap: 9px;
   padding: 17px 18px;
-  border-bottom: 1px solid #2b3830;
+  border-bottom: 1px solid var(--border);
   font-size: 12px;
 }
 .terminalHeader svg {
   width: 14px;
   height: 14px;
-  color: #99bcaa;
+  color: var(--muted-foreground);
 }
 .shellBadge {
   margin-left: auto;
-  color: #a9bcb1;
+  color: var(--muted-foreground);
   font: 11px var(--font-mono);
 }
 .mode {
@@ -629,29 +616,29 @@ input.input:read-only {
   padding: 3px;
   border: 0;
   border-radius: 5px;
-  background: #1d2822;
+  background: var(--muted);
 }
 .mode button {
   height: 28px;
   border-radius: 4px;
-  color: #a9bcb1;
+  color: var(--muted-foreground);
   padding: 0 12px;
   font-size: 12px;
 }
 .mode button[aria-pressed="true"],
 .mode button:hover {
-  background: #34443b;
-  color: #edf3ef;
+  background: var(--accent);
+  color: var(--foreground);
 }
 .commandArea textarea {
   display: block;
   width: 100%;
-  min-height: 230px;
+  min-height: 160px;
   max-height: 440px;
   background: transparent;
   padding: 18px;
-  color: #c1e5cc;
-  font: 11px/1.95 var(--font-mono);
+  color: var(--foreground);
+  font: 12px/1.7 var(--font-mono);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   border: 0;
@@ -661,7 +648,7 @@ input.input:read-only {
   padding: 25px 22px 23px;
 }
 .terminalPrompt {
-  color: #99bcaa;
+  color: var(--muted-foreground);
   display: block;
   font: 30px var(--font-mono);
   margin-bottom: 13px;
@@ -672,7 +659,7 @@ input.input:read-only {
   font-weight: 500;
 }
 .commandPlaceholder > p {
-  color: #a9bcb1;
+  color: var(--muted-foreground);
   margin-top: 9px;
   font-size: 12px;
   line-height: 1.75;
@@ -688,7 +675,7 @@ input.input:read-only {
   align-items: center;
   gap: 9px;
   padding: 7px 0;
-  color: #a9bcb1;
+  color: var(--muted-foreground);
   font-size: 12px;
   text-align: left;
 }
@@ -705,7 +692,7 @@ input.input:read-only {
   height: 18px;
   display: grid;
   place-items: center;
-  border: 1px solid #99bcaa;
+  border: 1px solid var(--muted-foreground);
   border-radius: 50%;
 }
 .terminalChecklist button > span[data-done="true"] {
@@ -721,29 +708,34 @@ input.input:read-only {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #99bcaa;
+  background: var(--muted-foreground);
 }
 .commandNote {
-  color: #a9bcb1;
+  color: var(--muted-foreground);
   font-size: 12px;
   line-height: 1.75;
-  border-top: 1px solid #2b3830;
+  border-top: 1px solid var(--border);
   padding: 14px 18px;
 }
 .guidedLayout {
   display: grid;
   grid-template-columns: 315px minmax(0, 1fr);
+  container: run-config / size;
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
   background: var(--card);
-  min-height: 640px;
+  flex: 1;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
 }
 .guideRail {
+  min-height: 0;
+  overflow: clip;
   display: flex;
   flex-direction: column;
-  padding: 36px 26px 28px;
-  background: color-mix(in oklch, var(--primary) 6%, var(--background));
+  padding: 24px 22px;
+  background: var(--background);
   border-right: 1px solid var(--border);
   color: var(--foreground);
 }
@@ -753,21 +745,21 @@ input.input:read-only {
 .guideGlyph {
   display: grid;
   place-items: center;
-  width: 46px;
-  height: 46px;
+  width: 36px;
+  height: 36px;
   background: color-mix(in oklch, var(--primary) 12%, var(--background));
   border-radius: 11px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 .guideGlyph svg {
   width: 24px;
   height: 24px;
 }
 .guideRailTop h2 {
-  font-size: 24px;
+  font-size: 21px;
   font-weight: 500;
   line-height: 1.4;
-  max-width: 12ch;
+  max-width: 18ch;
 }
 .guideRailTop p {
   font-size: 12px;
@@ -777,8 +769,8 @@ input.input:read-only {
 }
 .stepList {
   display: grid;
-  gap: 10px;
-  margin-top: 33px;
+  gap: 6px;
+  margin-top: 24px;
 }
 .stepList button {
   display: flex;
@@ -791,11 +783,11 @@ input.input:read-only {
   border: 1px solid transparent;
 }
 .stepList button[aria-current="step"] {
-  background: var(--background);
+  background: var(--muted);
   border-color: var(--border);
 }
 .stepList button:hover {
-  background: color-mix(in oklch, var(--background) 60%, transparent);
+  background: var(--muted);
 }
 .stepList button > svg {
   width: 13px;
@@ -836,7 +828,7 @@ input.input:read-only {
 }
 .guideAssurance {
   margin-top: auto;
-  padding: 40px 10px 0;
+  padding: 20px 10px 0;
   display: flex;
   align-items: flex-start;
   gap: 11px;
@@ -856,11 +848,20 @@ input.input:read-only {
   color: var(--muted-foreground);
 }
 .guidedContent {
-  padding: 35px 48px 24px;
-  scroll-margin-top: 100px;
-  outline: none;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+.stepContent {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding: 28px 32px;
+  outline: none;
 }
 .stepProgress {
   display: flex;
@@ -888,7 +889,7 @@ input.input:read-only {
   margin-bottom: 27px;
 }
 .guidedTitle h2 {
-  font-size: 25px;
+  font-size: 24px;
   font-weight: 500;
   line-height: 1.35;
 }
@@ -931,8 +932,10 @@ input.input:read-only {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-top: auto;
-  padding-top: 28px;
+  flex-shrink: 0;
+  padding: 16px 32px;
+  border-top: 1px solid var(--border);
+  background: var(--card);
 }
 .stepFooter button {
   font-size: 12px;
@@ -948,7 +951,7 @@ input.input:read-only {
   background: color-mix(in oklch, var(--primary) 85%, var(--background));
   color: var(--primary-foreground);
 }
-.guidedContent > .output {
+.stepContent > .output {
   position: static;
 }
 .guidedContent .summaryCard {
@@ -978,28 +981,18 @@ input.input:read-only {
   .guideRail {
     padding-inline: 18px;
   }
-  .guidedContent {
-    padding-inline: 30px;
+  .stepContent,
+  .stepFooter {
+    padding-inline: 24px;
   }
 }
 @media (max-width: 800px) {
-  :global(body):has(.page) :global(.page-shell) {
-    padding-inline: 20px;
-  }
   .output {
     position: static;
   }
-  .pageHeading {
-    padding-block: 28px;
-  }
-  .pageHeading h1 {
-    font-size: 28px;
-  }
-  .pageHeading p {
-    font-size: 12px;
-  }
   .guidedLayout {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
   }
   .guideRail {
     padding: 13px 16px;
@@ -1027,9 +1020,8 @@ input.input:read-only {
   .stepList button > svg {
     display: none;
   }
-  .guidedContent {
+  .stepContent {
     padding: 24px;
-    min-height: 520px;
   }
   .scopeChoice {
     padding: 13px 11px;
@@ -1040,13 +1032,6 @@ input.input:read-only {
   }
 }
 @media (max-width: 430px) {
-  :global(body):has(.page) :global(.page-shell) {
-    padding-inline: 14px;
-  }
-  .page {
-    color: var(--foreground);
-    padding: 20px 0 60px;
-  }
   .sectionBody {
     gap: 21px;
   }
@@ -1061,8 +1046,9 @@ input.input:read-only {
     width: 10px;
     height: 10px;
   }
-  .guidedContent {
-    padding: 24px 18px;
+  .stepContent,
+  .stepFooter {
+    padding-inline: 18px;
   }
   .guidedTitle h2 {
     font-size: 23px;
@@ -1103,4 +1089,73 @@ input.input:read-only {
 }
 .providerMark img {
   object-fit: contain;
+}
+
+.field > label,
+.field legend,
+.datasetCard strong,
+.stepList button,
+.stepFooter button {
+  font-size: 14px;
+}
+.hint,
+.guidedTitle p,
+.guideRailTop p,
+.datasetCard small {
+  font-size: 13px;
+  line-height: 1.5;
+}
+@container run-config (max-height: 580px) {
+  .guideRail {
+    padding-block: 20px;
+  }
+  .guideGlyph,
+  .guideRailTop p,
+  .guideAssurance p {
+    display: none;
+  }
+  .stepList {
+    margin-top: 20px;
+  }
+  .stepList button {
+    padding-block: 10px;
+  }
+}
+@container run-config (max-height: 420px) {
+  .guideRailTop,
+  .guideAssurance,
+  .stepList small {
+    display: none;
+  }
+  .stepList {
+    margin-top: 0;
+  }
+}
+@media (max-width: 800px) {
+  .stepList button {
+    font-size: 12px;
+  }
+}
+
+.commandTrigger {
+  width: 100%;
+  min-height: 43px;
+  justify-content: flex-start;
+  gap: 9px;
+  padding-inline: 14px;
+  font-size: 14px;
+  background: var(--card);
+}
+.commandTrigger > svg:last-child {
+  margin-left: auto;
+  width: 16px;
+  height: 16px;
+}
+.commandTrigger[aria-expanded="true"] > svg:last-child {
+  transform: rotate(180deg);
+}
+.commandTrigger:disabled {
+  opacity: 1;
+  color: var(--muted-foreground);
+  background: var(--muted);
 }

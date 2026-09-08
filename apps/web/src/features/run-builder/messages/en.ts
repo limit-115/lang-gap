@@ -42,6 +42,7 @@ export default {
   summaryTitle: "Run summary",
   ready: "Ready to copy",
   draft: "In progress",
+  requestsTbd: "TBD",
   plannedRequests: "Planned requests",
   beforeRetries: "Before retries",
   nextUp: "Next up",

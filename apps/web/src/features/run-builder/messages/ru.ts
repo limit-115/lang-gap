@@ -43,6 +43,7 @@ export default {
   summaryTitle: "Обзор запуска",
   ready: "Можно копировать",
   draft: "Настройка",
+  requestsTbd: "Пока неизвестно",
   plannedRequests: "Запланировано запросов",
   beforeRetries: "Без повторных попыток",
   nextUp: "Следующий шаг",
