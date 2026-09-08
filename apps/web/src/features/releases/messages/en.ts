@@ -1,5 +1,8 @@
 export default {
   designs: {
+    submittedBy: "Submitted by",
+    submitterUnknown: "Submitter not recorded",
+    openNamedReport: "Open report: {title}",
     publishedTime: "Published at {time} UTC",
     publishedColumn: "Time · UTC",
     chooseDesign: "Design options",
@@ -30,7 +33,6 @@ export default {
     languages: "Benchmark languages",
     openReport: "Open report",
     latestDay: "Latest",
-    groupedByDay: "Grouped by publication day",
     showing: "{shown} of {total} reports",
     howWeTest: "How we test",
     report: "Report",

@@ -27,17 +27,41 @@
 .dark .release-design-desktop {
   --archive-tint-0: #3d3728;
 }
+/* Neutral board surfaces with emerald accents; the site's background stays untouched. */
 .release-design-board {
+  --primary: #047857;
+  --primary-foreground: #ffffff;
+  --foreground: #18181b;
+  --muted-foreground: #63636b;
+  --card: #ffffff;
+  --border: #d5d7db;
+  --muted: #f4f4f5;
+  --ring: #059669;
+  --archive-accent: #047857;
+  --archive-line: #adb0b6;
+  --archive-hero-bg: #ffffff;
   --archive-tint-0: #f3dfae;
   --archive-tint-1: #d6e5f2;
   --archive-tint-2: #dbe8cb;
   --archive-tint-3: #efd6c9;
+  color: var(--foreground);
 }
 .dark .release-design-board {
-  --archive-tint-0: #51452e;
-  --archive-tint-1: #2e4458;
-  --archive-tint-2: #344632;
-  --archive-tint-3: #513b33;
+  --primary: #34d399;
+  --primary-foreground: #062c20;
+  --foreground: #f4f4f5;
+  --muted-foreground: #b4b4bd;
+  --card: #17191c;
+  --border: #34373d;
+  --muted: #22252a;
+  --ring: #34d399;
+  --archive-accent: #6ee7b7;
+  --archive-line: #51545b;
+  --archive-hero-bg: #000000;
+  --archive-tint-0: #4b3d28;
+  --archive-tint-1: #293e53;
+  --archive-tint-2: #253f35;
+  --archive-tint-3: #4a352e;
 }
 .release-design {
   min-width: 0;
@@ -140,7 +164,7 @@
 }
 .archive-overview > a {
   text-decoration: underline;
-  text-decoration-color: var(--border);
+  text-decoration-color: currentColor;
 }
 .archive-overview > a:hover {
   color: var(--archive-accent);
@@ -210,20 +234,11 @@
 }
 .archive-result-meta {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 16px;
   margin-block: 14px 25px;
   color: var(--muted-foreground);
   font-size: 0.8125rem;
-}
-.archive-result-meta > span:last-child {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.archive-result-meta svg {
-  width: 14px;
-  height: 14px;
 }
 .release-day {
   scroll-margin-top: 100px;
@@ -375,6 +390,8 @@
   gap: 20px;
   margin-top: 36px;
   padding: 25px 27px;
+  background: color-mix(in srgb, var(--background) 60%, transparent);
+  backdrop-filter: blur(16px);
   border: 1px dashed var(--archive-line);
   border-radius: 5px;
 }
@@ -735,7 +752,7 @@
   margin-block: 24px;
   padding: 27px 32px;
   border: 1px solid var(--archive-line);
-  background: var(--archive-tint-0);
+  background: var(--archive-hero-bg);
   box-shadow: 4px 4px 0 var(--border);
   border-radius: 6px;
 }
@@ -1272,8 +1289,11 @@
 .release-design-board .archive-controls .archive-sort {
   background: var(--background);
 }
+.release-design-board .archive-days {
+  margin-top: 28px;
+}
 .release-design-board .archive-result-meta {
-  margin-bottom: 26px;
+  margin-block: 14px 24px;
 }
 .release-design-board .release-day-heading {
   padding-block: 19px 22px;
@@ -1341,8 +1361,14 @@
   gap: 5px;
 }
 .release-design-board .report-languages li {
-  min-height: 25px;
-  padding-inline: 7px;
+  min-height: 27px;
+  padding: 3px 8px;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  background: var(--muted);
+  color: var(--foreground);
+  border-color: var(--border);
 }
 .release-design-board .report-id {
   margin-top: auto;
@@ -1492,5 +1518,148 @@
 
 .release-design-board .archive-hero p,
 .release-design-board .archive-overview > span {
-  color: color-mix(in srgb, var(--foreground) 75%, var(--archive-tint-0));
+  color: var(--muted-foreground);
+}
+
+.release-design-board .archive-hero h1 > span {
+  color: var(--archive-accent);
+}
+.release-design-board .archive-overview > a {
+  color: var(--foreground);
+  text-decoration-color: currentColor;
+}
+.release-design-board .archive-overview > a:hover {
+  color: var(--archive-accent);
+}
+.release-design-board .report-dataset {
+  color: var(--foreground);
+}
+.release-design-board .report-icon {
+  color: var(--foreground);
+}
+.release-design-board .report-open {
+  color: var(--archive-accent);
+}
+.release-design-board .report-main-link:hover .report-open {
+  color: var(--foreground);
+}
+
+.release-design-board .archive-days > .release-day:last-child {
+  padding-bottom: 0;
+}
+
+/* Keep the submitter profile separate from the report link: no nested links. */
+.release-design-board .report-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  border: 1px solid var(--archive-line);
+  border-top: 6px solid var(--report-tint);
+  border-radius: 4px;
+  box-shadow: 3px 4px 0 var(--border);
+  transition:
+    transform 150ms,
+    box-shadow 150ms;
+}
+.release-design-board .report-card:hover {
+  transform: translate(-1px, -2px);
+  box-shadow: 5px 6px 0 var(--archive-line);
+}
+.release-design-board .report-main-link,
+.release-design-board .report-main-link:hover {
+  position: relative;
+  flex: 1;
+  height: auto;
+  border: 0;
+  border-radius: 3px 3px 0 0;
+  box-shadow: none;
+  transform: none;
+}
+.release-design-board .report-main-link:focus-visible {
+  outline-offset: -3px;
+}
+.report-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 26px;
+  padding-block: 15px 18px;
+  border-top: 1px dashed var(--border);
+}
+.report-submitter {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.65;
+}
+.report-submitter svg {
+  width: 15px;
+  height: 15px;
+}
+.report-submitter a {
+  color: var(--foreground);
+  font-weight: 550;
+  overflow-wrap: anywhere;
+}
+.report-submitter a:hover {
+  color: var(--archive-accent);
+  text-decoration: underline;
+}
+.release-design-board .report-card-footer .report-open {
+  width: auto;
+  flex-shrink: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  gap: 8px;
+  font-size: 0.8125rem;
+}
+.release-design-board .report-card-footer .report-open:hover {
+  color: var(--foreground);
+  text-decoration: underline;
+}
+@media (max-width: 1000px) {
+  .report-card-footer {
+    margin-inline: 21px;
+  }
+}
+@media (max-width: 760px) {
+  .report-card-footer {
+    margin-inline: 18px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 540px) {
+  .report-card-footer {
+    margin-inline: 19px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .release-design-board .report-card:hover {
+    transform: none;
+  }
+}
+
+.release-design-board .evidence-icon {
+  color: #000000;
+}
+.dark .release-design-board .evidence-icon {
+  color: #ffffff;
+}
+.release-design-board .archive-evidence {
+  border-color: var(--archive-line);
+}
+.release-design-board .day-marker {
+  background: #ffffff;
+  color: #000000;
+  border: 1px solid var(--archive-line);
+}
+.dark .release-design-board .day-marker {
+  background: #000000;
+  color: #ffffff;
 }

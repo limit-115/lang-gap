@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReleaseManifest } from "@llang-gap/contracts";
+import type { ReleaseManifest, ReleaseSubmissions } from "@llang-gap/contracts";
 import { useState } from "react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
@@ -23,6 +23,7 @@ import {
   Search,
   ShieldCheck,
   SlidersHorizontal,
+  UserRound,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -47,10 +49,12 @@ const designs = [
 
 export function ReleaseDesigns({
   releases,
+  submitters,
   design,
   showDesignPicker = true,
 }: {
   releases: ReleaseManifest[];
+  submitters: ReleaseSubmissions["releases"];
   design: ReleaseDesign;
   showDesignPicker?: boolean;
 }) {
@@ -94,10 +98,7 @@ export function ReleaseDesigns({
     return (
       <ul className="report-languages" aria-label={t("languages")}>
         {release.languages.map((language) => (
-          <li key={language} title={languageName(language)}>
-            <span className="sr-only">{languageName(language)}: </span>
-            {language.toUpperCase()}
-          </li>
+          <li key={language}>{languageName(language)}</li>
         ))}
       </ul>
     );
@@ -105,6 +106,7 @@ export function ReleaseDesigns({
 
   function Report({ release, index }: { release: ReleaseManifest; index: number }) {
     const models = releaseModels(release);
+    const submitter = submitters[release.id];
     const time = publicationTime.format(new Date(release.createdAt));
     return (
       <article className={`report-card report-tone-${index % 4}`}>
@@ -147,11 +149,41 @@ export function ReleaseDesigns({
               {time}
             </time>
           )}
-          <span className="report-open">
-            <span>{t("openReport")}</span>
-            <ArrowUpRight aria-hidden="true" />
-          </span>
+          {design !== "board" && (
+            <span className="report-open">
+              <span>{t("openReport")}</span>
+              <ArrowUpRight aria-hidden="true" />
+            </span>
+          )}
         </Link>
+        {design === "board" && (
+          <footer className="report-card-footer">
+            <div className="report-submitter">
+              <UserRound aria-hidden="true" />
+              {submitter ? (
+                <span>
+                  {t("submittedBy")}{" "}
+                  <a
+                    href={`https://github.com/${submitter.githubUsername}`}
+                    title={`@${submitter.githubUsername}`}
+                  >
+                    {submitter.fullName}
+                  </a>
+                </span>
+              ) : (
+                <span>{t("submitterUnknown")}</span>
+              )}
+            </div>
+            <Link
+              className="report-open"
+              href={`/releases/${release.id}`}
+              aria-label={t("openNamedReport", { title: title(release) })}
+            >
+              <span>{t("openReport")}</span>
+              <ArrowUpRight aria-hidden="true" />
+            </Link>
+          </footer>
+        )}
       </article>
     );
   }
@@ -180,13 +212,15 @@ export function ReleaseDesigns({
           <SlidersHorizontal aria-hidden="true" />
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="rounded-md">
-          <SelectItem value="all">{t("allDatasets")}</SelectItem>
-          {datasets.map((value) => (
-            <SelectItem key={value} value={value}>
-              {value}
-            </SelectItem>
-          ))}
+        <SelectContent align="start" alignItemWithTrigger={false}>
+          <SelectGroup>
+            <SelectItem value="all">{t("allDatasets")}</SelectItem>
+            {datasets.map((value) => (
+              <SelectItem key={value} value={value}>
+                {value}
+              </SelectItem>
+            ))}
+          </SelectGroup>
         </SelectContent>
       </Select>
       <Button
@@ -392,14 +426,10 @@ export function ReleaseDesigns({
             </div>
           </header>
           {controls}
+          <div className="archive-days">{dailyReports}</div>
           <div className="archive-result-meta">
             <output>{t("showing", { shown: visible.length, total: releases.length })}</output>
-            <span>
-              <CalendarDays aria-hidden="true" />
-              {t("groupedByDay")}
-            </span>
           </div>
-          <div className="archive-days">{dailyReports}</div>
           <aside className="archive-evidence">
             <span className="evidence-icon">
               <ShieldCheck aria-hidden="true" />

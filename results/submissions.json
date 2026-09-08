@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "releases": {
+    "mmpisa-four-models-es-zh-en-kk-ru-2026-09-08": {
+      "githubUsername": "dibenkobit",
+      "fullName": "Nikita Snetkov"
+    },
+    "mmpisa-ling-3-flash-12lang-2026-09-08": {
+      "githubUsername": "dibenkobit",
+      "fullName": "Nikita Snetkov"
+    },
+    "mmpisa-ling-3-flash-ja-es-2026-09-08": {
+      "githubUsername": "dibenkobit",
+      "fullName": "Nikita Snetkov"
+    },
+    "mmpisa-ling-3-flash-en-ru-2026-09-08": {
+      "githubUsername": "dibenkobit",
+      "fullName": "Nikita Snetkov"
+    }
+  }
+}

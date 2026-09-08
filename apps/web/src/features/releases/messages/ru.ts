@@ -2,6 +2,9 @@ import type { Dictionary } from "@/i18n/routing";
 import type en from "./en";
 export default {
   designs: {
+    submittedBy: "Автор отчёта:",
+    submitterUnknown: "Автор не указан",
+    openNamedReport: "Открыть отчёт: {title}",
     publishedTime: "Опубликовано в {time} UTC",
     publishedColumn: "Время · UTC",
     chooseDesign: "Варианты дизайна",
@@ -32,7 +35,6 @@ export default {
     languages: "Языки бенчмарка",
     openReport: "Открыть отчёт",
     latestDay: "Последние",
-    groupedByDay: "По дням публикации",
     showing: "Отчёты: {shown} из {total}",
     howWeTest: "Как мы тестируем",
     report: "Отчёт",

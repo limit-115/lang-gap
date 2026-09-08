@@ -8,6 +8,7 @@ import { ReleaseDesigns } from "@/features/releases/release-designs";
 import { routing } from "@/i18n/routing";
 import { LinkSurface } from "@/shared/links/link";
 import { isPreviewDeployment, pageMetadata } from "@/shared/metadata";
+import { getReleaseSubmitters } from "@/features/releases/submissions";
 import { getReleases } from "@/features/releases/data";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ design?: string }> };
@@ -35,6 +36,7 @@ export default async function ReleasesPage({ params, searchParams }: Props) {
         <NextIntlClientProvider messages={{ Releases: getMessagesForLocale(locale).Releases }}>
           <ReleaseDesigns
             releases={releases}
+            submitters={getReleaseSubmitters(releases)}
             showDesignPicker={query.design !== undefined}
             design={design === "desktop" || design === "board" ? design : "journal"}
           />
