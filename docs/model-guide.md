@@ -1,6 +1,6 @@
 # Model guide and release history
 
-The homepage is a model guide. Each model has one row and each selected benchmark
+The homepage is a model guide. Each API/model/effort configuration has one row and each selected benchmark
 language has its own score. Model pages retain the underlying dataset, configuration,
 release and paired-comparison results. Homepage text, navigation and the run builder
 are independent of this presentation.
@@ -13,7 +13,8 @@ are independent of this presentation.
   language inputs, task and family weights, repeat count and output cap. These are
   declared inputs, not global dataset or language defaults.
 - A **guide snapshot** selects published releases and one explicit API/model/effort
-  profile per model. It contains the resulting scores and their source references.
+  profile per row when `configurationRows: true`. Legacy plans without this flag retain
+  one profile per model. It contains the resulting scores and their source references.
   New evidence creates a new snapshot; changing the suite or an existing model's
   profile requires a new suite ID. Adding a new model profile is allowed.
 
@@ -80,7 +81,7 @@ still drift; timestamps and original returned model IDs remain in release artifa
 
 | Situation                                                              | Result                                                                                |
 | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| Model A has five languages, model B has twenty-five                    | One row each; absent scores are `—`, never zero.                                      |
+| Configuration A has five languages, B has twenty-five                  | One row per configuration; absent scores are `—`, never zero.                         |
 | A later run adds languages                                             | New languages are eligible without deleting earlier language results.                 |
 | A new model or language is outside the current suite/profile selection | Its published evidence is available in history; no inferred overview score.           |
 | A required task is missing                                             | The whole language score is withheld. We never average just the available tasks.      |
@@ -102,6 +103,21 @@ given language column must meet that column's complete basis. Adding languages
 does not average them into a global model score. Extending a suite requires a new
 suite ID; existing values remain identical when their inputs and weights are
 unchanged.
+
+## Effort and language controls
+
+The effort selector defaults to **All effort levels**. Each row displays its effort
+and API provider; selecting one level filters configurations before pagination and
+sorting. Search and effort filters work together, and Reset filters clears both.
+Counts refer to configurations, not unique model names. Matching labels across
+providers do not imply equal computing budgets. Score links retain the exact
+API/model/effort selection on the model page.
+
+The `multilingual-effort-v2` suite preserves the first suite's task inputs and weights
+but lists every currently published effort as a separate profile. The original
+low-only snapshot remains immutable. New plans should set `configurationRows: true`
+and explicitly list each eligible API/model/effort profile. Unlisted configurations
+remain visible with withheld scores; their effort is never borrowed from another row.
 
 ## Language controls and uncertainty
 

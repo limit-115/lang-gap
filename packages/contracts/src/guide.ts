@@ -94,13 +94,15 @@ export const guidePlanSchema = z
   .strictObject({
     schemaVersion: z.literal(1),
     suite: guideSuiteSchema,
+    configurationRows: z.literal(true).optional(),
     profiles: z.array(guideProfileSchema),
     releases: z.array(safeIdSchema),
   })
   .refine(
     (plan) =>
-      unique(plan.profiles, (profile) => guideModelIdentity(profile).id) &&
-      unique(plan.releases, (id) => id),
+      unique(plan.profiles, (profile) =>
+        plan.configurationRows ? guideProfileKey(profile) : guideModelIdentity(profile).id,
+      ) && unique(plan.releases, (id) => id),
     "Duplicate model profile or release",
   );
 export type GuidePlan = z.infer<typeof guidePlanSchema>;
@@ -167,7 +169,9 @@ export const guideSnapshotSchema = z
   })
   .refine(
     (snapshot) =>
-      unique(snapshot.models, (model) => model.id) &&
+      unique(snapshot.models, (model) =>
+        snapshot.plan.configurationRows ? guideRowKey(model) : model.id,
+      ) &&
       unique(snapshot.sources, (source) => source.releaseId) &&
       snapshot.sources.length === snapshot.plan.releases.length &&
       snapshot.sources.every((source) => snapshot.plan.releases.includes(source.releaseId)),
@@ -186,3 +190,8 @@ export const guideIndexSchema = z
       (index.latest === null || index.snapshots.some((entry) => entry.id === index.latest)),
     "Invalid guide index",
   );
+
+export const guideProfileKey = (profile: z.infer<typeof guideProfileSchema>) =>
+  JSON.stringify([profile.transport, profile.model, profile.effort]);
+export const guideRowKey = (model: GuideModel) =>
+  model.profile ? guideProfileKey(model.profile) : model.id;

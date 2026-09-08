@@ -1,6 +1,9 @@
 import type { Dictionary } from "@/i18n/routing";
 import type en from "./en";
 export default {
+  unspecifiedEffort: "Не указан",
+  effortHelp:
+    "Каждая строка — отдельная конфигурация модели, API и effort. Одинаковые названия effort не означают одинаковый вычислительный бюджет.",
   guideScore: "Балл / 100",
   incompleteScore:
     "Для сопоставимой оценки нужны дополнительные результаты. Доступные результаты — на странице модели.",
@@ -25,7 +28,7 @@ export default {
   finderClear: "Сбросить выбранную модель",
   finderBrowse: "Открыть список моделей",
   finderNoResults: "Этой модели пока нет в списке.",
-  finderNoResultsHelp: "Попробуйте другое название модели или её разработчика.",
+  finderNoResultsHelp: "Попробуйте другую модель, разработчика или уровень effort.",
   finderAction: "Перейти к выводам",
   finderListHelp: "Поиск по названию модели или её разработчику",
 
@@ -59,8 +62,8 @@ export default {
   languageColumns: "Языки",
   visibleLanguages: "Показано {count} из {total}",
   noResults: "Нет моделей с такими фильтрами",
-  noResultsDescription: "Попробуйте другое название модели или её разработчика.",
-  rowRange: "{from}–{to} из {total} моделей",
+  noResultsDescription: "Попробуйте другую модель, разработчика или уровень effort.",
+  rowRange: "{from}–{to} из {total} конфигураций",
   rowsPerPage: "Строк на странице",
   pageOf: "Страница {page} из {total}",
   firstPage: "Первая страница",

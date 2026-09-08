@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "id": "multilingual-effort-2026-09-08",
+  "createdAt": "2026-09-08T10:22:39.889Z",
+  "plan": {
+    "schemaVersion": 1,
+    "suite": {
+      "id": "multilingual-effort-v2",
+      "families": [
+        {
+          "id": "reasoning",
+          "weight": 1
+        }
+      ],
+      "tasks": [
+        {
+          "id": "mmpisa-human-v1",
+          "family": "reasoning",
+          "weight": 1,
+          "dataset": "mmpisa",
+          "datasetRevision": "22b1caa65980ca1fa295acc31ee5e35200e0c8c0",
+          "datasetManifestHash": "81c75ee0967e1ce708e83958d9f53d880de4735d0036144ac3b9463372a5e0ce",
+          "protocol": "multiple-choice-v1",
+          "protocolHash": "72c89059d1feae7445c3c3ddfab53f6b13f41f0e3d4156735f27fb361d330cfe",
+          "maxOutputTokens": 32768,
+          "repeats": 1,
+          "languages": [
+            {
+              "language": "en",
+              "n": 25,
+              "inputHash": "c234ad9c2f473098d4da5af5d938566d2817f9bac8a9fa98ac5f9113fa042ba7",
+              "alignmentHash": "8d8c4b3ba7c1224de7e1bc6a5624e779a8fb9bf3d0cd92a665e1a344e70baba0",
+              "randomBaseline": 0.27
+            },
+            {
+              "language": "ru",
+              "n": 25,
+              "inputHash": "3b0693940772c2fc3886238d391c31e875b5a3139ed94e8372a9aa3e81e3f1a0",
+              "alignmentHash": "8d8c4b3ba7c1224de7e1bc6a5624e779a8fb9bf3d0cd92a665e1a344e70baba0",
+              "randomBaseline": 0.27
+            }
+          ]
+        }
+      ]
+    },
+    "configurationRows": true,
+    "profiles": [
+      {
+        "transport": "openrouter",
+        "model": "inclusionai/ling-3.0-flash",
+        "effort": "low"
+      },
+      {
+        "transport": "openrouter",
+        "model": "inclusionai/ling-3.0-flash",
+        "effort": "medium"
+      }
+    ],
+    "releases": [
+      "mmpisa-ling-3-flash-en-ru-2026-09-08"
+    ]
+  },
+  "languages": [
+    "en",
+    "ru"
+  ],
+  "models": [
+    {
+      "id": "inclusionai/ling-3.0-flash",
+      "reference": {
+        "transport": "openrouter",
+        "model": "inclusionai/ling-3.0-flash"
+      },
+      "profile": {
+        "transport": "openrouter",
+        "model": "inclusionai/ling-3.0-flash",
+        "effort": "low"
+      },
+      "scores": [
+        {
+          "language": "en",
+          "value": 94.52054794520552,
+          "status": "ready",
+          "basis": "1427d46612bb5811c211cfbd67742f4f7c038a68c69136f1ac9b103cce1edd5c",
+          "comparisonBasis": "c0f61e833751269720f90166c8b8868b1527078a43853f16e935286e3638a3bc",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "low",
+              "taskId": "mmpisa-human-v1",
+              "releaseId": "mmpisa-ling-3-flash-en-ru-2026-09-08",
+              "accuracy": 0.9600000000000003,
+              "value": 94.52054794520552,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "ru",
+          "value": 89.04109589041099,
+          "status": "ready",
+          "basis": "82c76f808f84aaf11fc5af5df05b9606ece44bad4f00e2a3c704c0ac775dcc21",
+          "comparisonBasis": "c0f61e833751269720f90166c8b8868b1527078a43853f16e935286e3638a3bc",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "low",
+              "taskId": "mmpisa-human-v1",
+              "releaseId": "mmpisa-ling-3-flash-en-ru-2026-09-08",
+              "accuracy": 0.9200000000000003,
+              "value": 89.04109589041099,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        }
+      ]
+    },
+    {
+      "id": "inclusionai/ling-3.0-flash",
+      "reference": {
+        "transport": "openrouter",
+        "model": "inclusionai/ling-3.0-flash"
+      },
+      "profile": {
+        "transport": "openrouter",
+        "model": "inclusionai/ling-3.0-flash",
+        "effort": "medium"
+      },
+      "scores": [
+        {
+          "language": "en",
+          "value": 94.52054794520552,
+          "status": "ready",
+          "basis": "1427d46612bb5811c211cfbd67742f4f7c038a68c69136f1ac9b103cce1edd5c",
+          "comparisonBasis": "c0f61e833751269720f90166c8b8868b1527078a43853f16e935286e3638a3bc",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "medium",
+              "taskId": "mmpisa-human-v1",
+              "releaseId": "mmpisa-ling-3-flash-en-ru-2026-09-08",
+              "accuracy": 0.9600000000000003,
+              "value": 94.52054794520552,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        },
+        {
+          "language": "ru",
+          "value": 83.56164383561648,
+          "status": "ready",
+          "basis": "82c76f808f84aaf11fc5af5df05b9606ece44bad4f00e2a3c704c0ac775dcc21",
+          "comparisonBasis": "c0f61e833751269720f90166c8b8868b1527078a43853f16e935286e3638a3bc",
+          "contributions": [
+            {
+              "transport": "openrouter",
+              "model": "inclusionai/ling-3.0-flash",
+              "effort": "medium",
+              "taskId": "mmpisa-human-v1",
+              "releaseId": "mmpisa-ling-3-flash-en-ru-2026-09-08",
+              "accuracy": 0.8800000000000002,
+              "value": 83.56164383561648,
+              "n": 25,
+              "repeats": 1
+            }
+          ],
+          "required": 1
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "releaseId": "mmpisa-ling-3-flash-en-ru-2026-09-08",
+      "manifestHash": "14e43064fcca2ceea5c15e441c9732bf426e27450101cde4a8007d3670eee17c",
+      "evidenceHash": "aa0930e295a1829fb0936e8aae3c93fe032afb7ae97fbe6a9c19dc10b2a73809"
+    }
+  ]
+}

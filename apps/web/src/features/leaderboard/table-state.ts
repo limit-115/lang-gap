@@ -40,3 +40,13 @@ export function guideLanguages(models: readonly GuideModel[], declared: readonly
     ]),
   ].sort();
 }
+
+export function guideConfigurationHref(model: GuideModel) {
+  const query = new URLSearchParams();
+  if (model.profile) {
+    query.set("effort", model.profile.effort);
+    query.set("transport", model.profile.transport);
+    query.set("model", model.profile.model);
+  }
+  return `${modelGuideHref(model.reference)}?${query}`;
+}

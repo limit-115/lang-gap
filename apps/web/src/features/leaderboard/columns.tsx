@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { createColumnHelper, type Column } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
-import type { Aggregate, Comparison } from "@llang-gap/contracts";
+import { effortSchema, type Aggregate, type Comparison } from "@llang-gap/contracts";
 import type { GuideModel } from "@llang-gap/contracts/guide";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
@@ -13,7 +13,7 @@ import { ModelOwnerLogo } from "./model-owner-logo";
 import {
   accuracyColumnId,
   comparisonColumnId,
-  modelGuideHref,
+  guideConfigurationHref,
   scoreDifference,
 } from "./table-state";
 import type { LeaderboardFeatures } from "./data-table-features";
@@ -76,7 +76,7 @@ export function useLeaderboardColumns(languages: readonly string[], comparison: 
               const { label, ownerName, ownerId } = getModelPresentation(row.original.reference);
               return (
                 <Link
-                  href={modelGuideHref(row.original.reference)}
+                  href={guideConfigurationHref(row.original)}
                   className="group flex min-w-44 items-center gap-3"
                 >
                   <span
@@ -98,6 +98,26 @@ export function useLeaderboardColumns(languages: readonly string[], comparison: 
             enableHiding: false,
           },
         ),
+        helper.accessor((row) => row.profile?.effort ?? "unknown", {
+          id: "effort",
+          header: ({ column }) => <ColumnHeader column={column} title={t("effort")} />,
+          cell: ({ row }) => (
+            <div className="flex flex-col gap-1">
+              <span className="font-medium">
+                {row.original.profile ? t(row.original.profile.effort) : t("unspecifiedEffort")}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                {row.original.profile?.transport ?? row.original.reference.transport}
+              </span>
+            </div>
+          ),
+          filterFn: "equalsString",
+          sortFn: (a, b) =>
+            effortSchema.options.indexOf(a.original.profile?.effort ?? "low") -
+            effortSchema.options.indexOf(b.original.profile?.effort ?? "low"),
+          sortDescFirst: false,
+          enableHiding: false,
+        }),
         ...languages.map((language) =>
           helper.accessor(
             (row) => row.scores.find((score) => score.language === language)?.value ?? undefined,
@@ -117,7 +137,7 @@ export function useLeaderboardColumns(languages: readonly string[], comparison: 
                 const score = row.original.scores.find((entry) => entry.language === language);
                 return (
                   <Link
-                    href={`${modelGuideHref(row.original.reference)}?language=${encodeURIComponent(language)}`}
+                    href={`${guideConfigurationHref(row.original)}&language=${encodeURIComponent(language)}`}
                     className="block text-right font-mono tabular-nums hover:underline"
                     title={
                       getValue() === undefined

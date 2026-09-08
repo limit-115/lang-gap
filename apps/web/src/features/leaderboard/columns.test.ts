@@ -72,10 +72,10 @@ describe("model guide table", () => {
       },
     ];
     const html = renderToStaticMarkup(createElement(LeaderboardTable, { rows, languages }));
-    expect(html.match(/<th[ >]/g)).toHaveLength(4);
-    expect(html.match(/<td[ >]/g)).toHaveLength(8);
+    expect(html.match(/<th[ >]/g)).toHaveLength(5);
+    expect(html.match(/<td[ >]/g)).toHaveLength(10);
   });
-  it("has one column per visible language and no implicit comparison, effort or interval", () => {
+  it("has one column per visible language and an explicit effort column and no implicit comparison or interval", () => {
     function Harness() {
       const table = useTable({
         features,
@@ -84,6 +84,7 @@ describe("model guide table", () => {
       });
       expect(table.getVisibleLeafColumns().map((column) => column.id)).toEqual([
         "model",
+        "effort",
         "score:de",
         "score:ja",
       ]);
@@ -100,6 +101,7 @@ describe("model guide table", () => {
       });
       expect(table.getVisibleLeafColumns().map((column) => column.id)).toEqual([
         "model",
+        "effort",
         "score:de",
         "score:fr",
         "score:ja",
@@ -154,4 +156,25 @@ describe("model guide table", () => {
       ),
     ).toEqual(["de", "fr", "ja"]);
   });
+});
+
+it("filters separate configurations of the same model by exact effort", () => {
+  function Harness() {
+    const rows = (["low", "max"] as const).map((effort) => ({
+      ...model,
+      profile: { ...model.reference, effort },
+      scores: [score("ja", effort === "max" ? 90 : 40)],
+    }));
+    const table = useTable({
+      features,
+      data: rows,
+      columns: useLeaderboardColumns(["ja"], null),
+      initialState: { columnFilters: [{ id: "effort", value: "max" }] },
+    });
+    expect(table.getFilteredRowModel().rows.map((row) => row.original.scores[0]!.value)).toEqual([
+      90,
+    ]);
+    return null;
+  }
+  renderToStaticMarkup(createElement(Harness));
 });

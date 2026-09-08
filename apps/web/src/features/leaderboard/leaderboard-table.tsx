@@ -13,8 +13,8 @@ import {
   X,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import type { Comparison } from "@llang-gap/contracts";
-import type { GuideModel } from "@llang-gap/contracts/guide";
+import { effortSchema, type Comparison } from "@llang-gap/contracts";
+import { guideRowKey, type GuideModel } from "@llang-gap/contracts/guide";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -61,13 +61,22 @@ export function LeaderboardTable({ rows, languages }: { rows: GuideModel[]; lang
     features,
     data: rows,
     columns,
-    getRowId: (row) => row.id,
+    getRowId: guideRowKey,
     initialState: {
       sorting: [{ id: "model", desc: false }],
       pagination: { pageIndex: 0, pageSize: 10 },
     },
     enableSortingRemoval: false,
   });
+  const effortItems = [
+    { value: "all", label: t("allEfforts") },
+    ...effortSchema.options
+      .filter((effort) => rows.some((row) => row.profile?.effort === effort))
+      .map((effort) => ({ value: effort, label: t(effort) })),
+    ...(rows.some((row) => !row.profile)
+      ? [{ value: "unknown", label: t("unspecifiedEffort") }]
+      : []),
+  ];
   const { pageIndex, pageSize } = table.state.pagination;
   const filteredCount = table.getFilteredRowModel().rows.length;
   const pageCount = table.getPageCount();
@@ -112,6 +121,30 @@ export function LeaderboardTable({ rows, languages }: { rows: GuideModel[]; lang
             className="rounded-lg border-input bg-background pl-9"
           />
         </div>
+        <Select
+          items={effortItems}
+          value={(table.getColumn("effort")?.getFilterValue() as string) ?? "all"}
+          onValueChange={(value) => {
+            table.getColumn("effort")?.setFilterValue(value === "all" ? undefined : value);
+            table.setPageIndex(0);
+          }}
+        >
+          <SelectTrigger
+            aria-label={t("filterEffort")}
+            className="min-w-44 rounded-lg bg-background"
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent alignItemWithTrigger={false}>
+            <SelectGroup>
+              {effortItems.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
         <Button
           variant="outline"
           className="rounded-lg"
@@ -221,6 +254,7 @@ export function LeaderboardTable({ rows, languages }: { rows: GuideModel[]; lang
           })}
         </div>
       )}
+      <p className="mb-3 text-sm text-muted-foreground">{t("effortHelp")}</p>
       <div className="overflow-hidden rounded-lg border bg-background/96">
         <Table className="[&_td]:h-16 [&_td]:px-4 [&_th]:h-16 [&_th]:px-4">
           <caption className="sr-only">
