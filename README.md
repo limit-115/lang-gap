@@ -113,7 +113,7 @@ this browser across reloads and both languages.
 
 The homepage summarizes all published benchmark results. Each model/API/effort row
 shows mean accuracy for each selected language, with an equal weight per available
-dataset and a count of the contributing datasets. A dash means no published result
+dataset. A dash means no published result
 for that row and language. The searchable **Languages** menu controls visible columns.
 
 For each dataset and language, the newest run supplies the result; extra runs,

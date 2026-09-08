@@ -29,8 +29,8 @@ Different transports, models and efforts remain separate rows.
 
 Only available datasets contribute. Missing another dataset never hides an available
 score. A dash means no published observation for that configuration and language;
-a measured zero remains zero. Each cell shows its dataset count and links to the
-model's source results. Different cells can cover different datasets and difficulties;
+a measured zero remains zero. Each cell links to the model's source results, where
+the contributing datasets can be inspected. Different cells can cover different datasets and difficulties;
 the number is a descriptive summary, not a controlled ranking or a fluency measure.
 There is no random-guess correction, normalization floor or family weighting.
 
