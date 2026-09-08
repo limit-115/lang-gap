@@ -1,4 +1,4 @@
-import { BookOpen } from "lucide-react";
+import { ArrowLeft, BookOpen, Link as LinkIcon } from "lucide-react";
 import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -79,8 +79,9 @@ export default async function ReleasePage({ params }: Props) {
     <article className="min-w-0 pb-16">
       <JsonLd data={releaseStructuredData(release, baseUrl, locale, description)} />
       <header className="intro">
-        <Link className="text-link mb-6" href="/releases">
-          ← {t("back")}
+        <Link className="resource-link mb-6" href="/releases">
+          <ArrowLeft aria-hidden="true" />
+          <span>{t("back")}</span>
         </Link>
         <h1 className="break-words">{t("detailTitle", { id })}</h1>
         <p>{description}</p>
@@ -225,8 +226,9 @@ export default async function ReleasePage({ params }: Props) {
           <p>
             {t("citationText", { dataset: release.dataset, id, date, protocol: release.protocol })}
           </p>
-          <a className="text-link mt-3 break-all" href={url}>
-            {url}
+          <a className="resource-link mt-3" href={url}>
+            <LinkIcon aria-hidden="true" />
+            <span>{url}</span>
           </a>
         </section>
       </div>

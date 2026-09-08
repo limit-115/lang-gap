@@ -1,4 +1,5 @@
 import { Empty, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
+import { FileArchive } from "lucide-react";
 import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -33,14 +34,14 @@ export default async function ReleasesPage({ params }: Props) {
         <ul className="release-list">
           {releases.map((r) => (
             <li key={r.id}>
-              <Link href={`/releases/${r.id}`}>
+              <Link href={`/releases/${r.id}`} className="resource-link">
+                <FileArchive aria-hidden="true" />
                 <strong>{r.id}</strong>
                 <time dateTime={r.createdAt}>
                   {new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(
                     new Date(r.createdAt),
                   )}
                 </time>
-                <span>↗</span>
               </Link>
             </li>
           ))}

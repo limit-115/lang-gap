@@ -321,13 +321,6 @@ input.input:read-only {
   overflow-wrap: anywhere;
   margin: 0 0 15px;
 }
-.docs {
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-  font-size: 0.875rem;
-  padding: 8px 5px;
-}
 .cta {
   display: flex;
   justify-content: space-between;

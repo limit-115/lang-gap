@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { ArrowUpRight, Check, ChevronDown, Copy, Terminal, SlidersHorizontal } from "lucide-react";
+import { BookOpen, Check, ChevronDown, Copy, Terminal, SlidersHorizontal } from "lucide-react";
 import { effortSchema, transportSchema } from "@llang-gap/contracts";
 import type { RunDataset } from "@llang-gap/contracts/run-catalog";
 import { Button } from "@/components/ui/button";
@@ -537,10 +537,10 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
         </details>
         <a
           href="https://github.com/limit-115/llang-gap/blob/main/docs/runner.md"
-          className={styles.docs}
+          className="resource-link"
         >
-          {t("docs")}
-          <ArrowUpRight aria-hidden="true" className="size-4" />
+          <BookOpen aria-hidden="true" />
+          <span>{t("docs")}</span>
         </a>
       </aside>
     </div>

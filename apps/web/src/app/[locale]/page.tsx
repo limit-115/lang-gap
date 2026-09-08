@@ -1,5 +1,5 @@
 import { RunCta } from "@/features/run-builder/run-cta";
-import { ArrowUpRight } from "lucide-react";
+import { FileArchive } from "lucide-react";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -86,8 +86,9 @@ export default async function LeaderboardPage({ params }: Props) {
       </section>
       {release && (
         <div className="release-link">
-          <Link className="text-link" href={`/releases/${release.id}`}>
-            {t("viewRelease")} <ArrowUpRight aria-hidden="true" className="size-4" />
+          <Link className="resource-link" href={`/releases/${release.id}`}>
+            <FileArchive aria-hidden="true" />
+            <span>{t("viewRelease")}</span>
           </Link>
         </div>
       )}
