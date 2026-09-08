@@ -222,8 +222,18 @@
   background: var(--model-wash);
 }
 .language {
+  border-radius: 3px;
+  text-underline-offset: 3px;
   font-size: 14px;
   line-height: 1.4;
+}
+.language:hover > span,
+.language:focus-visible > span {
+  text-decoration: underline;
+}
+.language:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
 }
 .language small {
   display: block;

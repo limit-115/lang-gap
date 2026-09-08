@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ModelOwnerLogo } from "@/features/leaderboard/model-owner-logo";
+import { getLanguageHref } from "@/features/leaderboard/language-catalog";
 import { ModelFinder } from "@/features/leaderboard/model-finder";
 import { guideConfigurationHref } from "@/features/leaderboard/table-state";
 import { filterModelLanguages, summarizeModelScores } from "./overview-data";
@@ -231,13 +232,16 @@ export function ModelResults({
                   data-language={score.language}
                   data-highlighted={score.language === initialLanguage}
                 >
-                  <div className={styles.language}>
+                  <Link
+                    className={styles.language}
+                    href={getLanguageHref({ value: score.language })}
+                  >
                     <span>{score.label}</span>
                     {score.native.toLocaleLowerCase(locale) !==
                       score.label.toLocaleLowerCase(locale) && (
                       <small lang={score.language}>{score.native}</small>
                     )}
-                  </div>
+                  </Link>
                   <div className={styles.track} aria-hidden="true">
                     {score.value === null ? (
                       <span className={styles.missing} />
