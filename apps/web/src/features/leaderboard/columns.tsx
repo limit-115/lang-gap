@@ -144,11 +144,6 @@ export function useLeaderboardColumns(languages: readonly string[], isSummary = 
                             maximumFractionDigits: 1,
                           })}
                     </span>
-                    {isSummary && score?.value !== null && score?.value !== undefined && (
-                      <span className="text-xs text-muted-foreground">
-                        {t("datasetCount", { count: score.contributions.length })}
-                      </span>
-                    )}
                     {language === "en" && getValue() !== undefined && (
                       <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
                         {t("baseline")}

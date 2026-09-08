@@ -114,7 +114,7 @@ describe("model guide table", () => {
     expect(html).not.toContain("closeComparison");
     expect(html.match(/<th[ >]/g)).toHaveLength(5);
   });
-  it("labels summary accuracy and shows each cell's actual dataset coverage", () => {
+  it("labels summary accuracy without dataset counts in table cells", () => {
     const value = {
       ...score("ko", 85),
       contributions: [
@@ -151,7 +151,7 @@ describe("model guide table", () => {
     );
     expect(html).toContain("meanAccuracy");
     expect(html).toContain("85.0");
-    expect(html).toContain("2 datasets");
+    expect(html).not.toContain("2 datasets");
     expect(html).not.toContain("guideScore");
   });
   it("keeps the English reference when its column is hidden", () => {
