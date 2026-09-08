@@ -23,6 +23,7 @@ describe("run → resume → independent release verification", () => {
   });
   const manifest = async () => {
     const pinned = await readManifest(join(workspace, "datasets/mmlu-prox-lite/manifest.json"));
+    if (pinned.schemaVersion !== 1) throw new Error("Expected pinned schema-v1 fixture");
     return {
       ...pinned,
       files: pinned.files.map((file) => ({

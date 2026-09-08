@@ -2,56 +2,22 @@ import { getLogger } from "@logtape/logtape";
 import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { asyncBufferFromFile, parquetReadObjects } from "hyparquet";
 import {
   datasetManifestSchema,
-  questionSchema,
   type DatasetManifest,
   type Language,
   type Question,
 } from "@llang-gap/contracts";
 
+import { decodeSource } from "#src/adapters/index";
+import { getDatasetSources, sourceUrl } from "./manifest";
+export { getDatasetSources } from "./manifest";
+export { normalizeRow } from "#src/adapters/mmluprox";
+
 export const sha256 = (value: string | Uint8Array) =>
   createHash("sha256").update(value).digest("hex");
 export async function readManifest(path: string): Promise<DatasetManifest> {
   return datasetManifestSchema.parse(JSON.parse(await readFile(path, "utf8")));
-}
-
-export function normalizeRow(
-  row: Record<string, unknown>,
-  language: Language,
-  split: Question["split"],
-): Question {
-  const options: string[] = [];
-  let ended = false;
-  for (let index = 0; index < 10; index++) {
-    const value = row[`option_${index}`];
-    if (value === null) {
-      ended = true;
-      continue;
-    }
-    if (ended || typeof value !== "string")
-      throw new Error("Invalid or non-contiguous answer options");
-    options.push(value);
-  }
-  if (
-    typeof row.answer !== "string" ||
-    row.answer.charCodeAt(0) - 65 !== Number(row.answer_index)
-  ) {
-    throw new Error("Answer letter / index mismatch");
-  }
-  if (typeof row.src !== "string") throw new Error("Missing question source");
-  return questionSchema.parse({
-    id: `${split}:${row.src}:${String(row.question_id_src)}`,
-    sourceId: Number(row.question_id_src),
-    language,
-    split,
-    category: row.category,
-    question: row.question,
-    options,
-    answer: row.answer,
-    cot: row.cot_content,
-  });
 }
 
 export function validateDataset(
@@ -109,7 +75,9 @@ export function validateManifestQuestions(
 ) {
   validateDataset(questions, undefined, [...languages]);
   for (const language of languages) {
-    const sources = manifest.files.filter((file) => file.language === language);
+    const sources = getDatasetSources(manifest)
+      .flatMap((file) => file.partitions)
+      .filter((partition) => partition.language === language);
     if (!sources.some((file) => file.split === "test"))
       throw new Error(`Dataset ${manifest.id} does not support ${language}`);
     for (const split of ["test", "validation"] as const) {
@@ -132,9 +100,17 @@ export async function prepareDataset(options: {
 }): Promise<{ questions: Question[]; directory: string; hash: string }> {
   const { manifest, cacheDir, offline = false } = options;
   const log = getLogger(["llang-gap", "datasets"]).with({ dataset: manifest.id });
-  const languages = options.languages ?? [...new Set(manifest.files.map((file) => file.language))];
+  const sources = getDatasetSources(manifest);
+  const partitions = sources.flatMap((source) => source.partitions);
+  const languages = options.languages ?? [
+    ...new Set(partitions.map((partition) => partition.language)),
+  ];
+  if (!languages.length || new Set(languages).size !== languages.length)
+    throw new Error("Expected a nonempty, unique dataset language selection");
   for (const language of languages) {
-    if (!manifest.files.some((file) => file.language === language && file.split === "test"))
+    if (
+      !partitions.some((partition) => partition.language === language && partition.split === "test")
+    )
       throw new Error(`Dataset ${manifest.id} does not support ${language}`);
   }
   const directory = join(
@@ -144,13 +120,13 @@ export async function prepareDataset(options: {
     `normalizer-${manifest.normalizerVersion}`,
   );
   const questions: Question[] = [];
-  for (const source of manifest.files.filter((file) => languages.includes(file.language))) {
+  for (const source of sources.filter((file) =>
+    file.partitions.some((partition) => languages.includes(partition.language)),
+  )) {
     const path = join(directory, source.path);
-    log.debug("Verifying source {source} · {language}/{split}", {
+    log.debug("Verifying source {source}", {
       event: "dataset.source",
       source: source.path,
-      language: source.language,
-      split: source.split,
     });
     let bytes: Buffer;
     try {
@@ -158,12 +134,10 @@ export async function prepareDataset(options: {
     } catch (error) {
       if (!(error instanceof Error && "code" in error && error.code === "ENOENT")) throw error;
       if (offline) throw new Error(`Dataset is not cached: ${source.path}`);
-      const url = `https://huggingface.co/datasets/${manifest.repository}/resolve/${manifest.revision}/${source.path}`;
-      log.info("Downloading {source} · {language}/{split}", {
+      const url = sourceUrl(manifest, source.path);
+      log.info("Downloading {source}", {
         event: "dataset.download",
         source: source.path,
-        language: source.language,
-        split: source.split,
       });
       const response = await fetch(url, { signal: AbortSignal.timeout(60_000) });
       if (!response.ok) throw new Error(`Dataset download failed: HTTP ${response.status}`);
@@ -179,25 +153,32 @@ export async function prepareDataset(options: {
       }
     }
     if (sha256(bytes) !== source.sha256) throw new Error(`Corrupted dataset cache: ${source.path}`);
-    const normalized = manifest.schemaVersion === 2 && manifest.format === "normalized-jsonl";
-    const rows: Record<string, unknown>[] = normalized
-      ? bytes
-          .toString("utf8")
-          .trimEnd()
-          .split("\n")
-          .map((line) => questionSchema.parse(JSON.parse(line)))
-      : await parquetReadObjects({ file: await asyncBufferFromFile(path) });
-    if (rows.length !== source.rows) throw new Error(`Unexpected row count: ${source.path}`);
-    const decoded = rows.map((row) =>
-      normalized ? questionSchema.parse(row) : normalizeRow(row, source.language, source.split),
-    );
-    if (decoded.some((q) => q.language !== source.language || q.split !== source.split))
+    const decoded = await decodeSource(manifest, source, bytes);
+    if (decoded.rowCount !== source.rows) throw new Error(`Unexpected row count: ${source.path}`);
+    for (const partition of source.partitions) {
+      if (
+        decoded.questions.filter(
+          (q) => q.language === partition.language && q.split === partition.split,
+        ).length !== partition.rows
+      )
+        throw new Error(
+          `Dataset source partition row count mismatch: ${source.path}/${partition.language}/${partition.split}`,
+        );
+    }
+    if (
+      decoded.questions.some(
+        (q) =>
+          !source.partitions.some(
+            (partition) => partition.language === q.language && partition.split === q.split,
+          ),
+      )
+    )
       throw new Error(`Dataset source language/split mismatch: ${source.path}`);
-    questions.push(...decoded);
+    questions.push(...decoded.questions.filter((q) => languages.includes(q.language)));
     log.debug("Verified {source} · {rows} rows · {bytes} bytes", {
       event: "dataset.verified",
       source: source.path,
-      rows: decoded.length,
+      rows: decoded.questions.length,
       bytes: bytes.length,
     });
   }

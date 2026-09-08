@@ -157,7 +157,7 @@ export type Experiment = z.infer<typeof experimentSchema>;
 export const experimentJsonSchema = () =>
   z.toJSONSchema(experimentSchema, { target: "draft-2020-12", io: "input" });
 
-const datasetFileSchema = z.strictObject({
+const datasetSourceFields = {
   // Relative source paths only, including sharded files; never allow cache traversal.
   path: z
     .string()
@@ -166,11 +166,40 @@ const datasetFileSchema = z.strictObject({
       (path) => path.split("/").every((part) => part !== ".." && part !== "." && part !== ""),
       "Invalid dataset path",
     ),
+  rows: z.number().int().positive(),
+  sha256: hashSchema,
+};
+const datasetPartitionSchema = z.strictObject({
   language: languageSchema,
   split: z.enum(["test", "validation"]),
   rows: z.number().int().positive(),
-  sha256: hashSchema,
 });
+const datasetFileSchema = z.strictObject({
+  // Retain the parsed key order used by schema-v1/v2 snapshot hashes.
+  path: datasetSourceFields.path,
+  language: languageSchema,
+  split: z.enum(["test", "validation"]),
+  rows: datasetSourceFields.rows,
+  sha256: datasetSourceFields.sha256,
+});
+const datasetSourceSchema = z
+  .strictObject({
+    ...datasetSourceFields,
+    partitions: z
+      .array(datasetPartitionSchema)
+      .min(1)
+      .refine(
+        (partitions) =>
+          new Set(partitions.map((p) => `${p.language}/${p.split}`)).size === partitions.length,
+        "Duplicate source partition",
+      ),
+  })
+  .refine(
+    (source) =>
+      source.partitions.reduce((sum, partition) => sum + partition.rows, 0) <= source.rows,
+    "Normalized partitions exceed source row count",
+  );
+export type DatasetSource = z.infer<typeof datasetSourceSchema>;
 const manifestFields = {
   id: safeIdSchema,
   repository: z.string().regex(/^[a-zA-Z0-9_-]+\/[a-zA-Z0-9._-]+$/),
@@ -198,6 +227,28 @@ export const datasetManifestSchema = z.discriminatedUnion("schemaVersion", [
     normalizerVersion: z.literal(1),
     format: z.enum(["mmluprox-parquet", "normalized-jsonl"]),
     prompts: z.record(languageSchema, promptLabelsSchema),
+  }),
+  z.strictObject({
+    ...manifestFields,
+    schemaVersion: z.literal(3),
+    hosting: z.enum(["huggingface", "github"]),
+    normalizerVersion: z.literal(1),
+    adapter: z.discriminatedUnion("format", [
+      z.strictObject({ format: z.literal("normalized-jsonl") }),
+      z.strictObject({ format: z.literal("mmluprox-parquet") }),
+      z.strictObject({
+        format: z.literal("mmpisa-csv"),
+        translation: z.enum(["human", "machine"]),
+      }),
+    ]),
+    prompts: z.record(languageSchema, promptLabelsSchema),
+    files: z
+      .array(datasetSourceSchema)
+      .min(1)
+      .refine(
+        (files) => new Set(files.map((file) => file.path)).size === files.length,
+        "Duplicate source path",
+      ),
   }),
 ]);
 export type DatasetManifest = z.infer<typeof datasetManifestSchema>;

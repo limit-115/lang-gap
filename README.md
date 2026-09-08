@@ -66,6 +66,14 @@ and clears its comparisons; use `--compare baseline:language ...` to request gap
 `--protocol` selects a reviewed protocol compatible with that dataset/language set.
 See [adding a dataset](docs/datasets.md) for normalized JSONL and localized inputs.
 
+[mmPISA](docs/datasets/mmpisa.md) is available as `mmpisa` (human translations) and
+`mmpisa-machine` (machine translations), each with 43 languages and 25 test
+questions per language. Both use `multiple-choice-v1`. For a free smoke test:
+
+```sh
+pnpm bench run experiments/mmpisa-smoke.yaml
+```
+
 ## Layout
 
 | Location              | Responsibility                                                              |

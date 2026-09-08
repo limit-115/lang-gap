@@ -110,6 +110,52 @@ and available languages are manifest data. The author prompt/parser adapter's
 reviewed language coverage is documented in [its protocol](protocols/mmluprox.md).
 A language tag alone does not create missing upstream prompts or translations.
 
+## Shared source files (schema v3)
+
+Schema-v3 dataset manifests separate physical source files from normalized
+language/split partitions. A CSV or JSONL file can contain several languages;
+its source row count need not equal one language's test count. These manifest
+versions are independent of experiment and release schema versions.
+
+The common source loader owns pinned downloads, checksums, caching and partition
+counts. Format adapters in `packages/datasets/src/adapters` own decoding and
+normalization. Runner, scoring and release validation consume shared `Question`
+rows and declared partitions without dataset-specific branches.
+
+Compared with schema v2, v3 declares:
+
+- `hosting`: `huggingface` or `github`. Both resolve `repository`, immutable
+  `revision` and safe relative file paths; arbitrary download URLs are not accepted.
+- `adapter`: `{ "format": "normalized-jsonl" }`,
+  `{ "format": "mmluprox-parquet" }`, or
+  `{ "format": "mmpisa-csv", "translation": "human" }` (also `machine`).
+  Adapter settings enter the full manifest identity; unknown settings fail.
+- `files`: physical sources with `path`, `sha256`, raw `rows`, and
+  `partitions: [{ language, split, rows }]` describing their normalized output.
+  Each language/split occurs once per file; shards may contribute to the same
+  partition across files. Paths remain unique. Parquet's upstream format still
+  requires one language/split per file.
+
+`prompts` and `normalizerVersion` retain their existing meaning. New formats need
+a shared schema alternative, a decoder, synthetic regression coverage and
+documented methodology. A new dataset in an existing format needs a pinned
+manifest, not a runner change. Schema-v1/v2 manifests remain accepted without
+rewriting or injecting defaults into their saved objects.
+
+Only files contributing to selected languages are fetched. A shared file is
+decoded once per preparation, checked against its raw count and all declared
+output partitions, then filtered to the requested languages. Selecting a language
+does not remove other languages from an upstream shared download.
+
+## mmPISA
+
+`mmpisa` and `mmpisa-machine` register the human and machine translation conditions
+of mmPISA as distinct datasets, with 43 languages and 25 test questions per
+language at the pinned revision. They use `multiple-choice-v1` and preserve
+question context and composite answer choices. See the
+[mmPISA guide](datasets/mmpisa.md) for source pins, normalization, language tags,
+attribution and runnable examples.
+
 ## Cache and release validation
 
 Source files live under `.llang-gap/datasets/<id>/<revision>/normalizer-<version>/`.

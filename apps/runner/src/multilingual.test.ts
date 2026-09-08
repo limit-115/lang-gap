@@ -99,6 +99,7 @@ function fixture(dataset = "arithmetic-fixture") {
   return { manifest, config };
 }
 async function cache(root: string, manifest: DatasetManifest) {
+  if (manifest.schemaVersion !== 2) throw new Error("Expected schema-v2 fixture");
   for (const file of manifest.files) {
     const path = join(root, manifest.id, manifest.revision, "normalizer-1", file.path);
     await mkdir(join(path, ".."), { recursive: true });

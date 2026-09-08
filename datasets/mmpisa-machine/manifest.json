@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 3,
+  "id": "mmpisa-machine",
+  "repository": "ysapenov/mmPISA-bench",
+  "hosting": "github",
+  "revision": "22b1caa65980ca1fa295acc31ee5e35200e0c8c0",
+  "normalizerVersion": 1,
+  "adapter": {
+    "format": "mmpisa-csv",
+    "translation": "machine"
+  },
+  "license": "Derived from OECD PISA materials; upstream requires compliance with OECD terms and conditions. No separate dataset license is declared.",
+  "source": "https://github.com/ysapenov/mmPISA-bench/tree/22b1caa65980ca1fa295acc31ee5e35200e0c8c0",
+  "prompts": {
+    "sq": {
+      "instruction": "Përgjigju vetëm me shkronjën e madhe latine të alternativës së saktë.",
+      "question": "Pyetja:",
+      "options": "Alternativat:"
+    },
+    "ar": {
+      "instruction": "أجب فقط بالحرف اللاتيني الكبير للخيار الصحيح.",
+      "question": "السؤال:",
+      "options": "الخيارات:"
+    },
+    "az": {
+      "instruction": "Yalnız düzgün variantın böyük latın hərfi ilə cavab verin.",
+      "question": "Sual:",
+      "options": "Variantlar:"
+    },
+    "eu": {
+      "instruction": "Erantzun aukera zuzenaren letra latindar larriarekin soilik.",
+      "question": "Galdera:",
+      "options": "Aukerak:"
+    },
+    "nb": {
+      "instruction": "Svar kun med den store latinske bokstaven til det riktige alternativet.",
+      "question": "Spørsmål:",
+      "options": "Alternativer:"
+    },
+    "bs": {
+      "instruction": "Odgovorite samo velikim latiničnim slovom tačne opcije.",
+      "question": "Pitanje:",
+      "options": "Opcije:"
+    },
+    "bg": {
+      "instruction": "Отговорете само с главната латинска буква на правилния отговор.",
+      "question": "Въпрос:",
+      "options": "Варианти:"
+    },
+    "ca": {
+      "instruction": "Respon només amb la lletra llatina majúscula de l’opció correcta.",
+      "question": "Pregunta:",
+      "options": "Opcions:"
+    },
+    "zh": {
+      "instruction": "请仅用正确选项的大写拉丁字母作答。",
+      "question": "问题：",
+      "options": "选项："
+    },
+    "hr": {
+      "instruction": "Odgovorite samo velikim latiničnim slovom točne opcije.",
+      "question": "Pitanje:",
+      "options": "Opcije:"
+    },
+    "cs": {
+      "instruction": "Odpovězte pouze velkým písmenem latinky označujícím správnou možnost.",
+      "question": "Otázka:",
+      "options": "Možnosti:"
+    },
+    "da": {
+      "instruction": "Svar kun med det store latinske bogstav for den korrekte svarmulighed.",
+      "question": "Spørgsmål:",
+      "options": "Svarmuligheder:"
+    },
+    "nl": {
+      "instruction": "Antwoord alleen met de Latijnse hoofdletter van de juiste optie.",
+      "question": "Vraag:",
+      "options": "Opties:"
+    },
+    "en": {
+      "instruction": "Answer only with the uppercase Latin letter of the correct option.",
+      "question": "Question:",
+      "options": "Options:"
+    },
+    "et": {
+      "instruction": "Vasta ainult õige vastusevariandi suure ladina tähega.",
+      "question": "Küsimus:",
+      "options": "Vastusevariandid:"
+    },
+    "fi": {
+      "instruction": "Vastaa vain oikean vaihtoehdon isolla latinalaisella kirjaimella.",
+      "question": "Kysymys:",
+      "options": "Vaihtoehdot:"
+    },
+    "fr": {
+      "instruction": "Répondez uniquement par la lettre latine majuscule de la bonne option.",
+      "question": "Question :",
+      "options": "Options :"
+    },
+    "gl": {
+      "instruction": "Responde só coa letra latina maiúscula da opción correcta.",
+      "question": "Pregunta:",
+      "options": "Opcións:"
+    },
+    "ka": {
+      "instruction": "უპასუხეთ მხოლოდ სწორი ვარიანტის აღმნიშვნელი დიდი ლათინური ასოთი.",
+      "question": "კითხვა:",
+      "options": "ვარიანტები:"
+    },
+    "de": {
+      "instruction": "Antworte nur mit dem lateinischen Großbuchstaben der richtigen Option.",
+      "question": "Frage:",
+      "options": "Optionen:"
+    },
+    "el": {
+      "instruction": "Απαντήστε μόνο με το κεφαλαίο λατινικό γράμμα της σωστής επιλογής.",
+      "question": "Ερώτηση:",
+      "options": "Επιλογές:"
+    },
+    "he": {
+      "instruction": "יש להשיב רק באות הלטינית הגדולה של האפשרות הנכונה.",
+      "question": "שאלה:",
+      "options": "אפשרויות:"
+    },
+    "hu": {
+      "instruction": "Csak a helyes válasz nagy latin betűjelével válaszolj.",
+      "question": "Kérdés:",
+      "options": "Válaszlehetőségek:"
+    },
+    "is": {
+      "instruction": "Svaraðu aðeins með stóra latneska bókstafnum sem merkir rétta svarmöguleikann.",
+      "question": "Spurning:",
+      "options": "Svarmöguleikar:"
+    },
+    "id": {
+      "instruction": "Jawab hanya dengan huruf Latin kapital dari pilihan yang benar.",
+      "question": "Pertanyaan:",
+      "options": "Pilihan:"
+    },
+    "it": {
+      "instruction": "Rispondi solo con la lettera latina maiuscola dell’opzione corretta.",
+      "question": "Domanda:",
+      "options": "Opzioni:"
+    },
+    "ja": {
+      "instruction": "正しい選択肢の大文字のラテン文字だけで答えてください。",
+      "question": "質問：",
+      "options": "選択肢："
+    },
+    "kk": {
+      "instruction": "Тек дұрыс нұсқаның бас латын әрпімен жауап беріңіз.",
+      "question": "Сұрақ:",
+      "options": "Нұсқалар:"
+    },
+    "ko": {
+      "instruction": "정답 선택지의 대문자 라틴 문자만으로 답하세요.",
+      "question": "질문:",
+      "options": "선택지:"
+    },
+    "lv": {
+      "instruction": "Atbildiet tikai ar pareizās atbildes varianta lielo latīņu burtu.",
+      "question": "Jautājums:",
+      "options": "Atbilžu varianti:"
+    },
+    "lt": {
+      "instruction": "Atsakykite tik teisingo varianto didžiąja lotyniška raide.",
+      "question": "Klausimas:",
+      "options": "Variantai:"
+    },
+    "ms": {
+      "instruction": "Jawab hanya dengan huruf Latin besar bagi pilihan yang betul.",
+      "question": "Soalan:",
+      "options": "Pilihan:"
+    },
+    "nn": {
+      "instruction": "Svar berre med den store latinske bokstaven til det rette alternativet.",
+      "question": "Spørsmål:",
+      "options": "Alternativ:"
+    },
+    "pl": {
+      "instruction": "Odpowiedz wyłącznie wielką literą alfabetu łacińskiego oznaczającą poprawną opcję.",
+      "question": "Pytanie:",
+      "options": "Opcje:"
+    },
+    "pt": {
+      "instruction": "Responda apenas com a letra latina maiúscula da opção correta.",
+      "question": "Pergunta:",
+      "options": "Opções:"
+    },
+    "ru": {
+      "instruction": "Ответьте только заглавной латинской буквой правильного варианта.",
+      "question": "Вопрос:",
+      "options": "Варианты:"
+    },
+    "sr": {
+      "instruction": "Одговорите само великим латиничним словом тачне опције.",
+      "question": "Питање:",
+      "options": "Опције:"
+    },
+    "sk": {
+      "instruction": "Odpovedzte iba veľkým písmenom latinky označujúcim správnu možnosť.",
+      "question": "Otázka:",
+      "options": "Možnosti:"
+    },
+    "sl": {
+      "instruction": "Odgovorite samo z veliko latinično črko pravilne možnosti.",
+      "question": "Vprašanje:",
+      "options": "Možnosti:"
+    },
+    "es": {
+      "instruction": "Responde solo con la letra latina mayúscula de la opción correcta.",
+      "question": "Pregunta:",
+      "options": "Opciones:"
+    },
+    "sv": {
+      "instruction": "Svara endast med den stora latinska bokstaven för det rätta alternativet.",
+      "question": "Fråga:",
+      "options": "Alternativ:"
+    },
+    "th": {
+      "instruction": "ตอบด้วยตัวอักษรละตินพิมพ์ใหญ่ของตัวเลือกที่ถูกต้องเท่านั้น",
+      "question": "คำถาม:",
+      "options": "ตัวเลือก:"
+    },
+    "tr": {
+      "instruction": "Yalnızca doğru seçeneğin büyük Latin harfiyle yanıt verin.",
+      "question": "Soru:",
+      "options": "Seçenekler:"
+    }
+  },
+  "files": [
+    {
+      "path": "mmPISA-bench.csv",
+      "rows": 2150,
+      "sha256": "33b3cee68b76390a3871d3eb4bd27d77c824b3cd6642b4fcb70b6dcca4371680",
+      "partitions": [
+        {
+          "language": "sq",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "ar",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "az",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "eu",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "nb",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "bs",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "bg",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "ca",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "zh",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "hr",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "cs",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "da",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "nl",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "en",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "et",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "fi",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "fr",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "gl",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "ka",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "de",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "el",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "he",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "hu",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "is",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "id",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "it",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "ja",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "kk",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "ko",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "lv",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "lt",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "ms",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "nn",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "pl",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "pt",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "ru",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "sr",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "sk",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "sl",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "es",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "sv",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "th",
+          "split": "test",
+          "rows": 25
+        },
+        {
+          "language": "tr",
+          "split": "test",
+          "rows": 25
+        }
+      ]
+    }
+  ]
+}
