@@ -11,7 +11,7 @@ import {
   type TransportAdapter,
   type Question,
 } from "@llang-gap/contracts";
-import { createAdapter, validateModel } from "@llang-gap/providers";
+import { createAdapter, validateModel } from "@llang-gap/transports";
 import { getProtocol } from "@llang-gap/evaluation";
 import { atomicWrite, hash, implementationIdentity, json, jsonl, workspace } from "./files";
 import { createJobs } from "./plan";
@@ -126,7 +126,7 @@ export async function createRun(
           transport: model.transport,
           model: model.model,
           efforts: model.efforts.join(", "),
-          cap: model.maxOutputTokens ?? "provider default",
+          cap: model.maxOutputTokens ?? "API default",
           timeoutMs: experiment.execution.timeoutMs,
         },
       );

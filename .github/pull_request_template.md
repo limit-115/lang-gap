@@ -25,7 +25,7 @@ Delete optional sections that do not apply. Do not include secrets or private ru
 
 ## Benchmark or artifact impact
 
-<!-- For dataset, provider, protocol, scoring, or result changes: explain the impact
+<!-- For dataset, transport, protocol, scoring, or result changes: explain the impact
      on comparability, versions/hashes, and published artifacts. Link supporting docs
      or verification. Corrections use a new release ID. Delete if not applicable. -->
 

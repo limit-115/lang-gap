@@ -15,7 +15,7 @@
     "@llang-gap/contracts": "workspace:*",
     "@llang-gap/datasets": "workspace:*",
     "@llang-gap/evaluation": "workspace:*",
-    "@llang-gap/providers": "workspace:*",
+    "@llang-gap/transports": "workspace:*",
     "@logtape/file": "2.3.3",
     "@logtape/logtape": "2.3.3",
     "commander": "15.0.0",

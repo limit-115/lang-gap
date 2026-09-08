@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { usageSchema, type GenerationRequest, type TransportAdapter } from "@llang-gap/contracts";
-import { normalizeError, ProviderError } from "./errors";
+import { normalizeError, TransportError } from "./errors";
 import sdk from "#package.json";
 
 export function createOpenAIAdapter(
@@ -42,7 +42,7 @@ export function createOpenAIAdapter(
           response.status === "incomplete" &&
           response.incomplete_details?.reason === "max_output_tokens";
         if (response.status !== "completed" && !truncated && !refusal)
-          throw new ProviderError(
+          throw new TransportError(
             `Generation status: ${response.status ?? "missing"}`,
             true,
             true,

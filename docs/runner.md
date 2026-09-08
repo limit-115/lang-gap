@@ -3,11 +3,11 @@
 ## CLI and YAML configuration
 
 The website's **Build a run** page generates CLI-only commands for bash/zsh.
-Choose your dataset, protocol, languages and provider, then enter exact model IDs.
+Choose your dataset, protocol, languages and transport, then enter exact model IDs.
 The command updates as you edit. **Check plan** produces a `plan` command with the
 same experiment settings; it may download dataset files but never calls models.
 Copy the command and run it from your cloned repository root after installing the
-pinned tools and dependencies. Supply live-provider keys locally through `.env`
+pinned tools and dependencies. Supply transport API keys locally through `.env`
 or the environment; the website does not receive them or execute commands.
 
 **Quick check** limits unique questions per language; **All questions** uses each
@@ -17,9 +17,9 @@ repeats, excludes technical retries, and remains the full experiment count when
 comparisons, execution controls, optional token rates and a budget. A budget
 requires complete rates and finite cost bounds; unknown pricing is never shown
 as zero cost. Rates and model settings apply to every selected model. Use YAML
-for mixed providers or different settings/rates per model. Provider access and
+for mixed transports or different settings/rates per model. API access and
 effort support, dataset integrity and comparison alignment still require local
-CLI/provider validation.
+CLI/API validation.
 
 Builder choices come from public dataset manifests and the evaluation adapters'
 `run-catalog` export, rather than website locales or published leaderboard rows.
@@ -42,7 +42,7 @@ pnpm bench resume <run-id>
 For live calls, choose a transport, supply its API key in the repository root
 `.env` file or the process environment and pass its model IDs unchanged, for example `--transport openrouter
 --models organization/model:free,organization/another-model`. No model catalog or
-effort-capability lookup runs before dispatch. The provider may reject a request.
+effort-capability lookup runs before dispatch. The API may reject a request.
 
 Every CLI command, including `run` and `resume`, automatically loads `.env` from
 the repository root, regardless of the working directory. Existing process
@@ -77,7 +77,7 @@ transport; mixed-transport YAML requires an explicit transport for new IDs.
 | Benchmark languages                | `--languages` or `--language`                                                                                                                                                  | Required                                                  |
 | Models / transport                 | `--models`, `--transport`                                                                                                                                                      | Required                                                  |
 | Reasoning efforts                  | `--efforts`                                                                                                                                                                    | `medium`                                                  |
-| Combined reasoning/output cap      | `--max-output-tokens`                                                                                                                                                          | No API cap (provider defaults apply)                      |
+| Combined reasoning/output cap      | `--max-output-tokens`                                                                                                                                                          | No API cap (API defaults apply)                           |
 | Repeats / selection seed           | `--repeats`, `--seed`                                                                                                                                                          | 1 / 42                                                    |
 | Unique test questions per language | `--question-limit`, `--all-questions`                                                                                                                                          | Entire selected test split                                |
 | Concurrency per transport          | `--concurrency`                                                                                                                                                                | 1                                                         |
@@ -116,7 +116,7 @@ SSH sessions and redirected logs retain the same history.
 | `debug`   | Every attempt's start and saved response, job/condition identity, latency, usage, cost and request ID; verified dataset files and diagnostic stack frames |
 | `info`    | Preparation, downloads, run ID and directory, execution settings, progress, condition results and completion                                              |
 | `warning` | Retriable failures and their delay, refusals/truncation/unparseable answers, missing usage, budget pauses, interruption and uncertain crash recovery      |
-| `error`   | Non-retryable provider failures, exhausted attempts, execution/CLI failures and unusable logging destinations                                             |
+| `error`   | Non-retryable transport failures, exhausted attempts, execution/CLI failures and unusable logging destinations                                            |
 
 Progress appears at start/end, on completions at most once per five seconds, and
 on a ten-second heartbeat while requests or retries are waiting. It includes saved,
@@ -126,7 +126,7 @@ the durable `pending` count in JSON/status includes them. Costs remain `unknown`
 when accounting is unknown.
 
 An error identifies the transport/model, effort, language, question, repeat and
-attempt; it retains the provider's diagnostic, HTTP status/code and request ID
+attempt; it retains the API's diagnostic, HTTP status/code and request ID
 when available. Retriable failures say when the next attempt is due. A terminal
 failure explains why dispatch stopped and suggests the applicable recovery step.
 Ctrl+C/SIGTERM cancels retry waits immediately and still drains active API calls.
@@ -175,9 +175,9 @@ tail -f .llang-gap/runs/<run-id>/runner.jsonl
 ```
 
 Journals contain diagnostics, never intentionally serialized prompts, target
-answers, model output, headers or raw SDK bodies. Provider diagnostic messages are
+answers, model output, headers or raw SDK bodies. API diagnostic messages are
 bounded; known credentials, echoed full prompts and terminal control characters
-are removed. Review provider-authored diagnostic text before sharing it. Journals
+are removed. Review API diagnostic text before sharing it. Journals
 are private local artifacts, excluded from releases and Git. They are written
 without an application buffer and closed on normal exit; SQLite remains the
 authoritative, transactionally durable record. A file failure before dispatch
@@ -217,7 +217,7 @@ if all other release gates pass. See [adding datasets](datasets.md) and
 [the protocol](protocol.md).
 
 Changing the dataset, languages, model, protocol, token cap, repeats, question subset or seed means a
-new run. Provider-native effort names are not equivalent compute budgets. The
+new run. API-native effort names are not equivalent compute budgets. The
 MMLU-ProX author adapter fixes the cap at 2048 tokens including reasoning, matching the
 author task numerically. Planning rejects a different cap under this ID. API
 limitations and the stricter publication gate are explicit in the
@@ -254,7 +254,7 @@ pnpm bench run --dataset mmlu-prox-lite \
 ```
 
 OpenRouter and OpenAI omit `max_tokens` and `max_output_tokens`, respectively.
-Provider defaults, context limits and output ceilings still apply; null does not
+API defaults, context limits and output ceilings still apply; null does not
 promise unlimited generation or equal compute across endpoints. Native Anthropic
 requires `max_tokens` and rejects this mode before any API call. See the
 [OpenRouter request schema](https://openrouter.ai/docs/api/reference/overview) and
@@ -278,7 +278,7 @@ but the output-cap scenario is null without a cap.
 Null is preserved in job identity, snapshots, resume, analysis and release artifacts.
 Switching between numeric and null caps creates a new run; post-run comparison and
 calibration reject mismatched caps. Two null caps describe the same omission policy,
-not a guarantee of identical provider limits. Truncation still blocks publication.
+not a guarantee of identical API limits. Truncation still blocks publication.
 
 ## Transport and model
 
@@ -296,7 +296,17 @@ OpenAI SDK), and `fake` (local, no network). Native transports use native IDs su
 as `gpt-6-astra`; OpenRouter requires `organization/model`. Efforts and token limits remain explicit experiment settings. Dated pricing is optional.
 Supported effort labels are `low`, `medium`, `high`, `xhigh`, and `max`; they are
 forwarded unchanged. Model IDs are not checked against a capability catalog. The
-provider decides whether it accepts the requested model and effort.
+API service decides whether it accepts the requested model and effort.
+
+Use **transport** for this component in code, CLI flags and the website. Its
+implementation lives in `packages/transports` (`@llang-gap/transports`). A model's
+**owner** is its developer, independent of the transport used to reach it. The
+OpenRouter API's `provider` field has a separate meaning: upstream serving and
+routing. Keep that external field unchanged; it is not an alternative name for
+our transport. React context providers are also unrelated to model transports.
+
+Transport failures use `TransportError`; a non-retryable transport failure stops
+the run with the CLI JSON `stopReason: "transport-error"`.
 
 One adapter is shared by all models on a transport, with concurrency per transport.
 The transport/model pair identifies jobs, results, aggregates and calibration
@@ -484,7 +494,7 @@ Different language selections alone do not make runs incompatible. See the
 The command writes an exclusive `.llang-gap/analyses/<id>.json` artifact (or uses
 a generated ID). It contains the selection, bootstrap seed (`--seed`, default 42),
 10,000-sample method, source configuration/dataset/protocol/result hashes, condition
-scores, gaps and incompatible pairs. It includes no raw provider response or local
+scores, gaps and incompatible pairs. It includes no raw API response or local
 source paths. Repeating the same selection and seed reproduces its statistics;
 source run directories remain unchanged. Keep source runs or their release
 artifacts with the report for audit and publication. These general reports do not

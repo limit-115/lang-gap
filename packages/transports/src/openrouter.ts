@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { usageSchema, type TransportAdapter } from "@llang-gap/contracts";
-import { normalizeError, ProviderError } from "./errors";
+import { normalizeError, TransportError } from "./errors";
 import sdk from "#package.json";
 
 export function createOpenRouterAdapter(
@@ -27,6 +27,7 @@ export function createOpenRouterAdapter(
           messages: [{ role: "user" as const, content: request.prompt }],
           ...(request.maxOutputTokens === null ? {} : { max_tokens: request.maxOutputTokens }),
           reasoning: { effort: request.effort },
+          // OpenRouter's API field controls upstream serving; our transport remains "openrouter".
           provider: { allow_fallbacks: false, require_parameters: true },
           // Preserve prompt bytes; task stops are applied by the protocol scorer.
           transforms: [],
@@ -55,7 +56,7 @@ export function createOpenRouterAdapter(
               ),
               [apiKey, request.prompt],
             );
-          throw new ProviderError("OpenRouter error response", true, true);
+          throw new TransportError("OpenRouter error response", true, true);
         }
         const choice = response.choices?.[0];
         if (
@@ -67,7 +68,7 @@ export function createOpenRouterAdapter(
           !choice.message ||
           (choice.message.content !== null && typeof choice.message.content !== "string")
         )
-          throw new ProviderError("Invalid OpenRouter completion", true, true);
+          throw new TransportError("Invalid OpenRouter completion", true, true);
         const details = response.usage?.prompt_tokens_details;
         const write = details && "cache_write_tokens" in details ? details.cache_write_tokens : 0;
         const usage = response.usage

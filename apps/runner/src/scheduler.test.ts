@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { TransportAdapter } from "@llang-gap/contracts";
-import { createFakeAdapter, ProviderError } from "@llang-gap/providers";
+import { createFakeAdapter, TransportError } from "@llang-gap/transports";
 import { experiment, questions } from "@tests/fixtures";
 import { createJobs } from "./plan";
 import { execute } from "./scheduler";
@@ -62,7 +62,7 @@ describe("durable execution", () => {
     const fake = createFakeAdapter();
     let calls = 0;
     const generate = vi.fn(async (request: Parameters<TransportAdapter["generate"]>[0]) => {
-      if (++calls === 1) throw new ProviderError("429", true, false);
+      if (++calls === 1) throw new TransportError("429", true, false);
       return { ...(await fake.generate(request)), text: "Unparseable answer" };
     });
     const result = await execute({
@@ -125,7 +125,7 @@ describe("durable execution", () => {
     const adapter: TransportAdapter = {
       ...fake,
       async generate(request) {
-        if (++calls === 1) throw new ProviderError("timeout", true, true);
+        if (++calls === 1) throw new TransportError("timeout", true, true);
         return fake.generate(request);
       },
     };
@@ -146,7 +146,7 @@ describe("durable execution", () => {
     state.initialize(jobs);
     const adapter: TransportAdapter = {
       ...createFakeAdapter(),
-      generate: vi.fn(() => Promise.reject(new ProviderError("401", false, false))),
+      generate: vi.fn(() => Promise.reject(new TransportError("401", false, false))),
     };
     const result = await execute({
       state,
@@ -217,7 +217,7 @@ describe("durable execution", () => {
     const fake = createFakeAdapter();
     let calls = 0;
     const generate = vi.fn(async (request: Parameters<TransportAdapter["generate"]>[0]) => {
-      if (++calls === 1) throw new ProviderError("timeout", true, true);
+      if (++calls === 1) throw new TransportError("timeout", true, true);
       return fake.generate(request);
     });
     const options = {

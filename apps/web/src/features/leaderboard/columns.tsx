@@ -8,7 +8,7 @@ import type { Aggregate, Comparison } from "@llang-gap/contracts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { efforts, getModelPresentation } from "./model-catalog";
-import { ProviderLogo } from "./provider-logo";
+import { ModelOwnerLogo } from "./model-owner-logo";
 import type { LeaderboardFeatures } from "./data-table-features";
 
 export type LeaderboardRow = Pick<
@@ -95,7 +95,7 @@ export function useLeaderboardColumns(
                   className="flex size-8 shrink-0 items-center justify-center"
                   aria-hidden="true"
                 >
-                  <ProviderLogo ownerId={ownerId} />
+                  <ModelOwnerLogo ownerId={ownerId} />
                 </span>
                 <div className="flex flex-col gap-1">
                   <span className="font-medium">{label}</span>

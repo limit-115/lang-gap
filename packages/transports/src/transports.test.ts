@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { calculateCost, reserveCost, normalizeError, ProviderError, validateModel } from "./index";
+import { calculateCost, reserveCost, normalizeError, TransportError, validateModel } from "./index";
 import { experiment } from "@tests/fixtures";
 
-describe("provider accounting", () => {
+describe("transport accounting", () => {
   it("bills all input categories once and includes reasoning within output", () => {
     const cost = calculateCost(
       {
@@ -51,7 +51,7 @@ describe("provider accounting", () => {
       retryable: true,
       uncertain: true,
     });
-    const known = new ProviderError("incomplete", true, true, "request-1");
+    const known = new TransportError("incomplete", true, true, "request-1");
     expect(normalizeError(known)).toBe(known);
   });
   it("passes model IDs through without a capability catalog", () => {

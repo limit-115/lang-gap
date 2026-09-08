@@ -79,7 +79,7 @@ Before extraction, the visible output is cut at the earliest task stop, as in th
 EN `</s>`, `Q:`, `Question:`, `<|im_end|>`; RU substitutes `Вопрос:` for `Question:`.
 Stops are case-sensitive and apply anywhere. The raw visible output is preserved
 in `items.jsonl`; clipping affects scoring only. There is no invented reasoning-tag
-stripper or additional localized stop. Provider EOS termination is handled by the API.
+stripper or additional localized stop. End-of-sequence termination is handled by the API.
 
 ## Generation: matched settings and API limits
 
@@ -91,12 +91,12 @@ but does not promise 2048 visible tokens or equal compute across models.
 
 | Setting        | Author harness                                  | Native API implementation / remaining difference                                                                                                                                                                                                                                                                               |
 | -------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Input          | vLLM text completion under the authors' command | One independent user message containing the exact assembled text; provider chat framing and tokenizer are not controlled. No system prompt, history or tools are added.                                                                                                                                                        |
+| Input          | vLLM text completion under the authors' command | One independent user message containing the exact assembled text; API chat framing and tokenizer are not controlled. No system prompt, history or tools are added.                                                                                                                                                             |
 | Decoding       | Greedy, temperature zero                        | Astra and Fable 5.1 reject these sampling overrides. Native low/medium/high efforts remain explicit; default sampling is not claimed to be greedy or deterministic.                                                                                                                                                            |
 | Token cap      | 2048 model-generated tokens                     | Both APIs receive 2048, including hidden reasoning. They provide no independent visible-only token budget. No cap increase or prompt shortening is automatic.                                                                                                                                                                  |
 | Stop sequences | Task stops plus the model EOS                   | Anthropic receives the task stops and a requested `stop_sequence` is a completed outcome. OpenAI Responses has no stop parameter, so visible stops are applied locally. Both use local clipping before extraction. Extra OpenAI generation can consume tokens/cost; server-side EOS and hidden reasoning cannot be reproduced. |
 | Response text  | Text returned by the pinned vLLM backend        | Only visible API text is available; hidden reasoning cannot be scored or reconstructed.                                                                                                                                                                                                                                        |
-| Reproduction   | Authors' models, weights and vLLM versions      | Hosted models, aliases, native effort and provider infrastructure differ. Exact paper scores are not claimed.                                                                                                                                                                                                                  |
+| Reproduction   | Authors' models, weights and vLLM versions      | Hosted models, aliases, native effort and API infrastructure differ. Exact paper scores are not claimed.                                                                                                                                                                                                                       |
 
 Sources checked 2026-09-06: [Astra sampling restrictions](https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra),
 [Responses request schema](https://developers.openai.com/api/reference/typescript/resources/responses/methods/create),
@@ -145,7 +145,7 @@ Regenerate the fixture from a local copy of the pinned harness source:
 ```sh
 python3 scripts/generate-harness-fixtures.py /path/to/lm-evaluation-harness
 pnpm exec oxfmt packages/evaluation/fixtures/harness-parity.json
-pnpm exec vitest run packages/evaluation apps/runner packages/providers
+pnpm exec vitest run packages/evaluation apps/runner packages/transports
 ```
 
 The generator checks source SHA-256 values in `reference/harness-files.json` and
@@ -179,9 +179,9 @@ from translation, training contamination, model drift or API sampling.
 ## Models and prices
 
 The initial capabilities registry supports `gpt-6-astra` and `claude-fable-5-1` at
-low, medium and high effort, following their provider documentation. OpenAI uses
+low, medium and high effort, following their API documentation. OpenAI uses
 Responses `reasoning.effort`; Anthropic uses adaptive thinking and
-`output_config.effort`. Effort names do not equate compute across providers.
+`output_config.effort`. Effort names do not equate compute across API services.
 Requested and returned model IDs are recorded. API availability is checked only
 when an operator explicitly runs a paid pilot; it has not been established by CI.
 
@@ -218,7 +218,7 @@ A new routed run gets a new identity; existing snapshots/releases are not rewrit
 example selection, parser and local task stops. Only the output-cap policy differs:
 the experiment chooses a numeric cap or explicit null to omit the API parameter.
 This separately named condition does not claim the author's 2048-token budget.
-Provider defaults still apply. Historical v1/v3 objects and hashes remain unchanged;
+API defaults still apply. Historical v1/v3 objects and hashes remain unchanged;
 see [token policy](../runner.md#omitting-the-output-token-cap) for transport,
 accounting and reproducibility constraints.
 
@@ -226,6 +226,6 @@ accounting and reproducibility constraints.
 
 This benchmark measures academic multiple-choice accuracy, not all language
 capability. Public dataset exposure, translation defects, subject balance and
-small sample size can influence results. Provider aliases can drift, and exact
+small sample size can influence results. API aliases can drift, and exact
 reproduction of stochastic API output is not guaranteed. Published artifacts do
 allow deterministic independent reproduction of the scoring and statistics.

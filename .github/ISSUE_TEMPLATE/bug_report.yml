@@ -26,7 +26,7 @@ body:
         - Runner, retries, or budget accounting
         - Dataset preparation or alignment
         - Prompts, answer parsing, or statistics
-        - Provider adapters
+        - Transport adapters
         - Release artifacts or published results
         - Website or EN/RU localization
         - Shared contracts, build, or CI
@@ -39,7 +39,7 @@ body:
     id: steps
     attributes:
       label: Steps to reproduce
-      description: Include the exact command or page URL, inputs, and a minimal reproduction. Prefer the fake provider when possible.
+      description: Include the exact command or page URL, inputs, and a minimal reproduction. Prefer the fake transport when possible.
       placeholder: |
         1. Check out commit ...
         2. Run ... / open ...
@@ -72,7 +72,7 @@ body:
     id: environment
     attributes:
       label: Environment
-      description: OS, Node/pnpm versions for CLI or build issues; browser and locale for website issues; provider/model/effort when relevant.
+      description: OS, Node/pnpm versions for CLI or build issues; browser and locale for website issues; transport/model/effort when relevant.
 
   - type: textarea
     id: benchmark

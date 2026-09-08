@@ -1,5 +1,5 @@
 name: Feature or methodology proposal
-description: Discuss an improvement, new provider/dataset/language, or protocol change before implementation.
+description: Discuss an improvement, new transport/dataset/language, or protocol change before implementation.
 title: "[Proposal]: "
 labels: [enhancement]
 body:
@@ -44,7 +44,7 @@ body:
     id: benchmark
     attributes:
       label: Benchmark and reproducibility impact
-      description: For methodology, dataset, language, or provider changes, explain comparability, pinned inputs, licensing, expected API cost, and how to validate the change without paid calls. Leave blank if unrelated.
+      description: For methodology, dataset, language, or transport changes, explain comparability, pinned inputs, licensing, expected API cost, and how to validate the change without paid calls. Leave blank if unrelated.
 
   - type: textarea
     id: context

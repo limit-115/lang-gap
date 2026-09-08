@@ -184,7 +184,7 @@
 .option[data-highlighted] {
   background: var(--accent);
 }
-.providerIcon {
+.ownerIcon {
   display: grid;
   place-items: center;
   flex-shrink: 0;

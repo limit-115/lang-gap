@@ -7,4 +7,4 @@ The upstream MIT license is retained in [LICENSE](LICENSE). Company names and lo
 remain trademarks of their respective owners.
 
 Serve these files locally. The table inverts the black marks in dark mode and keeps
-provider names as text; the images are decorative to avoid duplicate accessible labels.
+model owner names as text; the images are decorative to avoid duplicate accessible labels.

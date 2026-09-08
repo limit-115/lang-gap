@@ -5,7 +5,7 @@ import { createAnthropicAdapter } from "./anthropic";
 
 afterEach(() => vi.unstubAllEnvs());
 
-it("keeps the provider diagnostic and correlation without SDK metadata or credentials", () => {
+it("keeps the API diagnostic and correlation without SDK metadata or credentials", () => {
   vi.stubEnv("OPENAI_API_KEY", "fixture-secret");
   const error = normalizeError(
     Object.assign(new Error("RAW_SDK_BODY"), {
@@ -19,7 +19,7 @@ it("keeps the provider diagnostic and correlation without SDK metadata or creden
     }),
   );
   expect(error).toMatchObject({
-    message: "Provider HTTP 400: Unsupported effort max; api_key=[REDACTED]",
+    message: "Transport HTTP 400: Unsupported effort max; api_key=[REDACTED]",
     status: 400,
     code: "unsupported_value",
     requestId: "req-invalid",
@@ -66,7 +66,7 @@ it("redacts directly supplied keys and echoed prompts in gateway HTTP-200 errors
       maxOutputTokens: null,
     }),
   ).rejects.toMatchObject({
-    message: "Provider HTTP 400: Unsupported effort; credential [REDACTED]; request [REDACTED]",
+    message: "Transport HTTP 400: Unsupported effort; credential [REDACTED]; request [REDACTED]",
     status: 400,
     requestId: "gateway-request",
     retryable: false,
@@ -93,7 +93,7 @@ it("extracts native Anthropic diagnostics without serializing its error envelope
       maxOutputTokens: 1024,
     }),
   ).rejects.toMatchObject({
-    message: "Provider HTTP 400: Unsupported effort max",
+    message: "Transport HTTP 400: Unsupported effort max",
     code: "invalid_request_error",
     requestId: "req-native-fixture",
   });

@@ -18,7 +18,7 @@ import {
 import { buildRun, initialSettings, pricingFields, type RunSettings, type Setting } from "./config";
 import styles from "./run-builder.module.css";
 
-const providerNames = { openai: "OpenAI", anthropic: "Anthropic", openrouter: "OpenRouter" };
+const transportNames = { openai: "OpenAI", anthropic: "Anthropic", openrouter: "OpenRouter" };
 const environmentKeys = {
   openai: "OPENAI_API_KEY",
   anthropic: "ANTHROPIC_API_KEY",
@@ -284,7 +284,7 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
             settings.transport,
             transportSchema.options.map((value) => ({
               value,
-              label: value === "fake" ? t("fake") : providerNames[value],
+              label: value === "fake" ? t("fake") : transportNames[value],
             })),
             (value) => {
               update("transport", transportSchema.parse(value));

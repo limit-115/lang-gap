@@ -9,7 +9,7 @@ import {
 } from "./model-catalog";
 
 describe("model shortcuts", () => {
-  it("offers each model once across effort levels and keeps providers distinct", () => {
+  it("offers each model once across effort levels and keeps transports distinct", () => {
     const options = getModelOptions([
       { model: "test-model", transport: "openai" },
       { model: "test-model", transport: "openai" },

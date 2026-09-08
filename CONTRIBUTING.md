@@ -14,7 +14,7 @@ for broken behavior and the
 [feature proposal form](https://github.com/limit-115/llang-gap/issues/new?template=feature_request.yml)
 for new capabilities or methodology changes.
 
-Small fixes can go straight to a PR. For a new provider, dataset, language,
+Small fixes can go straight to a PR. For a new transport, dataset, language,
 protocol change, substantial dependency, or architectural rewrite, agree on the
 scope in an issue before investing in the implementation. An existing maintainer
 request or agreed issue is enough; no second approval is needed to start.
@@ -37,7 +37,7 @@ pnpm dev
 ```
 
 The website, unit tests, and builds do not need model API keys. See the
-[README](README.md#quick-start) for the free fake-provider smoke test and
+[README](README.md#quick-start) for the free fake-transport smoke test and
 [repository layout](README.md#layout). Read [AGENTS.md](AGENTS.md) and any
 directory-specific instructions when using a coding agent.
 
@@ -48,7 +48,7 @@ directory-specific instructions when using a coding agent.
 - Add focused regression coverage for changed behavior. Test observable outcomes;
   avoid tests that merely repeat implementation details. Documentation and cosmetic
   changes do not need new unit tests.
-- Use synthetic fixtures and intercepted provider transports in tests. Tests must
+- Use synthetic fixtures and intercepted transports in tests. Tests must
   not require credentials or make live model requests.
 - Keep supported UI locale messages in sync in the feature that owns them.
   Check EN only, unless the change specifically concerns another language; then
@@ -74,8 +74,8 @@ only for explicitly selected analysis conditions with validated question alignme
 comparisons may be selected after execution. Never assume a fixed language pair or
 pool scores across datasets.
 
-Use the fake provider for routine development. `--offline` only disables dataset
-downloads; it does not disable live provider APIs. Paid evaluations require an
+Use the fake transport for routine development. `--offline` only disables dataset
+downloads; it does not disable live model APIs. Paid evaluations require an
 explicit operator request and budget; follow the [operator guide](docs/runner.md).
 
 Follow the [release guide](docs/releases.md) for result changes. Never pass synthetic
@@ -94,7 +94,7 @@ Run `pnpm format:check` for every PR, then the checks relevant to the change:
 | Change                                            | Checks                                                                                                                                                                            |
 | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Documentation or GitHub templates only            | Review links and rendered text; validate any YAML forms                                                                                                                           |
-| Runner, datasets, evaluation, or providers        | `pnpm lint:core`, `pnpm typecheck:core`, `pnpm test:core`, `pnpm schema:check`                                                                                                    |
+| Runner, datasets, evaluation, or transports       | `pnpm lint:core`, `pnpm typecheck:core`, `pnpm test:core`, `pnpm schema:check`                                                                                                    |
 | Website                                           | `pnpm lint`, `pnpm --filter @llang-gap/web typecheck`, `pnpm --filter @llang-gap/web build`, and a browser check in EN (also the affected language for language-specific changes) |
 | Shared contracts or workspace/build configuration | Both core and website checks                                                                                                                                                      |
 

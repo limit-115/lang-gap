@@ -4,7 +4,7 @@ import { dirname, join } from "node:path";
 import { expect, it, vi } from "vitest";
 import { prepareDataset } from "@llang-gap/datasets";
 import { buildPrompt, getPromptLabels, toPromptQuestion } from "@llang-gap/evaluation";
-import { createFakeAdapter } from "@llang-gap/providers";
+import { createFakeAdapter } from "@llang-gap/transports";
 import { mmpisaCsv, mmpisaFixture } from "@tests/mmpisa-fixtures";
 import { experiment } from "@tests/fixtures";
 import { selectExperiment } from "./config";

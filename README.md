@@ -53,7 +53,7 @@ pnpm bench release verify .llang-gap/releases/smoke-author-v3
 ```
 
 `--offline` disables **dataset downloads**. It does not disable live model APIs.
-The fake provider never uses the network. CLI results go to stdout as JSON; progress
+The fake transport never uses the network. CLI results go to stdout as JSON; progress
 and errors go to stderr. Add `--json` for structured errors too.
 
 All experiment settings can be supplied as CLI flags; YAML is optional and flags
@@ -62,11 +62,11 @@ unknown costs remain `null`. See the [complete flag reference](docs/runner.md#cl
 
 Use **Build a run** in the website navigation, or **Want to run your own?** on the
 homepage, to configure a local experiment. Select a dataset, compatible protocol,
-one or more benchmark languages, provider and model IDs. The builder generates
+one or more benchmark languages, transport and model IDs. The builder generates
 copyable bash/zsh commands for `run` and the API-free `plan`, with request counts,
 advanced execution settings and first-time setup instructions. It never starts a
 run or asks for credentials. Model availability and native effort support remain
-provider-specific; use YAML for mixed providers or per-model settings.
+model- and API-specific; use YAML for mixed transports or per-model settings.
 
 Dataset and language overrides are available on `dataset prepare`, `plan` and
 `run`. `--languages` (or singular `--language`) replaces the YAML language list
@@ -91,7 +91,7 @@ pnpm bench run experiments/mmpisa-smoke.yaml
 | `packages/contracts`  | Strict Zod schemas and shared types                                         |
 | `packages/datasets`   | Manifest-driven download, format adapters and explicit alignment checks     |
 | `packages/evaluation` | Versioned protocol adapters, scoring and explicit paired bootstrap          |
-| `packages/providers`  | Official SDK adapters, optional cost accounting and a fake provider         |
+| `packages/transports` | Official SDK adapters, optional cost accounting and a fake transport        |
 | `experiments`         | Strict YAML definitions and generated editor JSON Schema                    |
 | `datasets`            | Versioned dataset manifests; data files stay out of Git                     |
 | `results`             | Public release index and small manifests/aggregates                         |
@@ -111,7 +111,7 @@ The website follows the system's light or dark appearance by default. The theme
 button in the header switches between light and dark and remembers the choice in
 this browser across reloads and both languages.
 
-The model shortcut beside the homepage introduction searches by model or provider.
+The model shortcut beside the homepage introduction searches by model name or developer.
 Selecting a model enables **See the conclusion**, a link to
 `/[locale]/models/[transport]/[model]`. Those detail pages are reserved for future
 implementation.
@@ -214,7 +214,7 @@ re-exports, and literal dynamic imports. Oxlint enforces this in `pnpm lint`.
 - Between workspace packages: public `@llang-gap/contracts`-style exports.
 - Shared test helpers and data: `@tests/fixtures`, `@tests/fixtures/questions.json`.
 - Web release data: `@results/index.json`.
-- Providers' own package metadata: `#package.json`.
+- Transport adapters' own package metadata: `#package.json`.
 
 TypeScript paths are resolved relative to the config that declares them, without
 `baseUrl`. Next.js and tsx support these paths; Vitest uses Vite's built-in

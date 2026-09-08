@@ -10,7 +10,7 @@ export const duration = (ms: number) =>
       : `${Math.floor(ms / 60_000)}m ${Math.floor(ms / 1000) % 60}s`;
 export const money = (usd: number | null) => (usd === null ? "unknown" : `$${usd.toFixed(4)}`);
 
-/** One periodic line, even when every worker is waiting on a slow provider or retry. */
+/** One periodic line, even when every worker is waiting on a slow transport or retry. */
 export class RunProgress {
   readonly active = new Map<string, { job: Job; since: number }>();
   readonly retrying = new Set<string>();

@@ -33,7 +33,7 @@ tokens. Increasing it requires a different protocol, not editing this baseline.
 
 ## Verification and later execution
 
-Routine verification uses synthetic fixtures, fake providers and intercepted HTTP.
+Routine verification uses synthetic fixtures, fake transports and intercepted HTTP.
 It covers all subject prompts, reference extraction/stop cases, target-answer
 exclusion, version dispatch, immutable snapshots and offline release verification.
 `plan --offline` constructs requests only; `run --offline` can still call paid APIs.
