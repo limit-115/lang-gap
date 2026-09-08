@@ -4,6 +4,6 @@ import type en from "./en";
 export default {
   metadataTitle: "Страница не найдена",
   title: "Вы нашли пробел.",
-  description: "По этому адресу нет страницы. Давайте вернёмся к моделям.",
+  description: "По этому адресу нет страницы.\nДавайте вернёмся к моделям.",
   compareModels: "Сравнить модели",
 } as const satisfies Dictionary<typeof en>;
