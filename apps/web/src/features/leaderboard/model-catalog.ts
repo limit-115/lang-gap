@@ -17,6 +17,8 @@ const ownerNames: Record<string, string> = {
   mistralai: "Mistral AI",
   deepseek: "DeepSeek",
   qwen: "Qwen",
+  upstage: "Upstage",
+  inception: "Inception",
   fake: "fake",
 };
 const plannedModels = [
@@ -29,6 +31,10 @@ const modelNames = new Map([
     return [`${owner}/${name}`, model.label];
   }),
   ["inclusionai/ling-3.0-flash", "Ling 3.0 Flash"],
+  ["openai/gpt-oss-120b", "gpt-oss-120b"],
+  ["qwen/qwen3.7-flash", "Qwen3.7 Flash"],
+  ["upstage/solar-pro4", "Solar Pro 4"],
+  ["inception/mercury-2.5-preview", "Mercury 2.5 Preview"],
 ]);
 
 export function getModelPresentation(reference: ModelReference) {
