@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { GuideModel, GuideScore } from "@llang-gap/contracts/guide";
-import { filterModelLanguages, selectModelOverview, summarizeModelScores } from "./overview-data";
+import {
+  filterModelLanguages,
+  getModelOverviewProfiles,
+  selectModelOverview,
+  summarizeModelScores,
+} from "./overview-data";
 
 describe("model language search", () => {
   const rows = [
@@ -82,19 +87,29 @@ describe("model page published result selection", () => {
   it("keeps the published row order instead of choosing the best-scoring setting", () => {
     expect(selectModelOverview([low, high, other], low.id, {})).toBe(low);
   });
-  it("preserves the exact configuration from homepage links", () => {
-    expect(
-      selectModelOverview([low, high, other], low.id, {
-        effort: "high",
-        model: "fixture",
-        transport: "fake",
-      }),
-    ).toBe(high);
+  it("selects the model from its path and the effort from the query", () => {
+    expect(selectModelOverview([low, high, other], low.id, { effort: "high" })).toBe(high);
     expect(selectModelOverview([low, high, other], other.id, { effort: "high" })).toBe(other);
+  });
+  it("ignores runner details in old links, including conflicting values", () => {
+    const legacyQuery = { effort: "high", model: "other", transport: "openai" };
+    expect(selectModelOverview([low, high, other], low.id, legacyQuery)).toBe(high);
+  });
+  it("offers each effort once across transports, keeping the first published row and its scores", () => {
+    const routed = {
+      ...low,
+      profile: { ...low.profile!, transport: "openrouter" as const },
+      scores: [score("sw", 100)],
+    };
+    const rows = [low, routed, high, other];
+    expect(getModelOverviewProfiles(rows, low.id)).toEqual([low, high]);
+    expect(selectModelOverview(rows, low.id, { effort: "low" })).toBe(low);
+    expect(getModelOverviewProfiles([routed, low, high], low.id)).toEqual([routed, high]);
+    expect(rows).toEqual([low, routed, high, other]);
   });
   it("never silently substitutes a different result for an unavailable selection", () => {
     expect(selectModelOverview([low, high], low.id, { effort: "medium" })).toBeNull();
-    expect(selectModelOverview([low, high], low.id, { transport: "openai" })).toBeNull();
+    expect(selectModelOverview([low, high], other.id, { effort: "low" })).toBeNull();
   });
 });
 

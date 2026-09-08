@@ -95,8 +95,7 @@ export function LanguageConcepts({
       value,
     );
   const ranked = rankedModels(publishedModels, language);
-  const modelHref = (model: LanguageModel) =>
-    `${guideConfigurationHref(model)}&language=${encodeURIComponent(language)}`;
+  const modelHref = (model: LanguageModel) => guideConfigurationHref(model, language);
   const href = (view: Version) => `/languages/${encodeURIComponent(language)}?view=${view}`;
   const context = {
     language,

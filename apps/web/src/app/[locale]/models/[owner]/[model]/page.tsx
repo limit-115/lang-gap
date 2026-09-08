@@ -10,11 +10,11 @@ import { getModelGuide } from "@/features/leaderboard/guide-data";
 import { getModelPresentation } from "@/features/leaderboard/model-catalog";
 import { modelGuideHref } from "@/features/leaderboard/table-state";
 import { ModelResults } from "@/features/models/model-results";
-import { selectModelOverview } from "@/features/models/overview-data";
+import { getModelOverviewProfiles, selectModelOverview } from "@/features/models/overview-data";
 
 type Props = {
   params: Promise<{ locale: string; owner: string; model: string }>;
-  searchParams: Promise<{ language?: string; effort?: string; transport?: string; model?: string }>;
+  searchParams: Promise<{ language?: string | string[]; effort?: string | string[] }>;
 };
 
 async function getModel(owner: string, name: string) {
@@ -70,11 +70,11 @@ export default async function ModelPage({ params, searchParams }: Props) {
   const guide = await getModelGuide();
   const messages = getMessagesForLocale(locale);
   const query = await searchParams;
-  const selection = Object.fromEntries(
-    Object.entries(query).filter(([, value]) => typeof value === "string"),
-  );
-  const profiles = guide?.models.filter((entry) => entry.id === data.id) ?? [];
-  const selected = selectModelOverview(profiles, data.id, selection);
+  const language = typeof query.language === "string" ? query.language : null;
+  const profiles = getModelOverviewProfiles(guide?.models ?? [], data.id);
+  const selected = selectModelOverview(profiles, data.id, {
+    effort: typeof query.effort === "string" ? query.effort : undefined,
+  });
   // Browser ICU support varies for native names. Keep SSR and hydration identical.
   const names = new Intl.DisplayNames([locale], { type: "language" });
   const languageNames = Object.fromEntries(
@@ -100,11 +100,7 @@ export default async function ModelPage({ params, searchParams }: Props) {
       }}
     >
       <ModelResults
-        key={
-          selected
-            ? `${selected.id}/${selected.profile?.transport}/${selected.profile?.effort}`
-            : "unavailable"
-        }
+        key={selected ? `${selected.id}/${selected.profile?.effort ?? "published"}` : "unavailable"}
         model={selected}
         profiles={profiles}
         modelOptions={guide?.models.map((entry) => entry.reference) ?? []}
@@ -114,7 +110,7 @@ export default async function ModelPage({ params, searchParams }: Props) {
         ownerName={data.ownerName}
         updatedAt={sources[0]?.createdAt ?? null}
         isSummary={guide?.plan.schemaVersion === 2}
-        initialLanguage={selection.language ?? null}
+        initialLanguage={language}
         sourceCount={sources.length}
         sourceHref={sources.length === 1 ? `/releases/${sources[0]!.id}` : "/releases"}
       />

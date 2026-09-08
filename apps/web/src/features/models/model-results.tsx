@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { ArrowUpRight, Globe2, Search, X } from "lucide-react";
 import type { ModelReference } from "@llang-gap/contracts";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
-import { guideRowKey, type GuideModel } from "@llang-gap/contracts/guide";
+import type { GuideModel } from "@llang-gap/contracts/guide";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -87,10 +87,8 @@ export function ModelResults({
     input.current?.focus();
   };
   const profileItems = profiles.map((entry) => ({
-    value: guideRowKey(entry),
-    label: entry.profile
-      ? `${l(entry.profile.effort)}${profiles.some((other) => other.profile?.effort === entry.profile?.effort && other.profile?.transport !== entry.profile?.transport) ? ` · ${entry.profile.transport}` : ""}`
-      : t("publishedResults"),
+    value: entry.profile?.effort ?? "published",
+    label: entry.profile ? l(entry.profile.effort) : t("publishedResults"),
   }));
 
   return (
@@ -182,14 +180,13 @@ export function ModelResults({
               <div className={styles.profileSelect}>
                 <Select
                   items={profileItems}
-                  value={model ? guideRowKey(model) : null}
+                  value={model ? (model.profile?.effort ?? "published") : null}
                   onValueChange={(value) => {
-                    const next = profiles.find((entry) => guideRowKey(entry) === value);
+                    const next = profiles.find(
+                      (entry) => (entry.profile?.effort ?? "published") === value,
+                    );
                     if (next)
-                      router.push(
-                        `${guideConfigurationHref(next)}${initialLanguage ? `&language=${encodeURIComponent(initialLanguage)}` : ""}`,
-                        { scroll: false },
-                      );
+                      router.push(guideConfigurationHref(next, initialLanguage), { scroll: false });
                   }}
                 >
                   <SelectTrigger className={styles.picker} aria-label={l("effort")}>
