@@ -126,3 +126,11 @@ The website should:
 The code/API surface for the redesign agent is `Aggregate`, `ReleaseManifest`,
 `aggregateSchema` and `releaseManifestSchema`, exported from the contracts package.
 No SQLite access or live API requests are needed by the site.
+
+### Citing a published release
+
+On a release page, **Cite this release** lets readers copy the citation with its
+permanent release URL or copy just the link. Expand **BibTeX** to copy the entry
+or download a `.bib` file for a reference manager. Citations identify the dataset,
+release ID, creation date, and protocol; cite the specific release used in your
+analysis. If clipboard access is unavailable, select and copy the displayed text.
