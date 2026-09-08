@@ -1,4 +1,5 @@
 export default {
+  run: "Build a run",
   navigation: "Navigation",
   becomeSponsor: "Become a sponsor",
   resources: "Resources",

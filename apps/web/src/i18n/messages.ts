@@ -1,3 +1,5 @@
+import runBuilderEn from "@/features/run-builder/messages/en";
+import runBuilderRu from "@/features/run-builder/messages/ru";
 import navigationEn from "@/shared/navigation/messages/en";
 import navigationRu from "@/shared/navigation/messages/ru";
 import leaderboardEn from "@/features/leaderboard/messages/en";
@@ -9,12 +11,14 @@ import releasesRu from "@/features/releases/messages/ru";
 import type { Locale } from "./routing";
 
 export const englishMessages = {
+  RunBuilder: runBuilderEn,
   Navigation: navigationEn,
   Leaderboard: leaderboardEn,
   Methodology: methodologyEn,
   Releases: releasesEn,
 };
 const russianMessages = {
+  RunBuilder: runBuilderRu,
   Navigation: navigationRu,
   Leaderboard: leaderboardRu,
   Methodology: methodologyRu,

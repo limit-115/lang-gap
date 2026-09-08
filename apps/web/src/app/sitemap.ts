@@ -9,6 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const paths = [
     "",
     "/methodology",
+    "/run",
     ...(releases.length ? ["/releases"] : []),
     ...releases.map((r) => `/releases/${r.id}`),
   ];

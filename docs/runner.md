@@ -2,6 +2,31 @@
 
 ## CLI and YAML configuration
 
+The website's **Build a run** page generates CLI-only commands for bash/zsh.
+Choose your dataset, protocol, languages and provider, then enter exact model IDs.
+The command updates as you edit. **Check plan** produces a `plan` command with the
+same experiment settings; it may download dataset files but never calls models.
+Copy the command and run it from your cloned repository root after installing the
+pinned tools and dependencies. Supply live-provider keys locally through `.env`
+or the environment; the website does not receive them or execute commands.
+
+**Quick check** limits unique questions per language; **All questions** uses each
+selected test split. The displayed request count includes models, efforts and
+repeats, excludes technical retries, and remains the full experiment count when
+**Pause after this many jobs** is set. Advanced settings include explicit ordered
+comparisons, execution controls, optional token rates and a budget. A budget
+requires complete rates and finite cost bounds; unknown pricing is never shown
+as zero cost. Rates and model settings apply to every selected model. Use YAML
+for mixed providers or different settings/rates per model. Provider access and
+effort support, dataset integrity and comparison alignment still require local
+CLI/provider validation.
+
+Builder choices come from public dataset manifests and the evaluation adapters'
+`run-catalog` export, rather than website locales or published leaderboard rows.
+Deployments must include `datasets/*/manifest.json` (covered by Next.js output
+tracing). Adding a dataset or protocol updates the available choices through
+these inputs; no question text, answers or private run state is sent to the site.
+
 `run`, `plan` and `dataset prepare` accept an optional YAML path followed by flags.
 A run can be configured entirely through the CLI. `plan` is optional and never
 calls model APIs. For example, this local fake run needs no YAML, prices or budget:

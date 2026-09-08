@@ -60,6 +60,14 @@ All experiment settings can be supplied as CLI flags; YAML is optional and flags
 take precedence. Lists accept commas or spaces. Rates and a budget are optional;
 unknown costs remain `null`. See the [complete flag reference](docs/runner.md#cli-and-yaml-configuration).
 
+Use **Build a run** in the website navigation, or **Want to run your own?** on the
+homepage, to configure a local experiment. Select a dataset, compatible protocol,
+one or more benchmark languages, provider and model IDs. The builder generates
+copyable bash/zsh commands for `run` and the API-free `plan`, with request counts,
+advanced execution settings and first-time setup instructions. It never starts a
+run or asks for credentials. Model availability and native effort support remain
+provider-specific; use YAML for mixed providers or per-model settings.
+
 Dataset and language overrides are available on `dataset prepare`, `plan` and
 `run`. `--languages` (or singular `--language`) replaces the YAML language list
 and clears its comparisons; use `--compare baseline:language ...` to request gaps.

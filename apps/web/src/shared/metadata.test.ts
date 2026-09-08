@@ -56,7 +56,11 @@ describe("search metadata", () => {
     vi.stubEnv("VERCEL_ENV", "production");
     const { default: sitemap } = await import("@/app/sitemap");
     const urls = (await sitemap()).map((entry) => entry.url);
-    expect(urls).toHaveLength(4);
+    expect(urls).toHaveLength(6);
+    expect(urls.filter((url) => url.endsWith("/run/"))).toEqual([
+      "https://llang-gap-web.vercel.app/en/run/",
+      "https://llang-gap-web.vercel.app/ru/run/",
+    ]);
     expect(urls.some((url) => url.includes("localhost") || url.includes("/releases"))).toBe(false);
   });
   it("discovers both language versions only after a release is published", async () => {
@@ -64,7 +68,7 @@ describe("search metadata", () => {
     releaseMocks.releases = [{ id: "synthetic-fixture" }];
     const { default: sitemap } = await import("@/app/sitemap");
     const entries = await sitemap();
-    expect(entries).toHaveLength(8);
+    expect(entries).toHaveLength(10);
     expect(
       entries
         .filter((entry) => entry.url.includes("/releases/synthetic-fixture/"))
