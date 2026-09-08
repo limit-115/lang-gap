@@ -24,6 +24,27 @@ The runner schedules the resolved conditions without knowing a language pair or
 dataset-specific row count. Transports execute requests without interpreting the
 benchmark language or selecting a scoring rule.
 
+## Implementing a protocol
+
+Each version has an adapter module in `packages/evaluation/src/protocols`.
+The module owns its pinned definition, prompt construction, extraction (including
+stop handling and response outcomes), supported inputs and token limits.
+MMLU-ProX versions share formatting helpers; the flexible version explicitly
+reuses author behavior and replaces its token policy.
+
+`ProtocolAdapter` is defined in `packages/contracts`. Executable behavior is kept
+separate from the serializable `definition`: snapshots hash the definition, never
+adapter methods. Common evaluation functions dispatch through the registry;
+runner and catalog code do not branch on individual protocol IDs.
+
+To add a method, implement its adapter, add its ID to the shared contract and
+register it in `protocols/index.ts`. Then list it in the appropriate dataset's
+`protocols.json` and supply localized display names for the run builder. The
+registry is checked against all contract IDs at compile time. Verify prompt
+bytes, extraction, supported inputs and token policy with synthetic fixtures;
+a scientific change needs its own versioned definition. Prompt-label ownership
+is unchanged: existing manifest labels remain pinned inputs.
+
 ## Multiple-choice v1
 
 `multiple-choice-v1` is a separate, zero-shot multiple-choice condition. Each

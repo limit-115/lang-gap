@@ -11,7 +11,7 @@ import {
   buildPrompt,
   getProtocol,
   getAnswerFormat,
-  getMaxOutputTokens,
+  validateOutputTokens,
   getPromptLabels,
   getStopSequences,
   validateProtocolDataset,
@@ -46,18 +46,8 @@ export function createJobs(
   validateDataset(questions, undefined, experiment.languages);
   for (const pair of experiment.comparisons)
     validateAlignment(questions, pair.baseline, pair.language);
-  if (
-    experiment.protocol === "mmluprox-lite-5shot-native-reasoning-v1" &&
-    experiment.models.some((model) => model.maxOutputTokens === null)
-  )
-    throw new Error(
-      "Historical protocol requires a numeric cap; select mmluprox-lite-5shot-flexible-api-v1",
-    );
-  const cap = getMaxOutputTokens(experiment.protocol);
-  if (cap !== undefined && experiment.models.some((model) => model.maxOutputTokens !== cap))
-    throw new Error(
-      `Selected protocol requires a ${cap}-token cap; a different cap needs a separate protocol, such as mmluprox-lite-5shot-flexible-api-v1`,
-    );
+  for (const model of experiment.models)
+    validateOutputTokens(experiment.protocol, model.maxOutputTokens);
   const ids = [
     ...new Set(
       questions

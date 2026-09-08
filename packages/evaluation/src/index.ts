@@ -8,6 +8,7 @@ export {
   getStopSequences,
   multipleChoiceProtocol,
   validateProtocolDataset,
+  validateOutputTokens,
   protocol,
   protocolV1,
   toPromptQuestion,

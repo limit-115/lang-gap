@@ -464,3 +464,5 @@ export const analysisReportSchema = z.strictObject({
   ),
 });
 export type AnalysisReport = z.infer<typeof analysisReportSchema>;
+
+export type { ProtocolAdapter } from "./protocol";
