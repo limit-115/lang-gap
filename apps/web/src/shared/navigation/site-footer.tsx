@@ -2,15 +2,16 @@ import { cn } from "cn";
 import { ExternalLink, Heart } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { buttonVariants } from "@/components/ui/button";
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
+import type { Locale } from "@/i18n/routing";
 import { BrandLogo } from "./brand-logo";
 
-export async function SiteFooter() {
-  const t = await getTranslations("Navigation");
+export async function SiteFooter({ locale }: { locale: Locale }) {
+  const t = await getTranslations({ locale, namespace: "Navigation" });
   return (
     <footer className="site-footer">
       <div className="footer-grid">
-        <Link className="brand" href="/" aria-label={t("home")}>
+        <Link className="brand" href={`/${locale}/`} aria-label={t("home")}>
           <BrandLogo />
         </Link>
         <p className="footer-description">{t("footer")}</p>
@@ -50,13 +51,13 @@ export async function SiteFooter() {
         <nav aria-label={t("navigation")}>
           <ul>
             <li>
-              <Link href="/">{t("leaderboard")}</Link>
+              <Link href={`/${locale}/`}>{t("leaderboard")}</Link>
             </li>
             <li>
-              <Link href="/methodology">{t("methodology")}</Link>
+              <Link href={`/${locale}/methodology/`}>{t("methodology")}</Link>
             </li>
             <li>
-              <Link href="/releases">{t("releases")}</Link>
+              <Link href={`/${locale}/releases/`}>{t("releases")}</Link>
             </li>
           </ul>
         </nav>
