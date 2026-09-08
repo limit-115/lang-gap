@@ -7,13 +7,12 @@ export const modelGuideHref = (reference: ModelReference) => {
   return `/models/${encodeURIComponent(id.slice(0, id.length - name.length - 1))}/${encodeURIComponent(name)}`;
 };
 
-// English is an optional display reference, never an experiment input default.
+// Display preferences only; available benchmark languages still come from published inputs.
 export function initialLanguages(languages: readonly string[]) {
-  return (
-    languages.includes("en")
-      ? ["en", ...languages.filter((language) => language !== "en")]
-      : [...languages]
-  ).slice(0, 3);
+  const preferred = ["en", "ru", "kk", "es", "zh"].filter((language) =>
+    languages.includes(language),
+  );
+  return preferred.length ? preferred : [...languages].slice(0, 3);
 }
 
 export function englishScoreDifference(model: GuideModel, language: string) {

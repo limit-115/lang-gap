@@ -10,6 +10,7 @@ export default {
   versusEnglish: "vs English",
   differenceHelp:
     "Language score minus English score in percentage points. A descriptive score difference, not a significance test.",
+  selectAllLanguages: "Select all",
   searchLanguages: "Find a language…",
 
   noPublishedResults:

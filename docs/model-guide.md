@@ -121,9 +121,11 @@ is never borrowed from another row. Legacy explicit plans remain reproducible.
 
 ## Language controls and uncertainty
 
-The table initially shows up to three available languages, with English first when
-present, then other languages in canonical tag order.
-The searchable Languages menu can show any subset, including none. Hiding a sorted
+The table initially shows English, Russian, Kazakh, Spanish and Chinese when
+available. If none are available, it shows the first three available languages.
+These are display preferences only, independent of experiment inputs.
+The searchable Languages menu can show any subset, including none. Select all
+shows every available language, including languages hidden by the current search. Hiding a sorted
 column restores alphabetical model ordering; missing scores sort last in either
 direction. Choosing languages does not change the recorded scores.
 

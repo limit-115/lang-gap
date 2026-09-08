@@ -35,7 +35,7 @@ const score = (language: string, value: number | null, basis = "a".repeat(64)) =
 });
 
 describe("model guide table", () => {
-  it("keeps a twenty-five-language table to three initial language columns and one row per model", () => {
+  it("shows only available preferred languages initially and one row per model", () => {
     const languages = [
       "ar",
       "az",
@@ -76,8 +76,8 @@ describe("model guide table", () => {
       },
     ];
     const html = renderToStaticMarkup(createElement(LeaderboardTable, { rows, languages }));
-    expect(html.match(/<th[ >]/g)).toHaveLength(5);
-    expect(html.match(/<td[ >]/g)).toHaveLength(10);
+    expect(html.match(/<th[ >]/g)).toHaveLength(4);
+    expect(html.match(/<td[ >]/g)).toHaveLength(8);
   });
   it("has one column per visible language and an explicit effort column and no implicit comparison or interval", () => {
     function Harness() {
@@ -99,8 +99,8 @@ describe("model guide table", () => {
   it("renders inline differences and an English baseline without comparison controls or columns", () => {
     const html = renderToStaticMarkup(
       createElement(LeaderboardTable, {
-        rows: [{ ...model, scores: [score("en", 80), score("de", 75.8), score("ja", 85)] }],
-        languages: ["de", "en", "ja"],
+        rows: [{ ...model, scores: [score("en", 80), score("ru", 75.8), score("kk", 85)] }],
+        languages: ["en", "ru", "kk"],
       }),
     );
     expect(html).toContain("baseline");
@@ -147,8 +147,17 @@ describe("model guide table", () => {
     }
     renderToStaticMarkup(createElement(Harness));
   });
-  it("prioritizes optional English without inventing languages", () => {
-    expect(initialLanguages(["ar", "de", "en", "ja"])).toEqual(["en", "ar", "de"]);
+  it("selects preferred display languages without inventing unavailable languages", () => {
+    expect(initialLanguages(["cs", "de", "en", "es", "kk", "ru", "zh"])).toEqual([
+      "en",
+      "ru",
+      "kk",
+      "es",
+      "zh",
+    ]);
+    expect(initialLanguages(["ar", "de", "en", "ja"])).toEqual(["en"]);
+    expect(initialLanguages(["es", "kk"])).toEqual(["kk", "es"]);
+    expect(initialLanguages(["ar", "de", "fr", "ja"])).toEqual(["ar", "de", "fr"]);
     expect(initialLanguages(["ja"])).toEqual(["ja"]);
     expect(initialLanguages([])).toEqual([]);
   });
