@@ -1,0 +1,114 @@
+.cta {
+  --cta-surface: color-mix(in srgb, var(--background) 60%, transparent);
+  --cta-border: var(--border);
+  --cta-heading: var(--foreground);
+  --cta-accent: var(--muted-foreground);
+  --cta-body: var(--muted-foreground);
+  --cta-button: var(--foreground);
+  --cta-button-text: var(--background);
+  --cta-button-hover: color-mix(in srgb, var(--foreground) 85%, var(--background));
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  align-items: center;
+  gap: 48px;
+  margin-block: 64px 68px;
+  padding: 36px 42px;
+  border: 1px solid var(--cta-border);
+  border-radius: 16px;
+  color: var(--cta-heading);
+  background: var(--cta-surface);
+  backdrop-filter: blur(16px);
+  scroll-margin-top: 110px;
+}
+
+.cta h2 {
+  margin: 0;
+  font-size: clamp(2rem, 3.6vw, 2.75rem);
+  font-weight: 550;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+.cta h2 span {
+  display: block;
+}
+
+.accent {
+  color: var(--cta-accent);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  max-width: 355px;
+  justify-self: end;
+}
+
+.details p {
+  margin: 0;
+  color: var(--cta-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.cta .action {
+  width: fit-content;
+  min-height: 48px;
+  height: auto;
+  padding: 12px 20px;
+  gap: 24px;
+  border-radius: 8px;
+  background: var(--cta-button);
+  color: var(--cta-button-text);
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  white-space: normal;
+  text-align: center;
+  transition: background-color 150ms;
+}
+
+.cta .action:hover {
+  background: var(--cta-button-hover);
+}
+
+.cta .action:focus-visible {
+  outline: 2px solid var(--cta-accent);
+  outline-offset: 5px;
+  box-shadow: none;
+}
+
+.note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cta-body);
+  font-size: 0.875rem;
+}
+
+@media (max-width: 850px) {
+  .cta {
+    gap: 28px;
+    padding: 32px;
+  }
+}
+
+@media (max-width: 600px) {
+  .cta {
+    grid-template-columns: minmax(0, 1fr);
+    margin-block: 40px;
+    padding: 28px;
+  }
+
+  .details {
+    justify-self: start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta .action {
+    transition: none;
+  }
+}
