@@ -16,6 +16,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Design requirements
 
+- Follow the [website voice guide](../../docs/voice.md) for copy and translations.
 - Use shadcn/ui, initialized with preset `b2pjsub2m` and `--pointer`.
 - Use Inter for interface text and JetBrains Mono for monospace content.
 - Keep the design clean and precise, with readable text and consistent spacing.

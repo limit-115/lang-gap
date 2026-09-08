@@ -1,11 +1,11 @@
 export default {
-  metadataTitle: "Benchmark releases and open data",
+  metadataTitle: "Published benchmark results you can check",
   detailTitle: "Benchmark release {id}",
   detailDescription:
     "Model accuracy on {dataset}, using {protocol}. This release records the tested languages, scores, explicit language comparisons and downloadable evidence.",
   sample:
     "{count, plural, one {# unique question per language} other {# unique questions per language}} · {repeats, plural, one {# repeat} other {# repeats}}",
-  methodology: "How we test and interpret the gap",
+  methodology: "How we got these numbers",
   repeatScores: "Accuracy by repeat",
   repeat: "Repeat {number}",
   counts: "{refusals} refusals · {unparseable} unparseable answers",
@@ -24,11 +24,11 @@ export default {
     "Limit 115. Llang Gap: {dataset}. Release {id}, created {date}. Protocol: {protocol}.",
   fileCreated: "Release created {date}",
   scope:
-    "These results measure academic multiple-choice accuracy, not overall language ability. If the gap interval includes zero, the comparison does not establish which language has higher accuracy. Matching reasoning effort labels do not imply equal computing budgets.",
-  title: "Explore published results and the evidence behind them.",
+    "These scores cover academic multiple-choice questions. They can’t tell you how well a model handles every task in a language. If the gap’s interval includes zero, we can’t call the direction of the difference. The same effort label can also mean different computing budgets across APIs.",
+  title: "The results. With the working attached.",
   intro:
-    "Each release keeps the scores, settings and model responses together so you can check the findings. Corrections appear in a new release; earlier versions stay available.",
-  emptyTitle: "No published releases.",
+    "Scores are easy to put on a website. We also publish the settings, prompts and model responses so you can check ours. If we correct something, it gets a new release. The old one stays put.",
+  emptyTitle: "Nothing published yet.",
   back: "Back to release history",
   download: "Download",
   config: "Experiment settings",
@@ -40,6 +40,6 @@ export default {
   revision: "Dataset version",
   integrity: "File checksums · SHA-256",
   audit:
-    "Download all files in this release to check their integrity and recompute the scores with the benchmark CLI. Verification needs no model requests or API keys.",
-  missing: "This release is not published.",
+    "You can check the math without paying to run the models again. Download all the release files, then use the benchmark CLI to check their checksums and recompute the scores. No model calls or API keys needed.",
+  missing: "We haven’t published this release.",
 } as const;

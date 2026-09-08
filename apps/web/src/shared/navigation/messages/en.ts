@@ -1,7 +1,7 @@
 export default {
   run: "Build a run",
   navigation: "Navigation",
-  becomeSponsor: "Become a sponsor",
+  becomeSponsor: "Support the project",
   resources: "Resources",
   sourceCode: "Source code",
   documentation: "Documentation",
@@ -14,7 +14,7 @@ export default {
   skip: "Skip to content",
   tagline: "Compare LLM accuracy across languages.",
   footer:
-    "Compare LLM accuracy across languages and check the evidence behind every published score.",
-  attribution: "A project by <author>Limit 115</author>.",
+    "We test LLMs across languages and put the results out in the open. Plenty left to test. Plenty you can check.",
+  attribution: "Made by <author>Limit 115</author>.",
   home: "Llang Gap home",
 } as const;

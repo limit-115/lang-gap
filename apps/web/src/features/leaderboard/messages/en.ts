@@ -4,8 +4,8 @@ export default {
   datasetCount: "{count, plural, one {# dataset} other {# datasets}}",
   guideScore: "Score / 100",
   incompleteScore:
-    "More results are needed for a comparable score. Open the model to see available results.",
-  unmeasuredScore: "No comparable score yet. Open the model for available evidence.",
+    "We need more results before we can give this a comparable score. Open the model to see what we have.",
+  unmeasuredScore: "No comparable score yet. Open the model to see what we have tested.",
   scoreDetails: "See how this model performed",
   baseline: "Baseline",
   differencePp: "{value}pp",
@@ -19,26 +19,27 @@ export default {
   searchLanguages: "Find a language…",
 
   noPublishedResults:
-    "Results are not published yet. Dataset and language conditions belong to each experiment.",
+    "We haven’t published any results yet. You can read how we test or set up a run of your own.",
   status: "Status",
-  languageFinderTitle: "Looking for a specific language?",
+  languageFinderTitle: "Which language matters to you?",
   languageFinderSearch: "Search languages…",
   languageFinderNavigationHelp: "Select a language to open its results.",
   languageFinderBrowse: "Browse languages",
   languageFinderNoResults: "We haven’t listed that language yet.",
   languageFinderNoResultsHelp: "Try another language name or tag.",
-  finderTitle: "Looking for a specific model?",
+  finderTitle: "Got a model in mind?",
   finderSearch: "Search models…",
   finderNavigationHelp: "Select a model to open its results.",
   finderBrowse: "Browse models",
   finderNoResults: "We haven’t listed that model yet.",
   finderNoResultsHelp: "Try another model name or developer.",
 
-  title: "See how LLM accuracy changes across languages. With open results you can check.",
+  title: "Your model speaks your language. Does it get it right?",
   description:
-    "Explore model accuracy on different datasets and languages, with reproducible scores and explicit comparisons on aligned questions.",
-  tableTitle: "Compare model accuracy across languages",
-  tableDescription: "Each release records its dataset, languages and evaluation protocol.",
+    "We test LLMs across datasets and languages, then publish the scores, prompts and answers. Including the wrong ones.",
+  tableTitle: "How the models did, language by language",
+  tableDescription:
+    "Every score comes from a published experiment. Open one to see what we tested and how.",
   model: "Model",
   effort: "Reasoning effort",
   gap: "Gap",
@@ -64,12 +65,12 @@ export default {
   alwaysShown: "Always shown",
   visibleLanguages: "{count} of {total} shown",
   noResults: "No models match these filters",
-  noResultsDescription: "Try another model, developer or effort level.",
+  noResultsDescription: "Nothing here yet. Try another model, developer or effort level.",
   neutral: "This interval includes zero; neither language has clearly higher accuracy.",
   release: "Release {id}",
-  metadataTitle: "Compare LLM accuracy across languages",
+  metadataTitle: "Does your LLM get it right in your language?",
   metadataPlannedDescription:
-    "An open multilingual LLM benchmark across datasets and languages selected for each experiment. Explore the methodology; results are not yet published.",
+    "We’re building an open benchmark for LLM accuracy across datasets and languages. Results aren’t published yet. Read how we test or build your own run.",
   metadataDescription:
-    "See how LLM accuracy changes across languages. With open results you can check. Compare models, understand the gaps, and inspect the evidence.",
+    "Compare LLM accuracy across datasets and languages. Open scores, prompts and model responses. Find a model worth testing on your own work.",
 } as const;

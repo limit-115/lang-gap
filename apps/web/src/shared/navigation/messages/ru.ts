@@ -3,7 +3,7 @@ import type en from "./en";
 export default {
   run: "Настроить запуск",
   navigation: "Навигация",
-  becomeSponsor: "Стать спонсором",
+  becomeSponsor: "Поддержать проект",
   resources: "Ресурсы",
   sourceCode: "Исходный код",
   documentation: "Документация",
@@ -16,7 +16,7 @@ export default {
   skip: "Перейти к содержимому",
   tagline: "Сравните точность LLM на разных языках.",
   footer:
-    "Сравнивайте точность LLM на разных языках и проверяйте данные, на которых основана каждая опубликованная оценка.",
-  attribution: "Проект <author>Limit 115</author>.",
+    "Мы тестируем LLM на разных языках и открыто публикуем результаты. Нам ещё многое предстоит проверить. Вам уже есть что перепроверить.",
+  attribution: "Сделано в <author>Limit 115</author>.",
   home: "Llang Gap — главная",
 } as const satisfies Dictionary<typeof en>;
