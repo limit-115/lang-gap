@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "latest": "published-4b5047b3a2700f37af0f-5847eff9",
+  "latest": "published-9e060efaceefee0386e7-39197a23",
   "snapshots": [
     {
       "id": "model-guide-2026-09-08",
@@ -21,6 +21,10 @@
     {
       "id": "published-4b5047b3a2700f37af0f-5847eff9",
       "sha256": "6544fbb4574c48ec7351d79d3a6e036dba8566ebba38004b5b4e39489993fe61"
+    },
+    {
+      "id": "published-9e060efaceefee0386e7-39197a23",
+      "sha256": "42e61b944ef2a0ce7017d49b0033c229dedb84607d12de887cadb07fe4faa372"
     }
   ]
 }

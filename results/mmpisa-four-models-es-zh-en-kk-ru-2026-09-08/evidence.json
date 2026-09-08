@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "releaseId": "mmpisa-four-models-es-zh-en-kk-ru-2026-09-08",
+  "runCreatedAt": "2026-09-08T13:37:26.159Z",
+  "configHash": "dbb43f80e4c0b974bf7b231398b6cc4b785c07f1d4c0ab15d65a8b8cce12baa8",
+  "datasetManifestHash": "81c75ee0967e1ce708e83958d9f53d880de4735d0036144ac3b9463372a5e0ce",
+  "protocolHash": "72c89059d1feae7445c3c3ddfab53f6b13f41f0e3d4156735f27fb361d330cfe",
+  "languages": [
+    {
+      "language": "es",
+      "n": 25,
+      "inputHash": "e369480f9ea84d9be97f0133c947dfe9417a5720f3354a6db708f9fd63f80ebd",
+      "alignmentHash": "8d8c4b3ba7c1224de7e1bc6a5624e779a8fb9bf3d0cd92a665e1a344e70baba0",
+      "randomBaseline": 0.27
+    },
+    {
+      "language": "zh",
+      "n": 25,
+      "inputHash": "024a534d533e1bb26c4541ccb090843994e8bd502dfd4bb13c312d5928a43530",
+      "alignmentHash": "8d8c4b3ba7c1224de7e1bc6a5624e779a8fb9bf3d0cd92a665e1a344e70baba0",
+      "randomBaseline": 0.27
+    },
+    {
+      "language": "en",
+      "n": 25,
+      "inputHash": "c234ad9c2f473098d4da5af5d938566d2817f9bac8a9fa98ac5f9113fa042ba7",
+      "alignmentHash": "8d8c4b3ba7c1224de7e1bc6a5624e779a8fb9bf3d0cd92a665e1a344e70baba0",
+      "randomBaseline": 0.27
+    },
+    {
+      "language": "kk",
+      "n": 25,
+      "inputHash": "ceeef2f704f0c1c7b286561050e26d60c3d3910fcc86742072a38b068d8acac8",
+      "alignmentHash": "8d8c4b3ba7c1224de7e1bc6a5624e779a8fb9bf3d0cd92a665e1a344e70baba0",
+      "randomBaseline": 0.27
+    },
+    {
+      "language": "ru",
+      "n": 25,
+      "inputHash": "3b0693940772c2fc3886238d391c31e875b5a3139ed94e8372a9aa3e81e3f1a0",
+      "alignmentHash": "8d8c4b3ba7c1224de7e1bc6a5624e779a8fb9bf3d0cd92a665e1a344e70baba0",
+      "randomBaseline": 0.27
+    }
+  ],
+  "configurations": [
+    {
+      "transport": "openrouter",
+      "model": "upstage/solar-pro4",
+      "maxOutputTokens": null
+    },
+    {
+      "transport": "openrouter",
+      "model": "qwen/qwen3.7-flash",
+      "maxOutputTokens": null
+    },
+    {
+      "transport": "openrouter",
+      "model": "openai/gpt-oss-120b",
+      "maxOutputTokens": null
+    },
+    {
+      "transport": "openrouter",
+      "model": "inception/mercury-2.5-preview",
+      "maxOutputTokens": null
+    }
+  ]
+}
