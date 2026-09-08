@@ -10,7 +10,6 @@ import {
   ArrowUp,
   ArrowUpRight,
   BookOpen,
-  CalendarDays,
   Check,
   ChevronRight,
   FileText,
@@ -258,9 +257,6 @@ export function ReleaseDesigns({
           aria-labelledby={`heading-${day}`}
         >
           <div className="release-day-heading">
-            <span className="day-marker">
-              <CalendarDays aria-hidden="true" />
-            </span>
             <div>
               <h2 id={`heading-${day}`}>
                 <time dateTime={day}>{date(day)}</time>
