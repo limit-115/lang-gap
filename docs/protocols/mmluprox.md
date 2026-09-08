@@ -190,7 +190,7 @@ The experiment embeds dated standard-tier pricing from
 [Anthropic](https://platform.claude.com/docs/en/models/fable-5-1/overview).
 Per-item `costUsd` and aggregate `costUsd` describe selected completed responses.
 The separate attempt ledger and execution summary include failed/uncertain
-attempts and reservations; they are the authoritative view of total run spending.
+attempts. Any attempt with unknown usage or ambiguous billing leaves total cost unknown.
 
 ## OpenRouter transport
 

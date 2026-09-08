@@ -10,7 +10,7 @@ maintained specifications for current implementation decisions:
 - [Shared benchmark protocol](protocol.md): dataset/protocol boundaries, independent
   language scores, explicit aligned comparisons, statistical units and identity.
 - [Dataset manifests](datasets.md): pinned files, format adapters and localized inputs.
-- [Runner](runner.md): launch parameters, execution, immutable resume and paid budgets.
+- [Runner](runner.md): launch parameters, execution, immutable resume and usage accounting.
 - [Release contract](releases.md): versioned aggregates, verification and website boundary.
 - [Initial comparison](first-comparison.md) and [MMLU-ProX adapter](protocols/mmluprox.md):
   experiment-specific sources and methodological constraints.

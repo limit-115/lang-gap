@@ -64,8 +64,6 @@ export const experimentOptions = () =>
     )
     .option("--max-attempts <count>", "Total attempts per job (default: 3)", attemptsValue)
     .option("--timeout-ms <milliseconds>", "Request timeout (default: 120000)", positiveInteger)
-    .option("--budget-usd <amount>", "Optional total charged/reserved USD limit", number)
-    .option("--no-budget", "Clear a YAML budget")
     .option("--no-pricing", "Clear YAML rates; preserve unknown costs")
     .option("--pricing-as-of <date>", "Date of the supplied rates (YYYY-MM-DD)")
     .option("--pricing-source <url>", "Source URL for the supplied rates")

@@ -3,13 +3,7 @@ import { join, resolve } from "node:path";
 import { readdir, stat } from "node:fs/promises";
 import { Command, CommanderError } from "@commander-js/extra-typings";
 import type { CommandUnknownOpts } from "@commander-js/extra-typings";
-import {
-  experimentOptions,
-  number,
-  positiveInteger,
-  concurrencyValue,
-  attemptsValue,
-} from "./cli-options";
+import { experimentOptions, positiveInteger, concurrencyValue, attemptsValue } from "./cli-options";
 import { analysisSelectionSchema } from "@llang-gap/contracts";
 import { compareRuns } from "./compare";
 import { prepareDataset, readManifest } from "@llang-gap/datasets";
@@ -21,7 +15,6 @@ import {
   readRunDataset,
 } from "@llang-gap/evaluation/run-catalog";
 import { createJobs, summarizePlan } from "./plan";
-import { readCalibration } from "./forecast";
 import { createRun, resumeRun, runPath } from "./run";
 import { readSnapshot } from "./snapshot";
 import { buildRelease, scoreRun, stageRelease, verifyRelease } from "./release";
@@ -168,29 +161,17 @@ program
 program.addCommand(
   experimentOptions()
     .name("plan")
-    .description("Validate and expand an experiment without model requests")
-    .option(
-      "--calibrate-from <directory>",
-      "Forecast costs from a completed compatible run with usage",
-    )
+    .description("Validate an experiment and count requests without calling model APIs")
     .action(async (path, options) => {
-      const {
-        experiment,
-        manifest,
-        questions,
-        hash: datasetHash,
-      } = await prepare(path, options.offline, options);
+      const { experiment, manifest, questions } = await prepare(path, options.offline, options);
       const jobs = createJobs(experiment, questions, hash(json(experiment)), manifest);
-      const forecast = options.calibrateFrom
-        ? await readCalibration(resolve(options.calibrateFrom), experiment, jobs, datasetHash)
-        : null;
-      output({ ...summarizePlan(experiment, jobs), resolvedExperiment: experiment, forecast });
+      output(summarizePlan(experiment, jobs));
     }),
 );
 program.addCommand(
   experimentOptions()
     .name("run")
-    .description("Execute an experiment; cost planning and a budget are optional")
+    .description("Execute an experiment")
     .option(
       "--max-jobs <count>",
       "Pause after this many jobs; preserve the complete experiment",
@@ -252,7 +233,6 @@ program
 program
   .command("resume <run-id>")
   .description("Continue using the original immutable configuration")
-  .option("--budget-usd <amount>", "Total budget; omit to retain the previous setting", number)
   .option("--concurrency <count>", "Concurrent requests per transport", concurrencyValue)
   .option("--max-jobs <count>", "Pause after this many additional jobs", positiveInteger)
   .option(
@@ -272,7 +252,6 @@ program
     executionOutput(
       await withSignals((signal) =>
         resumeRun(runPath(id), {
-          ...(options.budgetUsd === undefined ? {} : { budgetUsd: options.budgetUsd }),
           signal,
           onReady: (runId, directory) => logging!.openRun(runId, directory),
           ...(options.retryUncertain ? { retryUncertain: true } : {}),

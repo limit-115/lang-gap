@@ -71,11 +71,56 @@ it.each(
   ).toBe(true);
   const jobs = createJobs(config, questions, "cli");
   expect(jobs).toHaveLength(2 * 2 * 3 * 5 * 3);
-  expect(summarizePlan(config, jobs)).toMatchObject({
+  expect(summarizePlan(config, jobs)).toEqual({
+    experiment: config.id,
+    synthetic: false,
+    dataset: config.dataset,
+    languages: ["ru", "en"],
+    comparisons: [],
     questionsPerLanguage: { en: 2, ru: 2 },
     requests: 180,
-    upperBoundUsdAllAttempts: null,
+    configurations: 15,
+    repeats: 3,
+    maxAttemptsPerRequest: 3,
   });
+});
+
+it.each([0, null, 10])("rejects removed budget settings in YAML (%s)", async (budgetUsd) => {
+  const root = await mkdtemp(join(tmpdir(), "llang-config-"));
+  try {
+    const path = join(root, "experiment.yaml");
+    await writeFile(
+      path,
+      stringify({ ...experiment, execution: { ...experiment.execution, budgetUsd } }),
+    );
+    await expect(configure([path])).rejects.toThrow("budgetUsd");
+    await expect(configure([path, "--concurrency", "2"])).rejects.toThrow("budgetUsd");
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+it.each(
+  [
+    ["run", "--budget-usd=1"],
+    ["run", "--no-budget"],
+    ["resume", "fixture", "--budget-usd=1"],
+    ["plan", "--budget-usd=1"],
+    ["plan", "--no-budget"],
+    ["plan", "--calibrate-from=fixture"],
+    ["dataset", "prepare", "--budget-usd=1"],
+  ].map((args) => [args]),
+)("rejects removed CLI options before doing work: %j", async (args) => {
+  const { spawnSync } = await import("node:child_process");
+  const result = spawnSync(
+    process.execPath,
+    ["--import", "tsx", "apps/runner/src/cli.ts", ...args],
+    { encoding: "utf8" },
+  );
+  expect(result.status).toBe(1);
+  expect(result.stderr).toContain("unknown option");
+  expect(result.stdout).toBe("");
+  expect(result.stderr).not.toContain("Resolving experiment");
 });
 
 it("overrides YAML before validation and records execution flags in the resolved settings", async () => {
@@ -86,7 +131,6 @@ it("overrides YAML before validation and records execution flags in the resolved
       path,
       stringify({
         ...experiment,
-        execution: { ...experiment.execution, budgetUsd: 5 },
         models: [{ ...experiment.models[0], efforts: ["obsolete"] }],
       }),
     );
@@ -112,7 +156,6 @@ it("overrides YAML before validation and records execution flags in the resolved
       "--max-output-tokens",
       "4096",
       "--no-pricing",
-      "--no-budget",
     ]);
     expect(config).toMatchObject({
       id: "overridden",
@@ -120,13 +163,11 @@ it("overrides YAML before validation and records execution flags in the resolved
       comparisons: [],
       repeats: 4,
       seed: 101,
-      execution: { concurrency: 3, maxAttempts: 5, timeoutMs: 5000, budgetUsd: null },
+      execution: { concurrency: 3, maxAttempts: 5, timeoutMs: 5000 },
       models: [{ efforts: ["max"], maxOutputTokens: 4096 }],
     });
     expect(config.questionLimit).toBeUndefined();
     expect(config.models[0]!.pricing).toBeUndefined();
-    const zero = await configure([path, "--efforts", "low", "--budget-usd", "0"]);
-    expect(zero.execution.budgetUsd).toBe(0);
     const changed = await configure([path, "--models", "new-native-id", "--transport", "openai"]);
     expect(changed.models[0]).toMatchObject({
       transport: "openai",
@@ -160,17 +201,11 @@ it("can supply every price field, including zero, with no YAML", async () => {
     "0",
     "--output-per-million",
     "0",
-    "--budget-usd",
-    "0",
   ]);
   expect(config.models[0]!.pricing).toEqual({
     ...experiment.models[0]!.pricing,
     asOf: "2026-09-07",
     source: "https://example.org/rates",
-  });
-  expect(summarizePlan(config, createJobs(config, questions, "zero"))).toMatchObject({
-    upperBoundUsdOneAttempt: 0,
-    upperBoundUsdAllAttempts: 0,
   });
 });
 
@@ -203,7 +238,6 @@ it.each(
     ["--efforts", "low,low"],
     ["--language", "ru", "--languages", "en"],
     ["--question-limit", "2", "--all-questions"],
-    ["--budget-usd", "1", "--no-budget"],
     ["--no-pricing", "--input-per-million", "0"],
     ["--input-per-million", "0"],
   ].map((args) => [args]),

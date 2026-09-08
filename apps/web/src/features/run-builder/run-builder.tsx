@@ -574,13 +574,6 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
           {t("offline")}
         </label>
         <p className={styles.hint}>{t("offlineHint")}</p>
-        {textInput("budgetUsd", {
-          type: "number",
-          min: 0,
-          step: "any",
-          placeholder: t("optional"),
-          hint: t("budgetHint"),
-        })}
         <label className={styles.checkRow}>
           <input
             type="checkbox"

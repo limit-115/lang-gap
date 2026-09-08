@@ -114,7 +114,7 @@ existing [CI workflow](.github/workflows/ci.yml) must pass before merge.
 Target `main` and use the [PR template](.github/pull_request_template.md). A draft
 is useful while work or verification is incomplete.
 
-- Use a concise conventional title, such as `fix(runner): preserve retry budget`
+- Use a concise conventional title, such as `fix(runner): preserve saved responses`
   or `docs: clarify release verification`.
 - Describe the problem, what changed, and why. Link the related issue when there
   is one; an issue is not required for a small fix.

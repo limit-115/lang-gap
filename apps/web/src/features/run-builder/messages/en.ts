@@ -121,11 +121,6 @@ export default {
   offlineHint: "Disables dataset downloads. Model API calls remain enabled.",
   maxJobsHint:
     "Pauses dispatch without reducing the experiment. Continue later with pnpm bench resume RUN_ID.",
-  budgetNeedsRates:
-    "A budget needs complete token rates and a finite output cap when output tokens have a nonzero price.",
-  budgetUsd: "Budget limit (USD)",
-  budgetHint:
-    "Optional. Requires token rates and finite cost bounds. Set spending limits in your API account too.",
   pricing: "Supply token rates",
   pricingHint:
     "Optional. Rates apply to every selected model. Leave off when rates differ; use YAML for per-model settings.",
@@ -147,11 +142,11 @@ export default {
   fixErrors:
     "Complete the required fields and fix the highlighted settings to generate your command.",
   advancedErrors: "Some advanced settings need attention. Open Advanced settings to review them.",
-  requests: "{count, number} planned requests",
+  requests: "{count, number} requests",
   requestsHint:
     "Selected questions × models × efforts × repeats. Before retries; a job limit only pauses the run.",
   costUnknown: "Cost unknown · no token rates supplied",
-  costConfigured: "Token rates supplied · check the plan for cost bounds",
+  costConfigured: "Token rates supplied for recorded usage",
   fakeNote:
     "Synthetic responses. No model API calls or API key needed. Dataset files may be downloaded.",
   liveNote:

@@ -124,13 +124,12 @@ describe("run → resume → independent release verification", () => {
       experiment,
       questions,
       manifest: await manifest(),
-      budgetUsd: 0,
       maxJobs: 2,
       adapters,
     });
     expect(first.completed).toBe(2);
     await expect(buildRelease(directory, "incomplete", "test", root)).rejects.toThrow("Incomplete");
-    const resumed = await resumeRun(directory, { budgetUsd: 0, adapters });
+    const resumed = await resumeRun(directory, { adapters });
     expect(resumed.completed).toBe(12);
     expect(generate).toHaveBeenCalledTimes(12);
     const scores = await scoreRun(directory);
@@ -175,9 +174,8 @@ describe("run → resume → independent release verification", () => {
       });
       expect(first.completed).toBe(1);
       const original = await readFile(join(directory, "resolved.json"), "utf8");
-      expect(snapshotSchema.parse(JSON.parse(original)).initialBudgetUsd).toBeNull();
       const done = await resumeRun(directory, { adapters });
-      expect(done.chargedOrReservedUsd).toBe(priced ? 0 : null);
+      expect(done.chargedUsd).toBe(priced ? 0 : null);
       const artifact = await buildRelease(directory, "optional-cost-release", "test", root);
       const verified = await verifyRelease(artifact.directory);
       expect(verified.aggregate).toHaveLength(2);
@@ -186,26 +184,6 @@ describe("run → resume → independent release verification", () => {
     },
   );
 
-  it("retains the last explicit budget on a later resume", async () => {
-    const directory = join(root, "budget-history");
-    await createRun({
-      directory,
-      experiment,
-      questions,
-      manifest: await manifest(),
-      budgetUsd: 1,
-      maxJobs: 1,
-    });
-    await resumeRun(directory, { budgetUsd: 2, maxJobs: 1 });
-    await resumeRun(directory, { maxJobs: 1 });
-    const state = new RunState(join(directory, "state.sqlite"));
-    try {
-      expect(state.lastBudget(null)).toBe(2);
-    } finally {
-      state.close();
-    }
-  });
-
   it("detects scientific configuration and SQLite job tampering", async () => {
     const directory = join(root, "run");
     await createRun({
@@ -213,19 +191,16 @@ describe("run → resume → independent release verification", () => {
       experiment,
       questions,
       manifest: await manifest(),
-      budgetUsd: 0,
       maxJobs: 1,
     });
     const state = new RunState(join(directory, "state.sqlite"));
     state.db.prepare("UPDATE jobs SET payload='{}' WHERE ordinal=1").run();
     state.close();
-    await expect(resumeRun(directory, { budgetUsd: 0 })).rejects.toThrow("payload differs");
+    await expect(resumeRun(directory, {})).rejects.toThrow("payload differs");
     const path = join(directory, "resolved.json");
     const content = await readFile(path, "utf8");
     await writeFile(path, content.replace('"seed": 42', '"seed": 43'));
-    await expect(resumeRun(directory, { budgetUsd: 0 })).rejects.toThrow(
-      "configuration was modified",
-    );
+    await expect(resumeRun(directory, {})).rejects.toThrow("configuration was modified");
   });
 
   it.each([protocolV1.id, protocol.id])(
@@ -251,12 +226,11 @@ describe("run → resume → independent release verification", () => {
         experiment: config,
         questions,
         manifest: await manifest(),
-        budgetUsd: 0,
         maxJobs: 1,
         adapters,
       });
       const original = await readFile(join(directory, "resolved.json"), "utf8");
-      await resumeRun(directory, { budgetUsd: 0, adapters });
+      await resumeRun(directory, { adapters });
       expect(generate).toHaveBeenCalledTimes(12);
       const state = new RunState(join(directory, "state.sqlite"));
       const rows = state.results();
@@ -275,7 +249,6 @@ describe("run → resume → independent release verification", () => {
       experiment,
       questions,
       manifest: await manifest(),
-      budgetUsd: 0,
       maxJobs: 1,
     });
     const path = join(directory, "resolved.json");
@@ -284,14 +257,12 @@ describe("run → resume → independent release verification", () => {
     const modified = json(snapshot);
     await writeFile(path, modified);
     await writeFile(join(directory, "identity.json"), json({ configHash: hash(modified) }));
-    await expect(resumeRun(directory, { budgetUsd: 0 })).rejects.toThrow(
-      "Protocol implementation differs",
-    );
+    await expect(resumeRun(directory, {})).rejects.toThrow("Protocol implementation differs");
   });
 
   it("requires the recorded scoring implementation for release reproduction", async () => {
     const directory = join(root, "run");
-    await createRun({ directory, experiment, questions, manifest: await manifest(), budgetUsd: 0 });
+    await createRun({ directory, experiment, questions, manifest: await manifest() });
     const path = join(directory, "resolved.json");
     const snapshot = snapshotSchema.parse(await readJson(path));
     snapshot.implementation.sha256 = "0".repeat(64);
@@ -315,7 +286,6 @@ describe("run → resume → independent release verification", () => {
       experiment,
       questions,
       manifest: await manifest(),
-      budgetUsd: 0,
       adapters: new Map([["fake", adapter]]),
     });
     await expect(buildRelease(directory, "bad", "test", root)).rejects.toThrow("Truncation");
@@ -343,7 +313,6 @@ describe("run → resume → independent release verification", () => {
       },
       questions,
       manifest: await manifest(),
-      budgetUsd: 0,
       adapters: new Map([["fake", adapter]]),
     });
     const state = new RunState(join(directory, "state.sqlite"));
@@ -362,7 +331,7 @@ describe("run → resume → independent release verification", () => {
 
   it("rejects fabricated saved correctness even with unchanged output", async () => {
     const directory = join(root, "run");
-    await createRun({ directory, experiment, questions, manifest: await manifest(), budgetUsd: 0 });
+    await createRun({ directory, experiment, questions, manifest: await manifest() });
     const state = new RunState(join(directory, "state.sqlite"));
     state.db
       .prepare(
@@ -377,11 +346,11 @@ describe("run → resume → independent release verification", () => {
 
   it("recomputes financial totals even when the file checksum was updated", async () => {
     const directory = join(root, "run");
-    await createRun({ directory, experiment, questions, manifest: await manifest(), budgetUsd: 0 });
+    await createRun({ directory, experiment, questions, manifest: await manifest() });
     const release = await buildRelease(directory, "audit", "test", root);
     const executionPath = join(release.directory, "execution.json");
     const original = await readFile(executionPath, "utf8");
-    const modified = original.replace('"chargedOrReservedUsd": 0', '"chargedOrReservedUsd": 1');
+    const modified = original.replace('"chargedUsd": 0', '"chargedUsd": 1');
     await writeFile(executionPath, modified);
     const releasePath = join(release.directory, "manifest.json");
     const releaseData = releaseManifestSchema.parse(await readJson(releasePath));

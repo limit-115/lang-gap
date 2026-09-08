@@ -159,14 +159,13 @@ describe("dataset and language selection", () => {
               manifest,
               questions: prepared.questions,
               directory,
-              budgetUsd: 0,
               adapters,
               maxJobs: 1,
             })
           ).completed,
         ).toBe(1);
         const snapshot = await readFile(join(directory, "resolved.json"), "utf8");
-        expect((await resumeRun(directory, { budgetUsd: 0, adapters })).completed).toBe(12);
+        expect((await resumeRun(directory, { adapters })).completed).toBe(12);
         expect(generate).toHaveBeenCalledTimes(12);
         const state = new RunState(join(directory, "state.sqlite"));
         try {
@@ -216,7 +215,6 @@ describe("dataset and language selection", () => {
           manifest,
           questions: selected.questions,
           directory: join(root, "single"),
-          budgetUsd: 0,
           adapters,
         });
         const singleState = new RunState(join(singleRun.directory, "state.sqlite"));
@@ -240,7 +238,7 @@ describe("dataset and language selection", () => {
         // A historical snapshot must never be reinterpreted with the new aggregation rules.
         await writeFile(
           join(directory, "resolved.json"),
-          snapshot.replace('"schemaVersion": 3', '"schemaVersion": 2'),
+          snapshot.replace('"schemaVersion": 4', '"schemaVersion": 3'),
         );
         await expect(readSnapshot(directory)).rejects.toThrow("recorded source");
       } finally {

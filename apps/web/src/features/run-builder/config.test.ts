@@ -146,7 +146,6 @@ const priced: RunSettings = {
   cacheWritePerMillion: "0",
   cacheWrite1hPerMillion: "0",
   outputPerMillion: "2",
-  budgetUsd: "0",
   maxOutputTokens: "1024",
   id: "custom",
   seed: "7",
@@ -155,19 +154,10 @@ const priced: RunSettings = {
   timeoutMs: "60000",
 };
 
-it("requires complete rates and bounded paid output for a budget, preserving zero values", () => {
-  expect(buildRun({ ...settings, budgetUsd: "20" }, datasets).errors.budgetUsd).toBe(
-    "budgetNeedsRates",
-  );
-  expect(buildRun({ ...priced, maxOutputTokens: "" }, datasets).errors.budgetUsd).toBe(
-    "budgetNeedsRates",
-  );
+it("validates supplied rates and accepts uncapped output", () => {
   expect(buildRun({ ...priced, cachedInputPerMillion: "" }, datasets).command).toBeNull();
-  expect(
-    buildRun({ ...priced, maxOutputTokens: "", outputPerMillion: "0" }, datasets).command,
-  ).not.toBeNull();
+  expect(buildRun({ ...priced, maxOutputTokens: "" }, datasets).command).not.toBeNull();
   const result = buildRun(priced, datasets);
-  expect(result.command).toContain("--budget-usd=0");
   expect(result.command).toContain("--cache-write1h-per-million=0");
   expect(result.command).toContain("--seed=7");
   expect(result.command).toContain("--timeout-ms=60000");
