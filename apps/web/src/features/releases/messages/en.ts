@@ -1,6 +1,7 @@
 export default {
   designs: {
     submittedBy: "Submitted by",
+    submittedAt: "at {time} UTC",
     submitterUnknown: "Submitter not recorded",
     openNamedReport: "Open report: {title}",
     publishedTime: "Published at {time} UTC",

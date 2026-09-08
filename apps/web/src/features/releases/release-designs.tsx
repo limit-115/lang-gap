@@ -116,15 +116,7 @@ export function ReleaseDesigns({
           <div className="report-content">
             <div className="report-topline">
               <span className="report-dataset">{release.dataset}</span>
-              {design === "board" ? (
-                <time
-                  className="report-time-chip"
-                  dateTime={release.createdAt}
-                  aria-label={t("publishedTime", { time })}
-                >
-                  {time} UTC
-                </time>
-              ) : (
+              {design !== "board" && (
                 <span className="report-model-count">
                   {t("modelCount", { count: models.length })}
                 </span>
@@ -167,10 +159,18 @@ export function ReleaseDesigns({
                     title={`@${submitter.githubUsername}`}
                   >
                     {submitter.fullName}
-                  </a>
+                  </a>{" "}
+                  <time className="report-submitted-time" dateTime={release.createdAt}>
+                    {t("submittedAt", { time })}
+                  </time>
                 </span>
               ) : (
-                <span>{t("submitterUnknown")}</span>
+                <span>
+                  {t("submitterUnknown")} ·{" "}
+                  <time className="report-submitted-time" dateTime={release.createdAt}>
+                    {t("publishedTime", { time })}
+                  </time>
+                </span>
               )}
             </div>
             <Link

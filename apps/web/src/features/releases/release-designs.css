@@ -1310,12 +1310,6 @@
   margin-bottom: 13px;
   padding-right: 42px;
 }
-.report-time-chip {
-  color: var(--muted-foreground);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  white-space: nowrap;
-}
 .release-design-board .report-content h3 {
   max-width: 430px;
   font-size: 1.1875rem;
@@ -1582,6 +1576,10 @@
 .report-submitter svg {
   width: 15px;
   height: 15px;
+}
+.report-submitted-time {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 .report-submitter a {
   color: var(--foreground);

@@ -3,6 +3,7 @@ import type en from "./en";
 export default {
   designs: {
     submittedBy: "Автор отчёта:",
+    submittedAt: "в {time} UTC",
     submitterUnknown: "Автор не указан",
     openNamedReport: "Открыть отчёт: {title}",
     publishedTime: "Опубликовано в {time} UTC",
