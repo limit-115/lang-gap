@@ -73,8 +73,8 @@ out of model prompts. Preserve every selected language condition. Compute paired
 only for explicitly selected analysis conditions with validated question alignment;
 comparisons may be selected after execution. Never assume a fixed language pair or
 pool raw question denominators across datasets. The separately versioned
-[model guide](docs/model-guide.md) defines explicit normalized task/family weights;
-changes to its scientific basis require a new suite identity.
+[model guide](docs/model-guide.md) defines equal-weight aggregation across available datasets;
+changes to its formula or selection rule require a new aggregation identity.
 
 Use the fake transport for routine development. `--offline` only disables dataset
 downloads; it does not disable live model APIs. Paid evaluations require an

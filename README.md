@@ -58,7 +58,7 @@ and errors go to stderr. Add `--json` for structured errors too.
 
 All experiment settings can be supplied as CLI flags; YAML is optional and flags
 take precedence. Lists accept commas or spaces. Token rates for recorded usage are optional;
-unknown costs remain `null`. See the [complete flag reference](docs/runner.md#cli-and-yaml-configuration).
+unknown costs remain `null`. See the [runner setup guide](docs/runner.md#cli-and-yaml-configuration).
 
 Use **Build a run** in the website navigation, or **Want to run your own?** on the
 homepage, to configure a local experiment. Select a dataset, compatible protocol,
@@ -173,7 +173,7 @@ worked examples per subject, and GPT-6 Astra and Claude Fable 5.1 at low, medium
 effort. It measures academic multiple-choice accuracy.
 
 Read [the operator guide](docs/runner.md) and [its exact protocol](docs/protocols/mmluprox.md)
-before running paid evaluations. These are example conditions, not benchmark-wide defaults. The [primary comparison plan](docs/first-comparison.md)
+before running paid evaluations. These are example conditions, not benchmark-wide defaults. The [initial experiment](experiments/mvp.yaml)
 uses author prompts/extraction with the 2048-token API cap (`author-api-v3`);
 experimental v2 is historical only. Pricing, model availability and the output cap
 must be checked for your API account. The configured USD rates are dated
@@ -209,7 +209,7 @@ overwritten; corrected results receive a new release ID.
 ## Open artifacts
 
 See [search and AI discovery](docs/search-discovery.md) for the public origin,
-preview indexing rules, and the publication checklist for citable release pages.
+preview indexing precautions, and checks for citable release pages.
 
 See [release and web integration](docs/releases.md) for the public file contract,
 hash verification, independent scoring and explicit staging. The website reads
