@@ -5,7 +5,6 @@ export default {
   title: "Make the benchmark yours.",
   intro: "Choose what to test. Copy the command. Run it on your machine.",
   metadataTitle: "Build your own benchmark run",
-  back: "Back to results",
   experimentTitle: "What do you want to test?",
   executionTitle: "How should it run?",
   dataset: "Dataset",

@@ -11,13 +11,6 @@
   color: var(--muted-foreground);
   margin: 0;
 }
-.back {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.875rem;
-  color: var(--muted-foreground);
-}
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
