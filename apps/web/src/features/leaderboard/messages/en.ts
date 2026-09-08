@@ -1,4 +1,19 @@
 export default {
+  guideScore: "Score / 100",
+  incompleteScore:
+    "More results are needed for a comparable score. Open the model to see available results.",
+  unmeasuredScore: "No comparable score yet. Open the model for available evidence.",
+  scoreDetails: "See how this model performed",
+  indexDifference: "Difference · points",
+  incomparableScores: "These language scores do not have a comparable test basis.",
+  differenceHelp:
+    "Difference between index scores, not a significance test. See the model page for paired results on individual tests.",
+  compareLanguages: "Compare languages",
+  closeComparison: "Close comparison",
+  searchLanguages: "Find a language…",
+  baseline: "Compare from",
+  candidate: "Compare to",
+
   noPublishedResults:
     "Results are not published yet. Dataset and language conditions belong to each experiment.",
   status: "Status",
@@ -15,7 +30,7 @@ export default {
   title: "See how LLM accuracy changes across languages. With open results you can check.",
   description:
     "Explore model accuracy on different datasets and languages, with reproducible scores and explicit comparisons on aligned questions.",
-  tableTitle: "Compare model accuracy across languages",
+  tableTitle: "Compare models in your language",
   tableDescription: "Each release records its dataset, languages and evaluation protocol.",
   model: "Model",
   effort: "Reasoning effort",
@@ -41,9 +56,8 @@ export default {
   languageColumns: "Languages",
   visibleLanguages: "{count} of {total} shown",
   noResults: "No models match these filters",
-  noResultsDescription:
-    "Try another model or developer name, or choose a different reasoning effort.",
-  rowRange: "{from}–{to} of {total} configurations",
+  noResultsDescription: "Try another model or developer name.",
+  rowRange: "{from}–{to} of {total, plural, one {# model} other {# models}}",
   rowsPerPage: "Rows per page",
   pageOf: "Page {page} of {total}",
   firstPage: "First page",

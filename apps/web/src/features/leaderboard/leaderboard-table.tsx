@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
 import { useTable } from "@tanstack/react-table";
 import {
   ChevronLeft,
@@ -13,7 +13,8 @@ import {
   X,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import type { Aggregate, Comparison } from "@llang-gap/contracts";
+import type { Comparison } from "@llang-gap/contracts";
+import type { GuideModel } from "@llang-gap/contracts/guide";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -38,33 +39,31 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { accuracyColumnId, useLeaderboardColumns } from "./columns";
-import { efforts, plannedRows } from "./model-catalog";
+import { useLeaderboardColumns } from "./columns";
+import { visibleComparison } from "./table-state";
 import { features } from "./data-table-features";
 
-export function LeaderboardTable({
-  rows,
-  languages,
-  comparisons,
-}: {
-  rows: Aggregate[];
-  languages: string[];
-  comparisons: Comparison[];
-}) {
+export function LeaderboardTable({ rows, languages }: { rows: GuideModel[]; languages: string[] }) {
   const locale = useLocale();
   const t = useTranslations("Leaderboard");
   const pageSizeId = useId();
-  const columns = useLeaderboardColumns(rows.length > 0, languages, comparisons);
+  const [visible, setVisible] = useState(languages.slice(0, 3));
+  const [languageSearch, setLanguageSearch] = useState("");
+  const [comparing, setComparing] = useState(false);
+  const [baseline, setBaseline] = useState<string | null>(null);
+  const [candidate, setCandidate] = useState<string | null>(null);
+  const comparison: Comparison | null =
+    comparing && baseline && candidate
+      ? visibleComparison({ baseline, language: candidate }, visible)
+      : null;
+  const columns = useLeaderboardColumns(visible, comparison);
   const table = useTable({
     features,
-    data: rows.length ? rows : plannedRows,
+    data: rows,
     columns,
-    getRowId: (row) => `${row.transport}/${row.model}/${row.effort}`,
+    getRowId: (row) => row.id,
     initialState: {
-      sorting: [
-        { id: "model", desc: false },
-        { id: "effort", desc: false },
-      ],
+      sorting: [{ id: "model", desc: false }],
       pagination: { pageIndex: 0, pageSize: 10 },
     },
     enableSortingRemoval: false,
@@ -76,14 +75,26 @@ export function LeaderboardTable({
   const hasFilters = table.state.columnFilters.length > 0;
   const languageColumns = languages.map((language) => ({
     language,
-    column: table.getColumn(accuracyColumnId(language))!,
     label: new Intl.DisplayNames([locale], { type: "language" }).of(language) ?? language,
   }));
-  const visibleLanguageCount = languageColumns.filter(({ column }) => column.getIsVisible()).length;
-  const effortItems = [
-    { value: "all", label: t("allEfforts") },
-    ...efforts.map((value) => ({ value, label: t(value) })),
-  ];
+  const visibleLanguageCount = visible.length;
+  const toggleLanguage = (language: string, checked: boolean) => {
+    const next = checked
+      ? languages.filter((entry) => entry === language || visible.includes(entry))
+      : visible.filter((entry) => entry !== language);
+    setVisible(next);
+    if (language === baseline || language === candidate) {
+      setComparing(false);
+      setBaseline(null);
+      setCandidate(null);
+    }
+    table.setSorting([{ id: "model", desc: false }]);
+  };
+  const chooseLanguage = (kind: "baseline" | "candidate", value: string | null) => {
+    if (kind === "baseline") setBaseline(value);
+    else setCandidate(value);
+    table.setSorting([{ id: "model", desc: false }]);
+  };
 
   return (
     <div className="min-w-0 pb-4 sm:pb-5">
@@ -101,29 +112,20 @@ export function LeaderboardTable({
             className="rounded-lg border-input bg-background pl-9"
           />
         </div>
-        <Select
-          items={effortItems}
-          value={(table.getColumn("effort")?.getFilterValue() as string) ?? "all"}
-          onValueChange={(value) =>
-            table.getColumn("effort")?.setFilterValue(value === "all" ? undefined : value)
-          }
+        <Button
+          variant="outline"
+          className="rounded-lg"
+          disabled={visible.length < 2}
+          aria-pressed={comparing}
+          onClick={() => {
+            setComparing(!comparing);
+            setBaseline(null);
+            setCandidate(null);
+            table.setSorting([{ id: "model", desc: false }]);
+          }}
         >
-          <SelectTrigger
-            aria-label={t("filterEffort")}
-            className="min-w-36 rounded-lg border-input bg-background"
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent align="start" alignItemWithTrigger={false}>
-            <SelectGroup>
-              {effortItems.map((item) => (
-                <SelectItem key={item.value} value={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+          {t(comparing ? "closeComparison" : "compareLanguages")}
+        </Button>
         {hasFilters && (
           <Button
             variant="ghost"
@@ -155,31 +157,74 @@ export function LeaderboardTable({
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="max-w-[calc(100vw-2rem)] rounded-xl border border-border ring-0"
+              className="max-h-96 w-64 max-w-[calc(100vw-2rem)] overflow-y-auto rounded-xl border border-border ring-0"
             >
-              {languageColumns.map(({ column, label, language }) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  indicatorVariant="checkbox"
-                  className="cursor-pointer rounded-md"
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(checked) => column.toggleVisibility(checked)}
-                  closeOnClick={false}
-                >
-                  <span>{label}</span>
-                  <span aria-hidden="true" className="ml-auto text-xs text-muted-foreground">
-                    {language.toUpperCase()}
-                  </span>
-                </DropdownMenuCheckboxItem>
-              ))}
+              <Input
+                aria-label={t("searchLanguages")}
+                placeholder={t("searchLanguages")}
+                value={languageSearch}
+                onChange={(event) => setLanguageSearch(event.target.value)}
+                onKeyDown={(event) => event.stopPropagation()}
+                className="mb-2"
+              />
+              {languageColumns
+                .filter(({ label, language }) =>
+                  `${label} ${language}`.toLowerCase().includes(languageSearch.toLowerCase()),
+                )
+                .map(({ label, language }) => (
+                  <DropdownMenuCheckboxItem
+                    key={language}
+                    indicatorVariant="checkbox"
+                    className="cursor-pointer rounded-md"
+                    checked={visible.includes(language)}
+                    onCheckedChange={(checked) => toggleLanguage(language, checked)}
+                    closeOnClick={false}
+                  >
+                    <span>{label}</span>
+                    <span aria-hidden="true" className="ml-auto text-xs text-muted-foreground">
+                      {language.toUpperCase()}
+                    </span>
+                  </DropdownMenuCheckboxItem>
+                ))}
             </DropdownMenuContent>
           </DropdownMenu>
         )}
       </div>
+      {comparing && (
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          {(["baseline", "candidate"] as const).map((kind) => {
+            const other = kind === "baseline" ? candidate : baseline;
+            const items = languageColumns
+              .filter((entry) => visible.includes(entry.language) && entry.language !== other)
+              .map((entry) => ({ value: entry.language, label: entry.label }));
+            return (
+              <Select
+                key={kind}
+                items={items}
+                value={kind === "baseline" ? baseline : candidate}
+                onValueChange={(value) => chooseLanguage(kind, value)}
+              >
+                <SelectTrigger aria-label={t(kind)} className="min-w-44 rounded-lg bg-background">
+                  <SelectValue placeholder={t(kind)} />
+                </SelectTrigger>
+                <SelectContent alignItemWithTrigger={false}>
+                  <SelectGroup>
+                    {items.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            );
+          })}
+        </div>
+      )}
       <div className="overflow-hidden rounded-lg border bg-background/96">
         <Table className="[&_td]:h-16 [&_td]:px-4 [&_th]:h-16 [&_th]:px-4">
           <caption className="sr-only">
-            {t("tableTitle")} — {t("tableDescription")}
+            {t("tableTitle")} — {t("guideScore")}
           </caption>
           <TableHeader className="bg-muted/50">
             {table.getHeaderGroups().map((group) => (
@@ -223,16 +268,22 @@ export function LeaderboardTable({
                 <TableCell colSpan={table.getVisibleLeafColumns().length} className="text-center">
                   <div className="flex flex-col items-center gap-2 py-10">
                     <Search aria-hidden="true" className="mb-1 size-5 text-muted-foreground" />
-                    <p className="font-medium">{t("noResults")}</p>
-                    <p className="text-sm text-muted-foreground">{t("noResultsDescription")}</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mt-2 rounded-lg"
-                      onClick={() => table.resetColumnFilters()}
-                    >
-                      {t("resetFilters")}
-                    </Button>
+                    <p className="font-medium">
+                      {t(rows.length ? "noResults" : "noPublishedResults")}
+                    </p>
+                    {rows.length > 0 && (
+                      <p className="text-sm text-muted-foreground">{t("noResultsDescription")}</p>
+                    )}
+                    {rows.length > 0 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-2 rounded-lg"
+                        onClick={() => table.resetColumnFilters()}
+                      >
+                        {t("resetFilters")}
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>

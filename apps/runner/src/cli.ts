@@ -30,6 +30,7 @@ import { loadEnvironment } from "./env";
 import { configureLogging, logger } from "./logging";
 import { diagnosticError, diagnosticMessage, redactDiagnostic } from "@llang-gap/transports";
 import { reportConditions } from "./progress";
+import { publishGuide, stageGuideEvidence, verifyAllGuides, verifyGuide } from "./guide";
 
 const program = new Command()
   .name("bench")
@@ -353,6 +354,25 @@ release
   .action(async (directory, options) => {
     output(await stageRelease(resolve(directory), options.assetsUrl));
   });
+
+const guide = program
+  .command("guide")
+  .description("Build the public model guide from staged releases; no model requests");
+guide
+  .command("evidence <directory>")
+  .description("Add verified-input metadata to an already staged historical release")
+  .action(async (directory) => {
+    output(await stageGuideEvidence(resolve(directory)));
+  });
+guide
+  .command("build <plan>")
+  .requiredOption("--id <id>", "New immutable guide snapshot ID")
+  .action(async (plan, options) => {
+    output(await publishGuide(resolve(plan), options.id));
+  });
+guide.command("verify [id]").action(async (id) => {
+  output(id ? await verifyGuide(id) : await verifyAllGuides());
+});
 
 function configureCommand(command: CommandUnknownOpts) {
   command.exitOverride();

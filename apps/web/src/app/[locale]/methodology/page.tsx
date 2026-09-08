@@ -40,6 +40,12 @@ export default async function MethodologyPage({ params }: Props) {
           )}
         </section>
       ))}
+      <section id="model-guide">
+        <h2>{t("guideTitle")}</h2>
+        <p>{t("guide")}</p>
+        <p>{t("guideCoverage")}</p>
+        <p>{t("guideDifference")}</p>
+      </section>
       <section>
         <h2>{t("sources")}</h2>
         <div className="source-links">

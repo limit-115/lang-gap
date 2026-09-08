@@ -1,8 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { resolveSiteUrl, languageAlternates } from "./metadata";
 import { serializeJsonLd } from "./json-ld";
+import type { ModelReference } from "@llang-gap/contracts";
 
-const releaseMocks = vi.hoisted(() => ({ releases: [] as { id: string }[] }));
+const releaseMocks = vi.hoisted(() => ({
+  releases: [] as { id: string; aggregate: ModelReference[] }[],
+}));
 vi.mock("@/features/releases/data", () => ({
   getReleases: () => Promise.resolve(releaseMocks.releases),
 }));
@@ -65,10 +68,26 @@ describe("search metadata", () => {
   });
   it("discovers both language versions only after a release is published", async () => {
     vi.stubEnv("SITE_URL", "https://llang-gap-web.vercel.app");
-    releaseMocks.releases = [{ id: "synthetic-fixture" }];
+    releaseMocks.releases = [
+      {
+        id: "synthetic-fixture",
+        aggregate: [
+          { transport: "openrouter", model: "fixture/model" },
+          { transport: "openrouter", model: "fixture/model" },
+        ],
+      },
+    ];
     const { default: sitemap } = await import("@/app/sitemap");
     const entries = await sitemap();
-    expect(entries).toHaveLength(10);
+    expect(entries).toHaveLength(12);
+    expect(
+      entries
+        .filter((entry) => entry.url.includes("/models/fixture/model/"))
+        .map((entry) => entry.url),
+    ).toEqual([
+      "https://llang-gap-web.vercel.app/en/models/fixture/model/",
+      "https://llang-gap-web.vercel.app/ru/models/fixture/model/",
+    ]);
     expect(
       entries
         .filter((entry) => entry.url.includes("/releases/synthetic-fixture/"))
