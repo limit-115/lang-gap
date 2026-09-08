@@ -20,9 +20,8 @@ export default {
   copyLink: "Скопировать ссылку",
   copyBibtex: "Скопировать BibTeX",
   downloadBibtex: "Скачать .bib",
-  citationCopied: "Цитата скопирована.",
-  linkCopied: "Ссылка на выпуск скопирована.",
-  bibtexCopied: "BibTeX скопирован.",
+  copied: "Скопировано",
+  copyError: "Не удалось скопировать",
   copyFailed: "Не удалось скопировать. Выделите текст выше и скопируйте его вручную.",
   citationText:
     "Limit 115. Llang Gap: {dataset}. Выпуск {id}, создан {date}. Протокол: {protocol}.",

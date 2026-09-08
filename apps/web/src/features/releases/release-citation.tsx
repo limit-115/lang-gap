@@ -1,25 +1,73 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Copy, Download, Link as LinkIcon } from "lucide-react";
+import { Check, CircleAlert, Copy, Download, Link as LinkIcon } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 
 type Props = { citation: string; bibtex: string; url: string; releaseId: string };
 
-export function ReleaseCitation({ citation, bibtex, url, releaseId }: Props) {
+function CitationCopyButton({
+  text,
+  label,
+  link = false,
+  primary = false,
+}: {
+  text: string;
+  label: string;
+  link?: boolean;
+  primary?: boolean;
+}) {
   const t = useTranslations("Releases");
-  const [status, setStatus] = useState("");
+  const [state, setState] = useState<"idle" | "copying" | "copied" | "error">("idle");
 
-  async function copy(text: string, message: string) {
-    setStatus("");
+  useEffect(() => {
+    if (state !== "copied") return;
+    const timer = window.setTimeout(() => setState("idle"), 2000);
+    return () => window.clearTimeout(timer);
+  }, [state]);
+
+  async function copy() {
+    if (state === "copying") return;
+    setState("copying");
     try {
       await navigator.clipboard.writeText(text);
-      setStatus(message);
+      setState("copied");
     } catch {
-      setStatus(t("copyFailed"));
+      setState("error");
     }
   }
+
+  const Icon =
+    state === "copied" ? Check : state === "error" ? CircleAlert : link ? LinkIcon : Copy;
+  const statusLabel = state === "copied" ? t("copied") : state === "error" ? t("copyError") : label;
+
+  return (
+    <Button
+      variant={primary ? "default" : "outline"}
+      aria-disabled={state === "copying"}
+      onClick={() => void copy()}
+      title={state === "error" ? t("copyFailed") : undefined}
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      <Icon aria-hidden="true" />
+      <span className="grid">
+        {/* Reserve every label's width so feedback never moves adjacent controls. */}
+        {[label, t("copied"), t("copyError")].map((text, index) => (
+          <span key={index} aria-hidden="true" className="invisible col-start-1 row-start-1">
+            {text}
+          </span>
+        ))}
+        <span className="col-start-1 row-start-1">{statusLabel}</span>
+      </span>
+      {state === "error" && <span className="sr-only">{t("copyFailed")}</span>}
+    </Button>
+  );
+}
+
+export function ReleaseCitation({ citation, bibtex, url, releaseId }: Props) {
+  const t = useTranslations("Releases");
 
   return (
     <section aria-labelledby="release-citation">
@@ -28,14 +76,8 @@ export function ReleaseCitation({ citation, bibtex, url, releaseId }: Props) {
       <div className="mt-4 rounded-xl border bg-background p-5">
         <div className="select-text text-sm leading-7 break-words">{citation}</div>
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button onClick={() => void copy(citation, t("citationCopied"))}>
-            <Copy aria-hidden="true" />
-            {t("copyCitation")}
-          </Button>
-          <Button variant="outline" onClick={() => void copy(url, t("linkCopied"))}>
-            <LinkIcon aria-hidden="true" />
-            {t("copyLink")}
-          </Button>
+          <CitationCopyButton text={citation} label={t("copyCitation")} primary />
+          <CitationCopyButton text={url} label={t("copyLink")} link />
         </div>
         <details className="mt-5 border-t pt-4">
           <summary className="w-fit cursor-pointer rounded-sm text-sm font-medium focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-4">
@@ -45,10 +87,7 @@ export function ReleaseCitation({ citation, bibtex, url, releaseId }: Props) {
             {bibtex}
           </pre>
           <div className="mt-3 flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => void copy(bibtex, t("bibtexCopied"))}>
-              <Copy aria-hidden="true" />
-              {t("copyBibtex")}
-            </Button>
+            <CitationCopyButton text={bibtex} label={t("copyBibtex")} />
             <a
               className={buttonVariants({ variant: "outline" })}
               href={`data:application/x-bibtex;charset=utf-8,${encodeURIComponent(bibtex)}`}
@@ -59,9 +98,6 @@ export function ReleaseCitation({ citation, bibtex, url, releaseId }: Props) {
             </a>
           </div>
         </details>
-        <output aria-live="polite" className="mt-3 block min-h-5 text-sm text-muted-foreground">
-          {status}
-        </output>
       </div>
     </section>
   );
