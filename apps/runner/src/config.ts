@@ -76,8 +76,6 @@ export interface ExperimentSelection {
   concurrency?: number;
   maxAttempts?: number;
   timeoutMs?: number;
-  budgetUsd?: number;
-  budget?: boolean;
   pricing?: boolean;
   pricingAsOf?: string;
   pricingSource?: string;
@@ -101,8 +99,6 @@ function resolveInput(
     throw new Error("Use --language or --languages, not both");
   if (options.allQuestions && options.questionLimit !== undefined)
     throw new Error("Use --all-questions or --question-limit, not both");
-  if (options.budget === false && options.budgetUsd !== undefined)
-    throw new Error("Use --no-budget or --budget-usd, not both");
   const pricingOverrides = defined({
     asOf: options.pricingAsOf,
     source: options.pricingSource,
@@ -135,8 +131,6 @@ function resolveInput(
     concurrency: options.concurrency,
     maxAttempts: options.maxAttempts,
     timeoutMs: options.timeoutMs,
-    budgetUsd: options.budgetUsd,
-    ...(options.budget === false ? { budgetUsd: null } : {}),
   });
   const inheritedExecution = Object.keys(executionOverrides).length
     ? (objectSchema.safeParse(base.execution).data ?? {})

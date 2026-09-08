@@ -258,17 +258,6 @@
     "execution": {
       "type": "object",
       "properties": {
-        "budgetUsd": {
-          "anyOf": [
-            {
-              "type": "number",
-              "minimum": 0
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "concurrency": {
           "type": "integer",
           "minimum": 1,

@@ -29,7 +29,9 @@ not run the new parser over old outputs or edit their protocol IDs. Verification
 requires their recorded source and runtime dependencies; v2's original code stays
 at PR #16's revision. See [protocol history](protocols/mmluprox.md#historical-v1v2-and-offline-evidence).
 
-New experiments, run snapshots and release manifests use schema v3. Aggregates
+New run snapshots use schema v4; experiments and release manifests use schema v3.
+SQLite journals use schema v3. Saved artifacts require their recorded runner and
+dependencies for reproduction. Aggregates
 contain `scores: [{ language, n, accuracy, repeatAccuracy }]` and
 `comparisons: [{ baseline, language, n, gapPp, gapCi95 }]` for each transport/model/
 effort. The release preserves the resolved experiment's ordered `languages`. Its
@@ -47,20 +49,20 @@ snapshot identity and must not overwrite or silently pool historical artifacts.
 
 ## Files
 
-| File                    | Contents                                                                                           |
-| ----------------------- | -------------------------------------------------------------------------------------------------- |
-| `manifest.json`         | ID, kind, date, provenance, aggregate rows and SHA-256 of every other file                         |
-| `resolved.json`         | Exact resolved experiment, protocol, dataset manifest, implementation and SDK versions             |
-| `identity.json`         | Hash of the resolved snapshot                                                                      |
-| `dataset-manifest.json` | Original repository, revision, source hashes and localized instructions                            |
-| `dataset.jsonl`         | Normalized selected-language test and validation input snapshot                                    |
-| `items.jsonl`           | One selected completed response per job, prompt, visible output, score, usage and latency          |
-| `analysis.json`         | Post-run language comparison selection; defaults to the run preset                                 |
-| `aggregate.json`        | Model/effort rows, language scores and explicitly named paired comparisons                         |
-| `aggregate.csv`         | Long-form language scores and named comparison intervals                                           |
-| `attempts.jsonl`        | Every technical attempt, timestamps, status, known/uncertain charge and request ID                 |
-| `execution.json`        | Overall charged/reserved amount (`null` when unknown), completion counts and operational event log |
-| `ATTRIBUTION.md`        | Selected dataset attribution and applicable protocol license notices                               |
+| File                    | Contents                                                                                                  |
+| ----------------------- | --------------------------------------------------------------------------------------------------------- |
+| `manifest.json`         | ID, kind, date, provenance, aggregate rows and SHA-256 of every other file                                |
+| `resolved.json`         | Exact resolved experiment, protocol, dataset manifest, implementation and SDK versions                    |
+| `identity.json`         | Hash of the resolved snapshot                                                                             |
+| `dataset-manifest.json` | Original repository, revision, source hashes and localized instructions                                   |
+| `dataset.jsonl`         | Normalized selected-language test and validation input snapshot                                           |
+| `items.jsonl`           | One selected completed response per job, prompt, visible output, score, usage and latency                 |
+| `analysis.json`         | Post-run language comparison selection; defaults to the run preset                                        |
+| `aggregate.json`        | Model/effort rows, language scores and explicitly named paired comparisons                                |
+| `aggregate.csv`         | Long-form language scores and named comparison intervals                                                  |
+| `attempts.jsonl`        | Every technical attempt, timestamps, status, known/uncertain charge and request ID                        |
+| `execution.json`        | Recorded attempt costs as `chargedUsd` (`null` when unknown), completion counts and operational event log |
+| `ATTRIBUTION.md`        | Selected dataset attribution and applicable protocol license notices                                      |
 
 Raw SDK response bodies remain in the private SQLite journal. Public results
 include visible final text, not API thinking blocks/signatures, keys or HTTP

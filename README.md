@@ -38,7 +38,7 @@ pnpm bench plan experiments/smoke.yaml --dataset mmlu-prox-lite --language ru --
 # Select languages and an explicit subtraction order.
 pnpm bench plan experiments/smoke.yaml --dataset mmlu-prox-lite --languages ru en --compare ru:en --offline
 
-# Free smoke test with no YAML, prices, budget, or preceding plan required.
+# Free smoke test with no YAML, prices, or preceding plan required.
 pnpm bench run --dataset mmlu-prox-lite --languages ru,en \
   --protocol mmluprox-lite-5shot-author-api-v3 --max-output-tokens 2048 --transport fake \
   --models fake-one,fake-two --efforts low,medium,high,xhigh,max \
@@ -57,7 +57,7 @@ The fake transport never uses the network. CLI results go to stdout as JSON; pro
 and errors go to stderr. Add `--json` for structured errors too.
 
 All experiment settings can be supplied as CLI flags; YAML is optional and flags
-take precedence. Lists accept commas or spaces. Rates and a budget are optional;
+take precedence. Lists accept commas or spaces. Token rates for recorded usage are optional;
 unknown costs remain `null`. See the [complete flag reference](docs/runner.md#cli-and-yaml-configuration).
 
 Use **Build a run** in the website navigation, or **Want to run your own?** on the
@@ -86,7 +86,7 @@ pnpm bench run experiments/mmpisa-smoke.yaml
 
 | Location              | Responsibility                                                              |
 | --------------------- | --------------------------------------------------------------------------- |
-| `apps/runner`         | Commander CLI, execution, retries, budget ledger, SQLite, release export    |
+| `apps/runner`         | Commander CLI, execution, retries, attempt journal, SQLite, release export  |
 | `apps/web`            | Next.js site and feature-owned next-intl dictionaries; developed separately |
 | `packages/contracts`  | Strict Zod schemas and shared types                                         |
 | `packages/datasets`   | Manifest-driven download, format adapters and explicit alignment checks     |
@@ -188,17 +188,16 @@ experiment YAML or public artifacts.
 ```sh
 pnpm bench plan experiments/pilot.yaml
 # Explicit paid pilot: 24 requests across all six model/effort configurations.
-pnpm bench run experiments/pilot.yaml --budget-usd 30
+pnpm bench run experiments/pilot.yaml
 
 # Inspect usage/truncation, freeze the protocol, then commit the source/configuration.
 pnpm bench plan experiments/mvp.yaml --offline
-# Optional budget chosen from pilot evidence.
-pnpm bench run experiments/mvp.yaml --budget-usd <budget>
+pnpm bench run experiments/mvp.yaml
 ```
 
 Full MVP: **588 test questions × 2 languages × 6 configurations × 3 repeats =
-21,168 requests**, before retries. The `plan` cost is a conservative upper bound
-using the output cap; it is not an estimate of typical spend.
+21,168 requests**, before retries. `plan` validates the selected conditions and
+reports their request counts.
 
 Public releases must come from full, complete runs that started from a clean Git
 commit. A model refusal or unparseable completed answer scores zero. Technical

@@ -43,7 +43,7 @@ describe("durable execution", () => {
       }),
     };
     const adapters = new Map([["openrouter", adapter]]);
-    const options = { state, jobs, adapters, budgetUsd: 0, concurrency: 2, maxAttempts: 1 };
+    const options = { state, jobs, adapters, concurrency: 2, maxAttempts: 1 };
     await execute({ ...options, maxJobs: 3 });
     const result = await execute(options);
     expect(result.completed).toBe(jobs.length);
@@ -69,7 +69,6 @@ describe("durable execution", () => {
       state,
       jobs,
       adapters: new Map([["fake", { ...fake, generate }]]),
-      budgetUsd: 0,
       concurrency: 1,
       maxAttempts: 3,
       sleep: async () => {},
@@ -80,45 +79,8 @@ describe("durable execution", () => {
     expect(state.audit()).toHaveLength(3);
   });
 
-  it("reserves concurrent requests before dispatching and stops at the budget", async () => {
-    const jobs = createJobs(experiment, questions, "budget")
-      .slice(0, 4)
-      .map((job) => ({ ...job, reservationUsd: 1 }));
-    state.initialize(jobs);
-    const fake = createFakeAdapter();
-    let finish: (() => void) | undefined;
-    const gate = new Promise<void>((resolve) => {
-      finish = resolve;
-    });
-    const generate = vi.fn(async (request: Parameters<TransportAdapter["generate"]>[0]) => {
-      await gate;
-      return { ...(await fake.generate(request)), usage: null };
-    });
-    const pending = execute({
-      state,
-      jobs,
-      adapters: new Map([["fake", { ...fake, generate }]]),
-      budgetUsd: 1.5,
-      concurrency: 3,
-      maxAttempts: 3,
-    });
-    expect(generate).toHaveBeenCalledTimes(1);
-    expect(state.charged()).toBe(1);
-    finish?.();
-    const result = await pending;
-    expect(result).toMatchObject({
-      completed: 1,
-      pending: 3,
-      budgetExhausted: true,
-      chargedOrReservedUsd: 1,
-    });
-    expect(state.results()[0]?.costUsd).toBeNull();
-  });
-
-  it("retains a conservative charge for ambiguous transport retries", async () => {
-    const jobs = createJobs(experiment, questions, "uncertain")
-      .slice(0, 1)
-      .map((job) => ({ ...job, reservationUsd: 1 }));
+  it("keeps charges unknown for ambiguous transport retries", async () => {
+    const jobs = createJobs(experiment, questions, "uncertain").slice(0, 1);
     state.initialize(jobs);
     const fake = createFakeAdapter();
     let calls = 0;
@@ -133,12 +95,45 @@ describe("durable execution", () => {
       state,
       jobs,
       adapters: new Map([["fake", adapter]]),
-      budgetUsd: 2,
       concurrency: 1,
       maxAttempts: 2,
       sleep: async () => {},
     });
-    expect(result).toMatchObject({ completed: 1, attempts: 2, chargedOrReservedUsd: 1 });
+    expect(result).toMatchObject({ completed: 1, attempts: 2, chargedUsd: null });
+    expect(state.audit().map((row) => row.charged_usd)).toEqual([null, 0]);
+  });
+
+  it("finishes all concurrent requests when usage is missing", async () => {
+    const jobs = createJobs(experiment, questions, "missing-usage").slice(0, 4);
+    state.initialize(jobs);
+    const fake = createFakeAdapter();
+    let finish!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      finish = resolve;
+    });
+    const generate = vi.fn(async (request: Parameters<TransportAdapter["generate"]>[0]) => {
+      await gate;
+      return { ...(await fake.generate(request)), usage: null };
+    });
+    const pending = execute({
+      state,
+      jobs,
+      adapters: new Map([["fake", { ...fake, generate }]]),
+      concurrency: 3,
+      maxAttempts: 1,
+    });
+    expect(generate).toHaveBeenCalledTimes(3);
+    expect(state.charged()).toBeNull();
+    finish();
+    expect(await pending).toMatchObject({
+      completed: 4,
+      pending: 0,
+      chargedUsd: null,
+      stopReason: "completed",
+    });
+    expect(generate).toHaveBeenCalledTimes(4);
+    expect(state.results().every((result) => result.costUsd === null)).toBe(true);
+    expect(state.audit().every((attempt) => attempt.charged_usd === null)).toBe(true);
   });
 
   it("stops new dispatch on authentication failures", async () => {
@@ -152,7 +147,6 @@ describe("durable execution", () => {
       state,
       jobs,
       adapters: new Map([["fake", adapter]]),
-      budgetUsd: 0,
       concurrency: 1,
       maxAttempts: 3,
     });
@@ -173,7 +167,6 @@ describe("durable execution", () => {
       state,
       jobs,
       adapters: new Map([["fake", { ...fake, generate }]]),
-      budgetUsd: 0,
       concurrency: 1,
       maxAttempts: 3,
       signal: stop.signal,
@@ -185,7 +178,6 @@ describe("durable execution", () => {
       state,
       jobs,
       adapters: new Map([["fake", { ...fake, generate: more }]]),
-      budgetUsd: 0,
       concurrency: 2,
       maxAttempts: 3,
     });
@@ -194,20 +186,18 @@ describe("durable execution", () => {
   });
 
   it("marks unfinished durable requests uncertain after restart", async () => {
-    const jobs = createJobs(experiment, questions, "crash")
-      .slice(0, 2)
-      .map((job) => ({ ...job, reservationUsd: 1 }));
+    const jobs = createJobs(experiment, questions, "crash").slice(0, 2);
     state.initialize(jobs);
     state.begin(jobs[0]!);
     state.close();
     state = new RunState(join(directory, "state.sqlite"));
     state.recover(false, 3);
-    expect(state.summary()).toMatchObject({ uncertain: 1, pending: 1, chargedOrReservedUsd: 1 });
+    expect(state.summary()).toMatchObject({ uncertain: 1, pending: 1, chargedUsd: null });
     state.recover(true, 3);
-    expect(state.summary()).toMatchObject({ uncertain: 0, pending: 2, chargedOrReservedUsd: 1 });
+    expect(state.summary()).toMatchObject({ uncertain: 0, pending: 2, chargedUsd: null });
   });
 
-  it("runs and resumes without rates or budget while preserving unknown charges", async () => {
+  it("runs and resumes without rates while preserving unknown charges", async () => {
     const config = {
       ...experiment,
       models: experiment.models.map(({ pricing: _pricing, ...model }) => model),
@@ -229,27 +219,25 @@ describe("durable execution", () => {
       sleep: async () => {},
     };
     const first = await execute({ ...options, maxJobs: 1 });
-    expect(first).toMatchObject({ completed: 1, attempts: 2, chargedOrReservedUsd: null });
-    await expect(execute({ ...options, budgetUsd: 100 })).rejects.toThrow("requires prices");
+    expect(first).toMatchObject({ completed: 1, attempts: 2, chargedUsd: null });
     const resumed = await execute(options);
-    expect(resumed).toMatchObject({ completed: 3, attempts: 4, chargedOrReservedUsd: null });
+    expect(resumed).toMatchObject({ completed: 3, attempts: 4, chargedUsd: null });
     expect(generate).toHaveBeenCalledTimes(4);
     expect(state.results().every((item) => item.costUsd === null && item.usage !== null)).toBe(
       true,
     );
-    expect(state.audit().every((row) => row.reserve_usd === null && row.charged_usd === null)).toBe(
-      true,
-    );
+    expect(state.audit().every((row) => row.charged_usd === null)).toBe(true);
   });
 
-  it("does not impose a reservation stop without a budget", async () => {
+  it("runs uncapped priced requests and records observed usage", async () => {
     const jobs = createJobs(experiment, questions, "unbounded")
       .slice(0, 1)
       .map((job) => ({
         ...job,
-        reservationUsd: 0,
+        request: { ...job.request, maxOutputTokens: null },
         model: {
           ...job.model,
+          maxOutputTokens: null,
           pricing: { ...experiment.models[0]!.pricing!, outputPerMillion: 100 },
         },
       }));
@@ -262,7 +250,7 @@ describe("durable execution", () => {
       maxAttempts: 1,
     });
     expect(result.completed).toBe(1);
-    expect(result.chargedOrReservedUsd).toBeGreaterThan(0);
+    expect(result.chargedUsd).toBeGreaterThan(0);
   });
 
   it("enforces exclusive run ownership", async () => {
@@ -275,26 +263,4 @@ describe("durable execution", () => {
     const again = await acquireLock(directory);
     await again();
   });
-});
-
-it("rejects an unbounded paid reservation before dispatch while permitting no budget and zero prices", async () => {
-  const { validateBudget } = await import("./scheduler");
-  const config = {
-    ...experiment,
-    protocol: "mmluprox-lite-5shot-flexible-api-v1" as const,
-    models: experiment.models.map((m) => ({
-      ...m,
-      maxOutputTokens: null,
-      pricing: { ...m.pricing!, outputPerMillion: 1 },
-    })),
-  };
-  const jobs = createJobs(config, questions, "uncapped-paid");
-  expect(jobs.every((j) => j.reservationUsd === null)).toBe(true);
-  expect(() => validateBudget(1, jobs)).toThrow("finite reservations");
-  expect(() => validateBudget(null, jobs)).not.toThrow();
-  const free = {
-    ...config,
-    models: config.models.map((m) => ({ ...m, pricing: { ...m.pricing, outputPerMillion: 0 } })),
-  };
-  expect(() => validateBudget(0, createJobs(free, questions, "uncapped-free"))).not.toThrow();
 });

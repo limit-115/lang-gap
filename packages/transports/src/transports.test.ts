@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateCost, reserveCost, normalizeError, TransportError, validateModel } from "./index";
+import { calculateCost, normalizeError, TransportError, validateModel } from "./index";
 import { experiment } from "@tests/fixtures";
 
 describe("transport accounting", () => {
@@ -25,20 +25,6 @@ describe("transport accounting", () => {
     );
     expect(cost).toBeCloseTo(0.02035);
   });
-  it("rejects prompts outside the pricing regime before calls", () => {
-    expect(() =>
-      reserveCost(
-        {
-          model: "fake-v1",
-          effort: "low",
-          maxOutputTokens: 1024,
-          language: "ru",
-          prompt: "я".repeat(110_000),
-        },
-        experiment.models[0]!.pricing,
-      ),
-    ).toThrow("short-context");
-  });
   it("distinguishes retryable, fatal and billing-uncertain failures", () => {
     expect(normalizeError(Object.assign(new Error("rate limit"), { status: 429 }))).toMatchObject({
       retryable: true,
@@ -59,21 +45,7 @@ describe("transport accounting", () => {
   });
 });
 
-it("does not invent an output reservation without a cap, but preserves zero output prices", () => {
-  const request = {
-    model: "fake-v1",
-    effort: "low" as const,
-    maxOutputTokens: null,
-    language: "de",
-    prompt: "Q",
-  };
-  const pricing = experiment.models[0]!.pricing!;
-  expect(reserveCost(request, { ...pricing, outputPerMillion: 1 })).toBeNull();
-  expect(
-    reserveCost(request, { ...pricing, outputPerMillion: 0, inputPerMillion: 1 }),
-  ).toBeGreaterThan(0);
-  expect(reserveCost(request, pricing)).toBe(0);
-  expect(reserveCost(request, undefined)).toBeNull();
+it("requires an explicit output cap for Anthropic", () => {
   expect(() =>
     validateModel({ ...experiment.models[0]!, transport: "anthropic", maxOutputTokens: null }),
   ).toThrow("requires an explicit");

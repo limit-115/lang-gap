@@ -15,7 +15,7 @@ import { createAdapter, validateModel } from "@llang-gap/transports";
 import { getProtocol } from "@llang-gap/evaluation";
 import { atomicWrite, hash, implementationIdentity, json, jsonl, workspace } from "./files";
 import { createJobs } from "./plan";
-import { execute, validateBudget } from "./scheduler";
+import { execute } from "./scheduler";
 import { acquireLock, RunState } from "./state";
 import { readSnapshot, type Snapshot } from "./snapshot";
 import { logger } from "./logging";
@@ -37,7 +37,6 @@ export async function readRunQuestions(
 }
 
 interface ExecutionControls {
-  budgetUsd?: number | null;
   concurrency?: number;
   maxJobs?: number;
   signal?: AbortSignal;
@@ -56,8 +55,6 @@ export async function createRun(
 ) {
   const { questions, manifest } = options;
   const experiment = experimentSchema.parse(options.experiment);
-  const budgetUsd =
-    options.budgetUsd === undefined ? (experiment.execution.budgetUsd ?? null) : options.budgetUsd;
   validateManifestQuestions(questions, manifest, experiment.languages);
   for (const model of experiment.models) validateModel(model);
   const protocol = getProtocol(experiment.protocol);
@@ -73,7 +70,7 @@ export async function createRun(
     );
   const dataset = jsonl(questions);
   const snapshot: Snapshot = {
-    schemaVersion: 3,
+    schemaVersion: 4,
     runId,
     createdAt: new Date().toISOString(),
     experiment,
@@ -83,7 +80,6 @@ export async function createRun(
     protocol,
     implementation: await implementationIdentity(workspace),
     node: process.version,
-    initialBudgetUsd: budgetUsd,
     transportMetadata: [...adapters.values()].map((a) => ({
       transport: a.transport,
       sdkVersion: a.sdkVersion,
@@ -92,7 +88,6 @@ export async function createRun(
   };
   const configHash = hash(json(snapshot));
   const jobs = createJobs(experiment, questions, configHash, manifest);
-  validateBudget(budgetUsd, jobs);
   if (!jobs.length) throw new Error("Empty experiment");
   await mkdir(join(directory, ".."), { recursive: true });
   await mkdir(directory, { mode: 0o700 });
@@ -130,13 +125,12 @@ export async function createRun(
           timeoutMs: experiment.execution.timeoutMs,
         },
       );
-    state.event("created", { runId, configHash, budgetUsd });
+    state.event("created", { runId, configHash });
     const summary = await execute({
       state,
       jobs,
       adapters,
       logger: log,
-      budgetUsd,
       concurrency: options.concurrency ?? experiment.execution.concurrency,
       maxAttempts: experiment.execution.maxAttempts,
       ...(options.maxJobs === undefined ? {} : { maxJobs: options.maxJobs }),
@@ -187,11 +181,6 @@ export async function resumeRun(
     const jobs = createJobs(snapshot.experiment, questions, configHash, snapshot.datasetManifest);
     state = new RunState(join(directory, "state.sqlite"));
     state.assertJobs(jobs);
-    const budgetUsd =
-      options.budgetUsd === undefined
-        ? state.lastBudget(snapshot.initialBudgetUsd)
-        : options.budgetUsd;
-    validateBudget(budgetUsd, jobs, state.charged());
     const maxAttempts = options.maxAttempts ?? snapshot.experiment.execution.maxAttempts;
     await options.onReady?.(snapshot.runId, directory);
     const beforeRecovery = state.summary();
@@ -216,7 +205,6 @@ export async function resumeRun(
         dataset: snapshot.experiment.dataset,
         languages: snapshot.experiment.languages.join(", "),
         ...afterRecovery,
-        budgetUsd,
         concurrency,
         maxAttempts,
         retryFailed: options.retryFailed ?? false,
@@ -249,7 +237,7 @@ export async function resumeRun(
           retryUncertain: options.retryUncertain ?? false,
         },
       );
-    state.event("resumed", { budgetUsd, concurrency, maxAttempts });
+    state.event("resumed", { concurrency, maxAttempts });
     return {
       runId: snapshot.runId,
       directory,
@@ -258,7 +246,6 @@ export async function resumeRun(
         jobs,
         adapters,
         logger: log,
-        budgetUsd,
         concurrency,
         maxAttempts,
         ...(options.maxJobs === undefined ? {} : { maxJobs: options.maxJobs }),

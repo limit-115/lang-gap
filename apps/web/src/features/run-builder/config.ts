@@ -23,7 +23,6 @@ export const initialSettings = {
   maxAttempts: "3",
   timeoutMs: "120000",
   maxJobs: "",
-  budgetUsd: "",
   offline: false,
   comparisons: "",
   pricing: false,
@@ -58,8 +57,7 @@ export type ErrorKey =
   | "capFixed"
   | "modelsInvalid"
   | "comparisonsInvalid"
-  | "pricingInvalid"
-  | "budgetNeedsRates";
+  | "pricingInvalid";
 export const pricingFields = [
   "inputPerMillion",
   "cachedInputPerMillion",
@@ -108,11 +106,6 @@ export function buildRun(settings: RunSettings, datasets: readonly RunDataset[])
         ...Object.fromEntries(pricingFields.map((key) => [key, numeric(settings[key])])),
       }
     : undefined;
-  if (
-    settings.budgetUsd.trim() &&
-    (!settings.pricing || (cap === null && numeric(settings.outputPerMillion) > 0))
-  )
-    errors.budgetUsd = "budgetNeedsRates";
   if (!settings.transport) errors.transport = "required";
   const parsed = experimentSchema.safeParse({
     schemaVersion: 3,
@@ -134,7 +127,6 @@ export function buildRun(settings: RunSettings, datasets: readonly RunDataset[])
       concurrency: numeric(settings.concurrency),
       maxAttempts: numeric(settings.maxAttempts),
       timeoutMs: numeric(settings.timeoutMs),
-      ...(settings.budgetUsd.trim() ? { budgetUsd: numeric(settings.budgetUsd) } : {}),
     },
     ...(settings.scope === "sample" ? { questionLimit: numeric(settings.questionLimit) } : {}),
   });
@@ -219,8 +211,6 @@ export function experimentArguments(experiment: Experiment): string[] {
     args.push(["max-attempts", experiment.execution.maxAttempts]);
   if (experiment.execution.timeoutMs !== 120000)
     args.push(["timeout-ms", experiment.execution.timeoutMs]);
-  if (experiment.execution.budgetUsd !== undefined && experiment.execution.budgetUsd !== null)
-    args.push(["budget-usd", experiment.execution.budgetUsd]);
   if (first.pricing) {
     args.push(["pricing-as-of", first.pricing.asOf], ["pricing-source", first.pricing.source]);
     for (const key of pricingFields)

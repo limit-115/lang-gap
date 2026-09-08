@@ -12,7 +12,6 @@ export interface ExecuteOptions {
   state: RunState;
   jobs: readonly Job[];
   adapters: ReadonlyMap<string, TransportAdapter>;
-  budgetUsd?: number | null;
   concurrency: number;
   maxAttempts: number;
   signal?: AbortSignal;
@@ -22,26 +21,8 @@ export interface ExecuteOptions {
   logger?: Logger;
 }
 
-export function validateBudget(
-  budgetUsd: number | null,
-  jobs: readonly Job[],
-  priorCost: number | null = 0,
-) {
-  if (budgetUsd !== null) {
-    if (!Number.isFinite(budgetUsd) || budgetUsd < 0)
-      throw new Error("Budget must be a finite nonnegative USD amount");
-    if (jobs.some((job) => job.reservationUsd === null) || priorCost === null)
-      throw new Error(
-        "A USD budget requires prices for every model, finite reservations and known prior charges",
-      );
-    if (budgetUsd < priorCost) throw new Error("Budget is below already charged or reserved costs");
-  }
-}
-
 export async function execute(options: ExecuteOptions) {
   const { state, jobs, adapters, concurrency, maxAttempts, signal } = options;
-  const budgetUsd = options.budgetUsd ?? null;
-  validateBudget(budgetUsd, jobs, state.charged());
   const log = options.logger ?? logger;
   const retryStop = new AbortController();
   const retrySignal = signal ? AbortSignal.any([signal, retryStop.signal]) : retryStop.signal;
@@ -55,8 +36,6 @@ export async function execute(options: ExecuteOptions) {
   const queue = jobs.filter((job) => pending.has(job.id));
   let started = 0;
   let stopped = false;
-  let budgetExhausted = false;
-  let charged = state.charged() ?? 0;
   const errors: unknown[] = [];
   let transportStopped = false;
   const progress = new RunProgress(state, log);
@@ -76,27 +55,7 @@ export async function execute(options: ExecuteOptions) {
         );
         return;
       }
-      // No await between budget check and durable reservation; all workers share this process.
-      if (budgetUsd !== null && charged + job.reservationUsd! > budgetUsd + 1e-10) {
-        stopDispatch();
-        budgetExhausted = true;
-        state.event("budget-stop", { budgetUsd, requiredReservation: job.reservationUsd });
-        log.warning(
-          "Budget pause: {charged} charged/reserved + {reservation} next reservation exceeds {budget}; draining active calls",
-          {
-            event: "run.budget_stop",
-            budgetUsd,
-            chargedOrReservedUsd: charged,
-            reservationUsd: job.reservationUsd,
-            charged: money(charged),
-            reservation: money(job.reservationUsd),
-            budget: money(budgetUsd),
-          },
-        );
-        return;
-      }
       const attempt = state.begin(job);
-      charged += job.reservationUsd ?? 0;
       const requestLog = log.with({
         jobId: job.id,
         questionId: job.questionId,
@@ -108,11 +67,7 @@ export async function execute(options: ExecuteOptions) {
         attempt: prior + 1,
         maxAttempts,
       });
-      requestLog.debug("Request started · reservation {reservation}", {
-        event: "request.started",
-        reservationUsd: job.reservationUsd,
-        reservation: money(job.reservationUsd),
-      });
+      requestLog.debug("Request started", { event: "request.started" });
       const start = performance.now();
       progress.active.set(job.id, { job, since: start });
       let response;
@@ -122,7 +77,6 @@ export async function execute(options: ExecuteOptions) {
         const error = normalizeError(cause, [job.request.prompt]);
         const retry = error.retryable && prior + 1 < maxAttempts;
         state.fail(job, attempt, error, retry);
-        if (!error.uncertain) charged -= job.reservationUsd ?? 0;
         if (!error.retryable) {
           transportStopped = true;
           stopDispatch();
@@ -157,7 +111,7 @@ export async function execute(options: ExecuteOptions) {
           retryDelayMs: willRetry ? retryDelayMs : null,
           latencyMs: performance.now() - start,
           action,
-          billing: error.uncertain ? "uncertain; reservation retained" : "no charge recorded",
+          billing: error.uncertain ? "unknown" : "no charge recorded",
           hint,
         });
         progress.active.delete(job.id);
@@ -231,24 +185,6 @@ export async function execute(options: ExecuteOptions) {
           returnedModel: response.model,
         },
       );
-      charged += (result.costUsd ?? job.reservationUsd ?? 0) - (job.reservationUsd ?? 0);
-      if (budgetUsd !== null && (result.costUsd ?? 0) > job.reservationUsd! + 1e-10) {
-        state.event("reservation-exceeded", {
-          jobId: job.id,
-          actualUsd: result.costUsd,
-          reservationUsd: job.reservationUsd,
-        });
-        log.error("Usage cost {actual} exceeded reservation {reservation}; stopping dispatch", {
-          event: "run.reservation_exceeded",
-          jobId: job.id,
-          actual: money(result.costUsd),
-          reservation: money(job.reservationUsd),
-        });
-        stopDispatch();
-        throw new Error(
-          "Transport usage exceeded the reservation bound; review pricing before continuing",
-        );
-      }
       options.onProgress?.(state.summary());
       progress.report();
       return;
@@ -256,15 +192,13 @@ export async function execute(options: ExecuteOptions) {
   }
 
   log.info(
-    "Dispatching {pending}/{total} jobs · concurrency {concurrency} per transport · up to {maxAttempts} attempts/job · budget {budget}",
+    "Dispatching {pending}/{total} jobs · concurrency {concurrency} per transport · up to {maxAttempts} attempts/job",
     {
       event: "run.dispatch",
       pending: queue.length,
       total: jobs.length,
       concurrency,
       maxAttempts,
-      budgetUsd,
-      budget: budgetUsd === null ? "none" : money(budgetUsd),
       maxJobs: options.maxJobs ?? null,
     },
   );
@@ -295,10 +229,8 @@ export async function execute(options: ExecuteOptions) {
     );
     await Promise.all(workers);
     state.event("execution-ended", {
-      budgetUsd,
       started,
       interrupted: signal?.aborted ?? false,
-      budgetExhausted,
     });
     const summary = state.summary();
     const stopReason = errors.length
@@ -307,17 +239,15 @@ export async function execute(options: ExecuteOptions) {
         ? "transport-error"
         : signal?.aborted
           ? "interrupted"
-          : budgetExhausted
-            ? "budget"
-            : summary.completed === summary.total
-              ? "completed"
-              : summary.failed > 0
-                ? "failed"
-                : summary.uncertain > 0
-                  ? "uncertain"
-                  : started >= (options.maxJobs ?? Infinity)
-                    ? "max-jobs"
-                    : "attempt-limit";
+          : summary.completed === summary.total
+            ? "completed"
+            : summary.failed > 0
+              ? "failed"
+              : summary.uncertain > 0
+                ? "uncertain"
+                : started >= (options.maxJobs ?? Infinity)
+                  ? "max-jobs"
+                  : "attempt-limit";
     progress.report(true);
     const failed =
       errors.length > 0 ||
@@ -332,19 +262,19 @@ export async function execute(options: ExecuteOptions) {
           ? "info"
           : "warning"
     ](
-      "Execution ended: {stopReason} · {completed}/{total} saved · {failed} failed · {pending} pending · {uncertain} uncertain · {elapsed} · {cost} charged/reserved",
+      "Execution ended: {stopReason} · {completed}/{total} saved · {failed} failed · {pending} pending · {uncertain} uncertain · {elapsed} · {cost} charged",
       {
         event: "run.finished",
         ...summary,
         stopReason,
         elapsedMs: progress.elapsedMs,
         elapsed: duration(progress.elapsedMs),
-        cost: money(summary.chargedOrReservedUsd),
+        cost: money(summary.chargedUsd),
       },
     );
     reportConditions(state, log);
     if (errors.length) throw errors[0];
-    return { ...summary, stopReason, budgetExhausted, interrupted: signal?.aborted ?? false };
+    return { ...summary, stopReason, interrupted: signal?.aborted ?? false };
   } finally {
     progress.close();
   }

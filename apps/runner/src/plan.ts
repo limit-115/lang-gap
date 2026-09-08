@@ -18,7 +18,7 @@ import {
   shuffled,
   toPromptQuestion,
 } from "@llang-gap/evaluation";
-import { reserveCost, validateModel } from "@llang-gap/transports";
+import { validateModel } from "@llang-gap/transports";
 import { hash } from "./files";
 
 export interface Job {
@@ -31,7 +31,6 @@ export interface Job {
   optionCount: number;
   model: ModelConfig;
   request: GenerationRequest;
-  reservationUsd: number | null;
 }
 
 export function createJobs(
@@ -121,7 +120,6 @@ export function createJobs(
                 optionCount: q.options.length,
                 model,
                 request,
-                reservationUsd: reserveCost(request, model.pricing),
               };
             });
           // Keep language conditions adjacent; rotate the first condition to distribute time drift.
@@ -135,9 +133,6 @@ export function createJobs(
 }
 
 export function summarizePlan(experiment: Experiment, jobs: readonly Job[]) {
-  const attemptBound = jobs.some((job) => job.reservationUsd === null)
-    ? null
-    : jobs.reduce((sum, j) => sum + j.reservationUsd!, 0);
   return {
     experiment: experiment.id,
     synthetic: experiment.models.every((m) => m.transport === "fake"),
@@ -154,9 +149,5 @@ export function summarizePlan(experiment: Experiment, jobs: readonly Job[]) {
     configurations: experiment.models.reduce((sum, m) => sum + m.efforts.length, 0),
     requests: jobs.length,
     maxAttemptsPerRequest: experiment.execution.maxAttempts,
-    upperBoundUsdOneAttempt: attemptBound,
-    upperBoundUsdAllAttempts:
-      attemptBound === null ? null : attemptBound * experiment.execution.maxAttempts,
-    note: "upperBoundUsd fields are safety reservations, not spending forecasts. Use --calibrate-from for an empirical forecast. Missing prices or an unbounded priced output produce null bounds. Cost planning and a USD budget are optional.",
   };
 }

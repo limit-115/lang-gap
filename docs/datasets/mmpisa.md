@@ -31,7 +31,7 @@ pnpm bench plan experiments/mmpisa-smoke.yaml --dataset mmpisa-machine --languag
 
 The example uses only the fake transport. Its scores are synthetic and cannot be
 published as benchmark results. To evaluate a live model, explicitly select its
-transport, model, efforts, token policy and any dated prices/budget following the
+transport, model, efforts, token policy and any dated prices following the
 [runner guide](../runner.md). `--offline` controls dataset downloads only.
 
 Available language tags:

@@ -40,14 +40,14 @@ export class RunProgress {
       ? ` · oldest ${oldest.job.model.transport}/${oldest.job.model.model} ${oldest.job.request.language} ${duration(now - oldest.since)}`
       : "";
     this.log.info(
-      "{completed}/{total} saved · {running} active · {retrying} retrying · {queued} queued · {failed} failed · {uncertain} uncertain · {cost} charged/reserved · {elapsed} elapsed{waiting}",
+      "{completed}/{total} saved · {running} active · {retrying} retrying · {queued} queued · {failed} failed · {uncertain} uncertain · {cost} charged · {elapsed} elapsed{waiting}",
       {
         event: "run.progress",
         ...summary,
         running: this.active.size,
         retrying: this.retrying.size,
         queued: Math.max(0, summary.pending - this.retrying.size),
-        cost: money(summary.chargedOrReservedUsd),
+        cost: money(summary.chargedUsd),
         elapsed: duration(elapsedMs),
         elapsedMs,
         completedPerMinute,

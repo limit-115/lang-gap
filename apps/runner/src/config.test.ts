@@ -114,6 +114,5 @@ it("accepts free variants and zero or absent prices without a capability lookup"
     const jobs = createJobs(config, questions, "free");
     expect(jobs).toHaveLength(60);
     expect(jobs.every((job) => job.request.model === model.model)).toBe(true);
-    expect(jobs.every((job) => job.reservationUsd === (pricing ? 0 : null))).toBe(true);
   }
 });

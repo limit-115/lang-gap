@@ -28,9 +28,8 @@ or the environment; the website does not receive them or execute commands.
 selected test split. The displayed request count includes models, efforts and
 repeats, excludes technical retries, and remains the full experiment count when
 **Pause after this many jobs** is set. Advanced settings include explicit ordered
-comparisons, execution controls, optional token rates and a budget. A budget
-requires complete rates and finite cost bounds; unknown pricing is never shown
-as zero cost. Rates and model settings apply to every selected model. Use YAML
+comparisons, execution controls and optional token rates for recorded usage.
+Unknown pricing is never shown as zero cost. Rates and model settings apply to every selected model. Use YAML
 for mixed transports or different settings/rates per model. API access and
 effort support, dataset integrity and comparison alignment still require local
 CLI/API validation.
@@ -43,7 +42,8 @@ these inputs; no question text, answers or private run state is sent to the site
 
 `run`, `plan` and `dataset prepare` accept an optional YAML path followed by flags.
 A run can be configured entirely through the CLI. `plan` is optional and never
-calls model APIs. For example, this local fake run needs no YAML, prices or budget:
+calls model APIs. It reports question counts, configurations, repeats and total
+requests. For example, this local fake run needs no YAML or prices:
 
 ```sh
 pnpm bench run --id cli-smoke --dataset mmlu-prox-lite \
@@ -73,7 +73,7 @@ duplicate conditions, duplicate YAML keys, custom tags and aliases are rejected.
 ```sh
 pnpm bench plan experiments/smoke.yaml --models fake-one,fake-two \
   --efforts low max --languages ru en --question-limit 2 --repeats 3
-pnpm bench run experiments/smoke.yaml --all-questions --no-pricing --no-budget
+pnpm bench run experiments/smoke.yaml --all-questions --no-pricing
 ```
 
 Lists accept commas, spaces, or both (including `--models=a,b,c`). An explicit
@@ -96,13 +96,11 @@ transport; mixed-transport YAML requires an explicit transport for new IDs.
 | Unique test questions per language | `--question-limit`, `--all-questions`                                                                                                                                          | Entire selected test split                                |
 | Concurrency per transport          | `--concurrency`                                                                                                                                                                | 1                                                         |
 | Total attempts / request timeout   | `--max-attempts`, `--timeout-ms`                                                                                                                                               | 3 / 120000 ms                                             |
-| Optional total budget              | `--budget-usd`, `--no-budget`                                                                                                                                                  | No budget                                                 |
 | Optional rates                     | `--pricing-as-of`, `--pricing-source`, `--input-per-million`, `--cached-input-per-million`, `--cache-write-per-million`, `--cache-write1h-per-million`, `--output-per-million` | Unknown                                                   |
 
 Price flags apply to selected models and override matching YAML rates. A complete
 pricing block needs its date, source URL and all five rates. `--no-pricing` clears
-inherited rates; zero rates are valid. A YAML budget is `execution.budgetUsd`.
-`--no-budget` clears it; `--all-questions` clears `questionLimit`.
+inherited rates; zero rates are valid. `--all-questions` clears `questionLimit`.
 
 `questionLimit` counts **unique test questions per language**, before expanding
 models, efforts and repeats. With 2 questions in each of 2 languages, 3 models,
@@ -129,13 +127,13 @@ SSH sessions and redirected logs retain the same history.
 | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `debug`   | Every attempt's start and saved response, job/condition identity, latency, usage, cost and request ID; verified dataset files and diagnostic stack frames |
 | `info`    | Preparation, downloads, run ID and directory, execution settings, progress, condition results and completion                                              |
-| `warning` | Retriable failures and their delay, refusals/truncation/unparseable answers, missing usage, budget pauses, interruption and uncertain crash recovery      |
+| `warning` | Retriable failures and their delay, refusals/truncation/unparseable answers, missing usage, interruption and uncertain crash recovery                     |
 | `error`   | Non-retryable transport failures, exhausted attempts, execution/CLI failures and unusable logging destinations                                            |
 
 Progress appears at start/end, on completions at most once per five seconds, and
 on a ten-second heartbeat while requests or retries are waiting. It includes saved,
 active, retrying, queued, failed and uncertain counts, elapsed time, the oldest
-active call, and charged/reserved cost. Queued jobs exclude current retry waits;
+active call, and recorded cost. Queued jobs exclude current retry waits;
 the durable `pending` count in JSON/status includes them. Costs remain `unknown`
 when accounting is unknown.
 
@@ -202,15 +200,13 @@ separate explicit paths for concurrent processes. Removing a journal does not
 change results or make uncertain API calls safe to repeat.
 
 `run`/`resume` results include `stopReason`. Full completion and deliberate
-`--max-jobs`/budget pauses exit `0`; unresolved failed/uncertain jobs and execution
+`--max-jobs` pauses exit `0`; unresolved failed/uncertain jobs and execution
 errors exit `1`; SIGINT/SIGTERM exit `130`/`143`. A successful `status` command exits
 `0` even when the inspected run has failures. Completed but incorrect, refused or
 unparseable answers are benchmark outcomes and do not make execution fail.
 
-This logging change updates the recorded runtime fingerprint. Existing runs must
-still be resumed from their original source and dependency lock; journals and
-snapshots are not migrated. Prompt inputs, retry limits, scoring, cost accounting
-and publication gates are unchanged.
+Run snapshots and journals require their recorded source and dependency lock
+for resume and verification. Keep the original checkout available.
 
 ## Dataset and language selection
 
@@ -220,7 +216,7 @@ canonical (for example `de`, `ja`, `zh-Hant`). Language overrides replace the YA
 list and clear inherited comparisons. Optional `--compare baseline:language ...`
 sets ordered pairs; `comparisons` may be omitted in YAML for independent scores.
 `--protocol` chooses an implemented adapter; unsupported dataset/language inputs
-fail before calls. The plan includes the complete resolved experiment.
+fail before calls. The plan reports the selected conditions and request counts.
 
 Only source files contributing to selected languages are downloaded/decoded.
 Shared files may contain other languages or translation variants; all declared
@@ -241,7 +237,7 @@ fresh complete comparison; a pilot never silently changes the author baseline.
 At creation, the runner writes `resolved.json`, `identity.json`, `dataset.jsonl`
 and `state.sqlite` under `.llang-gap/runs/<run-id>/`. The resolved snapshot records
 the full experiment, dataset and protocol hashes, code fingerprint, Git revision,
-Node and SDK versions, transport endpoints and initial optional budget. Resume reads this
+Node and SDK versions and transport endpoints. Resume reads this
 snapshot, never the current YAML. Modified inputs, job payloads, runtime source or
 runtime dependency closure prevent resume. Changes to website-only dependencies do not block the runner. Keep the original checkout and lockfile available.
 
@@ -281,17 +277,13 @@ the same pinned prompts and extraction. Historical v1 also requires a numeric ca
 The dataset-independent `multiple-choice-v1` accepts either numeric or null caps.
 No protocol is changed automatically by a flag.
 
-With positive output prices and no cap, reservations and plan upper bounds are
-unknown (`null`). A USD budget requires finite reservations and is rejected before
-dispatch in that case. Unbudgeted runs still record usage and calculate completion
-costs when prices and usage are available. Explicit zero output prices allow an
-input-only reservation; fully zero prices allow a zero-dollar budget. The `:free`
-suffix never supplies prices automatically. Calibrated usage forecasts still work,
-but the output-cap scenario is null without a cap.
+Runs record usage and calculate completion costs when prices and usage are
+available, including when the output cap is omitted. The `:free` suffix never
+supplies prices automatically.
 
 Null is preserved in job identity, snapshots, resume, analysis and release artifacts.
-Switching between numeric and null caps creates a new run; post-run comparison and
-calibration reject mismatched caps. Two null caps describe the same omission policy,
+Switching between numeric and null caps creates a new run; post-run comparisons
+reject mismatched caps. Two null caps describe the same omission policy,
 not a guarantee of identical API limits. Truncation still blocks publication.
 
 ## Transport and model
@@ -323,7 +315,7 @@ Transport failures use `TransportError`; a non-retryable transport failure stops
 the run with the CLI JSON `stopReason: "transport-error"`.
 
 One adapter is shared by all models on a transport, with concurrency per transport.
-The transport/model pair identifies jobs, results, aggregates and calibration
+The transport/model pair identifies jobs, results and aggregate
 conditions. Snapshots record `transportMetadata`. The website derives the model
 owner from model metadata/namespace, independently of the transport or serving
 endpoint. Native and routed results retain distinct IDs and links.
@@ -339,16 +331,15 @@ Set `OPENROUTER_API_KEY` in the repository root `.env` or the process environmen
 `experiments/openrouter-pilot.yaml` is a two-question,
 three-effort GPT-5 nano technical pilot: 12 EN/RU jobs, with up to 36 API attempts
 under `maxAttempts: 3` (one initial attempt plus two retries per job). It is not a
-publishable comparison. Planning reports separate cost bounds for one attempt and
-all configured attempts; execution reserves each attempt before dispatch.
+publishable comparison. Planning reports the request count and the configured attempt limit.
 
 ```sh
 # Planning does not call model APIs or require credentials.
 pnpm bench plan experiments/openrouter-pilot.yaml
 # The CLI automatically loads the ignored repository root .env.
 # Run only after agreeing the paid pilot budget.
-pnpm bench run experiments/openrouter-pilot.yaml --budget-usd 1
-pnpm bench resume <run-id> --budget-usd 1
+pnpm bench run experiments/openrouter-pilot.yaml
+pnpm bench resume <run-id>
 ```
 
 OpenRouter selects the serving endpoint for the requested model. There is no
@@ -364,16 +355,15 @@ fields never enter answer extraction. See [protocol differences](protocols/mmlup
 `require_parameters` does not establish support for every effort
 value or equal compute across models. CI uses intercepted HTTP responses only.
 
-When estimating costs, use dated rates covering the model's eligible endpoints. The pilot uses the highest rates listed
+For recorded usage, use dated rates covering the model's eligible endpoints. The pilot uses the highest rates listed
 by the [model endpoints API](https://openrouter.ai/api/v1/models/openai/gpt-5-nano/endpoints)
 on 2026-09-07, including Azure Sweden Central: $0.055/M input, $0.011/M cache reads
-and $0.44/M output. Both cache-write rates reserve $0.055/M. Costs are token-based estimates at those rates,
+and $0.44/M output. Both cache-write rates are $0.055/M. Costs are token-based estimates at those rates,
 not gateway invoices; endpoint selection and pricing changes can affect actual
-spending. Missing/invalid usage keeps the reservation charged. Reasoning is counted
+spending. Missing/invalid usage leaves cost unknown. Reasoning is counted
 within output once. Cache writes have no TTL split: configure both write rates to
 the highest applicable rate. Per-request fees, tools, multimodal billing, BYOK fees
-and tiered prices are outside this text-only accounting model. Existing budget and
-retry rules apply.
+and tiered prices are outside this text-only accounting model. Retry rules apply.
 
 ## Download and cache
 
@@ -401,70 +391,32 @@ and no validation split. The one pinned CSV contains all languages and both
 translation variants; even a single-language preparation needs that file.
 See the [mmPISA guide](datasets/mmpisa.md) and `experiments/mmpisa-smoke.yaml`.
 
-## Forecasting costs
+## Usage accounting and retries
 
-`bench plan` separates `forecast` from the existing `upperBoundUsdOneAttempt`
-and `upperBoundUsdAllAttempts` safety reservations. Without calibration, `forecast`
-is `null`: the reservation is not an expected invoice.
+`run` can execute directly. Optional token rates apply only to recorded usage;
+`plan` validates inputs and counts requests.
 
-```sh
-pnpm bench plan experiments/mvp.yaml --offline --calibrate-from /absolute/path/to/pilot-run
-```
+Omit a model's `pricing` block when prices are unknown. Its completion costs and
+execution total remain `null`; token usage and responses are still saved.
+Explicit zero rates are valid and produce zero token-based cost when usage is
+known. Missing usage is still unknown. No rate is inferred from a model suffix.
+Reasoning tokens are already included in output and are not counted twice.
+Cache reads, writes and one-hour writes are accounted separately.
 
-Use a completed run directory containing `resolved.json`, `identity.json`, and
-`state.sqlite`. The command reads it without modifying the journal or calling model
-APIs. It checks the dataset hash, protocol, model, effort and output cap. Every
-requested model/effort/language condition must have recorded usage; unknown usage
-and incomplete runs fail rather than produce a partial estimate.
+An attempt starts with an unknown charge. A completed response records its
+usage-based cost; a definite failed request records zero. An ambiguous failure
+keeps its charge unknown even after a successful retry. The `chargedUsd` execution
+total is `null` whenever any attempt has an unknown charge.
 
-The forecast reprices mean observed usage separately for every model, effort and
-language using the target experiment's rates, then multiplies by target requests
-(including repeats). Cache categories and reasoning-inclusive output are accounted
-as in billing. It includes incorrect, refused and truncated outcomes. Each condition
-reports sample responses and unique questions; repeats do not increase question
-coverage. Technical retries and uncertain charges are excluded from this one-attempt
-forecast. The separate attempt reservation covers the configured retry limit.
-
-`outputCapScenarioUsd` substitutes the full output cap while keeping observed mean
-input/cache usage. This is a sensitivity scenario, not an upper bound or confidence
-interval. Both estimates assume representative input and cache usage; different
-question lengths, subjects and reasoning difficulty can change spending. A two-question
-technical pilot supports only a provisional forecast, not a precise full-run budget.
-Forecasting is opt-in and requires target prices. It never gates an unbudgeted run.
-
-## Budget and retries
-
-Cost estimation and `--budget-usd` are optional. `run` does not require a preceding
-`plan`, rates, or a budget; `resume` without a budget retains the last recorded
-budget setting (including no budget). An explicit resume budget is the **total**
-budget, including earlier attempts, not an additional allowance.
-
-Omit a model's `pricing` block when prices are unknown. Its reservations, completion
-costs and execution total remain `null`; token usage and responses are still saved.
-Explicit zero rates are valid, including for OpenRouter `:free` models, and produce
-zero token-based cost when usage is known. Missing usage is still unknown. No rate
-is inferred from a model suffix. New SQLite journals use schema v2 with nullable
-amounts; existing journals and immutable snapshots are not rewritten.
-
-With an explicit budget, every model needs prices and prior charged/reserved totals
-must be known. Before each request the single process synchronously reserves a
-conservative cost bound. It uses prompt
-UTF-8 bytes plus API framing, the most expensive applicable input/cache rate, and
-the maximum output tokens. Inputs exceeding the supported short-context pricing
-bound are rejected.
-
-The reservation is replaced by usage-based cost when known. Reasoning tokens are
-already included in output tokens and are not billed twice. Cache reads, writes
-and one-hour writes are accounted separately. Missing usage remains `null` in the
-public result; its reservation remains charged in the ledger when rates exist. With an explicit budget, unexpected usage
-above the bound stops dispatch. This protects against ordinary concurrent spend;
-it cannot enforce an external account-wide billing cap or predict price changes.
+New run snapshots use schema v4 and SQLite journals use schema v3. Existing local
+state and published artifacts remain immutable; use their recorded source and
+dependencies to resume or verify them. No journal migration is performed.
 
 SDK automatic retries are disabled. The runner retries transport errors, HTTP
 408, 429 and 5xx with bounded exponential delay and `Retry-After`. Each attempt is
 saved. Other HTTP errors stop new dispatch. Wrong, refused and unparseable completed
 answers are never retried. A timeout can still have generated a billable response
-server-side; uncertain attempts retain their full reservation. Exactly-once remote
+server-side; uncertain attempts retain an unknown charge. Exactly-once remote
 execution is not promised.
 
 Concurrency is per transport. Selected language conditions remain adjacent in a seeded,
@@ -518,9 +470,9 @@ enter the website release index automatically.
 
 ```sh
 # A reversible pause after dispatching 12 jobs, preserving the full experiment.
-pnpm bench run experiments/mvp.yaml --budget-usd 30 --max-jobs 12
+pnpm bench run experiments/mvp.yaml --max-jobs 12
 pnpm bench status <run-id>
-pnpm bench resume <run-id> --budget-usd 100 --concurrency 2
+pnpm bench resume <run-id> --concurrency 2
 ```
 
 Ctrl+C stops new dispatch and waits for active calls to be saved. Completed jobs
@@ -533,9 +485,9 @@ become `uncertain`; they are not silently repeated:
 
 ```sh
 pnpm bench unlock <run-id>
-pnpm bench resume <run-id> --budget-usd 100 --retry-uncertain
+pnpm bench resume <run-id> --retry-uncertain
 # After resolving an operational API failure, optionally raise the total attempt cap.
-pnpm bench resume <run-id> --budget-usd 100 --retry-failed --max-attempts 5
+pnpm bench resume <run-id> --retry-failed --max-attempts 5
 ```
 
 `--retry-failed` and `--retry-uncertain` only requeue jobs below the **total**
@@ -547,7 +499,7 @@ limit. The supported maximum is five total attempts per job. Pass the raised
 `--max-attempts` on each resume that needs it; omitting it uses the original
 experiment's limit.
 
-Budget, concurrency and retry-limit changes are recorded in the event log. These
+Concurrency and retry-limit changes are recorded in the event log. These
 commands never reset successful answers. Keep the entire run directory on durable
 storage. Back up after the runner has exited; copying only `state.sqlite` during
 an active WAL session is not a consistent backup.
@@ -569,7 +521,7 @@ The automated suite covers strict config parsing, dataset pairing and corruption
 gold-answer leakage, reference prompts for all pinned adapter subjects, first-match author
 extraction and the frozen historical terminal parser,
 bootstrap clustering, every native effort through intercepted SDK HTTP calls,
-technical retries, budget reservations, cancellation, restart recovery, locks,
+technical retries, unknown charges, cancellation, restart recovery, locks,
 run tampering, truncation and release checksum/scoring verification. It uses no
 API credentials and never makes paid calls.
 

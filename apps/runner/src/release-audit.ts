@@ -11,7 +11,6 @@ const attemptSchema = z.strictObject({
   started_at: z.iso.datetime(),
   finished_at: z.iso.datetime().nullable(),
   status: z.enum(["completed", "failed", "uncertain"]),
-  reserve_usd: z.number().nonnegative().nullable(),
   charged_usd: z.number().nonnegative().nullable(),
   error: z.string().nullable(),
   request_id: z.string().nullable(),
@@ -34,20 +33,15 @@ export async function verifyAttemptLedger(
   let unknown = false;
   for (const attempt of rows) {
     const job = jobMap.get(attempt.job_id);
-    if (
-      !job ||
-      attempt.reserve_usd !== job.reservationUsd ||
-      attempt.number !== (numbers.get(job.id) ?? 0) + 1 ||
-      completed.has(job.id)
-    )
-      throw new Error("Invalid attempt ledger sequence or reservation");
+    if (!job || attempt.number !== (numbers.get(job.id) ?? 0) + 1 || completed.has(job.id))
+      throw new Error("Invalid attempt ledger sequence");
     numbers.set(job.id, attempt.number);
     const item = itemMap.get(job.id);
     const charged =
       attempt.status === "completed"
-        ? (item?.costUsd ?? job.reservationUsd)
+        ? (item?.costUsd ?? null)
         : attempt.status === "uncertain"
-          ? job.reservationUsd
+          ? null
           : 0;
     if (attempt.charged_usd !== charged) throw new Error("Attempt ledger cost does not reproduce");
     if (charged === null) unknown = true;
@@ -69,7 +63,7 @@ export async function verifyAttemptLedger(
         failed: z.literal(0),
         uncertain: z.literal(0),
         attempts: z.number(),
-        chargedOrReservedUsd: z.number().nullable(),
+        chargedUsd: z.number().nullable(),
       }),
     })
     .parse(await readJson(join(directory, "execution.json")));
@@ -78,9 +72,9 @@ export async function verifyAttemptLedger(
     execution.summary.completed !== jobs.length ||
     execution.summary.attempts !== rows.length ||
     (unknown
-      ? execution.summary.chargedOrReservedUsd !== null
-      : execution.summary.chargedOrReservedUsd === null ||
-        Math.abs(execution.summary.chargedOrReservedUsd - total) > 1e-9)
+      ? execution.summary.chargedUsd !== null
+      : execution.summary.chargedUsd === null ||
+        Math.abs(execution.summary.chargedUsd - total) > 1e-9)
   )
     throw new Error("Execution totals do not reproduce from the attempt ledger");
 }

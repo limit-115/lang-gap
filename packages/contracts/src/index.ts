@@ -131,7 +131,6 @@ export const experimentSchema = z
         "Duplicate model",
       ),
     execution: z.strictObject({
-      budgetUsd: z.number().nonnegative().nullable().optional(),
       concurrency: z.number().int().min(1).max(32),
       maxAttempts: z.number().int().min(1).max(5),
       timeoutMs: z.number().int().min(1000).max(3_600_000),

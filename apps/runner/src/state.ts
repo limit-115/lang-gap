@@ -59,18 +59,18 @@ export class RunState {
     const version = z
       .object({ user_version: z.number() })
       .parse(this.db.prepare("PRAGMA user_version").get()).user_version;
-    if (version > 2) {
+    if (version !== 0 && version !== 3) {
       this.db.close();
-      throw new Error("Unsupported future SQLite schema");
+      throw new Error("Unsupported SQLite schema; use the recorded runner for existing state");
     }
     if (version === 0)
       this.db.exec(`
       BEGIN IMMEDIATE;
       CREATE TABLE jobs (id TEXT PRIMARY KEY, ordinal INTEGER NOT NULL UNIQUE, payload TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending', attempts INTEGER NOT NULL DEFAULT 0);
       CREATE INDEX idx_jobs_status_ordinal ON jobs(status, ordinal);
-      CREATE TABLE attempts (id INTEGER PRIMARY KEY, job_id TEXT NOT NULL REFERENCES jobs(id), number INTEGER NOT NULL, started_at TEXT NOT NULL, finished_at TEXT, status TEXT NOT NULL, reserve_usd REAL, charged_usd REAL, error TEXT, request_id TEXT, raw TEXT, result TEXT, UNIQUE(job_id, number));
+      CREATE TABLE attempts (id INTEGER PRIMARY KEY, job_id TEXT NOT NULL REFERENCES jobs(id), number INTEGER NOT NULL, started_at TEXT NOT NULL, finished_at TEXT, status TEXT NOT NULL, charged_usd REAL, error TEXT, request_id TEXT, raw TEXT, result TEXT, UNIQUE(job_id, number));
       CREATE TABLE events (id INTEGER PRIMARY KEY, created_at TEXT NOT NULL, kind TEXT NOT NULL, detail TEXT NOT NULL);
-      PRAGMA user_version=2;
+      PRAGMA user_version=3;
       COMMIT;
       PRAGMA optimize;
     `);
@@ -139,17 +139,6 @@ export class RunState {
           .get(),
       ).total;
   }
-  lastBudget(initial: number | null): number | null {
-    const row = this.db
-      .prepare(
-        "SELECT detail FROM events WHERE kind IN ('created','resumed') ORDER BY id DESC LIMIT 1",
-      )
-      .get();
-    if (!row) return initial;
-    return z
-      .object({ budgetUsd: z.number().nonnegative().nullable() })
-      .parse(JSON.parse(z.object({ detail: z.string() }).parse(row).detail)).budgetUsd;
-  }
   begin(job: Job): number {
     return this.transaction(() => {
       const row = jobRowSchema.parse(
@@ -161,10 +150,8 @@ export class RunState {
         .prepare("UPDATE jobs SET status='running', attempts=? WHERE id=?")
         .run(number, job.id);
       const result = this.db
-        .prepare(
-          "INSERT INTO attempts(job_id,number,started_at,status,reserve_usd,charged_usd) VALUES (?,?,?,'running',?,?)",
-        )
-        .run(job.id, number, new Date().toISOString(), job.reservationUsd, job.reservationUsd);
+        .prepare("INSERT INTO attempts(job_id,number,started_at,status) VALUES (?,?,?,'running')")
+        .run(job.id, number, new Date().toISOString());
       return Number(result.lastInsertRowid);
     });
   }
@@ -176,7 +163,7 @@ export class RunState {
         )
         .run(
           new Date().toISOString(),
-          result.costUsd ?? job.reservationUsd,
+          result.costUsd,
           response.requestId,
           JSON.stringify(response.raw),
           JSON.stringify(result),
@@ -199,7 +186,7 @@ export class RunState {
         .run(
           new Date().toISOString(),
           error.uncertain ? "uncertain" : "failed",
-          error.uncertain ? job.reservationUsd : 0,
+          error.uncertain ? null : 0,
           error.message,
           error.requestId,
           attempt,
@@ -244,7 +231,7 @@ export class RunState {
   audit() {
     return this.db
       .prepare(
-        "SELECT job_id,number,started_at,finished_at,status,reserve_usd,charged_usd,error,request_id FROM attempts ORDER BY id",
+        "SELECT job_id,number,started_at,finished_at,status,charged_usd,error,request_id FROM attempts ORDER BY id",
       )
       .all();
   }
@@ -333,7 +320,7 @@ export class RunState {
       failed: counts.get("failed") ?? 0,
       uncertain: counts.get("uncertain") ?? 0,
       attempts,
-      chargedOrReservedUsd: this.charged(),
+      chargedUsd: this.charged(),
     };
   }
   close() {
