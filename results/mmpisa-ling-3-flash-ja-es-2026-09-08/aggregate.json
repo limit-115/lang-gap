@@ -1,0 +1,119 @@
+[
+  {
+    "transport": "openrouter",
+    "model": "inclusionai/ling-3.0-flash",
+    "effort": "high",
+    "repeats": 1,
+    "scores": [
+      {
+        "language": "ja",
+        "n": 25,
+        "accuracy": 0.8800000000000002,
+        "repeatAccuracy": [
+          0.8800000000000002
+        ]
+      },
+      {
+        "language": "es",
+        "n": 25,
+        "accuracy": 0.9600000000000003,
+        "repeatAccuracy": [
+          0.9600000000000003
+        ]
+      }
+    ],
+    "comparisons": [
+      {
+        "baseline": "ja",
+        "language": "es",
+        "n": 25,
+        "gapPp": -8,
+        "gapCi95": [
+          -24,
+          8
+        ]
+      }
+    ],
+    "unparseable": 0,
+    "refusals": 0,
+    "costUsd": null
+  },
+  {
+    "transport": "openrouter",
+    "model": "inclusionai/ling-3.0-flash",
+    "effort": "low",
+    "repeats": 1,
+    "scores": [
+      {
+        "language": "ja",
+        "n": 25,
+        "accuracy": 0.9600000000000003,
+        "repeatAccuracy": [
+          0.9600000000000003
+        ]
+      },
+      {
+        "language": "es",
+        "n": 25,
+        "accuracy": 0.8800000000000002,
+        "repeatAccuracy": [
+          0.8800000000000002
+        ]
+      }
+    ],
+    "comparisons": [
+      {
+        "baseline": "ja",
+        "language": "es",
+        "n": 25,
+        "gapPp": 8,
+        "gapCi95": [
+          0,
+          20
+        ]
+      }
+    ],
+    "unparseable": 1,
+    "refusals": 0,
+    "costUsd": null
+  },
+  {
+    "transport": "openrouter",
+    "model": "inclusionai/ling-3.0-flash",
+    "effort": "medium",
+    "repeats": 1,
+    "scores": [
+      {
+        "language": "ja",
+        "n": 25,
+        "accuracy": 0.9600000000000003,
+        "repeatAccuracy": [
+          0.9600000000000003
+        ]
+      },
+      {
+        "language": "es",
+        "n": 25,
+        "accuracy": 0.9200000000000003,
+        "repeatAccuracy": [
+          0.9200000000000003
+        ]
+      }
+    ],
+    "comparisons": [
+      {
+        "baseline": "ja",
+        "language": "es",
+        "n": 25,
+        "gapPp": 4,
+        "gapCi95": [
+          -8,
+          16
+        ]
+      }
+    ],
+    "unparseable": 0,
+    "refusals": 0,
+    "costUsd": null
+  }
+]
