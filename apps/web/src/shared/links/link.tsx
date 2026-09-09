@@ -159,7 +159,7 @@ export function ButtonLink({
   className,
   ...props
 }: LinkProps & {
-  variant?: "default" | "outline";
+  variant?: "default" | "neutral" | "outline";
   size?: "default" | "sm" | "lg";
 }) {
   return (

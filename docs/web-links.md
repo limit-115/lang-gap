@@ -8,16 +8,19 @@ The existing Build a run spotlight is an intentional exception: preserve its
 approved button design in `run-cta-spotlight.module.css` while using `ButtonLink`
 for navigation behavior.
 
-| Role                 | Component                      | Convention                                                                                |
-| -------------------- | ------------------------------ | ----------------------------------------------------------------------------------------- |
-| Prose/reference      | `TextLink`                     | Neutral text; persistent underline                                                        |
-| Supporting action    | `TextLink layout="standalone"` | Same underline, with space for a directional indicator                                    |
-| Model/language/score | `TextLink layout="data"`       | Mark the clickable text with `data-link-label`; keep metadata and metric colors separate  |
-| Prominent navigation | `ButtonLink`                   | Shared Button default or outline variant and shared size; no local color/radius overrides |
-| Site/menu navigation | `NavLink`                      | Shared neutral states and `aria-current`; menus retain their widget behavior              |
-| Whole row/card/chart | `LinkSurface`                  | Shared focus/hover; preserve layout and chart encoding                                    |
-| Icon shortcut        | `IconLink`                     | Required accessible label; compose with a tooltip when useful                             |
-| Brand/skip           | `BrandLink`, `SkipLink`        | Purposeful special presentations                                                          |
+| Role                 | Component                      | Convention                                                                               |
+| -------------------- | ------------------------------ | ---------------------------------------------------------------------------------------- |
+| Prose/reference      | `TextLink`                     | Neutral text; persistent underline                                                       |
+| Supporting action    | `TextLink layout="standalone"` | Same underline, with space for a directional indicator                                   |
+| Model/language/score | `TextLink layout="data"`       | Mark the clickable text with `data-link-label`; keep metadata and metric colors separate |
+| Prominent navigation | `ButtonLink`                   | Shared Button default, neutral, or outline variant and shared size                       |
+| Site/menu navigation | `NavLink`                      | Shared neutral states and `aria-current`; menus retain their widget behavior             |
+| Whole row/card/chart | `LinkSurface`                  | Shared focus/hover; preserve layout and chart encoding                                   |
+| Icon shortcut        | `IconLink`                     | Required accessible label; compose with a tooltip when useful                            |
+| Brand/skip           | `BrandLink`, `SkipLink`        | Purposeful special presentations                                                         |
+
+The footer GitHub button uses the neutral palette: foreground fill, background
+text, and 85% foreground on hover, preserving its original light/dark colors.
 
 Use root-relative URLs for internal destinations. Existing model/language URL
 helpers remain the source of truth. Pass `locale` explicitly in shell/404 code
