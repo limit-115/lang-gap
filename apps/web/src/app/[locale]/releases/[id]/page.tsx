@@ -1,11 +1,10 @@
 import { languageLabel } from "@/shared/language-label";
-import { ArrowLeft, BookOpen } from "lucide-react";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { getMessagesForLocale } from "@/i18n/messages";
 import { routing } from "@/i18n/routing";
-import { Link } from "@/i18n/navigation";
+import { TextLink } from "@/shared/links/link";
 import { pageMetadata, siteUrl } from "@/shared/metadata";
 import { JsonLd } from "@/shared/json-ld";
 import {
@@ -82,10 +81,9 @@ export default async function ReleasePage({ params }: Props) {
     <article className="min-w-0 pb-16">
       <JsonLd data={releaseStructuredData(release, baseUrl, locale, description)} />
       <header className="intro">
-        <Link className="resource-link mb-6" href="/releases">
-          <ArrowLeft aria-hidden="true" />
+        <TextLink layout="standalone" direction="back" className="mb-6" href="/releases">
           <span>{t("back")}</span>
-        </Link>
+        </TextLink>
         <h1 className="break-words">{t("detailTitle", { id })}</h1>
         <p>{description}</p>
         <p>
@@ -97,10 +95,9 @@ export default async function ReleasePage({ params }: Props) {
           {t("aggregate")}
         </h2>
         <p className="max-w-3xl leading-7 text-muted-foreground">{t("scope")}</p>
-        <Link href="/methodology" className="resource-link">
-          <BookOpen aria-hidden="true" />
+        <TextLink href="/methodology" layout="standalone">
           <span>{t("methodology")}</span>
-        </Link>
+        </TextLink>
         <div className="rounded-lg border bg-background">
           <Table>
             <caption className="sr-only">
@@ -206,9 +203,12 @@ export default async function ReleasePage({ params }: Props) {
           <ul className="mt-5 space-y-3">
             {["manifest.json", ...Object.keys(release.files)].map((filename) => (
               <li key={filename}>
-                <a className="artifact-link" href={releaseAssetUrl(baseUrl, filename)}>
+                <TextLink
+                  className="font-mono text-sm break-words"
+                  href={releaseAssetUrl(baseUrl, filename)}
+                >
                   {filename}
-                </a>
+                </TextLink>
               </li>
             ))}
           </ul>

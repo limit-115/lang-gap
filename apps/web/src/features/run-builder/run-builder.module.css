@@ -27,7 +27,7 @@
 .page button {
   border-radius: 7px;
 }
-.page :is(button, a, input, summary, textarea):focus-visible {
+.page :is(button, input, summary, textarea):focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 3px;
 }
@@ -52,6 +52,7 @@
   margin: 0;
   border: 0;
 }
+
 .field > label,
 .field legend {
   padding: 0;

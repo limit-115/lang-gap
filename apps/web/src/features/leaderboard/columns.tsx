@@ -10,7 +10,7 @@ import { effortSchema, type Aggregate } from "@llang-gap/contracts";
 import type { GuideModel } from "@llang-gap/contracts/guide";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Link } from "@/i18n/navigation";
+import { IconLink, TextLink } from "@/shared/links/link";
 import { getModelPresentation } from "./model-catalog";
 import { ModelOwnerLogo } from "./model-owner-logo";
 import { getLanguageHref } from "./language-catalog";
@@ -43,10 +43,10 @@ function ColumnHeader<T>({
         <Tooltip>
           <TooltipTrigger
             render={
-              <Link
+              <IconLink
                 href={getLanguageHref({ value: language })}
                 aria-label={t("compareModelsInLanguage", { language: title })}
-                className="mr-auto inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground/70 transition-colors hover:bg-muted/50 hover:text-foreground focus-visible:text-foreground"
+                className="mr-auto"
               />
             }
           >
@@ -87,9 +87,10 @@ export function useLeaderboardColumns(languages: readonly string[]) {
             cell: ({ row }) => {
               const { label, ownerName, ownerId } = getModelPresentation(row.original.reference);
               return (
-                <Link
+                <TextLink
+                  layout="data"
                   href={guideConfigurationHref(row.original)}
-                  className="group flex min-h-8 items-center gap-2"
+                  className="flex min-h-8 items-center gap-2"
                 >
                   <span
                     className="flex size-5 shrink-0 items-center justify-center"
@@ -97,11 +98,11 @@ export function useLeaderboardColumns(languages: readonly string[]) {
                   >
                     <ModelOwnerLogo ownerId={ownerId} size={20} />
                   </span>
-                  <span className="group-hover:underline">
+                  <span data-link-label>
                     <span className="text-muted-foreground">{ownerName}: </span>
                     {label}
                   </span>
-                </Link>
+                </TextLink>
               );
             },
             filterFn: "includesString",
@@ -142,16 +143,17 @@ export function useLeaderboardColumns(languages: readonly string[]) {
                 const score = row.original.scores.find((entry) => entry.language === language);
                 const difference = englishScoreDifference(row.original, language);
                 return (
-                  <Link
+                  <TextLink
+                    layout="data"
                     href={guideConfigurationHref(row.original, language)}
-                    className="group flex min-h-8 items-center justify-end gap-1 text-right tabular-nums"
+                    className="flex min-h-8 items-center justify-end gap-1 text-right tabular-nums"
                     title={
                       getValue() === undefined
                         ? t(score?.status === "incomplete" ? "incompleteScore" : "unmeasuredScore")
                         : t("scoreDetails")
                     }
                   >
-                    <span className="font-mono text-sm group-hover:underline">
+                    <span data-link-label className="font-mono text-sm">
                       {getValue() === undefined
                         ? "—"
                         : f.number(getValue()!, {
@@ -182,7 +184,7 @@ export function useLeaderboardColumns(languages: readonly string[]) {
                         </span>
                       </>
                     )}
-                  </Link>
+                  </TextLink>
                 );
               },
               sortFn: "basic",

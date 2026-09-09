@@ -1,7 +1,6 @@
-import { ArrowRight, Terminal } from "lucide-react";
+import { Terminal } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { buttonVariants } from "@/components/ui/button";
-import { Link } from "@/i18n/navigation";
+import { ButtonLink } from "@/shared/links/link";
 import styles from "./run-cta-spotlight.module.css";
 
 export async function RunCta() {
@@ -17,10 +16,9 @@ export async function RunCta() {
         <p>{t("ctaBody")}</p>
       </div>
       <div className={styles.actions}>
-        <Link href="/run" className={buttonVariants({ className: styles.action })}>
+        <ButtonLink href="/run" size="lg" direction="forward" className="w-full">
           {t("ctaAction")}
-          <ArrowRight aria-hidden="true" className="size-4" />
-        </Link>
+        </ButtonLink>
         <span className={styles.note}>
           <Terminal aria-hidden="true" className="size-4 shrink-0" />
           {t("ctaNote")}

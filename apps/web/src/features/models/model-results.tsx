@@ -1,11 +1,12 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ArrowUpRight, Globe2, Search } from "lucide-react";
+import { Globe2, Search } from "lucide-react";
 import type { ModelReference } from "@llang-gap/contracts";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import type { GuideModel } from "@llang-gap/contracts/guide";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
+import { TextLink } from "@/shared/links/link";
 import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/search-input";
 import {
@@ -222,16 +223,17 @@ export function ModelResults({
                   data-language={score.language}
                   data-highlighted={score.language === initialLanguage}
                 >
-                  <Link
+                  <TextLink
+                    layout="data"
                     className={styles.language}
                     href={getLanguageHref({ value: score.language })}
                   >
-                    <span>{score.label}</span>
+                    <span data-link-label>{score.label}</span>
                     {score.native.toLocaleLowerCase(locale) !==
                       score.label.toLocaleLowerCase(locale) && (
                       <small lang={score.language}>{score.native}</small>
                     )}
-                  </Link>
+                  </TextLink>
                   <div className={styles.track} aria-hidden="true">
                     {score.value === null ? (
                       <span className={styles.missing} />
@@ -272,10 +274,9 @@ export function ModelResults({
         )}
       </section>
       <footer className={styles.sources}>
-        <Link href={sourceHref}>
+        <TextLink href={sourceHref} layout="standalone">
           {t("seeExperiments")}
-          <ArrowUpRight size={16} aria-hidden="true" />
-        </Link>
+        </TextLink>
         <span>{t("historyCount", { count: sourceCount })}</span>
       </footer>
     </article>

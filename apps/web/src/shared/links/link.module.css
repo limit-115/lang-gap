@@ -1,0 +1,113 @@
+.link {
+  --link-color: var(--foreground);
+  --link-underline: color-mix(in srgb, currentColor 45%, transparent);
+  --link-focus: var(--foreground);
+  text-underline-offset: 4px;
+}
+.link:not([data-slot="button"]):focus-visible {
+  outline: 2px solid var(--link-focus);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+.text {
+  color: var(--link-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+.text [data-link-label],
+.text:not(:has([data-link-label])) {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--link-underline);
+  text-underline-offset: 4px;
+  text-decoration-skip-ink: auto;
+  transition: text-decoration-color 150ms;
+}
+.text:hover,
+.text:focus-visible {
+  --link-underline: currentColor;
+}
+.text[data-layout="standalone"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  font-size: 0.875rem;
+}
+.text[data-layout="data"] {
+  font-weight: inherit;
+}
+.indicator {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  vertical-align: -0.125em;
+}
+.text[data-layout="inline"] > .indicator {
+  margin-inline-start: 0.25em;
+}
+.button {
+  text-decoration: none;
+}
+.nav {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 150ms;
+}
+.nav:hover,
+.nav:focus-visible,
+.nav[aria-current="page"] {
+  color: var(--foreground);
+}
+.surface {
+  color: var(--foreground);
+  text-decoration: none;
+  transition: background-color 150ms;
+}
+.surface[data-surface="card"]:hover,
+.surface[data-surface="row"]:hover,
+.surface[data-surface="card"]:focus-visible,
+.surface[data-surface="row"]:focus-visible {
+  background-color: var(--muted);
+}
+.surface[data-surface="chart"] {
+  transition: filter 150ms;
+}
+.surface[data-surface="chart"]:hover,
+.surface[data-surface="chart"]:focus-visible {
+  filter: brightness(1.15);
+}
+.icon {
+  color: var(--muted-foreground);
+}
+.skip {
+  position: absolute;
+  top: -80px;
+  left: 16px;
+  padding: 12px;
+  z-index: 30;
+  background: var(--background);
+  color: var(--foreground);
+}
+.skip:focus {
+  top: 8px;
+}
+@media (pointer: coarse) {
+  .icon {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .text [data-link-label],
+  .text,
+  .nav,
+  .surface,
+  .button,
+  .icon {
+    transition: none;
+  }
+}

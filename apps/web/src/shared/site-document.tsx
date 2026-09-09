@@ -1,3 +1,4 @@
+import { SkipLink } from "@/shared/links/link";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { getTranslations } from "next-intl/server";
@@ -29,11 +30,9 @@ export async function SiteDocument({
             timeZone="UTC"
             messages={{ Navigation: getMessagesForLocale(locale).Navigation }}
           >
-            <a className="skip-link" href="#main">
-              {t("skip")}
-            </a>
+            <SkipLink>{t("skip")}</SkipLink>
             <SiteHeader />
-            <main id="main" className="page-shell">
+            <main id="main" className="page-shell" tabIndex={-1}>
               <PageTransition>{children}</PageTransition>
             </main>
             <SiteFooter locale={locale} />

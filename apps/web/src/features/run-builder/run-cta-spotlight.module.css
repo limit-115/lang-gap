@@ -4,9 +4,6 @@
   --cta-heading: var(--foreground);
   --cta-accent: var(--muted-foreground);
   --cta-body: var(--muted-foreground);
-  --cta-button: var(--foreground);
-  --cta-button-text: var(--background);
-  --cta-button-hover: color-mix(in srgb, var(--foreground) 85%, var(--background));
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
   align-items: center;
@@ -59,33 +56,6 @@
   text-wrap: pretty;
 }
 
-.cta .action {
-  width: 100%;
-  justify-content: space-between;
-  min-height: 48px;
-  height: auto;
-  padding: 12px 20px;
-  gap: 24px;
-  border-radius: 8px;
-  background: var(--cta-button);
-  color: var(--cta-button-text);
-  font-size: 0.9375rem;
-  line-height: 1.4;
-  white-space: normal;
-  text-align: center;
-  transition: background-color 150ms;
-}
-
-.cta .action:hover {
-  background: var(--cta-button-hover);
-}
-
-.cta .action:focus-visible {
-  outline: 2px solid var(--cta-accent);
-  outline-offset: 5px;
-  box-shadow: none;
-}
-
 .note {
   display: flex;
   align-items: center;
@@ -132,11 +102,5 @@
   .actions {
     justify-self: start;
     max-width: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cta .action {
-    transition: none;
   }
 }
