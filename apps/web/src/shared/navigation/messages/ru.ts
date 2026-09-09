@@ -17,6 +17,6 @@ export default {
   tagline: "Сравните точность LLM на разных языках.",
   footer:
     "Мы тестируем LLM на разных языках и открыто публикуем результаты. Нам ещё многое предстоит проверить. Вам уже есть что перепроверить.",
-  attribution: "Сделано в <author>Limit 115</author>.",
+  attribution: "Сделано в <author>Limit 115</author>",
   home: "Lang Gap — главная",
 } as const satisfies Dictionary<typeof en>;

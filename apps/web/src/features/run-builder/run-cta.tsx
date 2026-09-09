@@ -16,7 +16,7 @@ export async function RunCta() {
         <p>{t("ctaBody")}</p>
       </div>
       <div className={styles.actions}>
-        <ButtonLink href="/run" size="lg" direction="forward" className="w-full">
+        <ButtonLink href="/run" direction="forward" className={styles.action}>
           {t("ctaAction")}
         </ButtonLink>
         <span className={styles.note}>

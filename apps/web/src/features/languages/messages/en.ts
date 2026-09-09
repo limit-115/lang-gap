@@ -1,7 +1,6 @@
 const messages = {
   intro: "Find a model that gets more right in {language}.",
   pointsAhead: "{points} points ahead of the next model",
-  viewModel: "View model",
   closest: "A close alternative",
   behind: "{points} points behind the highest score",
   ranking: "How the models compare",

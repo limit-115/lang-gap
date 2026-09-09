@@ -223,14 +223,6 @@ function Shortlist({
                 ? t("pointsAhead", { points: number(scoreDifference(first.score, second.score)) })
                 : t("correct")}
           </p>
-          <TextLink
-            href={modelHref(first.model)}
-            layout="standalone"
-            direction="forward"
-            className={styles.viewModel}
-          >
-            {t("viewModel")}
-          </TextLink>
         </section>
         {second && (
           <section className={styles.pick}>
@@ -247,14 +239,6 @@ function Shortlist({
                 ? t("sameTop")
                 : t("behind", { points: number(scoreDifference(first.score, second.score)) })}
             </p>
-            <TextLink
-              href={modelHref(second.model)}
-              layout="standalone"
-              direction="forward"
-              className={styles.viewModel}
-            >
-              {t("viewModel")}
-            </TextLink>
           </section>
         )}
         <section className={`${styles.pick} ${styles.rangeCard}`}>

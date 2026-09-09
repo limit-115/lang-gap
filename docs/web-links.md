@@ -4,6 +4,9 @@ Import navigation components from `@/shared/links/link`. Use a real URL for
 navigation; copying, sorting, filtering, and other actions remain buttons.
 The shared components own appearance and destination indicators. Feature CSS owns
 layout and data colors, not link hover, underline, focus, or button styling.
+The existing Build a run spotlight is an intentional exception: preserve its
+approved button design in `run-cta-spotlight.module.css` while using `ButtonLink`
+for navigation behavior.
 
 | Role                 | Component                      | Convention                                                                                |
 | -------------------- | ------------------------------ | ----------------------------------------------------------------------------------------- |
