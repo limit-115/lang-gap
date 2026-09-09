@@ -27,9 +27,7 @@ export function RunBuilderMobileNotice() {
       <div className="rounded-xl bg-muted p-3">
         <Laptop className="size-8" aria-hidden="true" />
       </div>
-      <h1 id="mobile-run-title" className="text-3xl leading-tight font-semibold">
-        {t("mobileTitle")}
-      </h1>
+      <h1 id="mobile-run-title">{t("mobileTitle")}</h1>
       <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
         <p>{t("mobileDescription")}</p>
         <p>{t("mobileAdvice")}</p>

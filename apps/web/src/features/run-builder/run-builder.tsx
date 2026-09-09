@@ -743,7 +743,7 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
             <span className={styles.guideGlyph}>
               <Layers aria-hidden="true" />
             </span>
-            <h2>{t("guideRailTitle")}</h2>
+            <h1>{t("guideRailTitle")}</h1>
             <p>{t("guideRailHint")}</p>
           </div>
           <nav aria-label={t("steps")} className={styles.stepList}>

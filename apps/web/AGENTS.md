@@ -20,6 +20,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Use shadcn/ui, initialized with preset `b2pjsub2m` and `--pointer`.
 - Use Inter for interface text and JetBrains Mono for monospace content.
 - Keep the design clean and precise, with readable text and consistent spacing.
+- Reuse the `--type-*` scale in `src/app/globals.css` for model, language, and run-builder
+  pages. Use 400/500/600 weights; keep UI text at 14px and secondary captions at least
+  12px. Adapt narrow layouts instead of shrinking labels, names, or chart values.
 - Use `SearchInput` for list/table filters and `SearchComboboxInput` within Base UI
   comboboxes for navigation finders. Both live in `src/components/ui/search-input.tsx`
   and share field styling: 36px for filters, 48px for finders. Keep page-specific

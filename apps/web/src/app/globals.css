@@ -8,6 +8,15 @@
 
 /* shadcn preset b2pjsub2m */
 :root {
+  /* Shared reading hierarchy; page titles follow the homepage scale. */
+  --type-page-title: clamp(1.75rem, 3vw, 2.25rem);
+  --type-step-title: 1.5rem;
+  --type-section-title: 1.125rem;
+  --type-body: 1rem;
+  --type-ui: 0.875rem;
+  --type-caption: 0.75rem;
+  --type-metric: clamp(1.75rem, 3vw, 2.25rem);
+
   --muted: oklch(0.967 0.001 286.375);
   --accent: oklch(0.967 0.001 286.375);
   --card: oklch(1 0 0);
@@ -276,7 +285,7 @@
     padding-block: 44px 32px;
   }
   h1 {
-    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    font-size: var(--type-page-title);
     line-height: 1.25;
     font-weight: 600;
   }
@@ -296,7 +305,7 @@
     padding-bottom: 24px;
   }
   .panel-heading h2 {
-    font-size: 1.125rem;
+    font-size: var(--type-section-title);
     font-weight: 600;
   }
   .panel-heading p {
