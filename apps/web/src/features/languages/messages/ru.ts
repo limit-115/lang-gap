@@ -3,7 +3,6 @@ import type en from "./en";
 const messages: Record<keyof typeof en, string> = {
   intro: "Найдите модель, которая чаще отвечает правильно. Язык: {language}.",
   pointsAhead: "На {points} п. п. выше следующей модели",
-  viewModel: "Открыть модель",
   closest: "Близкий результат",
   behind: "На {points} п. п. ниже лучшей оценки",
   ranking: "Как различаются модели",

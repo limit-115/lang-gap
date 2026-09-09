@@ -4,7 +4,7 @@ import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
-import { Link } from "@/i18n/navigation";
+import { LinkSurface } from "@/shared/links/link";
 import { isPreviewDeployment, pageMetadata } from "@/shared/metadata";
 import { getReleases } from "@/features/releases/data";
 
@@ -34,7 +34,11 @@ export default async function ReleasesPage({ params }: Props) {
         <ul className="release-list">
           {releases.map((r) => (
             <li key={r.id}>
-              <Link href={`/releases/${r.id}`} className="resource-link">
+              <LinkSurface
+                href={`/releases/${r.id}`}
+                kind="row"
+                className="release-row rounded-lg border bg-background text-sm"
+              >
                 <FileArchive aria-hidden="true" />
                 <strong>{r.id}</strong>
                 <time dateTime={r.createdAt}>
@@ -42,7 +46,7 @@ export default async function ReleasesPage({ params }: Props) {
                     new Date(r.createdAt),
                   )}
                 </time>
-              </Link>
+              </LinkSurface>
             </li>
           ))}
         </ul>

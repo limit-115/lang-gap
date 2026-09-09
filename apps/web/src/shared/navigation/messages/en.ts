@@ -15,6 +15,6 @@ export default {
   tagline: "Compare LLM accuracy across languages.",
   footer:
     "We test LLMs across languages and put the results out in the open. Plenty left to test. Plenty you can check.",
-  attribution: "Made by <author>Limit 115</author>.",
+  attribution: "Made by <author>Limit 115</author>",
   home: "Lang Gap home",
 } as const;

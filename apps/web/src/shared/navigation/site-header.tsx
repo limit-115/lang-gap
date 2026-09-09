@@ -10,9 +10,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Link, usePathname } from "@/i18n/navigation";
+import { BrandLink, NavLink } from "@/shared/links/link";
 import { BrandLogo } from "./brand-logo";
-import { isCurrentPage } from "./is-current-page";
 import { LanguageSwitcher } from "./language-switcher";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -25,7 +24,6 @@ const pages = [
 
 export function SiteHeader() {
   const t = useTranslations("Navigation");
-  const pathname = usePathname();
   const [floating, setFloating] = useState(false);
 
   useEffect(() => {
@@ -42,18 +40,14 @@ export function SiteHeader() {
   return (
     <header className="site-header" data-floating={floating}>
       <div className="header-inner">
-        <Link className="brand" href="/" aria-label={t("home")}>
+        <BrandLink href="/" aria-label={t("home")}>
           <BrandLogo compactOnMobile />
-        </Link>
+        </BrandLink>
         <nav className="desktop-navigation" aria-label={t("navigation")}>
           {pages.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              aria-current={isCurrentPage(pathname, href) ? "page" : undefined}
-            >
+            <NavLink key={href} href={href}>
               {t(label)}
-            </Link>
+            </NavLink>
           ))}
         </nav>
         <div className="header-actions">
@@ -76,8 +70,7 @@ export function SiteHeader() {
                 {pages.map(({ href, label }) => (
                   <DropdownMenuItem
                     key={href}
-                    render={<Link href={href} />}
-                    aria-current={isCurrentPage(pathname, href) ? "page" : undefined}
+                    render={<NavLink href={href} />}
                     className="min-h-11 cursor-pointer aria-[current=page]:bg-accent aria-[current=page]:text-accent-foreground"
                   >
                     {t(label)}

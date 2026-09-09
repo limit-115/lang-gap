@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Check, CircleAlert, Copy, Download, Link as LinkIcon } from "lucide-react";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Check, CircleAlert, Copy, Link as LinkIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/shared/links/link";
 
 type Props = { citation: string; bibtex: string; url: string; releaseId: string };
 
@@ -88,14 +89,13 @@ export function ReleaseCitation({ citation, bibtex, url, releaseId }: Props) {
           </pre>
           <div className="mt-3 flex flex-wrap gap-2">
             <CitationCopyButton text={bibtex} label={t("copyBibtex")} />
-            <a
-              className={buttonVariants({ variant: "outline" })}
+            <ButtonLink
+              variant="outline"
               href={`data:application/x-bibtex;charset=utf-8,${encodeURIComponent(bibtex)}`}
               download={`${releaseId}.bib`}
             >
-              <Download aria-hidden="true" />
               {t("downloadBibtex")}
-            </a>
+            </ButtonLink>
           </div>
         </details>
       </div>

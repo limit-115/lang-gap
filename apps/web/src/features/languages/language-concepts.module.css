@@ -31,8 +31,7 @@
 .page button:not(:disabled) {
   cursor: pointer;
 }
-.page button:focus-visible,
-.page a:focus-visible {
+.page button:focus-visible {
   outline: 2px solid var(--green);
   outline-offset: 4px;
 }
@@ -150,27 +149,12 @@
   font-size: var(--type-ui);
   margin-top: 7px;
 }
-.winnerButton {
-  width: 100%;
-  border-radius: 7px;
-  background: var(--green);
-  color: #fff;
-  margin-top: 20px;
-  justify-content: space-between;
-  font-size: var(--type-ui);
-}
 .pickScore {
   font-size: var(--type-metric);
   font-weight: 500;
   margin-top: 20px;
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
-}
-.pick > .pickButton {
-  border-radius: 7px;
-  font-size: var(--type-ui);
-  margin-top: 20px;
-  margin-left: -11px;
 }
 .rankingSection {
   margin-top: 40px;
@@ -251,16 +235,9 @@
 .rankTable tbody tr:hover {
   background: color-mix(in srgb, var(--green) 3%, var(--background));
 }
-.modelButton {
+.modelIdentity {
   text-align: left;
-  border: 0;
-  background: none;
-  color: inherit;
   padding: 3px 0;
-}
-.modelButton:hover strong {
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 .scoreCell {
   display: flex;
@@ -326,26 +303,6 @@
   margin-top: 5px;
   max-width: 580px;
 }
-.evidence a {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 36px;
-  max-width: 100%;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: var(--type-ui);
-  white-space: nowrap;
-  transition: background-color 150ms;
-}
-.evidence a:hover {
-  background: var(--accent);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-.evidence a > svg {
-  flex-shrink: 0;
-}
 .finePrint {
   max-width: 880px;
   margin-top: 22px !important;
@@ -365,19 +322,6 @@
 .missing {
   grid-column: span 2;
   color: var(--muted-foreground);
-}
-
-.compareLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--green);
-  font-size: var(--type-ui);
-  white-space: nowrap;
-}
-.compareLink:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
 }
 .testTabs {
   display: flex;
@@ -526,10 +470,6 @@
   padding: 19px;
   text-align: left;
   background: var(--background);
-  transition: background 150ms;
-}
-.comparisonCard:hover {
-  background: var(--muted);
 }
 .cardModel {
   display: flex;
@@ -658,10 +598,6 @@
   border-radius: 4px 4px 0 0;
   min-height: 1px;
   opacity: 0.9;
-}
-.column:hover {
-  opacity: 1;
-  filter: brightness(1.12);
 }
 .column > span {
   position: absolute;
@@ -1010,7 +946,6 @@
   --green-soft: #1d2b24;
   --rank-bar: #57846b;
 }
-:global(.dark) .winnerButton,
 :global(.dark) .reportCompare {
   background: #267659;
 }
@@ -1042,6 +977,7 @@
     gap: 16px;
   }
 }
+
 @media (max-width: 800px) {
   .page {
     padding-top: 28px;
@@ -1068,10 +1004,6 @@
   }
   .winner > p {
     margin-top: 0;
-  }
-  .winnerButton {
-    grid-column: span 2;
-    margin-top: 15px;
   }
   .pickScore {
     margin-top: 24px;
@@ -1149,9 +1081,6 @@
     padding-inline: 8px;
     white-space: normal;
   }
-  .compareLink {
-    min-height: 36px;
-  }
   .columnLabel > svg {
     display: none;
   }
@@ -1161,11 +1090,6 @@
   .infoButton {
     width: 20px;
     flex-shrink: 0;
-  }
-
-  .pick > .pickButton {
-    white-space: normal;
-    text-align: left;
   }
 
   .languageTitle {
@@ -1190,9 +1114,6 @@
   .winner > p {
     margin-top: 6px;
   }
-  .winnerButton {
-    margin-top: 20px;
-  }
   .cardLabel {
     margin-bottom: 20px;
   }
@@ -1203,13 +1124,6 @@
   }
   .pick > p {
     min-height: 32px;
-  }
-  .pick > .pickButton {
-    gap: 5px;
-    margin-top: 15px;
-    padding-inline: 8px;
-    margin-left: -8px;
-    min-height: 40px;
   }
   .sectionHeader {
     align-items: start;
@@ -1265,9 +1179,6 @@
   .rankingSection,
   .evidence {
     padding: 20px 16px;
-  }
-  .evidence a {
-    white-space: normal;
   }
   .modelChoices {
     display: flex;
@@ -1360,7 +1271,7 @@
     gap: 5px;
     padding-block: 16px;
   }
-  .gapRow > .modelButton {
+  .gapRow > .modelIdentity {
     grid-column: 1;
   }
   .gapRow .dumbbell {
@@ -1444,11 +1355,6 @@
     min-height: 0;
     margin: 0;
   }
-  .pick > .pickButton {
-    grid-column: span 2;
-    margin-top: 0;
-    justify-content: space-between;
-  }
 }
 
 .headerTitleRow {
@@ -1504,6 +1410,7 @@
     align-items: flex-start;
     margin-top: 12px;
   }
+
   .languageTitle {
     min-width: 0;
   }
@@ -1523,6 +1430,7 @@
 .shortlistCards[data-single-model="true"] {
   grid-template-columns: 1.2fr 1fr;
 }
+
 @media (max-width: 800px) {
   .shortlistCards[data-single-model="true"] > * {
     grid-column: span 2;

@@ -27,5 +27,45 @@
     ".llang-gap/**",
     "**/next-env.d.ts",
     "packages/evaluation/reference/**"
+  ],
+  "overrides": [
+    {
+      "files": ["apps/web/src/**/*.ts", "apps/web/src/**/*.tsx"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^(\\.{1,2}$|\\.\\./|\\./[^/]+/)",
+                "message": "Use an absolute alias or workspace package; relative imports are only allowed for files in the same directory."
+              }
+            ],
+            "paths": [
+              {
+                "name": "next/link",
+                "message": "Use the shared link components from @/shared/links/link."
+              },
+              {
+                "name": "@/i18n/navigation",
+                "importNames": ["Link"],
+                "message": "Use the shared link components; routing hooks remain available here."
+              },
+              {
+                "name": "lucide-react",
+                "importNames": [
+                  "ArrowUpRight",
+                  "ArrowUpRightIcon",
+                  "ExternalLink",
+                  "ExternalLinkIcon"
+                ],
+                "message": "External indicators are owned by the shared link components."
+              }
+            ]
+          }
+        ]
+      },
+      "excludeFiles": ["apps/web/src/shared/links/link.tsx"]
+    }
   ]
 }

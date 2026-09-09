@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Copy, Laptop } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "@/i18n/navigation";
+import { TextLink } from "@/shared/links/link";
 
 export function RunBuilderMobileNotice() {
   const t = useTranslations("RunBuilder");
@@ -45,9 +45,9 @@ export function RunBuilderMobileNotice() {
               : null}
         </output>
       </div>
-      <Link href="/" className="text-sm font-medium underline underline-offset-4">
+      <TextLink href="/" layout="standalone">
         {t("mobileBrowse")}
-      </Link>
+      </TextLink>
     </section>
   );
 }

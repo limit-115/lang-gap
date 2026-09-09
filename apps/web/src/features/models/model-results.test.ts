@@ -53,7 +53,7 @@ it.each([["sw"], ["ja", "pt-BR", "fi"]])(
     for (const language of languages) {
       const row = rows.find((entry) => entry.includes(`data-language="${language}"`));
       expect(row).toMatch(
-        new RegExp(`<a[^>]*href="/languages/${language}"[^>]*><span>${language}</span></a>`),
+        new RegExp(`<a[^>]*href="/languages/${language}"[^>]*><span[^>]*>${language}</span></a>`),
       );
       expect(row).toContain("80.0%");
     }
