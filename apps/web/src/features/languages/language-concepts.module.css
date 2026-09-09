@@ -88,10 +88,6 @@
   border-radius: 12px;
   padding: 24px;
 }
-.winner {
-  background: var(--green-soft);
-  border-color: color-mix(in srgb, var(--green) 20%, var(--background));
-}
 .cardLabel {
   display: flex;
   align-items: center;
