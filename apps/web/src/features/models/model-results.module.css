@@ -3,6 +3,8 @@
   --model-wash: light-dark(#edf5f0, #1b2d25);
   --model-muted: var(--muted-foreground);
   color-scheme: light;
+  font-size: var(--type-body);
+  line-height: 1.6;
   padding-block: 36px 60px;
   min-width: 0;
 }
@@ -39,8 +41,8 @@
 .identity h1 {
   grid-column: 2;
   grid-row: 1;
-  font-size: clamp(28px, 3.5vw, 40px);
-  font-weight: 550;
+  font-size: var(--type-page-title);
+  font-weight: 600;
   line-height: 1.25;
   overflow-wrap: anywhere;
 }
@@ -48,7 +50,7 @@
   grid-column: 2;
   grid-row: 2;
   color: var(--model-muted);
-  font-size: 13px;
+  font-size: var(--type-ui);
   line-height: 20px;
 }
 .meta {
@@ -65,14 +67,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: var(--type-caption);
 }
 .meta svg {
   color: var(--model-muted);
 }
 .meta time {
   color: var(--model-muted);
-  font-size: 12px;
+  font-size: var(--type-caption);
 }
 .modelPicker {
   min-width: 0;
@@ -92,25 +94,26 @@
   min-width: 0;
 }
 .stats > div > span {
-  font-size: 13px;
+  font-size: var(--type-ui);
   color: var(--model-muted);
 }
 .stats p {
   display: flex;
   align-items: baseline;
   gap: 7px;
-  font-size: 42px;
-  font-weight: 450;
-  line-height: 1.6;
+  font-size: var(--type-metric);
+  font-weight: 500;
+  line-height: 1.25;
+  margin-block: 12px 8px;
   font-variant-numeric: tabular-nums;
 }
 .stats abbr {
   color: var(--model-muted);
-  font-size: 22px;
+  font-size: var(--type-section-title);
   text-decoration: none;
 }
 .stats small {
-  font-size: 12px;
+  font-size: var(--type-caption);
   color: var(--model-muted);
   display: block;
 }
@@ -127,12 +130,13 @@
   gap: 20px;
 }
 .chartHeader h2 {
-  font-size: 21px;
-  font-weight: 550;
+  font-size: var(--type-section-title);
+  font-weight: 600;
+  line-height: 1.5;
 }
 .chartHeader p {
   margin-top: 5px;
-  font-size: 13px;
+  font-size: var(--type-ui);
   color: var(--model-muted);
 }
 .profileSelect {
@@ -147,7 +151,7 @@
   border: 1px solid var(--border);
   border-radius: 7px;
   background: var(--background);
-  font-size: 13px;
+  font-size: var(--type-ui);
 }
 .profileSelect .picker {
   min-width: 110px;
@@ -168,7 +172,7 @@
   align-items: center;
 }
 .axis {
-  font-size: 11px;
+  font-size: var(--type-caption);
   color: var(--model-muted);
   margin-bottom: 10px;
 }
@@ -194,7 +198,7 @@
 .language {
   border-radius: 3px;
   text-underline-offset: 3px;
-  font-size: 14px;
+  font-size: var(--type-ui);
   line-height: 1.4;
 }
 .language:hover > span,
@@ -207,7 +211,7 @@
 }
 .language small {
   display: block;
-  font-size: 11px;
+  font-size: var(--type-caption);
   color: var(--model-muted);
   line-height: 1.5;
 }
@@ -231,7 +235,8 @@
 }
 .value {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--type-ui);
   text-align: right;
 }
 .missing {
@@ -242,7 +247,7 @@
 .chartNote {
   margin-top: 18px;
   color: var(--model-muted);
-  font-size: 12px;
+  font-size: var(--type-ui);
 }
 .empty {
   display: grid;
@@ -256,7 +261,7 @@
   color: var(--model-muted);
 }
 .empty h3 {
-  font-size: 16px;
+  font-size: var(--type-body);
   font-weight: 500;
 }
 .sources {
@@ -266,7 +271,7 @@
   flex-wrap: wrap;
   gap: 15px;
   margin-top: 22px;
-  font-size: 13px;
+  font-size: var(--type-ui);
 }
 .sources > span {
   color: var(--model-muted);
@@ -298,12 +303,6 @@
   }
   .stats > div {
     padding-inline: 20px;
-  }
-  .stats p {
-    font-size: 34px;
-  }
-  .stats abbr {
-    font-size: 18px;
   }
   .chart {
     padding: 23px 20px;
@@ -337,13 +336,6 @@
     width: 49px;
     height: 49px;
   }
-  .identity h1 {
-    font-size: 28px;
-  }
-  .meta > span,
-  .meta time {
-    font-size: 11px;
-  }
   .stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
@@ -352,18 +344,8 @@
   .stats > div {
     padding: 16px 14px;
   }
-  .stats > div > span {
-    font-size: 11px;
-  }
   .stats p {
-    font-size: 28px;
     gap: 4px;
-  }
-  .stats abbr {
-    font-size: 15px;
-  }
-  .stats small {
-    font-size: 11px;
   }
   .stats > div:nth-child(3) {
     grid-column: 1 / -1;
@@ -384,12 +366,6 @@
     padding: 20px 12px;
     margin-inline: -5px;
   }
-  .chartHeader h2 {
-    font-size: 19px;
-  }
-  .chartHeader p {
-    font-size: 12px;
-  }
   .profileSelect .picker {
     min-width: 100px;
   }
@@ -398,7 +374,6 @@
   }
   .picker {
     min-width: 120px;
-    font-size: 12px;
   }
   .axis,
   .row {
@@ -406,17 +381,8 @@
     gap: 8px;
     padding-inline: 5px;
   }
-  .axis {
-    font-size: 10px;
-  }
   .axis > div > span:nth-child(even) {
     visibility: hidden;
-  }
-  .language {
-    font-size: 12px;
-  }
-  .value {
-    font-size: 12px;
   }
   .bar {
     height: 16px;
@@ -424,14 +390,8 @@
   .track {
     background-size: 50% 100%;
   }
-  .sources {
-    font-size: 12px;
-  }
 }
 @media (max-width: 360px) {
-  .stats p {
-    font-size: 24px;
-  }
   .stats > div > span {
     display: block;
     min-height: 32px;
