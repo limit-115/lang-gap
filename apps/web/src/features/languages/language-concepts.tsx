@@ -345,12 +345,7 @@ function Shortlist({
                       </TextLink>
                     </td>
                     <td>
-                      <TextLink
-                        layout="data"
-                        className={styles.scoreCell}
-                        href={modelHref(model)}
-                        aria-label={t("view", { model: model.name })}
-                      >
+                      <div className={styles.scoreCell}>
                         <AccuracyBar
                           value={score}
                           color={
@@ -358,11 +353,11 @@ function Shortlist({
                           }
                           label={`${model.name}: ${number(score)}%`}
                         />
-                        <strong data-link-label>
+                        <strong>
                           {number(score)}
                           <span>%</span>
                         </strong>
-                      </TextLink>
+                      </div>
                     </td>
                     <td>
                       <span className={styles.difference} data-negative={difference < 0}>
