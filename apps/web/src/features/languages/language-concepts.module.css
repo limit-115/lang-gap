@@ -197,7 +197,7 @@
   font-weight: 500;
   text-align: left;
   padding: 13px 12px;
-  border-block: 1px solid var(--line);
+  border: 1px solid var(--line);
   white-space: nowrap;
 }
 .rankTable th > svg {
@@ -207,10 +207,7 @@
 }
 .rankTable td {
   padding: 15px 12px;
-  border-bottom: 1px solid var(--line);
-}
-.rankTable tbody tr:last-child td {
-  border-bottom: 0;
+  border: 1px solid var(--line);
 }
 .rankTable td:first-child {
   width: 38px;
@@ -1142,7 +1139,6 @@
   .rankTable th:nth-child(2),
   .rankTable td:nth-child(2) {
     width: 45%;
-    padding-left: 0;
   }
   .rankTable th:nth-child(3),
   .rankTable td:nth-child(3) {
@@ -1151,7 +1147,6 @@
   .rankTable th:nth-child(4),
   .rankTable td:nth-child(4) {
     width: 25%;
-    padding-right: 0;
     white-space: normal;
   }
   .rankTable .difference {
