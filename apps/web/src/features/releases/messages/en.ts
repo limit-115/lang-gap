@@ -1,5 +1,6 @@
 export default {
   designs: {
+    clearSearch: "Clear search",
     submittedBy: "Submitted by",
     submittedAt: "at {time} UTC",
     submitterUnknown: "Submitter not recorded",

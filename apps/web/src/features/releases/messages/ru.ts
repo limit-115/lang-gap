@@ -2,6 +2,7 @@ import type { Dictionary } from "@/i18n/routing";
 import type en from "./en";
 export default {
   designs: {
+    clearSearch: "Очистить поиск",
     submittedBy: "Автор отчёта:",
     submittedAt: "в {time} UTC",
     submitterUnknown: "Автор не указан",

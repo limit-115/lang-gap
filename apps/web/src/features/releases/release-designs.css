@@ -78,10 +78,6 @@
 .release-design input {
   -webkit-tap-highlight-color: transparent;
 }
-.release-design a:focus-visible {
-  outline-color: var(--ring);
-  outline-offset: 4px;
-}
 .design-picker {
   display: flex;
   align-items: center;
@@ -111,9 +107,6 @@
 .design-picker svg {
   width: 15px;
   height: 15px;
-}
-.design-picker a:hover {
-  background: var(--muted);
 }
 .design-picker a[aria-current="page"] {
   background: var(--foreground);
@@ -163,7 +156,6 @@
   color: var(--muted-foreground);
 }
 .archive-overview > a {
-  text-decoration: underline;
   text-decoration-color: currentColor;
 }
 .archive-overview > a:hover {
@@ -201,25 +193,9 @@
   flex: 1;
   min-width: 0;
 }
-.archive-search > svg {
-  position: absolute;
-  left: 14px;
-  top: 14px;
-  z-index: 1;
-  color: var(--muted-foreground);
-}
-.archive-search input {
-  min-height: 46px;
-  border-radius: 5px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  padding: 10px 15px 10px 42px;
-  color: var(--foreground);
-  font-size: 0.875rem;
-}
 .archive-controls .archive-select,
 .archive-controls .archive-sort {
-  min-height: 46px;
+  min-height: 36px;
   border: 1px solid var(--border);
   border-radius: 5px;
   background: var(--card);
@@ -286,11 +262,6 @@
     transform 150ms,
     box-shadow 150ms,
     border-color 150ms;
-}
-.report-main-link:hover {
-  border-color: var(--archive-line);
-  box-shadow: 3px 3px 0 var(--border);
-  transform: translate(-1px, -1px);
 }
 .report-icon {
   display: grid;
@@ -419,10 +390,6 @@
   gap: 8px;
   font-size: 0.875rem;
   white-space: nowrap;
-  text-decoration: underline;
-}
-.archive-evidence > a:hover {
-  color: var(--archive-accent);
 }
 .archive-empty {
   border: 1px dashed var(--border);
@@ -582,9 +549,6 @@
   padding-inline: 8px;
   font-size: 0.75rem;
 }
-.archive-sidebar nav a:hover {
-  background: var(--muted);
-}
 .archive-sidebar nav svg {
   width: 16px;
   color: var(--archive-accent);
@@ -612,7 +576,6 @@
 }
 .sidebar-note a {
   padding: 4px 0;
-  text-decoration: underline;
 }
 .window-content {
   min-width: 0;
@@ -666,11 +629,6 @@
   border-bottom: 1px solid var(--border);
   border-radius: 0;
   gap: 14px;
-}
-.release-design-desktop .report-main-link:hover {
-  background: var(--background);
-  box-shadow: none;
-  transform: none;
 }
 .release-design-desktop .report-icon {
   width: 33px;
@@ -733,7 +691,6 @@
   align-items: center;
   gap: 8px;
   color: var(--foreground);
-  text-decoration: underline;
 }
 /* Report board: one dated shelf, with colorful, generously spaced report cards. */
 .release-design-board .archive-hero {
@@ -805,10 +762,6 @@
   box-shadow: 4px 4px 0 var(--border);
   border-radius: 4px;
   border-top: 7px solid var(--report-tint);
-}
-.release-design-board .report-main-link:hover {
-  box-shadow: 6px 6px 0 var(--archive-line);
-  transform: translate(-2px, -2px);
 }
 .release-design-board .report-icon {
   position: absolute;
@@ -1228,9 +1181,6 @@
   .release-design *::before {
     transition: none !important;
   }
-  .report-main-link:hover {
-    transform: none;
-  }
 }
 
 .sidebar-researcher {
@@ -1278,7 +1228,6 @@
   transform: none;
   font-size: 0.75rem;
 }
-.release-design-board .archive-controls input,
 .release-design-board .archive-controls .archive-select,
 .release-design-board .archive-controls .archive-sort {
   background: var(--background);
@@ -1304,10 +1253,6 @@
   border-top-width: 6px;
   background: var(--card);
   box-shadow: 3px 4px 0 var(--border);
-}
-.release-design-board .report-main-link:hover {
-  transform: translate(-1px, -2px);
-  box-shadow: 5px 6px 0 var(--archive-line);
 }
 .release-design-board .report-content {
   display: flex;
@@ -1498,11 +1443,6 @@
     font-size: 0.75rem;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .release-design-board .report-main-link:hover {
-    transform: none;
-  }
-}
 
 .release-design-board .archive-hero p,
 .release-design-board .archive-overview > span {
@@ -1536,9 +1476,6 @@
 .release-design-board .report-open {
   color: var(--archive-accent);
 }
-.release-design-board .report-main-link:hover .report-open {
-  color: var(--foreground);
-}
 
 .release-design-board .archive-days > .release-day:last-child {
   padding-bottom: 0;
@@ -1557,12 +1494,7 @@
     transform 150ms,
     box-shadow 150ms;
 }
-.release-design-board .report-card:hover {
-  transform: translate(-1px, -2px);
-  box-shadow: 5px 6px 0 var(--archive-line);
-}
-.release-design-board .report-main-link,
-.release-design-board .report-main-link:hover {
+.release-design-board .report-main-link {
   position: relative;
   flex: 1;
   height: auto;
@@ -1570,9 +1502,6 @@
   border-radius: 3px 3px 0 0;
   box-shadow: none;
   transform: none;
-}
-.release-design-board .report-main-link:focus-visible {
-  outline-offset: -3px;
 }
 .report-card-footer {
   display: flex;
@@ -1605,10 +1534,6 @@
   font-weight: 550;
   overflow-wrap: anywhere;
 }
-.report-submitter a:hover {
-  color: var(--archive-accent);
-  text-decoration: underline;
-}
 .release-design-board .report-card-footer .report-open {
   width: auto;
   flex-shrink: 0;
@@ -1617,10 +1542,6 @@
   margin: 0;
   gap: 8px;
   font-size: 0.8125rem;
-}
-.release-design-board .report-card-footer .report-open:hover {
-  color: var(--foreground);
-  text-decoration: underline;
 }
 @media (max-width: 1000px) {
   .report-card-footer {
@@ -1637,11 +1558,6 @@
 @media (max-width: 540px) {
   .report-card-footer {
     margin-inline: 19px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .release-design-board .report-card:hover {
-    transform: none;
   }
 }
 

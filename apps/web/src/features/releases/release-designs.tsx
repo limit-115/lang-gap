@@ -6,9 +6,7 @@ import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import {
   ArrowDown,
-  ArrowRight,
   ArrowUp,
-  ArrowUpRight,
   BookOpen,
   Check,
   ChevronRight,
@@ -24,9 +22,9 @@ import {
   SlidersHorizontal,
   UserRound,
 } from "lucide-react";
-import { Link } from "@/i18n/navigation";
+import { LinkSurface, TextLink } from "@/shared/links/link";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
 import {
   Select,
   SelectContent,
@@ -109,7 +107,11 @@ export function ReleaseDesigns({
     const time = publicationTime.format(new Date(release.createdAt));
     return (
       <article className={`report-card report-tone-${index % 4}`}>
-        <Link className="report-main-link" href={`/releases/${release.id}`} title={release.id}>
+        <LinkSurface
+          className="report-main-link"
+          href={`/releases/${release.id}`}
+          title={release.id}
+        >
           <span className="report-icon">
             <FileText aria-hidden="true" />
           </span>
@@ -143,10 +145,9 @@ export function ReleaseDesigns({
           {design !== "board" && (
             <span className="report-open">
               <span>{t("openReport")}</span>
-              <ArrowUpRight aria-hidden="true" />
             </span>
           )}
-        </Link>
+        </LinkSurface>
         {design === "board" && (
           <footer className="report-card-footer">
             <div className="report-submitter">
@@ -154,12 +155,12 @@ export function ReleaseDesigns({
               {submitter ? (
                 <span>
                   {t("submittedBy")}{" "}
-                  <a
+                  <TextLink
                     href={`https://github.com/${submitter.githubUsername}`}
                     title={`@${submitter.githubUsername}`}
                   >
                     {submitter.fullName}
-                  </a>{" "}
+                  </TextLink>{" "}
                   <time className="report-submitted-time" dateTime={release.createdAt}>
                     {t("submittedAt", { time })}
                   </time>
@@ -173,14 +174,15 @@ export function ReleaseDesigns({
                 </span>
               )}
             </div>
-            <Link
+            <TextLink
+              layout="standalone"
+              direction="forward"
               className="report-open"
               href={`/releases/${release.id}`}
               aria-label={t("openNamedReport", { title: title(release) })}
             >
               <span>{t("openReport")}</span>
-              <ArrowUpRight aria-hidden="true" />
-            </Link>
+            </TextLink>
           </footer>
         )}
       </article>
@@ -189,16 +191,13 @@ export function ReleaseDesigns({
 
   const controls = (
     <div className="archive-controls">
-      <div className="archive-search">
-        <Search aria-hidden="true" />
-        <Input
-          type="search"
-          aria-label={t("search")}
-          placeholder={t("search")}
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-        />
-      </div>
+      <SearchInput
+        className="archive-search"
+        label={t("search")}
+        clearLabel={t("clearSearch")}
+        value={query}
+        onValueChange={setQuery}
+      />
       <Select
         value={dataset}
         onValueChange={(value) => setDataset(value ?? "all")}
@@ -281,20 +280,24 @@ export function ReleaseDesigns({
           <span>{t("chooseDesign")}</span>
           <div>
             {designs.map(({ id, icon: Icon }) => (
-              <Link
+              <LinkSurface
                 href={`/releases?design=${id}`}
                 key={id}
                 aria-current={design === id ? "page" : undefined}
               >
                 <Icon aria-hidden="true" />
                 {t(id)}
-              </Link>
+              </LinkSurface>
             ))}
           </div>
-          <Link className="design-original" href="/releases?design=original">
+          <TextLink
+            layout="standalone"
+            direction="forward"
+            className="design-original"
+            href="/releases?design=original"
+          >
             {t("original")}
-            <ArrowUpRight aria-hidden="true" />
-          </Link>
+          </TextLink>
         </nav>
       )}
 
@@ -317,26 +320,26 @@ export function ReleaseDesigns({
             </div>
             <div className="window-path">
               <FolderOpen aria-hidden="true" />
-              <span>Llang Gap</span>
+              <span>Lang Gap</span>
               <ChevronRight aria-hidden="true" />
               <strong>{t("releaseHistory")}</strong>
               <span className="path-count">{t("reportCount", { count: releases.length })}</span>
             </div>
             <div className="window-body">
               <aside className="archive-sidebar">
-                <a className="sidebar-all" href="#archive-results" onClick={reset}>
+                <LinkSurface className="sidebar-all" href="#archive-results" onClick={reset}>
                   <FolderOpen aria-hidden="true" />
                   {t("allReports")}
                   <span>{releases.length}</span>
-                </a>
+                </LinkSurface>
                 <p className="sidebar-label">{t("publishedOn")}</p>
                 <nav aria-label={t("jumpToDate")}>
                   {allGroups.map(({ day, reports }) => (
-                    <a key={day} href={`#day-${day}`} onClick={reset}>
+                    <LinkSurface key={day} href={`#day-${day}`} onClick={reset}>
                       <Folder aria-hidden="true" />
                       <span>{date(day)}</span>
                       <small>{reports.length}</small>
-                    </a>
+                    </LinkSurface>
                   ))}
                 </nav>
                 <div className="sidebar-note">
@@ -349,10 +352,9 @@ export function ReleaseDesigns({
                   />
                   <h2>{t("evidenceTitle")}</h2>
                   <p>{t("evidenceShort")}</p>
-                  <Link href="/methodology">
+                  <TextLink layout="standalone" direction="forward" href="/methodology">
                     {t("howItWorks")}
-                    <ArrowUpRight aria-hidden="true" />
-                  </Link>
+                  </TextLink>
                 </div>
               </aside>
               <div className="window-content" id="archive-results">
@@ -376,10 +378,9 @@ export function ReleaseDesigns({
           <div className="desktop-footnote">
             <FlaskConical aria-hidden="true" />
             <p>{t("desktopFootnote")}</p>
-            <Link href="/run">
+            <TextLink layout="standalone" direction="forward" href="/run">
               {t("buildRun")}
-              <ArrowRight aria-hidden="true" />
-            </Link>
+            </TextLink>
           </div>
         </>
       ) : (
@@ -400,10 +401,9 @@ export function ReleaseDesigns({
                   <Globe2 aria-hidden="true" />
                   {t("languageCount", { count: languages.length })}
                 </span>
-                <Link href="/methodology">
+                <TextLink layout="standalone" direction="forward" href="/methodology">
                   {t("howWeTest")}
-                  <ArrowUpRight aria-hidden="true" />
-                </Link>
+                </TextLink>
               </div>
             </div>
             <div className="archive-hero-art" aria-hidden="true">
@@ -443,10 +443,9 @@ export function ReleaseDesigns({
               <h2>{t("evidenceTitle")}</h2>
               <p>{t("evidenceIntro")}</p>
             </div>
-            <Link href="/methodology">
+            <TextLink layout="standalone" direction="forward" href="/methodology">
               {t("checkMethodology")}
-              <ArrowUpRight aria-hidden="true" />
-            </Link>
+            </TextLink>
           </aside>
         </>
       )}
