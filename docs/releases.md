@@ -26,3 +26,16 @@ Large input/response exports stay outside Git; raw SDK bodies stay private. Hash
 but do not prove a hosted model produced a response. Preserve source attribution with downloads.
 The website reads verified public aggregates only; runner state and model execution stay outside it.
 See [summary interpretation](model-guide.md) and [public URL checks](search-discovery.md).
+
+## Submitter attribution
+
+When staging a release, record its submitter in [results/submissions.json](../results/submissions.json),
+keyed by the published release ID. Each entry contains the contributor's confirmed `fullName`
+and `githubUsername`. The report board shows the full name and links to that GitHub profile.
+Confirm attribution with the contributor; a release publisher, commit author, or automation account
+is not necessarily the person who submitted the experiment.
+
+This optional, versioned publication metadata is kept outside immutable release directories.
+A missing entry is shown as “Submitter not recorded”; the website does not infer a person or call
+GitHub to fill it in. Attribution corrections update this file without rewriting or rehashing
+benchmark manifests, aggregates, or downloads.

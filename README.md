@@ -155,6 +155,11 @@ pnpm check
 pnpm dev
 ```
 
+In the local development server, `/en/releases/` opens the Report Board concept. Use `?design=journal`, `?design=desktop`, or `?design=board` to open one
+directly, and `?design=original` to compare the existing page. The concepts group
+published releases by UTC day and use the existing site theme. Production builds
+keep the original archive while the local archive design is being reviewed.
+
 Vitest uses synthetic fixtures and intercepted SDK transports. It never contacts
 model APIs. Format and lint use **oxfmt + type-aware oxlint**.
 

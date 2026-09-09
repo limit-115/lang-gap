@@ -395,6 +395,18 @@ export const releaseManifestSchema = z
   );
 export type ReleaseManifest = z.infer<typeof releaseManifestSchema>;
 
+// Human attribution is publication metadata, separate from immutable benchmark evidence.
+export const releaseSubmitterSchema = z.strictObject({
+  githubUsername: z.string().regex(/^[a-z\d](?:[a-z\d-]*[a-z\d])?$/i),
+  fullName: z.string().trim().min(1),
+});
+export type ReleaseSubmitter = z.infer<typeof releaseSubmitterSchema>;
+export const releaseSubmissionsSchema = z.strictObject({
+  schemaVersion: z.literal(1),
+  releases: z.record(safeIdSchema, releaseSubmitterSchema),
+});
+export type ReleaseSubmissions = z.infer<typeof releaseSubmissionsSchema>;
+
 // Analysis settings are saved separately from immutable execution inputs.
 export const releaseAnalysisSchema = z.strictObject({
   schemaVersion: z.literal(1),
