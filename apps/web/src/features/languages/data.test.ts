@@ -124,6 +124,25 @@ describe("published language results", () => {
     expect(rankedModels(data.models, "sw", "fixture-a")[0]?.model.profile?.effort).toBe("low");
   });
 
+  it("assigns consecutive shared places across tied score groups", () => {
+    const values = [72, 96, 92, 96 + 1e-12, 88, 92, 96, 92, 88, 92, 88];
+    const data = languageData(
+      snapshot(
+        values.map((value, index) => ({
+          ...model([score("sw", value)]),
+          id: `fake/example-${index}`,
+          reference: { transport: "fake", model: `example-${index}` },
+          profile: { ...profile, model: `example-${index}` },
+        })),
+      ),
+    );
+    for (const dataset of [undefined, "fixture-a"]) {
+      expect(rankedModels(data.models, "sw", dataset).map((row) => row.rank)).toEqual([
+        1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4,
+      ]);
+    }
+  });
+
   it("supports a single non-default language and empty publication", () => {
     const single = { ...snapshot([model([score("sw", 0)])]), languages: ["sw"] };
     const data = languageData(single);
