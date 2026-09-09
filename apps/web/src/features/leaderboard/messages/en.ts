@@ -14,6 +14,7 @@ export default {
     "Language score minus English score in percentage points. A descriptive score difference, not a significance test.",
   selectAllLanguages: "Select all",
   clearAllLanguages: "Clear all",
+  clearModelSearch: "Clear model search",
   clearLanguageSearch: "Clear language search",
   noMatchingLanguages: "No languages match your search",
   searchLanguages: "Find a language…",

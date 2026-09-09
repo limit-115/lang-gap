@@ -17,6 +17,7 @@ export default {
     "Оценка языка минус оценка английского в процентных пунктах. Описательная разница оценок, а не проверка значимости.",
   selectAllLanguages: "Выбрать все",
   clearAllLanguages: "Сбросить все",
+  clearModelSearch: "Очистить поиск моделей",
   clearLanguageSearch: "Очистить поиск языков",
   noMatchingLanguages: "Нет языков по вашему запросу",
   searchLanguages: "Найти язык…",

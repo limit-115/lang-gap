@@ -15,7 +15,6 @@
   max-width: 620px;
 }
 .finder {
-  --finder-border: color-mix(in srgb, var(--foreground) 18%, var(--background));
   min-width: 0;
   padding-top: 4px;
   color: var(--foreground);
@@ -37,77 +36,6 @@
 }
 .finder[data-compact="true"] .controls {
   margin-top: 0;
-}
-.searchField {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  min-width: 0;
-  height: 48px;
-  padding-inline: 14px;
-  border: 1px solid var(--finder-border);
-  border-radius: 8px;
-  background: var(--background);
-  font-size: 0.875rem;
-  text-align: left;
-  transition:
-    border-color 150ms,
-    background-color 150ms;
-}
-.searchField:hover {
-  border-color: var(--muted-foreground);
-}
-.searchField:focus-within {
-  border-color: var(--foreground);
-  outline: 3px solid color-mix(in srgb, var(--foreground) 8%, transparent);
-  outline-offset: 2px;
-}
-.searchField {
-  padding-right: 4px;
-}
-.searchToggle {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  flex-shrink: 0;
-  border-radius: 5px;
-  color: var(--muted-foreground);
-}
-.searchToggle:hover {
-  color: var(--foreground);
-  background: var(--accent);
-}
-.searchToggle svg {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-  color: var(--muted-foreground);
-}
-.searchToggle:focus-visible {
-  outline: 2px solid var(--foreground);
-  outline-offset: 4px;
-}
-.searchIcon {
-  width: 17px;
-  height: 17px;
-  flex-shrink: 0;
-  stroke-width: 1.75;
-  color: var(--muted-foreground);
-}
-.input {
-  width: 100%;
-  min-width: 0;
-  height: 46px;
-  background: transparent;
-  outline: none;
-  font-size: 0.875rem;
-  color: var(--foreground);
-}
-.input::placeholder {
-  color: var(--muted-foreground);
-  opacity: 1;
 }
 .positioner {
   z-index: 50;
@@ -212,17 +140,6 @@
     padding-top: 0;
   }
 }
-@media (max-width: 480px) {
-  .input {
-    font-size: 1rem;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .searchField {
-    transition: none;
-  }
-}
-
 .finders {
   display: grid;
   gap: 28px;

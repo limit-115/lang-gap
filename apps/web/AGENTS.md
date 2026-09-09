@@ -20,4 +20,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Use shadcn/ui, initialized with preset `b2pjsub2m` and `--pointer`.
 - Use Inter for interface text and JetBrains Mono for monospace content.
 - Keep the design clean and precise, with readable text and consistent spacing.
+- Use `SearchInput` for list/table filters and `SearchComboboxInput` within Base UI
+  comboboxes for navigation finders. Both live in `src/components/ui/search-input.tsx`
+  and share field styling: 36px for filters, 48px for finders. Keep page-specific
+  layout outside these controls; change their appearance and clearing behavior in
+  the shared component rather than adding feature-level input overrides.
 - Do not add eyebrow labels, decorative letter spacing, or section prefixes such as `01 /`.
