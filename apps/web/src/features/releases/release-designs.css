@@ -1503,6 +1503,20 @@
   box-shadow: none;
   transform: none;
 }
+/* Preserve the approved board lift instead of tinting only the linked card body. */
+.release-design-board .report-card:hover {
+  transform: translate(-1px, -2px);
+  box-shadow: 5px 6px 0 var(--archive-line);
+}
+.release-design-board .report-card .report-main-link[data-surface="card"]:hover,
+.release-design-board .report-card .report-main-link[data-surface="card"]:focus-visible {
+  background: var(--card);
+}
+@media (prefers-reduced-motion: reduce) {
+  .release-design-board .report-card:hover {
+    transform: none;
+  }
+}
 .report-card-footer {
   display: flex;
   align-items: center;
