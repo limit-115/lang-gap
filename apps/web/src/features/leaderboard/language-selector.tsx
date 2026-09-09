@@ -1,5 +1,7 @@
 "use client";
 
+import { languageLabel } from "@/shared/language-label";
+
 import { useState } from "react";
 import { ChevronDown, Languages, LockKeyhole } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -27,14 +29,13 @@ export function LanguageSelector({
   const t = useTranslations("Leaderboard");
   const [search, setSearch] = useState("");
   const available = withEnglishFirst(languages);
-  const names = new Intl.DisplayNames([locale], { type: "language" });
-  const english = names.of("en") ?? "en";
+  const english = languageLabel("en", locale);
   const query = search.trim().toLocaleLowerCase(locale);
   const matches = (language: string, label: string) =>
     `${label} ${language}`.toLocaleLowerCase(locale).includes(query);
   const options = available
     .filter((language) => language !== "en")
-    .map((language) => ({ language, label: names.of(language) ?? language }))
+    .map((language) => ({ language, label: languageLabel(language, locale) }))
     .filter(({ language, label }) => matches(language, label));
 
   function toggleLanguage(language: string, checked: boolean) {
