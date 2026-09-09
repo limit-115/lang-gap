@@ -26,3 +26,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   layout outside these controls; change their appearance and clearing behavior in
   the shared component rather than adding feature-level input overrides.
 - Do not add eyebrow labels, decorative letter spacing, or section prefixes such as `01 /`.
+
+## Link consistency
+
+Follow [website link conventions](../../docs/web-links.md). Use the shared link
+components for navigation and the development-only `/en/design/links` examples
+when reviewing interaction states. Do not add feature-specific link styles or
+manual external-link indicators.

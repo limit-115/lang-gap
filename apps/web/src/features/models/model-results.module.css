@@ -192,18 +192,8 @@
   background: var(--model-wash);
 }
 .language {
-  border-radius: 3px;
-  text-underline-offset: 3px;
   font-size: 14px;
   line-height: 1.4;
-}
-.language:hover > span,
-.language:focus-visible > span {
-  text-decoration: underline;
-}
-.language:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 3px;
 }
 .language small {
   display: block;
@@ -270,19 +260,6 @@
 }
 .sources > span {
   color: var(--model-muted);
-}
-.sources a {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 40px;
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  background: var(--background);
-  padding: 8px 12px;
-}
-.sources a:hover {
-  background: var(--muted);
 }
 @media (max-width: 760px) {
   .page {

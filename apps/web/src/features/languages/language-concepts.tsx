@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, type CSSProperties } from "react";
-import { ArrowDown, ArrowRight, ArrowUpRight, BookOpen, Check, Globe2, Info } from "lucide-react";
+import { ArrowDown, ArrowRight, BookOpen, Check, Globe2, Info } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { LinkSurface, TextLink } from "@/shared/links/link";
+import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/search-input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { LanguageFinder } from "@/features/leaderboard/language-finder";
@@ -42,7 +42,7 @@ function Identity({ model, compact = false }: { model: LanguageModel; compact?: 
         <ModelOwnerLogo ownerId={model.owner} size={compact ? 20 : 24} />
       </span>
       <span>
-        <strong>{model.name}</strong>
+        <strong data-link-label>{model.name}</strong>
         <small>
           {!compact && `${model.developer} · `}
           {t("effort", { effort: model.profile?.effort ?? "unknown" })}
@@ -145,9 +145,9 @@ export function LanguageConcepts({
         <Shortlist {...context} href={href} />
       ) : (
         <>
-          <Link className={styles.compareLink} href={href("shortlist")}>
+          <TextLink layout="standalone" direction="back" href={href("shortlist")}>
             {t("backToLanguage", { language: name })}
-          </Link>
+          </TextLink>
           <Comparison {...context} />
         </>
       )}
@@ -159,10 +159,9 @@ export function LanguageConcepts({
             <p>{t("evidenceBody")}</p>
           </div>
         </div>
-        <Link href="/releases">
+        <TextLink href="/releases" layout="standalone">
           {t("evidenceLink")}
-          <ArrowUpRight size={16} aria-hidden="true" />
-        </Link>
+        </TextLink>
       </footer>
     </article>
   );
@@ -210,9 +209,9 @@ function Shortlist({
             <span className={styles.liveDot} />
             {t(jointTop > 1 ? "jointHighest" : "highest")}
           </div>
-          <Link className={styles.modelButton} href={modelHref(first.model)}>
+          <TextLink layout="data" className={styles.modelIdentity} href={modelHref(first.model)}>
             <Identity model={first.model} />
-          </Link>
+          </TextLink>
           <div className={styles.heroScore}>
             {number(first.score)}
             <span>%</span>
@@ -224,20 +223,13 @@ function Shortlist({
                 ? t("pointsAhead", { points: number(scoreDifference(first.score, second.score)) })
                 : t("correct")}
           </p>
-          <Link
-            href={modelHref(first.model)}
-            className={`${buttonVariants()} ${styles.winnerButton}`}
-          >
-            {t("viewModel")}
-            <ArrowRight aria-hidden="true" />
-          </Link>
         </section>
         {second && (
           <section className={styles.pick}>
             <div className={styles.cardLabel}>{t("closest")}</div>
-            <Link className={styles.modelButton} href={modelHref(second.model)}>
+            <TextLink layout="data" className={styles.modelIdentity} href={modelHref(second.model)}>
               <Identity model={second.model} />
-            </Link>
+            </TextLink>
             <div className={styles.pickScore}>
               {number(second.score)}
               <span>%</span>
@@ -247,13 +239,6 @@ function Shortlist({
                 ? t("sameTop")
                 : t("behind", { points: number(scoreDifference(first.score, second.score)) })}
             </p>
-            <Link
-              href={modelHref(second.model)}
-              className={`${buttonVariants({ variant: "ghost" })} ${styles.pickButton}`}
-            >
-              {t("viewModel")}
-              <ArrowRight aria-hidden="true" />
-            </Link>
           </section>
         )}
         <section className={`${styles.pick} ${styles.rangeCard}`}>
@@ -289,10 +274,9 @@ function Shortlist({
             <h2>{t("ranking")}</h2>
             <p>{t("rankingIntro")}</p>
           </div>
-          <Link className={styles.compareLink} href={href("compare")}>
+          <TextLink layout="standalone" direction="forward" href={href("compare")}>
             {t("compareCta")}
-            <ArrowUpRight size={15} aria-hidden="true" />
-          </Link>
+          </TextLink>
         </div>
         {datasets.length > 1 && (
           <fieldset className={styles.testTabs}>
@@ -352,16 +336,16 @@ function Shortlist({
                   <tr key={model.key} data-leading={scoreDifference(score, top) === 0}>
                     <td>{rank}</td>
                     <td>
-                      <Link className={styles.modelButton} href={modelHref(model)}>
+                      <TextLink
+                        layout="data"
+                        className={styles.modelIdentity}
+                        href={modelHref(model)}
+                      >
                         <Identity model={model} compact />
-                      </Link>
+                      </TextLink>
                     </td>
                     <td>
-                      <Link
-                        className={styles.scoreCell}
-                        href={modelHref(model)}
-                        aria-label={t("view", { model: model.name })}
-                      >
+                      <div className={styles.scoreCell}>
                         <AccuracyBar
                           value={score}
                           color={
@@ -373,7 +357,7 @@ function Shortlist({
                           {number(score)}
                           <span>%</span>
                         </strong>
-                      </Link>
+                      </div>
                     </td>
                     <td>
                       <span className={styles.difference} data-negative={difference < 0}>
@@ -469,7 +453,7 @@ function Comparison({
           style={{ "--selected-count": models.length } as CSSProperties}
         >
           {models.map((model) => (
-            <Link
+            <LinkSurface
               className={styles.comparisonCard}
               style={{ "--model-color": model.color } as CSSProperties}
               key={model.key}
@@ -478,7 +462,7 @@ function Comparison({
             >
               <span className={styles.cardModel}>
                 <ModelOwnerLogo ownerId={model.owner} size={22} />
-                <ArrowUpRight size={16} />
+                <ArrowRight size={16} aria-hidden="true" />
               </span>
               <strong>{model.name}</strong>
               <span className={styles.muted}>
@@ -489,7 +473,7 @@ function Comparison({
                 <small>%</small>
               </span>
               <span className={styles.muted}>{t("correct")}</span>
-            </Link>
+            </LinkSurface>
           ))}
         </div>
         <section className={styles.chartPanel}>
@@ -524,14 +508,15 @@ function Comparison({
                       return (
                         <div key={model.key} className={styles.columnSlot}>
                           {score !== null && (
-                            <Link
+                            <LinkSurface
+                              kind="chart"
                               className={styles.column}
                               style={{ height: `${score}%`, background: model.color }}
                               href={modelHref(model)}
                               aria-label={`${model.name} · ${dataset}: ${number(score)}%`}
                             >
                               <span>{number(score)}</span>
-                            </Link>
+                            </LinkSurface>
                           )}
                         </div>
                       );

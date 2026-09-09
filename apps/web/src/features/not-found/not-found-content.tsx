@@ -1,7 +1,4 @@
-import { cn } from "cn";
-import { ArrowRight } from "lucide-react";
-import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
+import { ButtonLink } from "@/shared/links/link";
 import { getMessagesForLocale } from "@/i18n/messages";
 import type { Locale } from "@/i18n/routing";
 
@@ -15,17 +12,9 @@ export function NotFoundContent({ locale }: { locale: Locale }) {
       <p className="mt-5 max-w-md whitespace-pre-line text-base leading-7 text-muted-foreground sm:text-lg">
         {messages.description}
       </p>
-      <Link
-        href={`/${locale}/`}
-        data-slot="button"
-        className={cn(
-          buttonVariants({ size: "lg" }),
-          "mt-8 h-12 gap-3 rounded-xl bg-foreground px-6 text-base font-semibold text-background hover:bg-foreground/85 motion-reduce:transition-none",
-        )}
-      >
+      <ButtonLink href="/" locale={locale} size="lg" direction="forward" className="mt-8">
         {messages.compareModels}
-        <ArrowRight aria-hidden="true" className="size-4" />
-      </Link>
+      </ButtonLink>
     </section>
   );
 }
