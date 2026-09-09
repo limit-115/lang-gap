@@ -1,11 +1,10 @@
+import { languageLabel } from "@/shared/language-label";
 export function getLanguageOptions(languages: readonly string[], locale: string) {
-  const names = new Intl.DisplayNames([locale], { type: "language" });
-  const englishNames = new Intl.DisplayNames(["en"], { type: "language" });
   return [...new Set(languages)]
     .map((value) => ({
       value,
-      label: names.of(value) ?? value,
-      englishName: englishNames.of(value) ?? value,
+      label: languageLabel(value, locale),
+      englishName: languageLabel(value, "en"),
     }))
     .sort((a, b) => a.label.localeCompare(b.label, locale) || a.value.localeCompare(b.value));
 }

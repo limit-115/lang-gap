@@ -1,3 +1,4 @@
+import { languageLabel } from "@/shared/language-label";
 import { ArrowLeft, BookOpen } from "lucide-react";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -63,8 +64,7 @@ export default async function ReleasePage({ params }: Props) {
   const date = new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(
     new Date(release.createdAt),
   );
-  const languageName = (language: string) =>
-    new Intl.DisplayNames([locale], { type: "language" }).of(language) ?? language;
+  const languageName = (language: string) => languageLabel(language, locale);
   const percent = (n: number) =>
     new Intl.NumberFormat(locale, {
       style: "percent",

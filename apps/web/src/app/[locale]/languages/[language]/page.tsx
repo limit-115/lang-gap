@@ -1,3 +1,4 @@
+import { languageLabel } from "@/shared/language-label";
 import type { Metadata } from "next";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -8,14 +9,6 @@ import { pageMetadata } from "@/shared/metadata";
 import { routing } from "@/i18n/routing";
 import { getMessagesForLocale } from "@/i18n/messages";
 import { LanguageConcepts } from "@/features/languages/language-concepts";
-
-function languageLabel(language: string, locale: string) {
-  try {
-    return new Intl.DisplayNames([locale], { type: "language" }).of(language) ?? language;
-  } catch {
-    return language;
-  }
-}
 
 export async function generateMetadata({
   params,

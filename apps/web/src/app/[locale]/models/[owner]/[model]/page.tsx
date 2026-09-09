@@ -1,3 +1,4 @@
+import { languageLabel } from "@/shared/language-label";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -76,13 +77,12 @@ export default async function ModelPage({ params, searchParams }: Props) {
     effort: typeof query.effort === "string" ? query.effort : undefined,
   });
   // Browser ICU support varies for native names. Keep SSR and hydration identical.
-  const names = new Intl.DisplayNames([locale], { type: "language" });
   const languageNames = Object.fromEntries(
     (selected?.scores ?? []).map(({ language }) => [
       language,
       {
-        local: names.of(language) ?? language,
-        native: new Intl.DisplayNames([language], { type: "language" }).of(language) ?? language,
+        local: languageLabel(language, locale),
+        native: languageLabel(language, language),
       },
     ]),
   );

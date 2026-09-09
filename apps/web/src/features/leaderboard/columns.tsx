@@ -1,5 +1,7 @@
 "use client";
 
+import { languageLabel } from "@/shared/language-label";
+
 import { useMemo } from "react";
 import { createColumnHelper, type Column } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ArrowUpDown, Link2 } from "lucide-react";
@@ -131,9 +133,7 @@ export function useLeaderboardColumns(languages: readonly string[]) {
               header: ({ column }) => (
                 <ColumnHeader
                   column={column}
-                  title={
-                    new Intl.DisplayNames([locale], { type: "language" }).of(language) ?? language
-                  }
+                  title={languageLabel(language, locale)}
                   numeric
                   language={language}
                 />

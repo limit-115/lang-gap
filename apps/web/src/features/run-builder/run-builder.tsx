@@ -1,5 +1,7 @@
 "use client";
 
+import { languageLabel } from "@/shared/language-label";
+
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import {
@@ -68,7 +70,6 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
   const dataset = datasets.find((entry) => entry.id === settings.dataset);
   const protocol = dataset?.protocols.find((entry) => entry.id === settings.protocol);
   const command = mode === "run" ? result.command : result.plan;
-  const languageNames = new Intl.DisplayNames([locale], { type: "language" });
   const validSections = sectionFields.map(
     (fields, index) =>
       !fields.some((key) => result.errors[key]) &&
@@ -391,7 +392,7 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
             <div className={styles.languageChoices}>
               {dataset.languages
                 .filter(({ tag }) =>
-                  `${languageNames.of(tag)} ${tag}`
+                  `${languageLabel(tag, locale)} ${tag}`
                     .toLocaleLowerCase(locale)
                     .includes(languageSearch.toLocaleLowerCase(locale)),
                 )
@@ -400,7 +401,7 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
                     "languages",
                     tag,
                     <span>
-                      {languageNames.of(tag)}
+                      {languageLabel(tag, locale)}
                       <span className={styles.tag}>{tag}</span>
                     </span>,
                     !protocol?.languages.includes(tag),
@@ -408,7 +409,7 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
                 )}
             </div>
             {!dataset.languages.some(({ tag }) =>
-              `${languageNames.of(tag)} ${tag}`
+              `${languageLabel(tag, locale)} ${tag}`
                 .toLocaleLowerCase(locale)
                 .includes(languageSearch.toLocaleLowerCase(locale)),
             ) && <p className={styles.hint}>{t("noLanguagesFound")}</p>}
@@ -609,7 +610,7 @@ export function RunBuilder({ datasets }: { datasets: RunDataset[] }) {
       value: settings.languages.length
         ? settings.languages.length > 3
           ? t("languageSelectionSummary", { count: settings.languages.length })
-          : settings.languages.map((tag) => languageNames.of(tag)).join(", ")
+          : settings.languages.map((tag) => languageLabel(tag, locale)).join(", ")
         : t("notSelected"),
       index: 0,
     },
