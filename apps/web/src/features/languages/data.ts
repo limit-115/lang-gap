@@ -74,8 +74,14 @@ export function rankedModels(models: readonly LanguageModel[], language: string,
         a.model.name.localeCompare(b.model.name) ||
         a.model.key.localeCompare(b.model.key),
     );
-  return rows.map((row) => ({
-    ...row,
-    rank: rows.findIndex((other) => scoreDifference(other.score, row.score) === 0) + 1,
-  }));
+  let rank = 0;
+  let previousScore: number | undefined;
+  return rows.map((row) => {
+    // Tied scores share a place; the next distinct score gets the next place.
+    if (previousScore === undefined || scoreDifference(previousScore, row.score) !== 0) {
+      rank += 1;
+      previousScore = row.score;
+    }
+    return { ...row, rank };
+  });
 }
